@@ -1,10 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import color from 'color';
 import { ThemeColors } from '@theme/types';
-import { Row } from '@components/Common';
-import { borderColor } from '@theme/colors';
 
 interface PagePaginationControlProps {
   pages: string[];
@@ -23,45 +21,6 @@ const PagePaginationControl: React.FC<PagePaginationControlProps> = ({
 }) => {
   const totalPages = pages.length;
 
-  const pageIndices = useMemo(() => {
-    const indices: (number | 'ellipsis')[] = [];
-
-    if (totalPages <= 3) {
-      for (let i = 0; i < totalPages; i++) {
-        indices.push(i);
-      }
-    } else {
-      // Always show first page if not current
-      if (currentPageIndex !== 0) {
-        indices.push(0);
-      }
-
-      // Show page before current (with ellipsis if there's a gap)
-      const leftPageIndex = currentPageIndex - 1;
-      if (leftPageIndex > 0) {
-        if (leftPageIndex > 1) {
-          indices.push('ellipsis');
-        }
-      }
-
-      // Always show current page
-      indices.push(currentPageIndex);
-
-      // Show ellipsis after current only if there's a gap to last page
-      const rightPageIndex = currentPageIndex + 1;
-      if (rightPageIndex < totalPages - 1) {
-        indices.push('ellipsis');
-      }
-
-      // Always show last page if not current
-      if (currentPageIndex !== totalPages - 1) {
-        indices.push(totalPages - 1);
-      }
-    }
-
-    return indices;
-  }, [currentPageIndex, totalPages]);
-
   const canGoPrevious = currentPageIndex > 0;
   const canGoNext = currentPageIndex < totalPages - 1;
 
@@ -77,115 +36,71 @@ const PagePaginationControl: React.FC<PagePaginationControlProps> = ({
     }
   };
 
-  const handlePagePress = (pageIndex: number) => {
-    if (pageIndex !== currentPageIndex) {
-      onPageChange(pageIndex);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Pressable
-        style={[
-          styles.button,
-          styles.navButton,
-          {
-            borderColor: borderColor,
-            backgroundColor: theme.surface,
-          },
-          !canGoPrevious && styles.disabledButton,
-        ]}
+        style={[styles.navButton, !canGoPrevious && styles.disabledButton]}
         onPress={handlePrevious}
         disabled={!canGoPrevious}
-        android_ripple={{ color: theme.rippleColor }}
+        android_ripple={{
+          color: theme.rippleColor,
+          borderless: true,
+          radius: 24,
+        }}
       >
         <IconButton
           icon="chevron-left"
           iconColor={canGoPrevious ? theme.onSurface : theme.onSurfaceDisabled}
-          size={20}
-          style={styles.iconButton}
+          size={24}
         />
       </Pressable>
 
-      <Row style={styles.pageNumbersRow}>
-        {pageIndices.map((pageIndex, index) => {
-          if (pageIndex === 'ellipsis') {
-            return (
-              <Pressable
-                key={`ellipsis-${index}`}
-                style={[
-                  styles.button,
-                  styles.ellipsisButton,
-                  {
-                    borderColor: borderColor,
-                    backgroundColor: theme.surface,
-                  },
-                ]}
-                onPress={onOpenDrawer}
-                android_ripple={{ color: theme.rippleColor }}
-              >
-                <Text style={[styles.ellipsisText, { color: theme.onSurface }]}>
-                  ...
-                </Text>
-              </Pressable>
-            );
-          }
-
-          const isActive = pageIndex === currentPageIndex;
-          const pageName = pages[pageIndex];
-          return (
-            <Pressable
-              key={`page-${pageIndex}`}
-              style={[
-                styles.button,
-                {
-                  backgroundColor: isActive ? theme.primary : theme.surface,
-                },
-                isActive ? styles.activeButton : styles.inactiveButton,
-              ]}
-              onPress={() => handlePagePress(pageIndex)}
-              android_ripple={{
-                color: isActive
-                  ? color(theme.onPrimary).alpha(0.2).string()
-                  : theme.rippleColor,
-              }}
-            >
-              <Text
-                style={[
-                  styles.pageText,
-                  {
-                    color: isActive ? theme.onPrimary : theme.onSurface,
-                  },
-                  isActive ? styles.activePageText : styles.inactivePageText,
-                ]}
-                numberOfLines={1}
-              >
-                {pageName}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </Row>
-
       <Pressable
         style={[
-          styles.button,
-          styles.navButton,
+          styles.volumeButton,
           {
-            borderColor: borderColor,
-            backgroundColor: theme.surface,
+            backgroundColor: color(theme.primary).alpha(0.12).string(),
+            borderColor: 'transparent',
           },
-          !canGoNext && styles.disabledButton,
         ]}
+        onPress={onOpenDrawer}
+        android_ripple={{
+          color: theme.rippleColor,
+        }}
+      >
+        <Text
+          style={[
+            styles.volumeText,
+            {
+              color: theme.primary,
+            },
+          ]}
+          numberOfLines={1}
+        >
+          {pages[currentPageIndex]}
+        </Text>
+        <IconButton
+          icon="chevron-down"
+          iconColor={theme.primary}
+          size={16}
+          style={styles.dropdownIcon}
+        />
+      </Pressable>
+
+      <Pressable
+        style={[styles.navButton, !canGoNext && styles.disabledButton]}
         onPress={handleNext}
         disabled={!canGoNext}
-        android_ripple={{ color: theme.rippleColor }}
+        android_ripple={{
+          color: theme.rippleColor,
+          borderless: true,
+          radius: 24,
+        }}
       >
         <IconButton
           icon="chevron-right"
           iconColor={canGoNext ? theme.onSurface : theme.onSurfaceDisabled}
-          size={20}
-          style={styles.iconButton}
+          size={24}
         />
       </Pressable>
     </View>
@@ -193,63 +108,44 @@ const PagePaginationControl: React.FC<PagePaginationControlProps> = ({
 };
 
 const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    borderRadius: 8,
-    borderWidth: 1,
-    height: 40,
-    justifyContent: 'center',
-    minWidth: 40,
-    paddingHorizontal: 12,
-  },
   container: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 8,
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     marginBottom: 16,
   },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  ellipsisButton: {
-    borderStyle: 'dashed',
-  },
-  ellipsisText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  iconButton: {
-    margin: 0,
-  },
-  navButton: {
-    paddingHorizontal: 0,
-  },
-  pageNumbersRow: {
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+  volumeButton: {
     flex: 1,
     flexDirection: 'row',
-    flexShrink: 1,
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+    borderWidth: 1,
+    height: 44,
+    marginHorizontal: 8,
+    paddingHorizontal: 16,
   },
-  pageText: {
+  navButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  disabledButton: {
+    opacity: 0.3,
+  },
+  volumeText: {
     fontSize: 15,
-    letterSpacing: 0.15,
-    maxWidth: 80,
-  },
-  activeButton: {
-    borderColor: 'transparent',
-  },
-  inactiveButton: {
-    borderColor: borderColor,
-  },
-  activePageText: {
     fontWeight: '600',
+    textAlign: 'center',
+    flexShrink: 1,
+    marginRight: -4,
   },
-  inactivePageText: {
-    fontWeight: '400',
+  dropdownIcon: {
+    margin: 0,
+    padding: 0,
   },
 });
 
