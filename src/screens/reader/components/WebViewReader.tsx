@@ -453,6 +453,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           <html dir="${readerDir}">
             <head>
               <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+              <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/pageReader.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/toolWrapper.css">
