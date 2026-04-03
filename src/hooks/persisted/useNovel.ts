@@ -74,7 +74,7 @@ export const useNovel = (novelOrPath: string | NovelInfo, pluginId: string) => {
       const tmpPages = Array(novel.totalPages)
         .fill(0)
         .map((_, idx) => String(idx + 1));
-      return tmpPages.length > 1 ? tmpPages : ['1'];
+      return tmpPages.length > 0 ? tmpPages : ['1'];
     }
     return [];
   });
@@ -128,7 +128,7 @@ export const useNovel = (novelOrPath: string | NovelInfo, pluginId: string) => {
         .filter((page): page is string => page !== null);
     }
 
-    return tmpPages.length > 1 ? tmpPages : ['1'];
+    return tmpPages.length > 0 ? tmpPages : ['1'];
   }
 
   const mutateChapters = useCallback(
