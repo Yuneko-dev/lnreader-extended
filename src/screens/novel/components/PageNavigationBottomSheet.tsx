@@ -76,7 +76,7 @@ export default function PageNavigationBottomSheet({
   return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      snapPoints={[Math.min(400, pages.length * 56 + 100)]}
+      snapPoints={[Math.min(400, pages.length * 56 + 12 + insets.bottom)]}
       backgroundStyle={styles.transparent}
     >
       <BottomSheetView
