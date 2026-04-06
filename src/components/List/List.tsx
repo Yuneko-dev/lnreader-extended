@@ -57,7 +57,7 @@ const Item: React.FC<ListItemProps> = ({
         />
       );
     }
-  }, [icon, theme.onSurfaceVariant]);
+  }, [icon, theme.primary]);
   const rightIcon = useCallback(() => {
     if (right) {
       return (
@@ -68,7 +68,7 @@ const Item: React.FC<ListItemProps> = ({
         />
       );
     }
-  }, [right, theme.onSurfaceVariant]);
+  }, [right, theme.primary]);
   return (
     <PaperList.Item
       title={title}

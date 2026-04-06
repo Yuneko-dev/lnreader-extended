@@ -1,7 +1,12 @@
-declare module '@env' {
-  export const MYANIMELIST_CLIENT_ID: string;
-  export const ANILIST_CLIENT_ID: string;
-  export const GIT_HASH: string;
-  export const RELEASE_DATE: string;
-  export const BUILD_TYPE: 'Debug' | 'Release' | 'Beta' | 'Github Action';
+declare module 'react-native-config' {
+  export interface NativeConfig {
+    MYANIMELIST_CLIENT_ID: string;
+    ANILIST_CLIENT_ID: string;
+    GIT_HASH: string;
+    RELEASE_DATE: string;
+    BUILD_TYPE: 'Debug' | 'Release' | 'Beta' | 'Github Action';
+  }
+
+  export const Config: NativeConfig;
+  export default Config;
 }

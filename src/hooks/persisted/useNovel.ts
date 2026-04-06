@@ -277,14 +277,15 @@ export const useNovel = (novelOrPath: string | NovelInfo, pluginId: string) => {
       setFirstUnreadChapter(unread ?? undefined);
     }
   }, [
-    novel,
-    novelPath,
-    settingsFilter,
-    pageIndex,
     pages,
-    pluginId,
-    setChapters,
+    pageIndex,
+    novel,
     settingsSort,
+    settingsFilter,
+    setChapters,
+    novelSettings.filter,
+    pluginId,
+    novelPath,
   ]);
 
   const getNextChapterBatch = useCallback(async () => {
@@ -582,7 +583,7 @@ export const useNovel = (novelOrPath: string | NovelInfo, pluginId: string) => {
           // getNovel();
         });
     }
-  }, [getNovel, novel]);
+  }, [getNovel, novel, pages.length]);
 
   useEffect(() => {
     if (novel === undefined || pages.length === 0) {
@@ -599,7 +600,7 @@ export const useNovel = (novelOrPath: string | NovelInfo, pluginId: string) => {
       .finally(() => {
         setFetching(false);
       });
-  }, [getChapters, novel, novelOrPath]);
+  }, [getChapters, novel, novelOrPath, pages.length]);
 
   // #endregion
 
@@ -675,14 +676,14 @@ export const useNovel = (novelOrPath: string | NovelInfo, pluginId: string) => {
 export const deleteCachedNovels = async () => {
   const cachedNovels = await _getCachedNovels();
   for (const novel of cachedNovels) {
-    MMKVStorage.delete(`${TRACKED_NOVEL_PREFIX}_${novel.id}`);
-    MMKVStorage.delete(
+    MMKVStorage.remove(`${TRACKED_NOVEL_PREFIX}_${novel.id}`);
+    MMKVStorage.remove(
       `${NOVEL_PAGE_INDEX_PREFIX}_${novel.pluginId}_${novel.path}`,
     );
-    MMKVStorage.delete(
+    MMKVStorage.remove(
       `${NOVEL_SETTINGS_PREFIX}_${novel.pluginId}_${novel.path}`,
     );
-    MMKVStorage.delete(`${LAST_READ_PREFIX}_${novel.pluginId}_${novel.path}`);
+    MMKVStorage.remove(`${LAST_READ_PREFIX}_${novel.pluginId}_${novel.path}`);
     const novelDir = NOVEL_STORAGE + '/' + novel.pluginId + '/' + novel.id;
     if (NativeFile.exists(novelDir)) {
       NativeFile.unlink(novelDir);

@@ -93,3 +93,4 @@ flake.lock
 .agents/
 .claude/
 .jj/
+.sisyphus/

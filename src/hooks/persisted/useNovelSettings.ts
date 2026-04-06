@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { useMMKVObject } from 'react-native-mmkv';
 import {
   ChapterFilterKey,

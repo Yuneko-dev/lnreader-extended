@@ -93,6 +93,11 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
     [theme.rippleColor],
   );
 
+  const releaseTimeStyle = {
+    color: theme.outline,
+    marginStart: chapter.releaseTime ? 5 : 0,
+  } as const;
+
   return (
     <View key={'chapterItem' + id}>
       <Pressable
@@ -145,7 +150,7 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
             <View style={styles.metaRow}>
               {releaseTime && !isUpdateCard ? (
                 <Text
-                  style={[{ color: releaseColor, marginTop: 4 }, styles.text]}
+                  style={[{ color: releaseColor }, styles.mt4, styles.text]}
                   numberOfLines={1}
                 >
                   {releaseTime}
@@ -153,14 +158,7 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
               ) : null}
               {!isUpdateCard && progress && progress > 0 && chapter.unread ? (
                 <Text
-                  style={[
-                    styles.text,
-                    {
-                      color: theme.outline,
-                      marginStart: chapter.releaseTime ? 5 : 0,
-                      marginTop: 4,
-                    },
-                  ]}
+                  style={[styles.text, styles.mt4, releaseTimeStyle]}
                   numberOfLines={1}
                 >
                   {chapter.releaseTime ? '•  ' : null}
@@ -225,5 +223,8 @@ const styles = StyleSheet.create({
   },
   updateCardName: {
     fontSize: 14,
+  },
+  mt4: {
+    marginTop: 4,
   },
 });

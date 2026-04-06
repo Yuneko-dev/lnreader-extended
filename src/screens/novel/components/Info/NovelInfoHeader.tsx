@@ -181,12 +181,16 @@ const NovelDetailsSkeleton = ({ theme }: { theme: ThemeColors }) => {
   return (
     <>
       <Row style={styles.infoRow}>
-        <View style={[styles.infoSkeletonBar, { backgroundColor, width: 130 }]}>
+        <View
+          style={[styles.infoSkeletonBar, styles.w130, { backgroundColor }]}
+        >
           {shimmer}
         </View>
       </Row>
       <Row style={styles.infoRow}>
-        <View style={[styles.infoSkeletonBar, { backgroundColor, width: 180 }]}>
+        <View
+          style={[styles.infoSkeletonBar, styles.w180, { backgroundColor }]}
+        >
           {shimmer}
         </View>
       </Row>
@@ -511,5 +515,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     transform: [{ translateX: '-100%' }],
     width: '60%',
+  },
+  w130: {
+    width: 130,
+  },
+  w180: {
+    width: 180,
   },
 });

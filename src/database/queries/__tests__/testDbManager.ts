@@ -6,7 +6,7 @@
 import type { IDbManager } from '@database/manager/manager.d';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
-import { Placeholder, sql } from 'drizzle-orm';
+import { Placeholder, sql as drizzleSql } from 'drizzle-orm';
 import { SQLitePreparedQuery } from 'drizzle-orm/sqlite-core';
 
 interface ExecutableSelect<TResult = any> {
@@ -108,7 +108,7 @@ export function createTestDbManager(
         ph: (arg: Extract<keyof T, string>) => Placeholder,
       ) => SQLitePreparedQuery<any>,
     ) {
-      const ph = (arg: Extract<keyof T, string>) => sql.placeholder(arg);
+      const ph = (arg: Extract<keyof T, string>) => drizzleSql.placeholder(arg);
       await this.write(async tx => {
         const prep = fn(tx, ph);
         for (let index = 0; index < data.length; index++) {

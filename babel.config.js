@@ -2,7 +2,7 @@ const ReactCompilerConfig = {
   target: '19',
 };
 
-module.exports = function (api) {
+export default function (api) {
   api.cache(true);
   return {
     presets: ['module:@react-native/babel-preset'],
@@ -34,14 +34,6 @@ module.exports = function (api) {
       ],
       'react-native-worklets/plugin',
       [
-        'module:react-native-dotenv',
-        {
-          envName: 'APP_ENV',
-          moduleName: '@env',
-          path: '.env',
-        },
-      ],
-      [
         'inline-import',
         {
           extensions: ['.sql'],
@@ -49,4 +41,4 @@ module.exports = function (api) {
       ],
     ],
   };
-};
+}

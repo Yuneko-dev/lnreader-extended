@@ -236,7 +236,7 @@ const JumpToChapterModal = ({
           />
         </View>
         {result.length ? (
-          <View style={[styles.flashlist, { borderColor: theme.outline }]}>
+          <View style={[styles.legendlist, { borderColor: theme.outline }]}>
             <LegendList
               recycleItems
               estimatedItemSize={70}
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   errorText: {
     paddingTop: 12,
   },
-  flashlist: {
+  legendlist: {
     borderBottomWidth: 1,
     borderTopWidth: 1,
     height: 300,

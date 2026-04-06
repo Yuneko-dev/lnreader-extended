@@ -18,7 +18,7 @@ import { Appbar, Button, List, Modal, SafeAreaView } from '@components';
 import { AdvancedSettingsScreenProps } from '@navigators/types';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { getUserAgentSync } from 'react-native-device-info';
-import CookieManager from '@react-native-cookies/cookies';
+import CookieManager from '@preeternal/react-native-cookie-manager';
 import { store } from '@plugins/helpers/storage';
 
 const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {

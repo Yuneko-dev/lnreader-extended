@@ -123,6 +123,21 @@ export const useInitDatabase = () => {
   useEffect(() => {
     dispatch({ type: 'migrating' });
     setPragmas(_db);
+
+    // To resolve issue in drizzle before beta 16
+    const results = db.executeRawSync(
+      `PRAGMA table_info(__drizzle_migrations);`,
+    );
+    const resolved = results.some((row: unknown[]) => row[1] === 'applied_at');
+    if (!resolved && results.length > 0) {
+      _db.executeRawSync(
+        "ALTER TABLE '__drizzle_migrations' ADD COLUMN 'applied_at' text;",
+      );
+      _db.executeRawSync(
+        "ALTER TABLE '__drizzle_migrations' ADD COLUMN 'name' text;",
+      );
+    }
+
     migrate(drizzleDb, migrations)
       .then(() => {
         runDatabaseBootstrap(_db);
