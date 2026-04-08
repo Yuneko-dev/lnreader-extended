@@ -12,6 +12,7 @@ export const BROWSE_SETTINGS = 'BROWSE_SETTINGS';
 export const LIBRARY_SETTINGS = 'LIBRARY_SETTINGS';
 export const CHAPTER_GENERAL_SETTINGS = 'CHAPTER_GENERAL_SETTINGS';
 export const CHAPTER_READER_SETTINGS = 'CHAPTER_READER_SETTINGS';
+export const TRANSLATE_SETTINGS = 'TRANSLATE_SETTINGS';
 
 export interface AppSettings {
   /**
@@ -121,6 +122,17 @@ export interface ChapterReaderSettings {
   epubUseCustomJS: boolean;
 }
 
+export interface TranslateSettings {
+  engine: 'google-free' | 'llm';
+  sourceLang: string;
+  targetLang: string;
+  llmProvider: 'openai' | 'openrouter' | 'deepseek' | 'gemini' | 'custom';
+  llmEndpoint: string;
+  llmApiKey: string;
+  llmModel: string;
+  llmSystemPrompt: string;
+}
+
 const initialAppSettings: AppSettings = {
   /**
    * General settings
@@ -209,6 +221,17 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
   epubUseAppTheme: false,
   epubUseCustomCSS: false,
   epubUseCustomJS: false,
+};
+
+export const initialTranslateSettings: TranslateSettings = {
+  engine: 'google-free',
+  sourceLang: 'auto',
+  targetLang: 'en',
+  llmProvider: 'openai',
+  llmEndpoint: 'https://api.openai.com/v1',
+  llmApiKey: '',
+  llmModel: 'gpt-4o-mini',
+  llmSystemPrompt: 'You are a professional translator. Do NOT add any extra notes or conversational text. Maintain paragraph structural integrity by keeping the exact same ---PARAGRAPH_BREAK--- markers between translated paragraphs.',
 };
 
 export const useAppSettings = () => {
@@ -320,3 +343,17 @@ export const useChapterReaderSettings = () => {
     deleteCustomReaderTheme,
   };
 };
+
+export const useTranslateSettings = () => {
+  const [translateSettings = initialTranslateSettings, setSettings] =
+    useMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS);
+
+  const setTranslateSettings = (values: Partial<TranslateSettings>) =>
+    setSettings({ ...translateSettings, ...values });
+
+  return {
+    ...translateSettings,
+    setTranslateSettings,
+  };
+};
+

@@ -8,6 +8,7 @@ export {
   useLibrarySettings,
   useChapterGeneralSettings,
   useChapterReaderSettings,
+  useTranslateSettings,
 } from './useSettings';
 export { default as usePlugins } from './usePlugins';
 export { getTracker, useTracker } from './useTracker';

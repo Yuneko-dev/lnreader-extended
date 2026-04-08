@@ -28,6 +28,7 @@ import ReaderTextAlignSelector from './ReaderTextAlignSelector';
 import ReaderValueChange from './ReaderValueChange';
 import ReaderFontPicker from './ReaderFontPicker';
 import TTSTab from './TTSTab';
+import TranslateTab from './TranslateTab';
 import { overlay } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
@@ -132,6 +133,7 @@ const routes = [
   { key: 'readerTab', title: getString('readerSettings.title') },
   { key: 'generalTab', title: getString('generalSettings') },
   { key: 'ttsTab', title: 'TTS' },
+  { key: 'translateTab', title: 'Translate' },
 ];
 
 const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
@@ -145,7 +147,7 @@ const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
   const backgroundColor = tabHeaderColor;
 
   const renderScene = useMemo(
-    () => SceneMap({ readerTab: ReaderTab, generalTab: GeneralTab, ttsTab: TTSTab }),
+    () => SceneMap({ readerTab: ReaderTab, generalTab: GeneralTab, ttsTab: TTSTab, translateTab: TranslateTab }),
     [],
   );
 

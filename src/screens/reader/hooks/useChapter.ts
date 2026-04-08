@@ -23,6 +23,9 @@ import {
   useRef,
   useState,
 } from 'react';
+import { TranslateManager } from '@services/translate/TranslateManager';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
+import { TRANSLATE_SETTINGS, TranslateSettings, initialTranslateSettings } from '@hooks/persisted/useSettings';
 import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
@@ -53,6 +56,10 @@ export default function useChapter(
   const [chapter, setChapter] = useState(initialChapter);
   const [loading, setLoading] = useState(true);
   const [chapterText, setChapterText] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translateProgress, setTranslateProgress] = useState(0);
+  const [isTranslated, setIsTranslated] = useState(false);
+  const originalChapterText = useRef<string>('');
 
   const [[nextChapter, prevChapter], setAdjacentChapter] = useState<
     ChapterInfo[] | undefined[]
@@ -341,6 +348,41 @@ export default function useChapter(
     getChapter();
   }, [getChapter]);
 
+  const revertTranslation = useCallback(() => {
+    if (isTranslated && originalChapterText.current) {
+      setChapterText(originalChapterText.current);
+      setIsTranslated(false);
+    }
+  }, [isTranslated]);
+
+  const translateChapter = useCallback(async () => {
+    // Toggle: if already translated, revert to original
+    if (isTranslated) {
+      revertTranslation();
+      return;
+    }
+
+    setIsTranslating(true);
+    setTranslateProgress(0);
+    try {
+      // Save original before translating
+      originalChapterText.current = chapterText;
+
+      const settings = getMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS) || initialTranslateSettings;
+      const translatedHtml = await TranslateManager.translateChapterHTML(
+        chapterText,
+        settings as any,
+        (progress) => setTranslateProgress(progress)
+      );
+      setChapterText(translatedHtml);
+      setIsTranslated(true);
+    } catch (e: any) {
+      showToast(e.message);
+    } finally {
+      setIsTranslating(false);
+    }
+  }, [chapterText, isTranslated, revertTranslation]);
+
   return useMemo(
     () => ({
       hidden,
@@ -358,6 +400,11 @@ export default function useChapter(
       setChapter,
       setLoading,
       getChapter,
+      isTranslating,
+      translateProgress,
+      translateChapter,
+      isTranslated,
+      revertTranslation,
     }),
     [
       hidden,
@@ -375,6 +422,11 @@ export default function useChapter(
       setChapter,
       setLoading,
       getChapter,
+      isTranslating,
+      translateProgress,
+      translateChapter,
+      isTranslated,
+      revertTranslation,
     ],
   );
 }

@@ -480,7 +480,21 @@
       "useChapterDrawerSwipeNavigation": "Swipe to open drawer",
       "verticalSeekbar": "Vertical seekbar",
       "keepScreenOn": "Keep screen on",
-      "volumeButtonsScroll": "Volume button scrolling"
+      "volumeButtonsScroll": "Volume button scrolling",
+      "translateTab": {
+        "translationSettings": "Translation Settings",
+        "engine": "Engine",
+        "googleFree": "Google Free",
+        "llmAPI": "LLM API",
+        "sourceLanguage": "Source Language",
+        "targetLanguage": "Target Language",
+        "provider": "Provider",
+        "endpointUrl": "Endpoint URL",
+        "apiKey": "API Key",
+        "modelName": "Model Name",
+        "loadModels": "Load Models",
+        "systemPrompt": "System Prompt"
+      }
     },
     "drawer": {
       "scrollToBottom": "Scroll to bottom",

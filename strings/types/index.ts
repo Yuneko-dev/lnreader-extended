@@ -399,6 +399,18 @@ export interface StringMap {
   'readerScreen.bottomSheet.verticalSeekbar': 'string';
   'readerScreen.bottomSheet.keepScreenOn': 'string';
   'readerScreen.bottomSheet.volumeButtonsScroll': 'string';
+  'readerScreen.bottomSheet.translateTab.translationSettings': 'string';
+  'readerScreen.bottomSheet.translateTab.engine': 'string';
+  'readerScreen.bottomSheet.translateTab.googleFree': 'string';
+  'readerScreen.bottomSheet.translateTab.llmAPI': 'string';
+  'readerScreen.bottomSheet.translateTab.sourceLanguage': 'string';
+  'readerScreen.bottomSheet.translateTab.targetLanguage': 'string';
+  'readerScreen.bottomSheet.translateTab.provider': 'string';
+  'readerScreen.bottomSheet.translateTab.endpointUrl': 'string';
+  'readerScreen.bottomSheet.translateTab.apiKey': 'string';
+  'readerScreen.bottomSheet.translateTab.modelName': 'string';
+  'readerScreen.bottomSheet.translateTab.loadModels': 'string';
+  'readerScreen.bottomSheet.translateTab.systemPrompt': 'string';
   'readerScreen.drawer.scrollToBottom': 'string';
   'readerScreen.drawer.scrollToCurrentChapter': 'string';
   'readerScreen.drawer.scrollToTop': 'string';

@@ -29,7 +29,7 @@ const ReaderAppbar = ({
   bookmarked,
   setBookmarked,
 }: ReaderAppbarProps) => {
-  const { chapter, novel } = useChapterContext();
+  const { chapter, novel, translateChapter, isTranslated } = useChapterContext();
   const { statusBarHeight } = useNovelContext();
 
   const entering = () => {
@@ -105,6 +105,14 @@ const ReaderAppbar = ({
             {chapter.name}
           </Text>
         </View>
+        <IconButtonV2
+          name={isTranslated ? 'translate-off' : 'translate'}
+          size={24}
+          onPress={() => translateChapter()}
+          color={isTranslated ? theme.primary : theme.onSurface}
+          theme={theme}
+          style={styles.bookmark}
+        />
         <IconButtonV2
           name={bookmarked ? 'bookmark' : 'bookmark-outline'}
           size={24}
