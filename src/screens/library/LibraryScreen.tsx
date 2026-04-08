@@ -21,6 +21,7 @@ import {
   TabView,
 } from 'react-native-tab-view';
 import Color from 'color';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { SearchbarV2, Button, SafeAreaView } from '@components/index';
 import { LibraryView } from './components/LibraryListView';
@@ -89,6 +90,12 @@ const LibraryScreen = ({ navigation }: LibraryScreenProps) => {
   const { useLibraryFAB = false } = useAppSettings();
 
   const { isLoading: isHistoryLoading, history, error } = useHistory();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchLibrary();
+    }, [refetchLibrary]),
+  );
 
   const layout = useWindowDimensions();
 

@@ -112,9 +112,9 @@ export const useLibrary = (): UseLibraryReturnType => {
     [downloadedOnlyMode, filter, refreshCategories, searchText, sortOrder],
   );
 
-  useFocusEffect(() => {
+  useEffect(() => {
     getLibrary();
-  });
+  }, [getLibrary]);
 
   const [taskQueue] = useMMKVObject<
     Array<BackgroundTask | QueuedBackgroundTask>
