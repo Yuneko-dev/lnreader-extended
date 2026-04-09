@@ -25,7 +25,11 @@ import {
 } from 'react';
 import { TranslateManager } from '@services/translate/TranslateManager';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
-import { TRANSLATE_SETTINGS, TranslateSettings, initialTranslateSettings } from '@hooks/persisted/useSettings';
+import {
+  TRANSLATE_SETTINGS,
+  TranslateSettings,
+  initialTranslateSettings,
+} from '@hooks/persisted/useSettings';
 import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
@@ -149,7 +153,9 @@ export default function useChapter(
         // Pre-fetch adjacent page chapters if at a page boundary
         const currentPage = Number(chap.page);
         if (
-          !nextChap && novel.totalPages && novel.totalPages > 0 &&
+          !nextChap &&
+          novel.totalPages &&
+          novel.totalPages > 0 &&
           currentPage < novel.totalPages
         ) {
           const nextPage = String(currentPage + 1);
@@ -171,7 +177,7 @@ export default function useChapter(
               chap.position!,
               chap.page ?? '',
             );
-          } catch { }
+          } catch {}
         }
         if (!prevChap && currentPage > 1) {
           const prevPage = String(currentPage - 1);
@@ -193,7 +199,7 @@ export default function useChapter(
               chap.position!,
               chap.page ?? '',
             );
-          } catch { }
+          } catch {}
         }
 
         if (nextChap && !chapterTextCache.get(nextChap.id)) {
@@ -248,9 +254,9 @@ export default function useChapter(
       scrollInterval.current = setInterval(() => {
         webViewRef.current?.injectJavaScript(`(()=>{
           window.scrollBy({top:${defaultTo(
-          autoScrollOffset,
-          Dimensions.get('window').height,
-        )},behavior:'smooth'})
+            autoScrollOffset,
+            Dimensions.get('window').height,
+          )},behavior:'smooth'})
         })()`);
       }, autoScrollInterval * 1000);
     } else {
@@ -377,11 +383,13 @@ export default function useChapter(
       // Save original before translating
       originalChapterText.current = chapterText;
 
-      const settings = getMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS) || initialTranslateSettings;
+      const settings =
+        getMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS) ||
+        initialTranslateSettings;
       const translatedHtml = await TranslateManager.translateChapterHTML(
         chapterText,
         settings as any,
-        (progress) => setTranslateProgress(progress)
+        progress => setTranslateProgress(progress),
       );
 
       if (chapterIdRef.current === translatingChapterId) {

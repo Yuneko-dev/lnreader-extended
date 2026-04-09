@@ -1,5 +1,11 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, View, Pressable, Text, ListRenderItem } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Pressable,
+  Text,
+  ListRenderItem,
+} from 'react-native';
 import { BottomSheetFlatList, BottomSheetView } from '@gorhom/bottom-sheet';
 import color from 'color';
 
@@ -94,7 +100,9 @@ export default function PageNavigationBottomSheet({
           data={pages}
           extraData={pageIndex}
           renderItem={renderItem}
-          keyExtractor={(item: string, index: number) => `page_${index}_${item}`}
+          keyExtractor={(item: string, index: number) =>
+            `page_${index}_${item}`
+          }
           contentContainerStyle={styles.listContent}
           initialNumToRender={15}
         />

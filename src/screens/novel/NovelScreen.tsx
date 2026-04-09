@@ -229,17 +229,19 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
       batchInformation.batch < batchInformation.total && !fetching
         ? getNextChapterBatch
         : noop,
-    [batchInformation.batch, batchInformation.total, fetching, getNextChapterBatch],
+    [
+      batchInformation.batch,
+      batchInformation.total,
+      fetching,
+      getNextChapterBatch,
+    ],
   );
 
   const hideJumpToChapterModal = useCallback(
     () => showJumpToChapterModal(false),
     [],
   );
-  const hideEditInfoModal = useCallback(
-    () => showEditInfoModal(false),
-    [],
-  );
+  const hideEditInfoModal = useCallback(() => showEditInfoModal(false), []);
   const clearSelection = useCallback(() => setSelected([]), []);
   const selectAll = useCallback(() => setSelected(chapters), [chapters]);
 

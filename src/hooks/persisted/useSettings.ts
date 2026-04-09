@@ -122,7 +122,13 @@ export interface ChapterReaderSettings {
   epubUseCustomJS: boolean;
 }
 
-export type LLMProviderSupported = 'openai' | 'xai' | 'openrouter' | 'deepseek' | 'gemini' | 'custom';
+export type LLMProviderSupported =
+  | 'openai'
+  | 'xai'
+  | 'openrouter'
+  | 'deepseek'
+  | 'gemini'
+  | 'custom';
 
 export interface TranslateSettings {
   engine: 'google-free' | 'llm';
@@ -235,7 +241,8 @@ export const initialTranslateSettings: TranslateSettings = {
   llmEndpoint: 'https://api.openai.com/v1',
   llmApiKey: '',
   llmModel: '',
-  llmSystemPrompt: 'You are a professional translator. Do NOT add any extra notes or conversational text. Maintain paragraph structural integrity by keeping the exact same ---PARAGRAPH_BREAK--- markers between translated paragraphs.',
+  llmSystemPrompt:
+    'You are a professional translator. Do NOT add any extra notes or conversational text. Maintain paragraph structural integrity by keeping the exact same ---PARAGRAPH_BREAK--- markers between translated paragraphs.',
   llmEnableReasoning: false,
   llmReasoningEffort: 'low',
 };
@@ -362,4 +369,3 @@ export const useTranslateSettings = () => {
     setTranslateSettings,
   };
 };
-

@@ -38,19 +38,38 @@ export class TranslateManager {
     onProgress?: (progress: number) => void,
   ): Promise<string> {
     const $ = cheerio.load(html, null, false);
-    
+
     // Select elements that typically contain text we want to translate.
     // Avoid translating attributes directly, just text nodes inside elements.
-    const translatableElements = $('p, div, span, h1, h2, h3, h4, h5, h6, li, td, th');
+    const translatableElements = $(
+      'p, div, span, h1, h2, h3, h4, h5, h6, li, td, th',
+    );
     const textsToTranslate: string[] = [];
     const elementRefs: cheerio.Cheerio<cheerio.AnyNode>[] = [];
     const elementTypes: ('html' | 'text')[] = [];
 
-    const blockSelectors = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'ul', 'ol', 'blockquote', 'pre', 'table'].join(', ');
+    const blockSelectors = [
+      'p',
+      'div',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'li',
+      'td',
+      'th',
+      'ul',
+      'ol',
+      'blockquote',
+      'pre',
+      'table',
+    ].join(', ');
 
     translatableElements.each((_, el) => {
       const $el = $(el);
-      
+
       // Skip if an ancestor is already marked as a full-block translation
       if ($el.parents('[data-translatable-block="true"]').length > 0) return;
 
@@ -81,8 +100,8 @@ export class TranslateManager {
     });
 
     if (textsToTranslate.length === 0) {
-        if (onProgress) onProgress(100);
-        return html;
+      if (onProgress) onProgress(100);
+      return html;
     }
 
     const engine = this.getEngine(config);
@@ -90,28 +109,28 @@ export class TranslateManager {
       textsToTranslate,
       config.sourceLang,
       config.targetLang,
-      onProgress
+      onProgress,
     );
 
     // Replace properties back
     for (let i = 0; i < elementRefs.length; i++) {
-        const $ref = elementRefs[i];
+      const $ref = elementRefs[i];
+      if (elementTypes[i] === 'html') {
+        $ref.removeAttr('data-translatable-block');
+      }
+
+      if (translatedTexts[i] && translatedTexts[i].trim().length > 0) {
         if (elementTypes[i] === 'html') {
-            $ref.removeAttr('data-translatable-block');
-        }
-        
-        if (translatedTexts[i] && translatedTexts[i].trim().length > 0) {
-            if (elementTypes[i] === 'html') {
-                $ref.html(translatedTexts[i]);
-            } else if ($ref[0] && $ref[0].type === 'text') {
-                 ($ref[0] as any).data = translatedTexts[i];
-            } else {
-                 $ref.text(translatedTexts[i]);
-            }
+          $ref.html(translatedTexts[i]);
+        } else if ($ref[0] && $ref[0].type === 'text') {
+          ($ref[0] as any).data = translatedTexts[i];
         } else {
-          console.warn("Translated text is empty, removing element", $ref);
-          $ref.remove();
+          $ref.text(translatedTexts[i]);
         }
+      } else {
+        console.warn('Translated text is empty, removing element', $ref);
+        $ref.remove();
+      }
     }
 
     // Clean up any remaining data attributes just in case

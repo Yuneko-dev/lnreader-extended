@@ -15,24 +15,25 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
     let currentIndices: number[] = [];
 
     for (let i = 0; i < texts.length; i++) {
-        const text = texts[i];
-        if (!text || !text.trim()) {
-            continue; // Skip empties during network fetch
-        }
-        
-        let newChunk = currentChunkText + (currentChunkText ? this.SEPARATOR : '') + text;
-        if (newChunk.length > this.MAX_CHUNK_LENGTH && currentChunkText) {
-            chunks.push({ text: currentChunkText, indices: currentIndices });
-            currentChunkText = text;
-            currentIndices = [i];
-        } else {
-            currentChunkText = newChunk;
-            currentIndices.push(i);
-        }
-    }
-    
-    if (currentChunkText) {
+      const text = texts[i];
+      if (!text || !text.trim()) {
+        continue; // Skip empties during network fetch
+      }
+
+      let newChunk =
+        currentChunkText + (currentChunkText ? this.SEPARATOR : '') + text;
+      if (newChunk.length > this.MAX_CHUNK_LENGTH && currentChunkText) {
         chunks.push({ text: currentChunkText, indices: currentIndices });
+        currentChunkText = text;
+        currentIndices = [i];
+      } else {
+        currentChunkText = newChunk;
+        currentIndices.push(i);
+      }
+    }
+
+    if (currentChunkText) {
+      chunks.push({ text: currentChunkText, indices: currentIndices });
     }
     return chunks;
   }
@@ -46,7 +47,11 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
     const results: string[] = [...texts];
     const chunks = this.chunkTexts(texts);
 
-    for (let currentChunkIdx = 0; currentChunkIdx < chunks.length; currentChunkIdx++) {
+    for (
+      let currentChunkIdx = 0;
+      currentChunkIdx < chunks.length;
+      currentChunkIdx++
+    ) {
       const chunk = chunks[currentChunkIdx];
       const encodedText = encodeURIComponent(chunk.text);
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodedText}`;
@@ -73,21 +78,21 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
             }
           });
         }
-        
+
         // Sometimes Google might add spaces around the separator
         const translatedSegments = translatedChunk.split(/\s*~\|\|\|~\s*/);
-        
+
         // If split perfectly aligns
         if (translatedSegments.length === chunk.indices.length) {
-            chunk.indices.forEach((originalIndex, innerIdx) => {
-                results[originalIndex] = translatedSegments[innerIdx].trim();
-            });
+          chunk.indices.forEach((originalIndex, innerIdx) => {
+            results[originalIndex] = translatedSegments[innerIdx].trim();
+          });
         } else {
           // Fallback parsing or leave original if heavily mutated
-          console.warn("Google chunk mismatch length");
+          console.warn('Google chunk mismatch length');
         }
       } catch (e) {
-         console.warn("Google Translate Error:", e);
+        console.warn('Google Translate Error:', e);
       }
 
       await sleep(200);
@@ -95,11 +100,11 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
         onProgress(((currentChunkIdx + 1) / chunks.length) * 100);
       }
     }
-    
+
     if (onProgress) {
       onProgress(100);
     }
-    
+
     return results;
   }
 }

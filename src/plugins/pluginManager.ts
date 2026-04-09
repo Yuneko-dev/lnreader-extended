@@ -144,7 +144,11 @@ const fetchPlugins = async (): Promise<PluginItem[]> => {
   const allRepositories = await getRepositoriesFromDb();
 
   const repoPluginsRes = await Promise.allSettled(
-    allRepositories.map(({ url }) => fetch(url, { headers: { 'pragma': 'no-cache', 'cache-control': 'no-cache' } }).then(res => res.json())),
+    allRepositories.map(({ url }) =>
+      fetch(url, {
+        headers: { 'pragma': 'no-cache', 'cache-control': 'no-cache' },
+      }).then(res => res.json()),
+    ),
   );
 
   repoPluginsRes.forEach(repoPlugins => {

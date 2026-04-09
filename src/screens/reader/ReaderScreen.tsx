@@ -69,14 +69,24 @@ export const ChapterContent = ({
   const readerSheetRef = useRef<BottomSheetModalMethods>(null);
   const theme = useTheme();
   const { pageReader = false, keepScreenOn } = useChapterGeneralSettings();
-  const [bookmarked, setBookmarked] = useState<boolean>(chapter.bookmark ?? false);
+  const [bookmarked, setBookmarked] = useState<boolean>(
+    chapter.bookmark ?? false,
+  );
 
   useEffect(() => {
     setBookmarked(chapter.bookmark ?? false);
   }, [chapter]);
 
-  const { hidden, loading, error, webViewRef, hideHeader, refetch, isTranslating, translateProgress } =
-    useChapterContext();
+  const {
+    hidden,
+    loading,
+    error,
+    webViewRef,
+    hideHeader,
+    refetch,
+    isTranslating,
+    translateProgress,
+  } = useChapterContext();
 
   const scrollToStart = () =>
     requestAnimationFrame(() => {
@@ -122,9 +132,7 @@ export const ChapterContent = ({
     );
   }
   return (
-    <View
-      style={[{ paddingStart: left, paddingEnd: right }, styles.container]}
-    >
+    <View style={[{ paddingStart: left, paddingEnd: right }, styles.container]}>
       {keepScreenOn ? <KeepScreenAwake /> : null}
       {loading ? (
         <ChapterLoadingScreen />
@@ -132,20 +140,29 @@ export const ChapterContent = ({
         <View style={styles.container}>
           <WebViewReader onPress={hideHeader} />
           {isTranslating && (
-             <View style={[StyleSheet.absoluteFill, styles.translatingOverlay, { backgroundColor: color(theme.surface).alpha(0.8).string() }]}>
-                <Text style={{ color: theme.onSurface, fontSize: 18, fontWeight: 'bold' }}>
-                  Translating... {Math.round(translateProgress)}%
-                </Text>
-             </View>
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                styles.translatingOverlay,
+                { backgroundColor: color(theme.surface).alpha(0.8).string() },
+              ]}
+            >
+              <Text
+                style={{
+                  color: theme.onSurface,
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                }}
+              >
+                Translating... {Math.round(translateProgress)}%
+              </Text>
+            </View>
           )}
         </View>
       )}
       <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
       {!hidden && (
-        <View
-          style={StyleSheet.absoluteFill}
-          pointerEvents="auto"
-        >
+        <View style={StyleSheet.absoluteFill} pointerEvents="auto">
           <ReaderAppbar
             goBack={navigation.goBack}
             theme={theme}

@@ -29,7 +29,8 @@ const ReaderAppbar = ({
   bookmarked,
   setBookmarked,
 }: ReaderAppbarProps) => {
-  const { chapter, novel, translateChapter, isTranslated } = useChapterContext();
+  const { chapter, novel, translateChapter, isTranslated } =
+    useChapterContext();
   const { statusBarHeight } = useNovelContext();
 
   const entering = () => {

@@ -45,8 +45,9 @@ export function manifestStyle(): string {
  */
 export function manifestCover(fileFormat: string): string {
   fileFormat = fileFormat.replace('.', '');
-  return `<item id="cover" href="../OEBPS/images/cover.${fileFormat}" media-type="image/${fileFormat === 'jpg' ? 'jpeg' : fileFormat
-    }" properties="cover-image" />`;
+  return `<item id="cover" href="../OEBPS/images/cover.${fileFormat}" media-type="image/${
+    fileFormat === 'jpg' ? 'jpeg' : fileFormat
+  }" properties="cover-image" />`;
 }
 /**
  * Generates an XML element string for an image in a manifest file.
@@ -64,6 +65,7 @@ export function manifestImage(uri: string, fileFormat: string): string {
   return `<item id="${uri.replace(
     /.*\//,
     '',
-  )}" href="${uri}" media-type="image/${fileFormat === 'jpg' ? 'jpeg' : fileFormat
-    }" />`;
+  )}" href="${uri}" media-type="image/${
+    fileFormat === 'jpg' ? 'jpeg' : fileFormat
+  }" />`;
 }

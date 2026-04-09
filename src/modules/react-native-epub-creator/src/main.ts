@@ -46,13 +46,13 @@ const checkFile = (path: string) => {
     isDirectory: !fileExtension.find(x => name.indexOf(x) !== -1),
     folderPath:
       path.split('/').length > 1 &&
-        fileExtension.find(x => name.indexOf(x) !== -1)
+      fileExtension.find(x => name.indexOf(x) !== -1)
         ? path
-          .split('/')
-          .reverse()
-          .filter((x, index) => index > 0)
-          .reverse()
-          .join('/')
+            .split('/')
+            .reverse()
+            .filter((x, index) => index > 0)
+            .reverse()
+            .join('/')
         : path,
   };
   return fileInfo;

@@ -74,7 +74,7 @@ export const supportedLanguagesList = Object.keys(supportedLanguages).map(
 export interface TranslateEngine {
   id: string;
   name: string;
-  
+
   translate(
     texts: string[],
     source: string,

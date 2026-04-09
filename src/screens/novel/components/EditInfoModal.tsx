@@ -94,7 +94,9 @@ const EditInfoModal = ({
                   android_ripple={{
                     color: theme.rippleColor,
                   }}
-                  onPress={() => setNovelInfo(prev => ({ ...prev, status: item }))}
+                  onPress={() =>
+                    setNovelInfo(prev => ({ ...prev, status: item }))
+                  }
                 >
                   <Text
                     style={getStatusChipText(novelInfo.status === item, theme)}
@@ -128,7 +130,9 @@ const EditInfoModal = ({
           numberOfLines={1}
           mode="outlined"
           theme={{ colors: { ...theme } }}
-          onChangeText={text => setNovelInfo(prev => ({ ...prev, author: text }))}
+          onChangeText={text =>
+            setNovelInfo(prev => ({ ...prev, author: text }))
+          }
           dense
           style={styles.inputWrapper}
         />
@@ -139,7 +143,9 @@ const EditInfoModal = ({
           numberOfLines={1}
           mode="outlined"
           theme={{ colors: { ...theme } }}
-          onChangeText={text => setNovelInfo(prev => ({ ...prev, artist: text }))}
+          onChangeText={text =>
+            setNovelInfo(prev => ({ ...prev, artist: text }))
+          }
           dense
           style={styles.inputWrapper}
         />
@@ -151,7 +157,9 @@ const EditInfoModal = ({
           })}
           numberOfLines={1}
           mode="outlined"
-          onChangeText={text => setNovelInfo(prev => ({ ...prev, summary: text }))}
+          onChangeText={text =>
+            setNovelInfo(prev => ({ ...prev, summary: text }))
+          }
           theme={{ colors: { ...theme } }}
           dense
           style={styles.inputWrapper}

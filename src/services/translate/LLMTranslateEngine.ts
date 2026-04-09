@@ -22,7 +22,10 @@ export class LLMTranslateEngine implements TranslateEngine {
     this.config = config;
   }
 
-  private adjustCount(translatedParagraphs: string[], expectedCount: number): string[] {
+  private adjustCount(
+    translatedParagraphs: string[],
+    expectedCount: number,
+  ): string[] {
     if (translatedParagraphs.length === expectedCount) {
       return translatedParagraphs;
     }
@@ -62,10 +65,13 @@ export class LLMTranslateEngine implements TranslateEngine {
     if (!texts.length) return [];
 
     const MARKER = '---PARAGRAPH_BREAK---';
-    const userPrompt = texts.join("\n" + MARKER + "\n");
+    const userPrompt = texts.join('\n' + MARKER + '\n');
 
-    const defaultSystemPrompt = 'You are a professional translator. Do NOT add any extra notes or conversational text. Maintain paragraph structural integrity by keeping the exact same ---PARAGRAPH_BREAK--- markers between translated paragraphs.';
-    const systemPrompt = (this.config.systemPrompt || defaultSystemPrompt) + `\nTranslate the following text from ${source} to ${target}`;
+    const defaultSystemPrompt =
+      'You are a professional translator. Do NOT add any extra notes or conversational text. Maintain paragraph structural integrity by keeping the exact same ---PARAGRAPH_BREAK--- markers between translated paragraphs.';
+    const systemPrompt =
+      (this.config.systemPrompt || defaultSystemPrompt) +
+      `\nTranslate the following text from ${source} to ${target}`;
 
     let i: any;
 
@@ -83,7 +89,7 @@ export class LLMTranslateEngine implements TranslateEngine {
 
       let resultText = '';
 
-      console.log("Input", texts, userPrompt);
+      console.log('Input', texts, userPrompt);
 
       if (this.config.provider === 'gemini') {
         const ai = new GoogleGenAI({ apiKey: this.config.apiKey });
@@ -91,16 +97,18 @@ export class LLMTranslateEngine implements TranslateEngine {
           systemInstruction: systemPrompt,
           thinkingConfig: {
             thinkingLevel: ThinkingLevel.THINKING_LEVEL_UNSPECIFIED,
-          }
+          },
         };
         if (this.config.enableReasoning) {
           switch (this.config.reasoningEffort) {
             case 'none': {
-              configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.THINKING_LEVEL_UNSPECIFIED;
+              configOptions.thinkingConfig.thinkingLevel =
+                ThinkingLevel.THINKING_LEVEL_UNSPECIFIED;
               break;
             }
             case 'minimal': {
-              configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.MINIMAL;
+              configOptions.thinkingConfig.thinkingLevel =
+                ThinkingLevel.MINIMAL;
               break;
             }
             case 'low': {
@@ -125,7 +133,7 @@ export class LLMTranslateEngine implements TranslateEngine {
           config: configOptions,
         });
         resultText = response.text || '';
-        console.log("Gemini Response", response);
+        console.log('Gemini Response', response);
       } else {
         const client = new OpenAI({
           baseURL: this.config.endpoint || 'https://api.openai.com/v1',
@@ -139,16 +147,18 @@ export class LLMTranslateEngine implements TranslateEngine {
           input: userPrompt,
           store: false,
           reasoning: {
-            effort: this.config.reasoningEffort || "none",
-          }
+            effort: this.config.reasoningEffort || 'none',
+          },
         });
         resultText = response.output_text;
-        console.log("LLM Response", response);
+        console.log('LLM Response', response);
       }
 
       clearInterval(i);
 
-      const translatedParagraphs = resultText.split(MARKER).map((p: string) => p.trim());
+      const translatedParagraphs = resultText
+        .split(MARKER)
+        .map((p: string) => p.trim());
 
       if (onProgress) {
         onProgress(100);
