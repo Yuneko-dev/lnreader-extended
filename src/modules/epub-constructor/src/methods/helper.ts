@@ -1,4 +1,4 @@
-import {EpubChapter, File, InternalEpubChapter} from '../../types';
+import { EpubChapter, File, InternalEpubChapter } from '../../types';
 
 /**
  * Creates a file object with the specified path, content, and optional isImage flag.
@@ -153,7 +153,7 @@ export function removeFileExtension(name: string) {
  * console.log(sanitizedFileName); // Output: "my_filetxt"
  */
 export function sanitizeFileName(fileName: string) {
-  return fileName.replaceAll(' ', '_').replace(/[^\w]/gi, ''); // remove all non-word and non-space characters
+  return fileName.replace(/ /g, '_').replace(/[^\w]/gi, ''); // remove all non-word and non-space characters
 }
 
 /**
@@ -184,7 +184,7 @@ export function setChapterFileNames(
   });
   return sanitizedChapters.map((chapter: InternalEpubChapter) => {
     let fileName =
-      'content/' + chapter.fileName.replaceAll(' ', '_') + '.xhtml';
+      'content/' + chapter.fileName.replace(/ /g, '_') + '.xhtml';
     let j = 1;
     while (usedNames.has(fileName)) {
       fileName = fileName.replace(/(\d+)?\.xhtml$/, `${j}.xhtml`);

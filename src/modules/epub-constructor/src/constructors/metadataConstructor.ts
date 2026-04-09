@@ -17,8 +17,7 @@ export function createMetadata(epubSettings: EpubSettings) {
     <dc:rights id="rights">${epubSettings.rights ?? "None"}</dc:rights>
     <dc:source id="source">${epubSettings.source ?? "None"}</dc:source>
     <dc:date>${new Date().toISOString()}</dc:date>
-    <meta property="dcterms:modified">${
-      new Date().toISOString().split(".")[0] + "Z"
+    <meta property="dcterms:modified">${new Date().toISOString().split(".")[0] + "Z"
     }</meta>
     <meta name="cover" content="cover"/>`;
 }

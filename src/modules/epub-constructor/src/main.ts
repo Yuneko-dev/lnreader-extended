@@ -1,4 +1,4 @@
-import {File, EpubSettings, InternalEpubChapter} from '../types';
+import { File, EpubSettings, InternalEpubChapter } from '../types';
 import {
   createFile,
   sleep,
@@ -7,9 +7,9 @@ import {
   setChapterFileNames,
   sanitizeFileName,
 } from './methods/helper';
-import {createStyle} from './methods/createStyle';
-import {createMetadata} from './constructors/metadataConstructor';
-import {createChapter} from './methods/createChapter';
+import { createStyle } from './methods/createStyle';
+import { createMetadata } from './constructors/metadataConstructor';
+import { createChapter } from './methods/createChapter';
 import {
   manifestChapter,
   manifestCover,

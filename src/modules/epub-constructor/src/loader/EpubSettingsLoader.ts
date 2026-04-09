@@ -33,13 +33,13 @@ export async function EpubSettingsLoader(
         value: a.getAttribute("value"),
       } as Parameter;
     });
-    epubSettings.title = page.querySelector(".title").innerText;
-    epubSettings.author = page.querySelector(".author").innerText;
-    epubSettings.rights = page.querySelector(".rights").innerText;
-    epubSettings.description = page.querySelector(".description").innerText;
-    epubSettings.language = page.querySelector(".language").innerText;
-    epubSettings.bookId = page.querySelector(".identifier").innerHTML;
-    epubSettings.source = page.querySelector(".source").innerText;
+    epubSettings.title = page.querySelector(".title")?.innerText!;
+    epubSettings.author = page.querySelector(".author")?.innerText!;
+    epubSettings.rights = page.querySelector(".rights")?.innerText!;
+    epubSettings.description = page.querySelector(".description")?.innerText!;
+    epubSettings.language = page.querySelector(".language")?.innerText!;
+    epubSettings.bookId = page.querySelector(".identifier")?.innerHTML!;
+    epubSettings.source = page.querySelector(".source")?.innerText!;
     chapters = page.querySelectorAll("itemref");
 
     if (!epubSettings.chapters) {
@@ -67,7 +67,7 @@ export async function EpubSettingsLoader(
             } as Parameter;
           }),
           title: chapter.querySelector("title")?.innerText ?? "",
-          htmlBody: chapter.querySelector("body").innerHTML,
+          htmlBody: chapter.querySelector("body")?.innerHTML!,
         });
         dProgress = (index / parseFloat(len.toString())) * 100;
         localOnProgress?.(dProgress);
