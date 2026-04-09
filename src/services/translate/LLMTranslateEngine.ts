@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import OpenAI from 'openai';
 import { TranslateEngine } from './TranslateEngine';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';

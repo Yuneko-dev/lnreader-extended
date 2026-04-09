@@ -31,8 +31,8 @@ const removeDir = async (path: string) => {
 };
 
 const checkFile = (path: string) => {
-  var name = path.split('/').reverse()[0].toLocaleLowerCase();
-  var fileExtension = [
+  const name = path.split('/').reverse()[0].toLocaleLowerCase();
+  const fileExtension = [
     '.json',
     '.html',
     '.xml',
@@ -42,7 +42,7 @@ const checkFile = (path: string) => {
     'mimetype',
     '.epub',
   ];
-  var fileInfo = {
+  const fileInfo = {
     isDirectory: !fileExtension.find(x => name.indexOf(x) !== -1),
     folderPath:
       path.split('/').length > 1 &&
@@ -59,7 +59,7 @@ const checkFile = (path: string) => {
 };
 
 const getFolderPath = (path: string) => {
-  var file = checkFile(path);
+  const file = checkFile(path);
   return file.folderPath;
 };
 
@@ -204,7 +204,7 @@ export default class EpubBuilder {
   }
 
   public async populate() {
-    var overrideFiles = ['toc.ncx', 'toc.html', '.opf', '.json'];
+    const overrideFiles = ['toc.ncx', 'toc.html', '.opf', '.json'];
     const epubFileName = getEpubfileName(this.fileName);
     const epub = new EpubFile(this.epub.epubSettings);
 
@@ -217,18 +217,18 @@ export default class EpubBuilder {
 
     this.dProgress = 0;
 
-    var len = files.length + 1;
-    for (var i = 0; i < files.length; i++) {
+    const len = files.length + 1;
+    for (let i = 0; i < files.length; i++) {
       this.dProgress = ((i + 1) / parseFloat(len.toString())) * 100;
       const file = files[i];
-      var path = this.tempPath + '/' + file.path;
+      const path = this.tempPath + '/' + file.path;
       if (
         overrideFiles.find(f => file.path.indexOf(f) !== -1) &&
         (await exists(path))
       ) {
         await unlink(path);
       }
-      var fileSettings = checkFile(file.path);
+      const fileSettings = checkFile(file.path);
       if (!fileSettings.isDirectory) {
         await validateDir(path);
       }

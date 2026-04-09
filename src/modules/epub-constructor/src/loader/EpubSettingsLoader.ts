@@ -48,7 +48,7 @@ export async function EpubSettingsLoader(
 
     const len = chapters.length + 1;
     let index = 0;
-    for (let x of chapters) {
+    for (const x of chapters) {
       try {
         let content = '';
         let chItem = '';

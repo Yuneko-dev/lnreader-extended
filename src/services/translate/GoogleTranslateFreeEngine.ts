@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { TranslateEngine } from './TranslateEngine';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -20,7 +22,7 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
         continue; // Skip empties during network fetch
       }
 
-      let newChunk =
+      const newChunk =
         currentChunkText + (currentChunkText ? this.SEPARATOR : '') + text;
       if (newChunk.length > this.MAX_CHUNK_LENGTH && currentChunkText) {
         chunks.push({ text: currentChunkText, indices: currentIndices });

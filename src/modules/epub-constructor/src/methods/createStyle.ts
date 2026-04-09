@@ -30,10 +30,10 @@ export function createStyle(style?: string | object) {
     );
   }
   // Creating well formated css
-  var result = '';
+  let result = '';
   Object.keys(style).forEach(x => {
     const key = x as keyof typeof style;
-    var item = x + ' {';
+    let item = x + ' {';
     Object.keys(style[key]).forEach(a => {
       item += `\n ${a}: ${style[key][a]};`;
     });

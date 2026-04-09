@@ -28,8 +28,8 @@ export function createFile(
  * @returns A boolean value indicating whether all items in the `content` array are found in the `file` array.
  */
 export function isValid(file: File[], content: string[]): boolean {
-  for (var i = 0; i < content.length; i++) {
-    var item = file.find(x => x.path.indexOf(content[i]) !== -1);
+  for (let i = 0; i < content.length; i++) {
+    const item = file.find(x => x.path.indexOf(content[i]) !== -1);
     if (!item) {
       return false;
     }

@@ -101,7 +101,7 @@ export default class EpubFile {
       this.epubSettings.author,
     );
     let htmlToc = defaultHtmlToc(this.epubSettings.title);
-    let metadata = createMetadata(this.epubSettings);
+    const metadata = createMetadata(this.epubSettings);
     const navMap: string[] = [];
     const ol: string[] = [];
 
