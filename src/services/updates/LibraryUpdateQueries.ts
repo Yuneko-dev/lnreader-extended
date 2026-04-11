@@ -70,6 +70,9 @@ const updateNovelNecessaryInfo = async (novelId: number, novel: SourceNovel) => 
   if (status) {
     data.status = status;
   }
+  if (Object.keys(data).length === 0) {
+    return;
+  }
   await dbManager.write(async tx => {
     tx.update(novelSchema)
       .set(data)
