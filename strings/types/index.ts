@@ -470,6 +470,8 @@ export interface StringMap {
   'securitySettingsScreen.screenProtection': 'string';
   'securitySettingsScreen.screenProtectionDesc': 'string';
   'securitySettingsScreen.incognitoOnly': 'string';
+  'securitySettingsScreen.appLocked': 'string';
+  'securitySettingsScreen.appLockedDesc': 'string';
   'securitySettingsScreen.unlock': 'string';
   'securitySettingsScreen.authPrompt': 'string';
   'securitySettingsScreen.authFallback': 'string';

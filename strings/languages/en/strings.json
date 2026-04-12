@@ -565,8 +565,10 @@
     "screenProtection": "Screen protection",
     "screenProtectionDesc": "Hide content in multitasking and block screenshots",
     "incognitoOnly": "Incognito mode only",
+    "appLocked": "App Locked",
+    "appLockedDesc": "Authenticate to continue",
     "unlock": "Unlock",
-    "authPrompt": "Authenticate to unlock LNReader",
+    "authPrompt": "Authenticate to unlock",
     "authFallback": "Use device password",
     "credentialsRevokedTitle": "App Lock Disabled",
     "credentialsRevokedDesc": "Biometric or device password has been changed or removed. App lock has been automatically disabled for your security."

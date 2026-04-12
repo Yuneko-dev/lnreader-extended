@@ -112,6 +112,24 @@ const AppLockOverlay: React.FC<AppLockOverlayProps> = ({
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.content}>
+        <Text style={[styles.lockIcon]}>🔒</Text>
+        <Text style={[styles.title, { color: theme.onSurface }]}>
+          {getString('securitySettingsScreen.appLocked')}
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
+          {getString('securitySettingsScreen.appLockedDesc')}
+        </Text>
+        <Pressable
+          style={[styles.unlockBtn, { backgroundColor: theme.primary }]}
+          onPress={onAuthenticate}
+          android_ripple={{ color: theme.rippleColor }}
+        >
+          <Text style={[styles.unlockBtnText, { color: theme.onPrimary }]}>
+            {getString('securitySettingsScreen.unlock')}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };

@@ -565,8 +565,10 @@
     "screenProtection": "Bảo vệ màn hình",
     "screenProtectionDesc": "Ẩn nội dung trong đa nhiệm và chặn chụp màn hình",
     "incognitoOnly": "Chỉ ở chế độ ẩn danh",
+    "appLocked": "Ứng dụng đã khóa",
+    "appLockedDesc": "Xác thực để tiếp tục",
     "unlock": "Mở khóa",
-    "authPrompt": "Xác thực để mở LNReader",
+    "authPrompt": "Xác thực để mở khóa",
     "authFallback": "Dùng mật khẩu thiết bị",
     "credentialsRevokedTitle": "Khóa ứng dụng đã tắt",
     "credentialsRevokedDesc": "Sinh trắc học hoặc mật khẩu thiết bị đã bị thay đổi hoặc xóa. Khóa ứng dụng đã được tự động vô hiệu hóa vì lý do bảo mật."

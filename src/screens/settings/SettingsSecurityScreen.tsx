@@ -48,13 +48,7 @@ const SettingsSecurityScreen = ({ navigation }: any) => {
     setFalse: hideScreenProtModal,
   } = useBoolean();
 
-  const toggleAppLock = useCallback(async () => {
-    if (appLockEnabled) {
-      // Disabling — no auth needed
-      setSecuritySettings({ appLockEnabled: false });
-      return;
-    }
-
+  const withAuth = useCallback(async (action: () => void) => {
     try {
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
@@ -71,12 +65,18 @@ const SettingsSecurityScreen = ({ navigation }: any) => {
       });
 
       if (result.success) {
-        setSecuritySettings({ appLockEnabled: true });
+        action();
       }
     } catch {
       // Auth failed or not available
     }
-  }, [appLockEnabled, setSecuritySettings]);
+  }, []);
+
+  const toggleAppLock = useCallback(() => {
+    withAuth(() => {
+      setSecuritySettings({ appLockEnabled: !appLockEnabled });
+    });
+  }, [appLockEnabled, setSecuritySettings, withAuth]);
 
   const getLockBgLabel = (): string => {
     const option = LOCK_ON_BG_OPTIONS.find(o => o.value === lockOnBackground);
@@ -148,8 +148,10 @@ const SettingsSecurityScreen = ({ navigation }: any) => {
               ]}
               android_ripple={{ color: theme.rippleColor }}
               onPress={() => {
-                setSecuritySettings({ lockOnBackground: option.value });
                 hideLockBgModal();
+                withAuth(() => {
+                  setSecuritySettings({ lockOnBackground: option.value });
+                });
               }}
             >
               <View
