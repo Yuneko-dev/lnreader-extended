@@ -2,9 +2,14 @@
 
 import OpenAI from 'openai';
 import { TranslateEngine } from './TranslateEngine';
-import { GenerateContentConfig, GoogleGenAI, HarmBlockThreshold, HarmCategory, ThinkingLevel } from '@google/genai';
+import {
+  GenerateContentConfig,
+  GoogleGenAI,
+  HarmBlockThreshold,
+  HarmCategory,
+  ThinkingLevel,
+} from '@google/genai';
 import type { LLMProviderSupported } from '@hooks/persisted/useSettings';
-import { Reasoning } from 'openai/resources/shared.mjs';
 
 export interface LLMConfig {
   provider?: LLMProviderSupported;
@@ -56,7 +61,7 @@ export class LLMTranslateEngine implements TranslateEngine {
     }
   }
 
-  createClient(): GoogleGenAI | OpenAI {
+  createClient = () => {
     if (this.config.provider === 'gemini') {
       return new GoogleGenAI({ apiKey: this.config.apiKey });
     } else {
@@ -66,7 +71,7 @@ export class LLMTranslateEngine implements TranslateEngine {
         dangerouslyAllowBrowser: true, // required for React Native client-side
       });
     }
-  }
+  };
 
   async translate(
     texts: string[],
@@ -96,19 +101,16 @@ export class LLMTranslateEngine implements TranslateEngine {
     };
     const abortPromise = signal
       ? new Promise<never>((_, reject) => {
-        if (signal.aborted) {
-          reject(createAbortError());
-        }
-        signal.addEventListener(
-          'abort',
-          () => reject(createAbortError()),
-          { once: true },
-        );
-      })
+          if (signal.aborted) {
+            reject(createAbortError());
+          }
+          signal.addEventListener('abort', () => reject(createAbortError()), {
+            once: true,
+          });
+        })
       : null;
 
-    const logId = `TranslateLLM: [${Math.random().toString(36).substring(2, 15)}] | Time`
-    console.time(logId);
+    const startTime = Date.now();
 
     try {
       if (!this.config.model) {
@@ -150,7 +152,8 @@ export class LLMTranslateEngine implements TranslateEngine {
               break;
             }
             case 'medium': {
-              configOptions.thinkingConfig!.thinkingLevel = ThinkingLevel.MEDIUM;
+              configOptions.thinkingConfig!.thinkingLevel =
+                ThinkingLevel.MEDIUM;
               break;
             }
             case 'high':
@@ -183,7 +186,7 @@ export class LLMTranslateEngine implements TranslateEngine {
             category: HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
             threshold: HarmBlockThreshold.OFF,
           },
-        ]
+        ];
 
         const apiPromise = ai.models.generateContent({
           model: this.config.model,
@@ -198,12 +201,12 @@ export class LLMTranslateEngine implements TranslateEngine {
         errorMessage = response.promptFeedback?.blockReason;
       } else {
         const client = this.createClient() as OpenAI;
-        let reasoningConfig: Reasoning | undefined = undefined;
+        let reasoningConfig: OpenAI.Reasoning | undefined = undefined;
         if (this.config.enableReasoning) {
           reasoningConfig = {
             effort: this.config.reasoningEffort,
             // summary: 'detailed',
-          }
+          };
         }
         const apiPromise = client.responses.create({
           model: this.config.model,
@@ -221,7 +224,9 @@ export class LLMTranslateEngine implements TranslateEngine {
       }
 
       if (!resultText.length) {
-        throw new Error(`Cannot translate this chapter. Debug: ${errorMessage}`);
+        throw new Error(
+          `Cannot translate this chapter. Debug: ${errorMessage}`,
+        );
       }
 
       const translatedParagraphs = resultText
@@ -241,9 +246,10 @@ export class LLMTranslateEngine implements TranslateEngine {
       const message = e?.message || 'Unknown LLM error';
       throw new Error(`LLM Translation failed: ${message}`);
     } finally {
-      console.timeEnd(logId);
+      console.info(
+        `LLM Translation finished in ${(Date.now() - startTime) / 1000}s`,
+      );
       clearInterval(i);
     }
   }
 }
-
