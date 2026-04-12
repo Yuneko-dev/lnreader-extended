@@ -42,7 +42,8 @@ const PROVIDERS: {
     value: 'openrouter',
     endpoint: 'https://openrouter.ai/api/v1',
   },
-  { label: 'Custom', value: 'custom', endpoint: '' },
+  { label: 'Groq', value: 'groq', endpoint: 'https://api.groq.com/openai/v1' },
+  { label: 'OpenAI Compatible API (Custom)', value: 'custom', endpoint: 'http://localhost:1234/v1' },
 ];
 
 interface LanguagePickerModalProps {

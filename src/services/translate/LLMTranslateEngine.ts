@@ -3,9 +3,11 @@
 import OpenAI from 'openai';
 import { TranslateEngine } from './TranslateEngine';
 import { GenerateContentConfig, GoogleGenAI, HarmBlockThreshold, HarmCategory, ThinkingLevel } from '@google/genai';
+import type { LLMProviderSupported } from '@hooks/persisted/useSettings';
+import { Reasoning } from 'openai/resources/shared.mjs';
 
 export interface LLMConfig {
-  provider?: 'openai' | 'openrouter' | 'deepseek' | 'gemini' | 'custom';
+  provider?: LLMProviderSupported;
   endpoint: string;
   apiKey: string;
   model: string;
@@ -41,20 +43,28 @@ export class LLMTranslateEngine implements TranslateEngine {
   async fetchModels(): Promise<string[]> {
     try {
       if (this.config.provider === 'gemini') {
-        const ai = new GoogleGenAI({ apiKey: this.config.apiKey });
+        const ai = this.createClient() as GoogleGenAI;
         const models = (await ai.models.list()).page;
         return models.map((model: any) => model.name);
       } else {
-        const client = new OpenAI({
-          baseURL: this.config.endpoint || 'https://api.openai.com/v1',
-          apiKey: this.config.apiKey || 'anonymous',
-          dangerouslyAllowBrowser: true, // required for React Native client-side
-        });
+        const client = this.createClient() as OpenAI;
         const models = await client.models.list();
         return models.data.map(model => model.id);
       }
     } catch (e: any) {
       throw new Error(`Failed to fetch models: ${e.message}`);
+    }
+  }
+
+  createClient(): GoogleGenAI | OpenAI {
+    if (this.config.provider === 'gemini') {
+      return new GoogleGenAI({ apiKey: this.config.apiKey });
+    } else {
+      return new OpenAI({
+        baseURL: this.config.endpoint || 'https://api.openai.com/v1',
+        apiKey: this.config.apiKey || 'anonymous',
+        dangerouslyAllowBrowser: true, // required for React Native client-side
+      });
     }
   }
 
@@ -97,6 +107,10 @@ export class LLMTranslateEngine implements TranslateEngine {
       })
       : null;
 
+    let id = Math.random().toString(36).substring(2, 15);
+    const logId = `TranslateLLM: [${id}] | Time`
+    console.time(logId);
+
     try {
       if (!this.config.model) {
         throw new Error('Model is not specified');
@@ -115,14 +129,12 @@ export class LLMTranslateEngine implements TranslateEngine {
       console.log('Input', texts, userPrompt);
 
       if (this.config.provider === 'gemini') {
-        const ai = new GoogleGenAI({ apiKey: this.config.apiKey });
+        const ai = this.createClient() as GoogleGenAI;
         const configOptions: GenerateContentConfig = {
           systemInstruction: systemPrompt,
-          thinkingConfig: {
-            thinkingLevel: ThinkingLevel.THINKING_LEVEL_UNSPECIFIED,
-          },
         };
         if (this.config.enableReasoning) {
+          configOptions.thinkingConfig = {};
           switch (this.config.reasoningEffort) {
             case 'none': {
               configOptions.thinkingConfig!.thinkingLevel =
@@ -186,33 +198,32 @@ export class LLMTranslateEngine implements TranslateEngine {
         console.log('Gemini Response', response);
         errorMessage = response.promptFeedback?.blockReason;
       } else {
-        const client = new OpenAI({
-          baseURL: this.config.endpoint || 'https://api.openai.com/v1',
-          apiKey: this.config.apiKey || 'anonymous',
-          dangerouslyAllowBrowser: true, // required for React Native client-side
-        });
-
+        const client = this.createClient() as OpenAI;
+        let reasoningConfig: Reasoning | undefined = undefined;
+        if (this.config.enableReasoning) {
+          reasoningConfig = {
+            effort: this.config.reasoningEffort,
+            // summary: 'detailed',
+          }
+        }
         const apiPromise = client.responses.create({
           model: this.config.model,
           instructions: systemPrompt,
           input: userPrompt,
           store: false,
-          reasoning: {
-            effort: this.config.reasoningEffort || 'none',
-          },
+          reasoning: reasoningConfig,
         });
         const response = abortPromise
           ? await Promise.race([apiPromise, abortPromise])
           : await apiPromise;
         resultText = response.output_text;
+        errorMessage = response.incomplete_details?.reason;
         console.log('LLM Response', response);
       }
 
       if (!resultText.length) {
         throw new Error(`Cannot translate this chapter. Debug: ${errorMessage}`);
       }
-
-      clearInterval(i);
 
       const translatedParagraphs = resultText
         .split(MARKER)
@@ -224,13 +235,15 @@ export class LLMTranslateEngine implements TranslateEngine {
 
       return this.adjustCount(translatedParagraphs, texts.length);
     } catch (e: any) {
-      clearInterval(i);
       if (e?.name === 'AbortError') {
         throw e; // Re-throw abort errors without wrapping
       }
       // console.error('LLM Translation failed:', e);
       const message = e?.message || 'Unknown LLM error';
       throw new Error(`LLM Translation failed: ${message}`);
+    } finally {
+      console.timeEnd(logId);
+      clearInterval(i);
     }
   }
 }

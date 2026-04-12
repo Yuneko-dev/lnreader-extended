@@ -128,6 +128,7 @@ export type LLMProviderSupported =
   | 'openrouter'
   | 'deepseek'
   | 'gemini'
+  | 'groq'
   | 'custom';
 
 export interface TranslateSettings {
