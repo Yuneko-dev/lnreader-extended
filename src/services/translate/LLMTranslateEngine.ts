@@ -2,7 +2,7 @@
 
 import OpenAI from 'openai';
 import { TranslateEngine } from './TranslateEngine';
-import { GoogleGenAI, ThinkingLevel } from '@google/genai';
+import { GenerateContentConfig, GoogleGenAI, HarmBlockThreshold, HarmCategory, ThinkingLevel } from '@google/genai';
 
 export interface LLMConfig {
   provider?: 'openai' | 'openrouter' | 'deepseek' | 'gemini' | 'custom';
@@ -86,15 +86,15 @@ export class LLMTranslateEngine implements TranslateEngine {
     };
     const abortPromise = signal
       ? new Promise<never>((_, reject) => {
-          if (signal.aborted) {
-            reject(createAbortError());
-          }
-          signal.addEventListener(
-            'abort',
-            () => reject(createAbortError()),
-            { once: true },
-          );
-        })
+        if (signal.aborted) {
+          reject(createAbortError());
+        }
+        signal.addEventListener(
+          'abort',
+          () => reject(createAbortError()),
+          { once: true },
+        );
+      })
       : null;
 
     try {
@@ -110,12 +110,13 @@ export class LLMTranslateEngine implements TranslateEngine {
       }, 333);
 
       let resultText = '';
+      let errorMessage: string | undefined | null = null;
 
       console.log('Input', texts, userPrompt);
 
       if (this.config.provider === 'gemini') {
         const ai = new GoogleGenAI({ apiKey: this.config.apiKey });
-        const configOptions: any = {
+        const configOptions: GenerateContentConfig = {
           systemInstruction: systemPrompt,
           thinkingConfig: {
             thinkingLevel: ThinkingLevel.THINKING_LEVEL_UNSPECIFIED,
@@ -124,30 +125,54 @@ export class LLMTranslateEngine implements TranslateEngine {
         if (this.config.enableReasoning) {
           switch (this.config.reasoningEffort) {
             case 'none': {
-              configOptions.thinkingConfig.thinkingLevel =
+              configOptions.thinkingConfig!.thinkingLevel =
                 ThinkingLevel.THINKING_LEVEL_UNSPECIFIED;
               break;
             }
             case 'minimal': {
-              configOptions.thinkingConfig.thinkingLevel =
+              configOptions.thinkingConfig!.thinkingLevel =
                 ThinkingLevel.MINIMAL;
               break;
             }
             case 'low': {
-              configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.LOW;
+              configOptions.thinkingConfig!.thinkingLevel = ThinkingLevel.LOW;
               break;
             }
             case 'medium': {
-              configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.MEDIUM;
+              configOptions.thinkingConfig!.thinkingLevel = ThinkingLevel.MEDIUM;
               break;
             }
             case 'high':
             case 'xhigh': {
-              configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.HIGH;
+              configOptions.thinkingConfig!.thinkingLevel = ThinkingLevel.HIGH;
               break;
             }
           }
         }
+
+        // Bypass safety settings
+        configOptions.safetySettings = [
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.OFF,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold: HarmBlockThreshold.OFF,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.OFF,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.OFF,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+            threshold: HarmBlockThreshold.OFF,
+          },
+        ]
 
         const apiPromise = ai.models.generateContent({
           model: this.config.model,
@@ -157,8 +182,9 @@ export class LLMTranslateEngine implements TranslateEngine {
         const response = abortPromise
           ? await Promise.race([apiPromise, abortPromise])
           : await apiPromise;
-        resultText = response.text || '';
+        resultText = response?.text || '';
         console.log('Gemini Response', response);
+        errorMessage = response.promptFeedback?.blockReason;
       } else {
         const client = new OpenAI({
           baseURL: this.config.endpoint || 'https://api.openai.com/v1',
@@ -180,6 +206,10 @@ export class LLMTranslateEngine implements TranslateEngine {
           : await apiPromise;
         resultText = response.output_text;
         console.log('LLM Response', response);
+      }
+
+      if (!resultText.length) {
+        throw new Error(`Cannot translate this chapter. Debug: ${errorMessage}`);
       }
 
       clearInterval(i);
