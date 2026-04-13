@@ -49,6 +49,7 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
   ): Promise<string[]> {
     const results: string[] = [...texts];
     const chunks = this.chunkTexts(texts);
+    const MAX_RETRIES = 5;
 
     for (
       let currentChunkIdx = 0;
@@ -59,13 +60,25 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
       const encodedText = encodeURIComponent(chunk.text);
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodedText}`;
 
+      let retryCount = 0;
+
       try {
         const res = await fetch(url, { signal });
         if (res.status === 429) {
-          await sleep(1000);
+          if (retryCount >= MAX_RETRIES) {
+            console.warn(
+              'Google Translate rate limit exceeded after max retries',
+            );
+            continue;
+          }
+          retryCount++;
+          await sleep(1000 * retryCount);
           currentChunkIdx--;
           continue;
         }
+
+        // Reset retry count on success
+        retryCount = 0;
 
         if (!res.ok) {
           continue;
