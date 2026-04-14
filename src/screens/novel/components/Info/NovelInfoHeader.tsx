@@ -236,7 +236,7 @@ const NovelInfoHeader = ({
   chapters,
   deleteDownloadsSnackbar,
   fetching,
-  filter,
+  filter = [],
   firstUnreadChapter,
   isLoading = false,
   lastRead,
@@ -376,7 +376,7 @@ const NovelInfoHeader = ({
                   <NovelInfo theme={theme}>
                     {(novel.id !== 'NO_ID'
                       ? // @ts-expect-error status might be null or undefined
-                        translateNovelStatus(novel.status)
+                      translateNovelStatus(novel.status)
                       : getString('novelScreen.unknownStatus')) +
                       ' • ' +
                       pluginName}
@@ -431,13 +431,19 @@ const NovelInfoHeader = ({
                   <ChapterCountSkeleton theme={theme} />
                 ) : (
                   <Text style={[{ color: theme.onSurface }, styles.chapters]}>
-                    {`${totalChapters} ${getString('novelScreen.chapters')}`}
+                    {`${totalChapters ?? 0} ${getString(
+                      'novelScreen.chapters',
+                    )}`}
                   </Text>
                 )}
               </View>
               <IconButton
                 icon="filter-variant"
-                iconColor={filter ? filterColor(theme.isDark) : theme.onSurface}
+                iconColor={
+                  filter.length > 0
+                    ? filterColor(theme.isDark)
+                    : theme.onSurface
+                }
                 size={24}
                 onPress={handleOpenBottomSheet}
               />
