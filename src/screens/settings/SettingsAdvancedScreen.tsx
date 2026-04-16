@@ -5,6 +5,7 @@ import { Portal, Text, TextInput } from 'react-native-paper';
 import { useAppSettings, useTheme, useUserAgent } from '@hooks/persisted';
 import { showToast } from '@utils/showToast';
 import SettingSwitch from './components/SettingSwitch';
+import StorageUsageSection from './components/StorageUsageSection';
 
 import { deleteCachedNovels } from '@hooks/persisted/useNovel';
 import { getString } from '@strings/translations';
@@ -64,6 +65,7 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
         theme={theme}
       />
       <ScrollView>
+        <StorageUsageSection />
         <List.Section>
           <List.SubHeader theme={theme}>
             {getString('advancedSettingsScreen.dataManagement')}

@@ -4,7 +4,7 @@ import { enableFreeze } from 'react-native-screens';
 enableFreeze(true);
 
 import React, { Suspense, useEffect } from 'react';
-import { NativeModules, StatusBar, StyleSheet } from 'react-native';
+import { AppState, NativeModules, StatusBar, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LottieSplashScreen from 'react-native-lottie-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -19,7 +19,8 @@ import Main from './src/navigators/Main';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useInitDatabase } from '@database/db';
 import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
-import { useSecuritySettings, useLibrarySettings } from '@hooks/persisted/useSettings';
+import { useSecuritySettings, useLibrarySettings, useAppSettings } from '@hooks/persisted/useSettings';
+import NativeFile from '@specs/NativeFile';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -61,10 +62,36 @@ const useScreenProtection = () => {
   }, [screenProtection, incognitoMode]);
 };
 
+/**
+ * Clear chapter cache on app exit/backgrounded
+ */
+const useClearCacheOnExit = () => {
+  const { clearCacheOnExit } = useAppSettings();
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState.match(/inactive|background/) && clearCacheOnExit) {
+        try {
+          const constants = NativeFile.getConstants();
+          NativeFile.unlink(constants.ExternalCachesDirectoryPath);
+          NativeFile.mkdir(constants.ExternalCachesDirectoryPath);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [clearCacheOnExit]);
+};
+
 const AppContent = () => {
   const { isLocked, isCredentialsRevoked, authenticate, dismissRevoked } =
     useAppLock();
   useScreenProtection();
+  useClearCacheOnExit();
 
   return (
     <>

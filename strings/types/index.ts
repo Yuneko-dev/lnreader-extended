@@ -23,6 +23,13 @@ export interface StringMap {
   'advancedSettingsScreen.dataManagement': 'string';
   'advancedSettingsScreen.deleteReadChapters': 'string';
   'advancedSettingsScreen.deleteReadChaptersDialogTitle': 'string';
+  'advancedSettingsScreen.storageUsage': 'string';
+  'advancedSettingsScreen.storagePath': 'string';
+  'advancedSettingsScreen.storageAvailable': 'string';
+  'advancedSettingsScreen.cleanCache': 'string';
+  'advancedSettingsScreen.cacheUsed': 'string';
+  'advancedSettingsScreen.clearCacheOnExit': 'string';
+  'advancedSettingsScreen.cacheCleared': 'string';
   'advancedSettingsScreen.importEpub': 'string';
   'advancedSettingsScreen.importNovel': 'string';
   'advancedSettingsScreen.importStaticFiles': 'string';

@@ -233,11 +233,55 @@ class NativeFile(context: ReactApplicationContext) :
         }
     }
 
+    private fun getFolderSize(dir: File): Double {
+        var size = 0.0
+        if (dir.isDirectory) {
+            val files = dir.listFiles()
+            if (files != null) {
+                for (child in files) {
+                    size += if (child.isDirectory) getFolderSize(child) else child.length().toDouble()
+                }
+            }
+        } else {
+            size = dir.length().toDouble()
+        }
+        return size
+    }
+
+    override fun getFileSize(filepath: String): Double {
+        val file = File(filepath)
+        if (!file.exists()) return 0.0
+        return getFolderSize(file)
+    }
+
+    override fun getFreeSpace(): Double {
+        val externalDirectory = this.reactApplicationContext.getExternalFilesDir(null)
+        if (externalDirectory != null) {
+            try {
+                val statFs = android.os.StatFs(externalDirectory.absolutePath)
+                return statFs.availableBytes.toDouble()
+            } catch (e: Exception) {
+                return 0.0
+            }
+        }
+        return 0.0
+    }
+
     override fun getTypedExportedConstants(): MutableMap<String, Any> {
         val constants: MutableMap<String, Any> = HashMap()
         val externalDirectory = this.reactApplicationContext.getExternalFilesDir(null)
         if (externalDirectory != null) {
             constants["ExternalDirectoryPath"] = externalDirectory.absolutePath
+            try {
+                val statFs = android.os.StatFs(externalDirectory.absolutePath)
+                constants["TotalSpace"] = statFs.totalBytes.toDouble()
+                constants["FreeSpace"] = statFs.availableBytes.toDouble()
+                constants["StoragePath"] = externalDirectory.absolutePath.substringBefore("/Android/")
+            } catch (e: Exception) {
+                constants["TotalSpace"] = 0.0
+                constants["FreeSpace"] = 0.0
+                constants["StoragePath"] = externalDirectory.absolutePath
+            }
         }
         val externalCachesDirectory = this.reactApplicationContext.externalCacheDir
         if (externalCachesDirectory != null) {

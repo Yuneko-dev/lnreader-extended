@@ -21,6 +21,8 @@ export interface Spec extends TurboModule {
    */
   unlink: (filePath: string) => void;
   readDir: (dirPath: string) => ReadDirResult[];
+  getFileSize: (path: string) => number;
+  getFreeSpace: () => number;
   downloadFile: (
     url: string,
     destPath: string,
@@ -31,6 +33,9 @@ export interface Spec extends TurboModule {
   getConstants: () => {
     ExternalDirectoryPath: string;
     ExternalCachesDirectoryPath: string;
+    TotalSpace: number;
+    FreeSpace: number;
+    StoragePath: string;
   };
 }
 

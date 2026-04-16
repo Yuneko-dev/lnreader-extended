@@ -57,6 +57,7 @@ export interface AppSettings {
 
   hideBackdrop: boolean;
   defaultChapterSort: ChapterOrderKey;
+  clearCacheOnExit: boolean;
 }
 
 export interface BrowseSettings {
@@ -189,6 +190,7 @@ const initialAppSettings: AppSettings = {
 
   hideBackdrop: false,
   defaultChapterSort: 'positionAsc',
+  clearCacheOnExit: false,
 };
 
 const initialBrowseSettings: BrowseSettings = {
