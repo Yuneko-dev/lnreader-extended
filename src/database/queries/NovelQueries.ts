@@ -85,7 +85,7 @@ export const getAllNovels = async (): Promise<NovelInfo[]> => {
 export const getNovelById = async (
   novelId: number,
 ): Promise<NovelInfo | undefined> => {
-  const res = dbManager
+  const res = await dbManager
     .select()
     .from(novelSchema)
     .where(eq(novelSchema.id, novelId))
@@ -119,7 +119,7 @@ export const switchNovelToLibraryQuery = async (
   novelPath: string,
   pluginId: string,
 ): Promise<NovelInfo | undefined> => {
-  const novel = await getNovelByPath(novelPath, pluginId);
+  const novel = getNovelByPath(novelPath, pluginId);
   if (novel) {
     const newInLibrary = !novel.inLibrary;
     await dbManager.write(async tx => {

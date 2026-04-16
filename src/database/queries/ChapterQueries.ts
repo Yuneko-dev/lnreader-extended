@@ -335,7 +335,8 @@ export const getNovelChapters = async (
   dbManager
     .select()
     .from(chapterSchema)
-    .where(eq(chapterSchema.novelId, novelId));
+    .where(eq(chapterSchema.novelId, novelId))
+    .all();
 
 export const getUnreadNovelChapters = async (
   novelId: number,
@@ -345,7 +346,8 @@ export const getUnreadNovelChapters = async (
     .from(chapterSchema)
     .where(
       and(eq(chapterSchema.novelId, novelId), eq(chapterSchema.unread, true)),
-    );
+    )
+    .all();
 
 export const getAllUndownloadedChapters = async (
   novelId: number,
@@ -358,7 +360,8 @@ export const getAllUndownloadedChapters = async (
         eq(chapterSchema.novelId, novelId),
         eq(chapterSchema.isDownloaded, false),
       ),
-    );
+    )
+    .all();
 
 export const getAllUndownloadedAndUnreadChapters = async (
   novelId: number,

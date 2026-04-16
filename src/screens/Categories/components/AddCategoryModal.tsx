@@ -69,7 +69,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
                 showToast(getString('categories.duplicateError'));
               } else {
                 if (isEditMode && category) {
-                  updateCategory(category?.id, categoryName);
+                  await updateCategory(category?.id, categoryName);
                 } else {
                   await createCategory(categoryName);
                 }

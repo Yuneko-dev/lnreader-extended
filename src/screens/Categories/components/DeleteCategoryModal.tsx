@@ -37,8 +37,8 @@ const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({
         <View style={styles.btnContainer}>
           <Button
             title={getString('common.ok')}
-            onPress={() => {
-              deleteCategoryById(category);
+            onPress={async () => {
+              await deleteCategoryById(category);
               closeModal();
               onSuccess();
             }}

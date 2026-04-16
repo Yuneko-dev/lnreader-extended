@@ -37,14 +37,14 @@ const useHistory = () => {
       .catch((err: Error) => setError(err.message))
       .finally(() => setIsLoading(false));
 
-  const clearAllHistory = () => {
-    deleteAllHistory();
-    getHistory();
+  const clearAllHistory = async () => {
+    await deleteAllHistory();
+    await getHistory();
   };
 
   const removeChapterFromHistory = async (chapterId: number) => {
-    deleteChapterHistory(chapterId);
-    getHistory();
+    await deleteChapterHistory(chapterId);
+    await getHistory();
   };
 
   useFocusEffect(
