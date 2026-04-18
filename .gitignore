@@ -68,10 +68,6 @@ buck-out/
 # Bundle artifacts
 *.jsbundle
 
-# CocoaPods
-/ios/Pods/
-Gemfile.lock
-
 # Expo
 .expo/
 web-build/

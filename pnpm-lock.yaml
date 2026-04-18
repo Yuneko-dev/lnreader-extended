@@ -128,9 +128,6 @@ importers:
       lodash-es:
         specifier: ^4.17.23
         version: 4.17.23
-      lottie-ios:
-        specifier: ^3.5.0
-        version: 3.5.0
       lottie-react-native:
         specifier: ^5.1.6
         version: 5.1.6(lottie-ios@3.5.0)(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4)
@@ -241,9 +238,6 @@ importers:
         specifier: ^20.1.1
         version: 20.1.1(typescript@5.9.3)
       '@react-native-community/cli-platform-android':
-        specifier: ^20.1.1
-        version: 20.1.1
-      '@react-native-community/cli-platform-ios':
         specifier: ^20.1.1
         version: 20.1.1
       '@react-native/babel-preset':

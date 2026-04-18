@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev:android": "pnpm run generate:env:debug && react-native run-android --appIdSuffix \"debug\" --active-arch-only",
-    "dev:ios": "react-native run-ios",
     "dev:start": "react-native start",
     "dev:clean-start": "pnpm run dev:start -- --reset-cache",
     "build:release:android": "pnpm run generate:env:release && cd android && ./gradlew clean && ./gradlew assembleRelease",
@@ -36,14 +35,6 @@
     "jsSrcsDir": "specs",
     "android": {
       "javaPackageName": "com.lnreader.spec"
-    },
-    "ios": {
-      "modulesProvider": {
-        "NativeEpubUtil": "RCTNativeEpubUtil",
-        "NativeFile": "RCTNativeFile",
-        "NativeVolumeButtonListener": "RCTNativeVolumeButtonListener",
-        "NativeZipArchive": "RCTNativeZipArchive"
-      }
     }
   },
   "dependencies": {
@@ -87,7 +78,6 @@
     "htmlparser2": "^10.1.0",
     "i18n-js": "^4.5.2",
     "lodash-es": "^4.17.23",
-    "lottie-ios": "^3.5.0",
     "lottie-react-native": "^5.1.6",
     "node-html-parser": "^7.1.0",
     "openai": "^6.33.0",
@@ -127,7 +117,6 @@
     "@babel/runtime": "^7.28.6",
     "@react-native-community/cli": "^20.1.1",
     "@react-native-community/cli-platform-android": "^20.1.1",
-    "@react-native-community/cli-platform-ios": "^20.1.1",
     "@react-native/babel-preset": "^0.81.6",
     "@react-native/eslint-config": "^0.81.6",
     "@react-native/eslint-plugin": "^0.83.2",
