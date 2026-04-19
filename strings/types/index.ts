@@ -3,6 +3,9 @@
  */
 
 export interface StringMap {
+  'aboutScreen.checkForUpdates': 'string';
+  'aboutScreen.noUpdatesAvailable': 'string';
+  'aboutScreen.updateCheckFailed': 'string';
   'aboutScreen.website': 'string';
   'aboutScreen.discord': 'string';
   'aboutScreen.github': 'string';

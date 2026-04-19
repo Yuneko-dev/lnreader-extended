@@ -1,5 +1,8 @@
 {
   "aboutScreen": {
+    "checkForUpdates": "Kiểm tra cập nhật",
+    "noUpdatesAvailable": "Không có bản cập nhật",
+    "updateCheckFailed": "Không thể kiểm tra cập nhật",
     "website": "Trang web",
     "discord": "Discord",
     "github": "Github",

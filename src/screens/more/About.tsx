@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 
 import * as Linking from 'expo-linking';
 
@@ -12,9 +12,12 @@ import { GIT_HASH, RELEASE_DATE, BUILD_TYPE } from '@env';
 import * as Clipboard from 'expo-clipboard';
 import { version } from '../../../package.json';
 import { APP_GITHUB, APP_WEBSITE, DISCORD_INVITE, PLUGIN_GITHUB } from '@utils/constants/metadata';
+import { fetchUpdateInfo } from '@hooks/common/useGithubUpdateChecker';
+import { showToast } from '@utils/showToast';
 
 const AboutScreen = ({ navigation }: AboutScreenProps) => {
   const theme = useTheme();
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
 
   function getBuildName() {
     if (!GIT_HASH || !RELEASE_DATE || !BUILD_TYPE) {
@@ -29,6 +32,40 @@ const AboutScreen = ({ navigation }: AboutScreenProps) => {
       return `${BUILD_TYPE} ${version} (${localDateTime}) Commit: ${GIT_HASH}`;
     }
   }
+
+  const handleCheckForUpdates = async () => {
+    if (checkingUpdates) {
+      return;
+    }
+    setCheckingUpdates(true);
+    try {
+      const result = await fetchUpdateInfo();
+      if (result.isNewVersion && result.latestRelease) {
+        const release = result.latestRelease;
+        Alert.alert(
+          `${getString('common.newUpdateAvailable')} ${release.tag_name}`,
+          release.body.split('\n').join('\n\n'),
+          [
+            { text: getString('common.cancel'), style: 'cancel' },
+            ...(release.downloadUrl
+              ? [
+                  {
+                    text: getString('common.install'),
+                    onPress: () => Linking.openURL(release.downloadUrl),
+                  },
+                ]
+              : []),
+          ],
+        );
+      } else {
+        showToast(getString('aboutScreen.noUpdatesAvailable'));
+      }
+    } catch {
+      showToast(getString('aboutScreen.updateCheckFailed'));
+    } finally {
+      setCheckingUpdates(false);
+    }
+  };
 
   return (
     <SafeAreaView excludeTop>
@@ -47,6 +84,16 @@ const AboutScreen = ({ navigation }: AboutScreenProps) => {
             onPress={() => {
               Clipboard.setStringAsync(getBuildName());
             }}
+          />
+          <List.Item
+            title={getString('aboutScreen.checkForUpdates')}
+            description={
+              checkingUpdates
+                ? getString('common.loading')
+                : undefined
+            }
+            onPress={handleCheckForUpdates}
+            theme={theme}
           />
           <List.Item
             title={getString('aboutScreen.whatsNew')}

@@ -1,5 +1,8 @@
 {
   "aboutScreen": {
+    "checkForUpdates": "Check for updates",
+    "noUpdatesAvailable": "No updates available",
+    "updateCheckFailed": "Failed to check for updates",
     "website": "Website",
     "discord": "Discord",
     "github": "Github",
