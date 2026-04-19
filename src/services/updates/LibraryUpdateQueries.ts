@@ -111,6 +111,8 @@ const updateNovelChapters = async (
     const toInsert = [];
     const toUpdate = [];
 
+    const updatedTime = sql`datetime('now','localtime')`;
+
     for (let position = 0; position < chapters.length; position++) {
       const chapter = chapters[position];
       const {
@@ -131,7 +133,7 @@ const updateNovelChapters = async (
           name,
           releaseTime: releaseTime || null,
           novelId,
-          updatedTime: sql`datetime('now','localtime')`,
+          updatedTime,
           chapterNumber: chapterNumber || null,
           page: chapterPage,
           position: position,
@@ -148,7 +150,7 @@ const updateNovelChapters = async (
             id: existing.id,
             name,
             releaseTime: releaseTime || null,
-            updatedTime: sql`datetime('now','localtime')`,
+            updatedTime,
             page: chapterPage,
             position: position,
           });
