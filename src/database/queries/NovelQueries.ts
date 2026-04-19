@@ -1,5 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker';
-import { eq, and, sql, inArray, ne } from 'drizzle-orm';
+import { eq, and, inArray, ne } from 'drizzle-orm';
 
 import { fetchNovel } from '@services/plugin/fetch';
 import { insertChapters } from './ChapterQueries';
