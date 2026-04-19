@@ -75,8 +75,8 @@ class MainApplication : Application(), ReactApplication {
 
         OkHttpClientProvider.setOkHttpClientFactory(object : OkHttpClientFactory {
             override fun createNewNetworkModuleClient(): OkHttpClient {
-                val builder = OkHttpClientProvider.createClientBuilder()
-                val dns = DnsOverHttps.Builder().client(builder.build())
+                val bootstrapClient = OkHttpClient.Builder().build()
+                val dns = DnsOverHttps.Builder().client(bootstrapClient)
                     .url("https://cloudflare-dns.com/dns-query".toHttpUrl())
                     .bootstrapDnsHosts(
                         InetAddress.getByName("1.1.1.1"),
@@ -85,6 +85,7 @@ class MainApplication : Application(), ReactApplication {
                         InetAddress.getByName("2606:4700:4700::1001")
                     )
                     .build()
+                val builder = OkHttpClientProvider.createClientBuilder()
                 builder.dns(dns)
                 return builder.build()
             }
