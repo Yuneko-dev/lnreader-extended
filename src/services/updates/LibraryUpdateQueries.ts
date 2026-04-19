@@ -6,7 +6,7 @@ import { downloadFile } from '@plugins/helpers/fetch';
 import ServiceManager from '@services/ServiceManager';
 import { dbManager } from '@database/db';
 import { novelSchema, chapterSchema } from '@database/schema';
-import { eq, and, ne, or, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import NativeFile from '@specs/NativeFile';
 
 /**
@@ -93,6 +93,24 @@ const updateNovelChapters = async (
   page?: string,
 ) => {
   await dbManager.write(async tx => {
+    // Check if chapter already exists
+    const existingChapters = await tx
+      .select({
+        id: chapterSchema.id,
+        path: chapterSchema.path,
+        name: chapterSchema.name,
+        releaseTime: chapterSchema.releaseTime,
+        page: chapterSchema.page,
+        position: chapterSchema.position,
+      })
+      .from(chapterSchema)
+      .where(eq(chapterSchema.novelId, novelId));
+
+    const existingMap = new Map(existingChapters.map(c => [c.path, c]));
+
+    const toInsert = [];
+    const toUpdate = [];
+
     for (let position = 0; position < chapters.length; position++) {
       const chapter = chapters[position];
       const {
@@ -104,64 +122,72 @@ const updateNovelChapters = async (
       } = chapter;
       const chapterPage = page || customPage || '1';
 
-      // Check if chapter already exists
-      const existing = await tx
-        .select({ id: chapterSchema.id })
-        .from(chapterSchema)
-        .where(
-          and(eq(chapterSchema.novelId, novelId), eq(chapterSchema.path, path)),
-        )
-        .get();
+      const existing = existingMap.get(path);
 
       if (!existing) {
         // Insert new chapter
-        const newChapter = await tx
-          .insert(chapterSchema)
-          .values({
-            path,
-            name,
-            releaseTime: releaseTime || null,
-            novelId,
-            updatedTime: sql`datetime('now','localtime')`,
-            chapterNumber: chapterNumber || null,
-            page: chapterPage,
-            position: position,
-          })
-          .returning()
-          .get();
-
-        if (newChapter && downloadNewChapters) {
-          ServiceManager.manager.addTask({
-            name: 'DOWNLOAD_CHAPTER',
-            data: {
-              chapterId: newChapter.id,
-              novelName: novelName,
-              chapterName: name,
-            },
-          });
-        }
+        toInsert.push({
+          path,
+          name,
+          releaseTime: releaseTime || null,
+          novelId,
+          updatedTime: sql`datetime('now','localtime')`,
+          chapterNumber: chapterNumber || null,
+          page: chapterPage,
+          position: position,
+        });
       } else {
         // Update existing chapter if metadata changed
-        tx.update(chapterSchema)
-          .set({
+        if (
+          existing.name !== name ||
+          existing.releaseTime !== releaseTime ||
+          existing.page !== chapterPage ||
+          existing.position !== position
+        ) {
+          toUpdate.push({
+            id: existing.id,
             name,
             releaseTime: releaseTime || null,
             updatedTime: sql`datetime('now','localtime')`,
             page: chapterPage,
             position: position,
+          });
+        }
+      }
+    }
+
+    if (toInsert.length > 0) {
+      const CHUNK_SIZE = 500;
+      for (let i = 0; i < toInsert.length; i += CHUNK_SIZE) {
+        const chunk = toInsert.slice(i, i + CHUNK_SIZE);
+        const newChapters = await tx.insert(chapterSchema).values(chunk).returning();
+
+        if (downloadNewChapters) {
+          for (const newChapter of newChapters) {
+            ServiceManager.manager.addTask({
+              name: 'DOWNLOAD_CHAPTER',
+              data: {
+                chapterId: newChapter.id,
+                novelName: novelName,
+                chapterName: newChapter.name,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    if (toUpdate.length > 0) {
+      for (const chapterData of toUpdate) {
+        tx.update(chapterSchema)
+          .set({
+            name: chapterData.name,
+            releaseTime: chapterData.releaseTime,
+            updatedTime: chapterData.updatedTime,
+            page: chapterData.page,
+            position: chapterData.position,
           })
-          .where(
-            and(
-              eq(chapterSchema.id, existing.id),
-              eq(chapterSchema.novelId, novelId),
-              or(
-                ne(chapterSchema.name, name),
-                ne(chapterSchema.releaseTime, releaseTime!),
-                ne(chapterSchema.page, chapterPage),
-                ne(chapterSchema.position, position),
-              ),
-            ),
-          )
+          .where(and(eq(chapterSchema.id, chapterData.id), eq(chapterSchema.novelId, novelId)))
           .run();
       }
     }

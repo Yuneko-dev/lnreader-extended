@@ -367,9 +367,6 @@ export const updateNovelCategoryById = async (
   });
 };
 
-/**
- * Updates categories for multiple novels.
- */
 export const updateNovelCategories = async (
   novelIds: number[],
   categoryIds: number[],
@@ -392,13 +389,14 @@ export const updateNovelCategories = async (
       .run();
 
     if (categoryIds.length) {
+      const inserts = [];
       for (const novelId of novelIds) {
         for (const categoryId of categoryIds) {
-          tx.insert(novelCategorySchema)
-            .values({ novelId, categoryId })
-            .onConflictDoNothing()
-            .run();
+          inserts.push({ novelId, categoryId });
         }
+      }
+      if (inserts.length > 0) {
+        await tx.insert(novelCategorySchema).values(inserts).onConflictDoNothing().run();
       }
     } else {
       // If no category is selected, set to the default category (sort = 1)
@@ -409,22 +407,21 @@ export const updateNovelCategories = async (
         .get();
 
       if (defaultCategory) {
-        for (const novelId of novelIds) {
-          // Check if it already has some category (e.g. local)
-          const hasCategory = await tx
-            .select({ count: sql<number>`count(*)` })
-            .from(novelCategorySchema)
-            .where(eq(novelCategorySchema.novelId, novelId))
-            .get();
+        // Bulk check which novels already have a category
+        const existingCategoryRecords = await tx
+          .select({ novelId: novelCategorySchema.novelId })
+          .from(novelCategorySchema)
+          .where(inArray(novelCategorySchema.novelId, novelIds))
+          .all();
 
-          if (!hasCategory || hasCategory.count === 0) {
-            tx.insert(novelCategorySchema)
-              .values({
-                novelId: novelId,
-                categoryId: defaultCategory.id,
-              })
-              .run();
-          }
+        const categorizedNovelIds = new Set(existingCategoryRecords.map(r => r.novelId));
+
+        const toInsert = novelIds
+          .filter(id => !categorizedNovelIds.has(id))
+          .map(id => ({ novelId: id, categoryId: defaultCategory.id }));
+
+        if (toInsert.length > 0) {
+          await tx.insert(novelCategorySchema).values(toInsert).run();
         }
       }
     }
