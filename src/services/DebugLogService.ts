@@ -71,7 +71,7 @@ class DebugLogServiceClass {
           return arg;
         }
         try {
-          return util.inspect(arg, { showHidden: false, depth: null, customInspect: true });
+          return util.inspect(arg, { showHidden: false, depth: 3, customInspect: true });
         } catch {
           return String(arg);
         }
