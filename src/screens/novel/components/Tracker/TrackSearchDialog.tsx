@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TextInput, TouchableRipple } from 'react-native-paper';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { Button, Modal } from '@components';
 import { getTracker, useTheme } from '@hooks/persisted';
@@ -122,47 +123,49 @@ const TrackSearchDialog: React.FC<TrackSearchDialogProps> = ({
 
   return (
     <Modal visible={visible} onDismiss={onDismiss}>
-      <TextInput
-        value={searchText}
-        onChangeText={setSearchText}
-        onSubmitEditing={getSearchResults}
-        textColor={theme.onSurface}
-        theme={{
-          colors: {
-            primary: theme.primary,
-            text: theme.onSurface,
-          },
-        }}
-        style={styles.textInput}
-        underlineColor={theme.outline}
-        right={
-          <TextInput.Icon
-            color={theme.onSurfaceVariant}
-            icon="close"
-            onPress={handleClearSearch}
-          />
-        }
-      />
-      <ScrollView style={styles.scrollView}>
-        {loading ? (
-          <ActivityIndicator
-            color={theme.primary}
-            size={45}
-            style={styles.loader}
-          />
-        ) : (
-          searchResults.map(renderSearchResultCard)
-        )}
-      </ScrollView>
-      <View style={styles.buttonContainer}>
-        <Button onPress={handleRemoveSelection}>
-          {getString('common.remove')}
-        </Button>
-        <View style={styles.actionButtons}>
-          <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
-          <Button onPress={handleConfirm}>OK</Button>
+      <KeyboardAwareScrollView>
+        <TextInput
+          value={searchText}
+          onChangeText={setSearchText}
+          onSubmitEditing={getSearchResults}
+          textColor={theme.onSurface}
+          theme={{
+            colors: {
+              primary: theme.primary,
+              text: theme.onSurface,
+            },
+          }}
+          style={styles.textInput}
+          underlineColor={theme.outline}
+          right={
+            <TextInput.Icon
+              color={theme.onSurfaceVariant}
+              icon="close"
+              onPress={handleClearSearch}
+            />
+          }
+        />
+        <ScrollView style={styles.scrollView}>
+          {loading ? (
+            <ActivityIndicator
+              color={theme.primary}
+              size={45}
+              style={styles.loader}
+            />
+          ) : (
+            searchResults.map(renderSearchResultCard)
+          )}
+        </ScrollView>
+        <View style={styles.buttonContainer}>
+          <Button onPress={handleRemoveSelection}>
+            {getString('common.remove')}
+          </Button>
+          <View style={styles.actionButtons}>
+            <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
+            <Button onPress={handleConfirm}>OK</Button>
+          </View>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </Modal>
   );
 };

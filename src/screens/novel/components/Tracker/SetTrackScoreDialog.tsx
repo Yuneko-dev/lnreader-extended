@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, DialogTitle, Modal } from '@components';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { getString } from '@strings/translations';
 import {
   AniListScoreSelector,
@@ -68,12 +69,14 @@ const SetTrackScoreDialog: React.FC<TrackScoreDialogProps> = ({
 
   return (
     <Modal visible={visible} onDismiss={onDismiss}>
-      <DialogTitle title="Score" />
-      {ScoreSelector}
-      <View style={styles.buttonContainer}>
-        <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
-        <Button onPress={handleSave}>{getString('common.save')}</Button>
-      </View>
+      <KeyboardAwareScrollView>
+        <DialogTitle title="Score" />
+        {ScoreSelector}
+        <View style={styles.buttonContainer}>
+          <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
+          <Button onPress={handleSave}>{getString('common.save')}</Button>
+        </View>
+      </KeyboardAwareScrollView>
     </Modal>
   );
 };

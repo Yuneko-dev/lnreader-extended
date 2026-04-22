@@ -10,6 +10,7 @@ import LottieSplashScreen from 'react-native-lottie-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import * as Notifications from 'expo-notifications';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import AppErrorBoundary, {
   ErrorFallback,
@@ -129,18 +130,20 @@ const App = () => {
   return (
     <Suspense fallback={null}>
       <GestureHandlerRootView style={styles.flex}>
-        <NativeCrashFallback>
-          <AppErrorBoundary>
-            <SafeAreaProvider>
-              <PaperProvider>
-                <BottomSheetModalProvider>
-                  <StatusBar translucent={true} backgroundColor="transparent" />
-                  <AppContent />
-                </BottomSheetModalProvider>
-              </PaperProvider>
-            </SafeAreaProvider>
-          </AppErrorBoundary>
-        </NativeCrashFallback>
+        <KeyboardProvider>
+          <NativeCrashFallback>
+            <AppErrorBoundary>
+              <SafeAreaProvider>
+                <PaperProvider>
+                  <BottomSheetModalProvider>
+                    <StatusBar translucent={true} backgroundColor="transparent" />
+                    <AppContent />
+                  </BottomSheetModalProvider>
+                </PaperProvider>
+              </SafeAreaProvider>
+            </AppErrorBoundary>
+          </NativeCrashFallback>
+        </KeyboardProvider>
       </GestureHandlerRootView>
     </Suspense>
   );

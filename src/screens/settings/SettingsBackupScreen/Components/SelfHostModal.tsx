@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { Portal, TextInput } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 enum BackupModal {
   SET_HOST,
@@ -271,14 +272,14 @@ export default function SelfHostModal({
   return (
     <Portal>
       <Modal visible={visible} onDismiss={closeModal}>
-        <>
+        <KeyboardAwareScrollView>
           <View style={styles.titleContainer}>
             <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
               {getString('backupScreen.remote.backup')}
             </Text>
           </View>
           {renderModal()}
-        </>
+        </KeyboardAwareScrollView>
       </Modal>
     </Portal>
   );

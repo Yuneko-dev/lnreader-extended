@@ -3,6 +3,7 @@ import { View, StyleSheet, TextInput } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { Modal } from '@components';
 import { useTheme } from '@hooks/persisted';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 interface TrackerLoginDialogProps {
   visible: boolean;
@@ -56,74 +57,76 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
 
   return (
     <Modal visible={visible} onDismiss={handleCancel}>
-      <View style={styles.container}>
-        <Text style={[styles.title, { color: theme.onSurface }]}>
-          Login to {trackerName}
-        </Text>
-
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: theme.surface,
-              color: theme.onSurface,
-              borderColor: theme.outline,
-            },
-          ]}
-          placeholder={usernameLabel}
-          placeholderTextColor={theme.onSurfaceVariant}
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isLoading}
-        />
-
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: theme.surface,
-              color: theme.onSurface,
-              borderColor: theme.outline,
-            },
-          ]}
-          placeholder="Password"
-          placeholderTextColor={theme.onSurfaceVariant}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isLoading}
-        />
-
-        {error ? (
-          <Text style={[styles.errorText, { color: theme.error }]}>
-            {error}
+      <KeyboardAwareScrollView>
+        <View style={styles.container}>
+          <Text style={[styles.title, { color: theme.onSurface }]}>
+            Login to {trackerName}
           </Text>
-        ) : null}
 
-        <View style={styles.buttonRow}>
-          <Button
-            style={styles.button}
-            labelStyle={[{ color: theme.primary }, styles.buttonLabel]}
-            onPress={handleCancel}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button
-            style={styles.button}
-            labelStyle={[{ color: theme.primary }, styles.buttonLabel]}
-            onPress={handleSubmit}
-            disabled={isLoading}
-            loading={isLoading}
-          >
-            {isLoading ? 'Logging in...' : 'Login'}
-          </Button>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.surface,
+                color: theme.onSurface,
+                borderColor: theme.outline,
+              },
+            ]}
+            placeholder={usernameLabel}
+            placeholderTextColor={theme.onSurfaceVariant}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.surface,
+                color: theme.onSurface,
+                borderColor: theme.outline,
+              },
+            ]}
+            placeholder="Password"
+            placeholderTextColor={theme.onSurfaceVariant}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+
+          {error ? (
+            <Text style={[styles.errorText, { color: theme.error }]}>
+              {error}
+            </Text>
+          ) : null}
+
+          <View style={styles.buttonRow}>
+            <Button
+              style={styles.button}
+              labelStyle={[{ color: theme.primary }, styles.buttonLabel]}
+              onPress={handleCancel}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              style={styles.button}
+              labelStyle={[{ color: theme.primary }, styles.buttonLabel]}
+              onPress={handleSubmit}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
+            </Button>
+          </View>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </Modal>
   );
 };

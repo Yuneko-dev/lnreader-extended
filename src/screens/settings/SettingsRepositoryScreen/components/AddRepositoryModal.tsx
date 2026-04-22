@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Portal, TextInput } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { Button, Modal } from '@components/index';
 
@@ -28,28 +29,30 @@ const AddRepositoryModal: React.FC<AddRepositoryModalProps> = ({
   return (
     <Portal>
       <Modal visible={visible} onDismiss={closeModal}>
-        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-          {repository ? 'Edit repository' : 'Add repository'}
-        </Text>
-        <TextInput
-          autoFocus
-          defaultValue={repositoryUrl}
-          placeholder={'Repo URL'}
-          onChangeText={setRepositoryUrl}
-          mode="outlined"
-          underlineColor={theme.outline}
-          theme={{ colors: { ...theme } }}
-        />
-        <View style={styles.btnContainer}>
-          <Button
-            title={getString(repository ? 'common.ok' : 'common.add')}
-            onPress={() => {
-              upsertRepository(repositoryUrl, repository);
-              closeModal();
-            }}
+        <KeyboardAwareScrollView>
+          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+            {repository ? 'Edit repository' : 'Add repository'}
+          </Text>
+          <TextInput
+            autoFocus
+            defaultValue={repositoryUrl}
+            placeholder={'Repo URL'}
+            onChangeText={setRepositoryUrl}
+            mode="outlined"
+            underlineColor={theme.outline}
+            theme={{ colors: { ...theme } }}
           />
-          <Button title={getString('common.cancel')} onPress={closeModal} />
-        </View>
+          <View style={styles.btnContainer}>
+            <Button
+              title={getString(repository ? 'common.ok' : 'common.add')}
+              onPress={() => {
+                upsertRepository(repositoryUrl, repository);
+                closeModal();
+              }}
+            />
+            <Button title={getString('common.cancel')} onPress={closeModal} />
+          </View>
+        </KeyboardAwareScrollView>
       </Modal>
     </Portal>
   );

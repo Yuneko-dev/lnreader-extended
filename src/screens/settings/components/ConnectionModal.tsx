@@ -4,6 +4,7 @@ import { ThemeColors } from '@theme/types';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 interface ConnectionModalProps {
   title: string;
@@ -30,36 +31,38 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
 }) => {
   return (
     <Modal visible={visible} onDismiss={closeModal}>
-      <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-        {title}
-      </Text>
-      <TextInput
-        value={ipv4}
-        placeholder={'xxx.xxx.xxx.xxx'}
-        onChangeText={setIpv4}
-        mode="outlined"
-        underlineColor={theme.outline}
-        theme={{ colors: { ...theme } }}
-        placeholderTextColor={theme.onSurfaceDisabled}
-      />
-      <TextInput
-        value={port}
-        onChangeText={setPort}
-        mode="outlined"
-        underlineColor={theme.outline}
-        theme={{ colors: { ...theme } }}
-        placeholderTextColor={theme.onSurfaceDisabled}
-      />
-      <View style={styles.btnContainer}>
-        <Button
-          title={getString('common.ok')}
-          onPress={() => {
-            closeModal();
-            handle(ipv4, port);
-          }}
+      <KeyboardAwareScrollView>
+        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+          {title}
+        </Text>
+        <TextInput
+          value={ipv4}
+          placeholder={'xxx.xxx.xxx.xxx'}
+          onChangeText={setIpv4}
+          mode="outlined"
+          underlineColor={theme.outline}
+          theme={{ colors: { ...theme } }}
+          placeholderTextColor={theme.onSurfaceDisabled}
         />
-        <Button title={getString('common.cancel')} onPress={closeModal} />
-      </View>
+        <TextInput
+          value={port}
+          onChangeText={setPort}
+          mode="outlined"
+          underlineColor={theme.outline}
+          theme={{ colors: { ...theme } }}
+          placeholderTextColor={theme.onSurfaceDisabled}
+        />
+        <View style={styles.btnContainer}>
+          <Button
+            title={getString('common.ok')}
+            onPress={() => {
+              closeModal();
+              handle(ipv4, port);
+            }}
+          />
+          <Button title={getString('common.cancel')} onPress={closeModal} />
+        </View>
+      </KeyboardAwareScrollView>
     </Modal>
   );
 };

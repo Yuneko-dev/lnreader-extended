@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ThemeColors } from '@theme/types';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Portal, TextInput } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { GoogleSignin, User } from '@react-native-google-signin/google-signin';
 import { Button, EmptyView, Modal } from '@components';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
@@ -282,7 +283,7 @@ export default function GoogleDriveModal({
   return (
     <Portal>
       <Modal visible={visible} onDismiss={closeModal}>
-        <>
+        <KeyboardAwareScrollView>
           <View style={styles.titleContainer}>
             <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
               {getString('backupScreen.drive.googleDriveBackup')}
@@ -311,7 +312,7 @@ export default function GoogleDriveModal({
             </TouchableOpacity>
           </View>
           {renderModal()}
-        </>
+        </KeyboardAwareScrollView>
       </Modal>
     </Portal>
   );

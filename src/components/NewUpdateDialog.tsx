@@ -9,12 +9,10 @@ import { getString } from '@strings/translations';
 import { useTheme } from '@hooks/persisted';
 import { Modal } from '@components';
 
+import { GithubUpdateRelease } from '@hooks/common/useGithubUpdateChecker';
+
 interface NewUpdateDialogProps {
-  newVersion: {
-    tag_name: string;
-    body: string;
-    downloadUrl: string;
-  };
+  newVersion: GithubUpdateRelease;
 }
 
 const NewUpdateDialog: React.FC<NewUpdateDialogProps> = ({ newVersion }) => {

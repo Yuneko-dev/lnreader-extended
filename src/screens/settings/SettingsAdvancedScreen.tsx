@@ -22,6 +22,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { getUserAgentSync } from 'react-native-device-info';
 import CookieManager from '@preeternal/react-native-cookie-manager';
 import { store } from '@plugins/helpers/storage';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   const theme = useTheme();
@@ -160,39 +161,41 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
         />
 
         <Modal visible={userAgentModalVisible} onDismiss={hideUserAgentModal}>
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            {getString('advancedSettingsScreen.userAgent')}
-          </Text>
-          <Text style={{ color: theme.onSurfaceVariant }}>{userAgent}</Text>
-          <TextInput
-            multiline
-            mode="outlined"
-            defaultValue={userAgent}
-            onChangeText={text => setUserAgentInput(text.trim())}
-            placeholderTextColor={theme.onSurfaceDisabled}
-            underlineColor={theme.outline}
-            style={[{ color: theme.onSurface }, styles.textInput]}
-            theme={{ colors: { ...theme } }}
-          />
-          <View style={styles.buttonGroup}>
-            <Button
-              onPress={() => {
-                setUserAgent(userAgentInput);
-                hideUserAgentModal();
-              }}
-              style={styles.button}
-              title={getString('common.save')}
-              mode="contained"
+          <KeyboardAwareScrollView>
+            <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+              {getString('advancedSettingsScreen.userAgent')}
+            </Text>
+            <Text style={{ color: theme.onSurfaceVariant }}>{userAgent}</Text>
+            <TextInput
+              multiline
+              mode="outlined"
+              defaultValue={userAgent}
+              onChangeText={text => setUserAgentInput(text.trim())}
+              placeholderTextColor={theme.onSurfaceDisabled}
+              underlineColor={theme.outline}
+              style={[{ color: theme.onSurface }, styles.textInput]}
+              theme={{ colors: { ...theme } }}
             />
-            <Button
-              style={styles.button}
-              onPress={() => {
-                setUserAgent(getUserAgentSync());
-                hideUserAgentModal();
-              }}
-              title={getString('common.reset')}
-            />
-          </View>
+            <View style={styles.buttonGroup}>
+              <Button
+                onPress={() => {
+                  setUserAgent(userAgentInput);
+                  hideUserAgentModal();
+                }}
+                style={styles.button}
+                title={getString('common.save')}
+                mode="contained"
+              />
+              <Button
+                style={styles.button}
+                onPress={() => {
+                  setUserAgent(getUserAgentSync());
+                  hideUserAgentModal();
+                }}
+                title={getString('common.reset')}
+              />
+            </View>
+          </KeyboardAwareScrollView>
         </Modal>
       </Portal>
     </SafeAreaView>

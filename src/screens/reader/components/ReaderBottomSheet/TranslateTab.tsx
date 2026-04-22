@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { useTheme, useTranslateSettings } from '@hooks/persisted';
 import type {
   LLMProviderSupported,
   TranslateSettings,
-  initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
+import { initialTranslateSettings } from '@hooks/persisted/useSettings';
 import { List, Button } from '@components/index';
 import { Portal, Modal, TextInput, Menu, Switch } from 'react-native-paper';
 import { supportedLanguagesList } from '@services/translate/TranslateEngine';
@@ -323,6 +323,7 @@ const TranslateTab: React.FC = () => {
 
               {llmProvider === 'custom' && (
                 <TextInput
+                  render={props => <BottomSheetTextInput {...props as any} />}
                   label={getString(
                     'readerScreen.bottomSheet.translateTab.endpointUrl',
                   )}
@@ -343,6 +344,7 @@ const TranslateTab: React.FC = () => {
                 />
               )}
               <TextInput
+                render={props => <BottomSheetTextInput {...props as any} />}
                 label={getString(
                   'readerScreen.bottomSheet.translateTab.apiKey',
                 )}
@@ -362,6 +364,7 @@ const TranslateTab: React.FC = () => {
               />
               <View style={styles.modelRow}>
                 <TextInput
+                  render={props => <BottomSheetTextInput {...props as any} />}
                   label={getString(
                     'readerScreen.bottomSheet.translateTab.modelName',
                   )}
@@ -393,6 +396,7 @@ const TranslateTab: React.FC = () => {
               </View>
 
               <TextInput
+                render={props => <BottomSheetTextInput {...props as any} />}
                 label={getString(
                   'readerScreen.bottomSheet.translateTab.systemPrompt',
                 )}

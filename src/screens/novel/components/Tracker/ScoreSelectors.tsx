@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
 import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
@@ -124,7 +124,7 @@ export const AniListScoreSelector: React.FC<AniListScoreSelectorProps> = ({
   };
 
   return (
-    <ScrollView>
+    <View>
       <RadioButtonGroup
         onValueChange={handleValueChange}
         value={trackItem.score}
@@ -138,7 +138,7 @@ export const AniListScoreSelector: React.FC<AniListScoreSelectorProps> = ({
           />
         ))}
       </RadioButtonGroup>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -159,7 +159,7 @@ export const KitsuScoreSelector: React.FC<ScoreSelectorProps> = ({
   };
 
   return (
-    <ScrollView>
+    <View>
       <RadioButtonGroup
         onValueChange={handleValueChange}
         value={trackItem.score}
@@ -173,7 +173,7 @@ export const KitsuScoreSelector: React.FC<ScoreSelectorProps> = ({
           />
         ))}
       </RadioButtonGroup>
-    </ScrollView>
+    </View>
   );
 };
 
