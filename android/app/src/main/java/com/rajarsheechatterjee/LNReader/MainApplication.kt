@@ -1,6 +1,8 @@
 package com.rajarsheechatterjee.LNReader
 
 import android.app.Application
+import android.util.Log
+import android.webkit.CookieManager
 import android.content.res.Configuration
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -26,9 +28,9 @@ import okhttp3.OkHttpClient
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.dnsoverhttps.DnsOverHttps
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okhttp3.brotli.BrotliInterceptor
 import java.net.InetAddress
 import org.jsoup.Jsoup
-import android.webkit.CookieManager
 
 class MainApplication : Application(), ReactApplication {
 
@@ -92,44 +94,52 @@ class MainApplication : Application(), ReactApplication {
     private fun setupNetworkClient() {
         OkHttpClientProvider.setOkHttpClientFactory(object : OkHttpClientFactory {
             var client: OkHttpClient? = null
-
             override fun createNewNetworkModuleClient(): OkHttpClient {
                 val bootstrapClient = OkHttpClient.Builder().build()
                 val dns = DnsOverHttps.Builder().client(bootstrapClient)
                     .url("https://cloudflare-dns.com/dns-query".toHttpUrl())
                     .bootstrapDnsHosts(
+                        InetAddress.getByName("162.159.36.1"),
+                        InetAddress.getByName("162.159.46.1"),
                         InetAddress.getByName("1.1.1.1"),
                         InetAddress.getByName("1.0.0.1"),
+                        InetAddress.getByName("162.159.132.53"),
                         InetAddress.getByName("2606:4700:4700::1111"),
-                        InetAddress.getByName("2606:4700:4700::1001")
+                        InetAddress.getByName("2606:4700:4700::1001"),
+                        InetAddress.getByName("2606:4700:4700::0064"),
+                        InetAddress.getByName("2606:4700:4700::6400"),
                     )
                     .build()
                 val builder = OkHttpClientProvider.createClientBuilder()
-
+                builder.dns(dns)
                 builder.addInterceptor { chain ->
-                    val request = chain.request()
+                    val originalRequest = chain.request()
+                    val request = originalRequest.newBuilder().removeHeader("Accept-Encoding").build()
                     val response = chain.proceed(request)
+                    Log.d("LNReader_Debug_Network", "URL: ${request.url}")
                     val isCloudflareBlock = response.code in ERROR_CODES && response.header("Server") in SERVER_CHECK;
                     var isCaptcha = false
                     if (isCloudflareBlock) {
                         try {
+                            val rawHtml = response.peekBody(Long.MAX_VALUE).string()
+                            // Log.d("LNReader_Debug_Network", "Raw HTML: $rawHtml")
                             val document = Jsoup.parse(
-                                response.peekBody(Long.MAX_VALUE).string(),
+                                rawHtml,
                                 response.request.url.toString(),
                             )
                             isCaptcha = document.getElementById("challenge-error-title") != null ||
                                         document.getElementById("challenge-error-text") != null
+                            Log.d("LNReader_Debug_Network", "isCaptcha = $isCaptcha")
                         } catch (e: Exception) {
-                            // Ignore parse errors
+                            Log.e("LNReader_Debug_Network", "Error: $e")
                         }
                     }
                     if (isCaptcha) {
-                        // Clear cookies
-                        removeCookies(request.url, COOKIE_NAMES)
+                        removeCookies(request.url, COOKIE_NAMES, 0)
                     }
                     response
                 }
-                builder.dns(dns)
+                builder.addInterceptor(BrotliInterceptor)
                 return builder.build()
             }
         })
