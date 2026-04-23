@@ -156,6 +156,7 @@
     "installedPlugin": "Installed %{name}",
     "installedPlugins": "Installed plugins",
     "lastUsed": "Last used",
+    "defaultSources": "Default sources",
     "latest": "Latest",
     "listEmpty": "Enable languages from settings",
     "migration": {

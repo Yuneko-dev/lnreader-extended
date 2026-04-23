@@ -137,6 +137,7 @@ export interface StringMap {
   'browseScreen.available': 'string';
   'browseScreen.deletePluginMessage': 'string';
   'browseScreen.discover': 'string';
+  'browseScreen.defaultSources': 'string';
   'browseScreen.globalSearch': 'string';
   'browseScreen.installFailed': 'string';
   'browseScreen.installed': 'string';

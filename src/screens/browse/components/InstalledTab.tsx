@@ -10,6 +10,7 @@ import { getString } from '@strings/translations';
 import { BrowseScreenProps } from '@navigators/types';
 import { useBoolean } from '@hooks';
 import { getPlugin } from '@plugins/pluginManager';
+import { localPlugin } from '@plugins/local/LocalPlugin';
 
 import DiscoverCard from '../discover/DiscoverCard';
 import SourceSettingsModal from './Modals/SourceSettings';
@@ -157,6 +158,25 @@ export const InstalledTab = memo(
                     setSelectedPluginId={setSelectedPluginId}
                   />
                 ))}
+              </>
+            ) : null}
+
+            {/* Default Sources Section */}
+            {!searchText ? (
+              <>
+                <Text
+                  style={[styles.listHeader, { color: theme.onSurfaceVariant }]}
+                >
+                  {getString('browseScreen.defaultSources')}
+                </Text>
+                <DeferredPluginListItem
+                  item={localPlugin}
+                  theme={theme}
+                  navigation={navigation}
+                  settingsModal={settingsModal}
+                  navigateToSource={navigateToSource}
+                  setSelectedPluginId={setSelectedPluginId}
+                />
               </>
             ) : null}
 

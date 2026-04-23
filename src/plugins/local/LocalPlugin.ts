@@ -1,13 +1,24 @@
 import { eq, like, and } from 'drizzle-orm';
 
-import { Plugin, NovelItem, SourceNovel, ChapterItem } from '@plugins/types';
+import { Plugin, NovelItem, SourceNovel, SourcePage, ChapterItem, PopularNovelsOptions, ImageRequestInit, PluginSettings } from '@plugins/types';
 import { NovelStatus } from '@plugins/types';
+import { Filters } from '@plugins/types/filterTypes';
 import { dbManager } from '@database/db';
 import { novel as novelSchema } from '@database/schema/novel';
 import { chapter as chapterSchema } from '@database/schema/chapter';
 import NativeFile from '@specs/NativeFile';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { getLocalServerUrl } from './localServerManager';
+import { Storage } from '@plugins/helpers/storage';
+import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { load } from 'cheerio';
+
+const storage = new Storage(LOCAL_PLUGIN_ID);
+
+// Init default value for plugin settings
+if (storage.get('disableEpubCss', true) === undefined) {
+  storage.set('disableEpubCss', true);
+}
 
 /**
  * A built-in plugin that handles locally imported novels (EPUBs).
@@ -16,17 +27,34 @@ import { getLocalServerUrl } from './localServerManager';
  * database and filesystem. All file:// URIs in chapter HTML are
  * rewritten to http://localhost:PORT/ to avoid FileUriExposedException.
  */
-export const localPlugin: Plugin = {
-  id: 'local',
-  name: 'Local',
-  site: '',
-  lang: 'Multi',
-  version: '1.0.0',
-  url: '',
-  iconUrl: 'https://raw.githubusercontent.com/Yuneko-dev/lnreader-plugins/refs/heads/master/public/static/epub.png',
-  imageRequestInit: { headers: {} },
+class LocalPlugin implements Plugin {
+  id = LOCAL_PLUGIN_ID;
+  name = 'Local EPUBs';
+  site = '';
+  lang = 'Multi';
+  version = '1.0.0';
+  url = '';
+  iconUrl = 'https://raw.githubusercontent.com/Yuneko-dev/lnreader-plugins/refs/heads/master/public/static/epub.png';
+  imageRequestInit: ImageRequestInit = { headers: {} };
+  hasSettings = true;
 
-  async popularNovels(): Promise<NovelItem[]> {
+  pluginSettings: PluginSettings = {
+    disableEpubCss: {
+      label: '',
+      value: true,
+      type: 'Switch',
+    },
+  };
+
+  get disableEpubCss(): boolean {
+    return storage.get('disableEpubCss');
+  }
+
+  async popularNovels(
+    pageNo: number,
+    _options?: PopularNovelsOptions<Filters>,
+  ): Promise<NovelItem[]> {
+    if (pageNo > 1) return [];
     const novels = await dbManager
       .select({
         id: novelSchema.id,
@@ -44,9 +72,13 @@ export const localPlugin: Plugin = {
       path: n.path,
       cover: rewriteFileUri(n.cover),
     }));
-  },
+  }
 
-  async searchNovels(searchTerm: string): Promise<NovelItem[]> {
+  async searchNovels(
+    searchTerm: string,
+    pageNo: number,
+  ): Promise<NovelItem[]> {
+    if (pageNo > 1) return [];
     const novels = await dbManager
       .select({
         id: novelSchema.id,
@@ -69,7 +101,7 @@ export const localPlugin: Plugin = {
       path: n.path,
       cover: rewriteFileUri(n.cover),
     }));
-  },
+  }
 
   async parseNovel(novelPath: string): Promise<SourceNovel> {
     const novel = await dbManager
@@ -113,7 +145,14 @@ export const localPlugin: Plugin = {
       genres: novel.genres ?? undefined,
       chapters: chapterItems,
     };
-  },
+  }
+
+  async parsePage(novelPath: string, _page: string): Promise<SourcePage> {
+    const novel = await this.parseNovel(novelPath);
+    return {
+      chapters: novel.chapters || [],
+    };
+  }
 
   async parseChapter(chapterPath: string): Promise<string> {
     // chapterPath format: NOVEL_STORAGE/local/{novelId}/{chapterId}/index.html
@@ -137,8 +176,19 @@ export const localPlugin: Plugin = {
       '$1',
     );
 
+    const $ = load(html);
+
+    if (this.disableEpubCss) {
+      // Remove all stylesheet including those in <head> and <body>
+      $.root().find('link[rel="stylesheet"]').each((i, el) => {
+        $(el).remove();
+      });
+    }
+
+    html = $.html();
+
     return html;
-  },
+  }
 
   resolveUrl(path: string): string {
     const serverUrl = getLocalServerUrl();
@@ -146,8 +196,10 @@ export const localPlugin: Plugin = {
       return path.replace(NOVEL_STORAGE, serverUrl);
     }
     return path;
-  },
-};
+  }
+}
+
+export const localPlugin = new LocalPlugin();
 
 /**
  * Rewrite a file:// URI to go through the local HTTP server.

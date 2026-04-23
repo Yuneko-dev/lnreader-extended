@@ -156,6 +156,7 @@
     "installedPlugin": "Đã cài đặt %{name}",
     "installedPlugins": "Nguồn đã cài đặt",
     "lastUsed": "Lần sử dụng trước",
+    "defaultSources": "Nguồn mặc định",
     "latest": "Mới nhất",
     "listEmpty": "Chọn ngôn ngữ",
     "migration": {
