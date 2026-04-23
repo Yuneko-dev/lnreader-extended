@@ -10,7 +10,7 @@ import { BackupNovel, NovelInfo } from '../types';
 import { SourceNovel } from '@plugins/types';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { downloadFile } from '@plugins/helpers/fetch';
-import { getPlugin } from '@plugins/pluginManager';
+import { getPlugin, LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
 import { dbManager } from '@database/db';
 import {
   novelSchema,
@@ -122,83 +122,85 @@ export const switchNovelToLibraryQuery = async (
   const novel = getNovelByPath(novelPath, pluginId);
   if (novel) {
     const newInLibrary = !novel.inLibrary;
-    const isLocalRemoval =
-      !newInLibrary && novel.pluginId === 'local';
+    const isLocalRemoval = !newInLibrary && novel.pluginId === LOCAL_PLUGIN_ID;
 
     await dbManager.write(async tx => {
-      if (isLocalRemoval) {
-        // Local novels can't be re-fetched, so fully delete them
+      await tx
+        .update(novelSchema)
+        .set({ inLibrary: newInLibrary })
+        .where(eq(novelSchema.id, novel.id))
+        .run();
+
+      if (!newInLibrary) {
+        // Remove from library: delete categories
         await tx
           .delete(novelCategorySchema)
           .where(eq(novelCategorySchema.novelId, novel.id))
           .run();
-        await tx
-          .delete(chapterSchema)
-          .where(eq(chapterSchema.novelId, novel.id))
-          .run();
-        await tx
-          .delete(novelSchema)
-          .where(eq(novelSchema.id, novel.id))
-          .run();
       } else {
-        await tx
-          .update(novelSchema)
-          .set({ inLibrary: newInLibrary })
-          .where(eq(novelSchema.id, novel.id))
-          .run();
+        // Add to library: add to default category
+        const defaultCategory = await tx
+          .select({ id: categorySchema.id })
+          .from(categorySchema)
+          .where(eq(categorySchema.id, 1))
+          .get();
 
-        if (!newInLibrary) {
-          // Remove from library: delete categories
+        if (defaultCategory) {
           await tx
-            .delete(novelCategorySchema)
-            .where(eq(novelCategorySchema.novelId, novel.id))
+            .insert(novelCategorySchema)
+            .values({
+              novelId: novel.id,
+              categoryId: defaultCategory.id,
+            })
             .run();
-        } else {
-          // Add to library: add to default category
-          const defaultCategory = await tx
-            .select({ id: categorySchema.id })
-            .from(categorySchema)
-            .where(eq(categorySchema.id, 1))
-            .get();
+        }
 
-          if (defaultCategory) {
-            await tx
-              .insert(novelCategorySchema)
-              .values({
-                novelId: novel.id,
-                categoryId: defaultCategory.id,
-              })
-              .run();
-          }
-
-          if (novel.pluginId === 'local') {
-            await tx
-              .insert(novelCategorySchema)
-              .values({
-                novelId: novel.id,
-                categoryId: 2,
-              })
-              .onConflictDoNothing()
-              .run();
-          }
+        if (novel.pluginId === LOCAL_PLUGIN_ID) {
+          await tx
+            .insert(novelCategorySchema)
+            .values({
+              novelId: novel.id,
+              categoryId: 2,
+            })
+            .onConflictDoNothing()
+            .run();
         }
       }
     });
 
+    // For local novels: fully delete only if novel is no longer in ANY category
     if (isLocalRemoval) {
-      // Delete files OUTSIDE the transaction so a file error
-      // doesn't rollback the DB cleanup
-      try {
-        const novelDir = `${NOVEL_STORAGE}/local/${novel.id}`;
-        if (NativeFile.exists(novelDir)) {
-          NativeFile.unlink(novelDir);
+      const remaining = await dbManager
+        .select({ id: novelCategorySchema.novelId })
+        .from(novelCategorySchema)
+        .where(eq(novelCategorySchema.novelId, novel.id))
+        .get();
+
+      if (!remaining) {
+        // Novel is orphaned — safe to fully delete
+        await dbManager.write(async tx => {
+          await tx
+            .delete(chapterSchema)
+            .where(eq(chapterSchema.novelId, novel.id))
+            .run();
+          await tx
+            .delete(novelSchema)
+            .where(eq(novelSchema.id, novel.id))
+            .run();
+        });
+
+        try {
+          const novelDir = `${NOVEL_STORAGE}/local/${novel.id}`;
+          if (NativeFile.exists(novelDir)) {
+            NativeFile.unlink(novelDir);
+          }
+        } catch (e: any) {
+          console.error('[LocalNovel] Failed to delete files:', e.message);
         }
-      } catch (e) {
-        console.error('[LocalNovel] Failed to delete files:', e);
+
+        showToast(getString('browseScreen.removeFromLibrary'));
+        return undefined;
       }
-      showToast(getString('browseScreen.removeFromLibrary'));
-      // Return undefined to signal the novel was fully deleted
-      return undefined;
     }
 
     showToast(
@@ -246,6 +248,16 @@ export const switchNovelToLibraryQuery = async (
 export const removeNovelsFromLibrary = async (novelIds: Array<number>) => {
   if (!novelIds.length) return;
 
+  const novels = await dbManager
+    .select()
+    .from(novelSchema)
+    .where(inArray(novelSchema.id, novelIds))
+    .all();
+  const localNovelIds = novels
+    .filter(n => n.pluginId === LOCAL_PLUGIN_ID)
+    .map(n => n.id);
+
+  // Step 1: Remove all novels from library (same as remote behavior)
   await dbManager.write(async tx => {
     tx.update(novelSchema)
       .set({ inLibrary: false })
@@ -256,6 +268,41 @@ export const removeNovelsFromLibrary = async (novelIds: Array<number>) => {
       .where(inArray(novelCategorySchema.novelId, novelIds))
       .run();
   });
+
+  // Step 2: For local novels, check which ones are truly orphaned
+  // (no remaining category associations) and fully delete only those
+  if (localNovelIds.length) {
+    const stillLinked = await dbManager
+      .select({ novelId: novelCategorySchema.novelId })
+      .from(novelCategorySchema)
+      .where(inArray(novelCategorySchema.novelId, localNovelIds))
+      .all();
+    const stillLinkedIds = new Set(stillLinked.map(r => r.novelId));
+    const orphanedIds = localNovelIds.filter(id => !stillLinkedIds.has(id));
+
+    if (orphanedIds.length) {
+      await dbManager.write(async tx => {
+        tx.delete(chapterSchema)
+          .where(inArray(chapterSchema.novelId, orphanedIds))
+          .run();
+        tx.delete(novelSchema)
+          .where(inArray(novelSchema.id, orphanedIds))
+          .run();
+      });
+
+      try {
+        for (const id of orphanedIds) {
+          const novelDir = `${NOVEL_STORAGE}/local/${id}`;
+          if (NativeFile.exists(novelDir)) {
+            NativeFile.unlink(novelDir);
+          }
+        }
+      } catch (e) {
+        console.error('[LocalNovel] Failed to delete files:', e);
+      }
+    }
+  }
+
   showToast(getString('browseScreen.removeFromLibrary'));
 };
 

@@ -44,7 +44,8 @@ const updateNovelMetadata = async (
   }
 
   await dbManager.write(async tx => {
-    await tx.update(novelSchema)
+    await tx
+      .update(novelSchema)
       .set({
         name,
         cover: cover || null,
@@ -79,7 +80,11 @@ const updateNovelNecessaryInfo = async (
     return;
   }
   await dbManager.write(async tx => {
-    await tx.update(novelSchema).set(data).where(eq(novelSchema.id, novelId)).run();
+    await tx
+      .update(novelSchema)
+      .set(data)
+      .where(eq(novelSchema.id, novelId))
+      .run();
   });
 };
 
@@ -217,16 +222,18 @@ const updateNovelChapters = async (
         }
       }
       // Force UI refresh
-      if (inLibrary)
+      if (inLibrary) {
         MMKVStorage.set(
           NOVEL_UPDATE_RANDOM_KEY,
           Math.random().toString(36).substring(2, 15),
         );
+      }
     }
 
     if (toUpdate.length > 0) {
       for (const chapterData of toUpdate) {
-        await tx.update(chapterSchema)
+        await tx
+          .update(chapterSchema)
           .set({
             name: chapterData.name,
             releaseTime: chapterData.releaseTime,

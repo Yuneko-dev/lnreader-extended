@@ -36,7 +36,6 @@ export class DbTaskQueue {
   ): Promise<TResult> {
     if (__DEV__) {
       if (this.queue.length >= 1) {
-        // eslint-disable-next-line no-console
         console.warn('[db-queue] One or more tasks are already queued');
       }
     }

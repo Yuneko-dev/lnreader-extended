@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { drizzle } from 'drizzle-orm/op-sqlite';
 
 import { schema } from './schema';

@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * DebugLogService - Singleton service that intercepts console.log/warn/error
  * and buffers log entries for display in the Debug Log screen.

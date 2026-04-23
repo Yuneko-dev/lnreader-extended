@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import React, { useRef, useState } from 'react';
 import WebView, { WebViewNavigation } from 'react-native-webview';
 import { ProgressBar } from 'react-native-paper';

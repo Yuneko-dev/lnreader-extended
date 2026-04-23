@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useLibraryContext } from '@components/Context/LibraryContext';
 import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
 import {

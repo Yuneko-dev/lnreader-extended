@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import OpenAI from 'openai';
 import { TranslateEngine } from './TranslateEngine';
 import {

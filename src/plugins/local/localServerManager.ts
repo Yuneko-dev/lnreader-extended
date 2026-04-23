@@ -8,14 +8,22 @@ let serverStarted = false;
  */
 export const initLocalServer = async (): Promise<void> => {
   if (serverStarted) {
-    console.info('[LocalServer] Already started, URL:', NativeLocalServer.getServerUrl());
+    console.info(
+      '[LocalServer] Already started, URL:',
+      NativeLocalServer.getServerUrl(),
+    );
     return;
   }
   try {
     console.info('[LocalServer] Starting server...');
     const port = await NativeLocalServer.startServer();
     serverStarted = true;
-    console.info('[LocalServer] Server started on port', port, '→', NativeLocalServer.getServerUrl());
+    console.info(
+      '[LocalServer] Server started on port',
+      port,
+      '→',
+      NativeLocalServer.getServerUrl(),
+    );
   } catch (e) {
     console.error('[LocalServer] Failed to start:', e);
   }
@@ -35,8 +43,8 @@ export const getLocalServerUrl = (): string => {
  */
 export const getLocalFileUrl = (relativePath: string): string => {
   const baseUrl = getLocalServerUrl();
-  console.info("[LocalServer] Local server URL: ", baseUrl);
-  console.info("[LocalServer] Relative path: ", relativePath);
+  console.info('[LocalServer] Local server URL: ', baseUrl);
+  console.info('[LocalServer] Relative path: ', relativePath);
   if (!baseUrl) {
     return '';
   }

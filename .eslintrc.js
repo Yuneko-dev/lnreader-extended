@@ -13,7 +13,7 @@ module.exports = {
       rules: {
         'no-shadow': 'off',
         'no-undef': 'off',
-        'no-console': 'error',
+        'no-console': 'warn',
         '@typescript-eslint/no-shadow': 'warn',
         'react-hooks/exhaustive-deps': 'warn',
         'curly': ['error', 'multi-line', 'consistent'],

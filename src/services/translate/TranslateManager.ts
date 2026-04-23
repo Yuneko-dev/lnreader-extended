@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import * as cheerio from 'cheerio';
 import { TranslateEngine } from './TranslateEngine';
 import { GoogleTranslateFreeEngine } from './GoogleTranslateFreeEngine';

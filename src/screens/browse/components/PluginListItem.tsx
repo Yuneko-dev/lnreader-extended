@@ -11,6 +11,7 @@ import { Button, IconButtonV2 } from '@components';
 import { showToast } from '@utils/showToast';
 import { UseBooleanReturnType } from '@hooks';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
+import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
 
 interface PluginListItemProps {
   item: PluginItem;
@@ -111,12 +112,20 @@ export const PluginListItem = memo(
     }, [updatePlugin, item]);
 
     const handleLatestPress = useCallback(() => {
-      navigateToSource(item, true);
-    }, [navigateToSource, item]);
+      if (item.id === LOCAL_PLUGIN_ID) {
+        handleSettingsPress();
+      } else {
+        navigateToSource(item, true);
+      }
+    }, [navigateToSource, item, handleSettingsPress]);
 
     const handlePress = useCallback(() => {
-      navigateToSource(item);
-    }, [navigateToSource, item]);
+      if (item.id === LOCAL_PLUGIN_ID) {
+        handleSettingsPress();
+      } else {
+        navigateToSource(item);
+      }
+    }, [navigateToSource, item, handleSettingsPress]);
 
     const renderRightActions = useCallback(
       (_progress: any, _dragX: any, ref: any) => (
@@ -202,11 +211,13 @@ export const PluginListItem = memo(
                 theme={theme}
               />
             ) : null}
-            <Button
-              title={getString('browseScreen.latest')}
-              textColor={theme.primary}
-              onPress={handleLatestPress}
-            />
+            {item.id !== LOCAL_PLUGIN_ID ? (
+              <Button
+                title={getString('browseScreen.latest')}
+                textColor={theme.primary}
+                onPress={handleLatestPress}
+              />
+            ) : null}
           </Pressable>
         </Swipeable>
         <ConfirmationDialog

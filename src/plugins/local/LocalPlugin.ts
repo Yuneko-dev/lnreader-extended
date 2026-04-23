@@ -1,11 +1,11 @@
-import { eq, like, and } from 'drizzle-orm';
-
-import { Plugin, NovelItem, SourceNovel, SourcePage, ChapterItem, PopularNovelsOptions, ImageRequestInit, PluginSettings } from '@plugins/types';
-import { NovelStatus } from '@plugins/types';
-import { Filters } from '@plugins/types/filterTypes';
-import { dbManager } from '@database/db';
-import { novel as novelSchema } from '@database/schema/novel';
-import { chapter as chapterSchema } from '@database/schema/chapter';
+import {
+  Plugin,
+  NovelItem,
+  SourceNovel,
+  SourcePage,
+  ImageRequestInit,
+  PluginSettings,
+} from '@plugins/types';
 import NativeFile from '@specs/NativeFile';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { getLocalServerUrl } from './localServerManager';
@@ -29,9 +29,11 @@ class LocalPlugin implements Plugin {
   lang = 'Multi';
   version = '1.0.0';
   url = '';
-  iconUrl = 'https://raw.githubusercontent.com/Yuneko-dev/lnreader-plugins/refs/heads/master/public/static/epub.png';
+  iconUrl =
+    'https://raw.githubusercontent.com/Yuneko-dev/lnreader-plugins/refs/heads/master/public/static/epub.png';
   imageRequestInit: ImageRequestInit = { headers: {} };
   hasSettings = true;
+  webStorageUtilized = false;
 
   pluginSettings: PluginSettings = {
     disableEpubCss: {
@@ -45,65 +47,20 @@ class LocalPlugin implements Plugin {
     return Boolean(storage.get('disableEpubCss', false));
   }
 
-  async popularNovels(
-    pageNo: number,
-    _options?: PopularNovelsOptions<Filters>,
-  ): Promise<NovelItem[]> {
-    if (pageNo > 1) return [];
-    const novels = await dbManager
-      .select({
-        id: novelSchema.id,
-        name: novelSchema.name,
-        path: novelSchema.path,
-        cover: novelSchema.cover,
-      })
-      .from(novelSchema)
-      .where(eq(novelSchema.isLocal, true))
-      .all();
-
-    return novels.map(n => ({
-      id: undefined,
-      name: n.name,
-      path: n.path,
-      cover: rewriteFileUri(n.cover),
-    }));
+  async popularNovels(): Promise<NovelItem[]> {
+    throw new Error('Do not open it in this plugin. Use Category instead.');
   }
 
-  async searchNovels(
-    searchTerm: string,
-    pageNo: number,
-  ): Promise<NovelItem[]> {
-    if (pageNo > 1) return [];
-    const novels = await dbManager
-      .select({
-        id: novelSchema.id,
-        name: novelSchema.name,
-        path: novelSchema.path,
-        cover: novelSchema.cover,
-      })
-      .from(novelSchema)
-      .where(
-        and(
-          eq(novelSchema.isLocal, true),
-          like(novelSchema.name, `%${searchTerm}%`),
-        ),
-      )
-      .all();
-
-    return novels.map(n => ({
-      id: undefined,
-      name: n.name,
-      path: n.path,
-      cover: rewriteFileUri(n.cover),
-    }));
+  async searchNovels(): Promise<NovelItem[]> {
+    throw new Error('Do not open it in this plugin. Use Category instead.');
   }
 
   async parseNovel(): Promise<SourceNovel> {
-    throw new Error("Do not open it in this plugin. Use Category instead.");
+    throw new Error('Do not open it in this plugin. Use Category instead.');
   }
 
   async parsePage(): Promise<SourcePage> {
-    throw new Error("Do not open it in this plugin. Use Category instead.");
+    throw new Error('Do not open it in this plugin. Use Category instead.');
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
@@ -132,9 +89,11 @@ class LocalPlugin implements Plugin {
 
     if (this.disableEpubCss) {
       // Remove all stylesheet including those in <head> and <body>
-      $.root().find('link[rel="stylesheet"]').each((i, el) => {
-        $(el).remove();
-      });
+      $.root()
+        .find('link[rel="stylesheet"]')
+        .each((i, el) => {
+          $(el).remove();
+        });
     }
 
     html = $.html();
@@ -152,18 +111,3 @@ class LocalPlugin implements Plugin {
 }
 
 export const localPlugin = new LocalPlugin();
-
-/**
- * Rewrite a file:// URI to go through the local HTTP server.
- * Returns the original value if server is not running or value is not a file URI.
- */
-function rewriteFileUri(uri: string | null | undefined): string | undefined {
-  if (!uri) {
-    return undefined;
-  }
-  const serverUrl = getLocalServerUrl();
-  if (serverUrl && uri.includes('/Novels/')) {
-    return uri.replace(/file:\/\/[^\s"']*\/Novels\//, serverUrl + '/');
-  }
-  return uri;
-}

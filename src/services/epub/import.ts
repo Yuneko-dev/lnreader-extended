@@ -32,7 +32,13 @@ const insertLocalNovel = async (
   const { insertId } = await dbManager.write(async tx => {
     return tx
       .insert(novelSchema)
-      .values({ name, path, pluginId: 'local', inLibrary: true, isLocal: true })
+      .values({
+        name,
+        path,
+        pluginId: LOCAL_PLUGIN_ID,
+        inLibrary: true,
+        isLocal: true,
+      })
       .run();
   });
 

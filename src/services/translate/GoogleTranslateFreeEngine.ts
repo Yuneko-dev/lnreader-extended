@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { TranslateEngine } from './TranslateEngine';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
