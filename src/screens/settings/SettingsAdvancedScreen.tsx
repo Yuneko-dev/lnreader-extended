@@ -15,6 +15,8 @@ import {
   deleteReadChaptersFromDb,
   clearUpdates,
 } from '@database/queries/ChapterQueries';
+import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
 
 import { Appbar, Button, List, Modal, SafeAreaView } from '@components';
 import { AdvancedSettingsScreenProps } from '@navigators/types';
@@ -153,8 +155,12 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
         <ConfirmationDialog
           message={getString('advancedSettingsScreen.clearUpdatesWarning')}
           visible={clearUpdatesDialog}
-          onSubmit={() => {
-            clearUpdates();
+          onSubmit={async () => {
+            await clearUpdates();
+            MMKVStorage.set(
+              NOVEL_UPDATE_RANDOM_KEY,
+              Math.random().toString(36).substring(2, 15),
+            );
             showToast(getString('advancedSettingsScreen.clearUpdatesMessage'));
             hideClearUpdatesDialog();
           }}
