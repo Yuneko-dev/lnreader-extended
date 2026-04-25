@@ -157,10 +157,10 @@ export default function ForceResetModal({
             </View>
 
             {reloadChapters && isPagePlugin && (
-              <View style={[styles.row, { paddingLeft: 16 }]}>
+              <View style={[styles.row]}>
                 <View style={{ flex: 1 }}>
                   <Text style={[{ color: theme.onSurface }]}>
-                    {getString('novelScreen.forceResetModal.reloadAllPages', {
+                    ╰─ {getString('novelScreen.forceResetModal.reloadAllPages', {
                       totalPages: novel.totalPages,
                     })}
                   </Text>
