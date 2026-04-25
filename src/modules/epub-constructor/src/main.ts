@@ -5,7 +5,6 @@ import {
   getImageType,
   removeFileExtension,
   setChapterFileNames,
-  sanitizeFileName,
 } from './methods/helper';
 import { createStyle } from './methods/createStyle';
 import { createMetadata } from './constructors/metadataConstructor';
@@ -24,6 +23,7 @@ import {
   defaultHtmlToc,
   defaultNcxToc,
 } from './constructors/defaultsConstructor';
+import sanitizeFileName from 'sanitize-filename';
 
 export default class EpubFile {
   epubSettings: EpubSettings;

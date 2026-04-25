@@ -1,4 +1,5 @@
 import { EpubChapter, File, InternalEpubChapter } from '../../types';
+import sanitizeFileName from 'sanitize-filename';
 
 /**
  * Creates a file object with the specified path, content, and optional isImage flag.
@@ -139,21 +140,6 @@ export function getImageType(path: string) {
  */
 export function removeFileExtension(name: string) {
   return name.replace(/(.*)(\.opf|\.epub)/, '$1');
-}
-
-/**
- * Removes all non-word and non-space characters from a given file name.
- *
- * @param fileName - The file name to sanitize.
- * @returns The sanitized file name.
- *
- * @example
- * const fileName = "my_file!@#.txt";
- * const sanitizedFileName = sanitizeFileName(fileName);
- * console.log(sanitizedFileName); // Output: "my_filetxt"
- */
-export function sanitizeFileName(fileName: string) {
-  return fileName.replace(/ /g, '_').replace(/[^\w]/gi, ''); // remove all non-word and non-space characters
 }
 
 /**
