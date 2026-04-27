@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { NovelItem } from '@plugins/types';
 
 import { getPlugin } from '@plugins/pluginManager';
@@ -14,7 +14,7 @@ export const useBrowseSource = (
 
   const [currentPage, setCurrentPage] = useState(1);
   const [filterValues, setFilterValues] = useState<Filters | undefined>(
-    getPlugin(pluginId)?.filters,
+    (getPlugin(pluginId) as any)?.filters,
   );
   const [selectedFilters, setSelectedFilters] = useState<
     FilterToValues<Filters> | undefined
@@ -22,10 +22,13 @@ export const useBrowseSource = (
   const [hasNextPage, setHasNextPage] = useState(true);
 
   const isScreenMounted = useRef(true);
+  // Guard against race conditions: track the latest fetch request
+  const fetchIdRef = useRef(0);
 
   const fetchNovels = useCallback(
     async (page: number, filters?: FilterToValues<Filters>) => {
       if (isScreenMounted.current === true) {
+        const fetchId = ++fetchIdRef.current;
         try {
           const plugin = getPlugin(pluginId);
           if (!plugin) {
@@ -37,6 +40,8 @@ export const useBrowseSource = (
               filters,
             })
             .then(res => {
+              // Discard stale responses
+              if (fetchId !== fetchIdRef.current) return;
               setNovels(prevState =>
                 page === 1 ? res : [...prevState, ...res],
               );
@@ -45,23 +50,30 @@ export const useBrowseSource = (
               }
             })
             .catch(e => {
+              if (fetchId !== fetchIdRef.current) return;
               setError(e.message);
               setHasNextPage(false);
             });
-          setFilterValues(plugin.filters);
+          if (fetchId === fetchIdRef.current) {
+            setFilterValues((plugin as any).filters);
+          }
         } catch (err: unknown) {
-          setError(`${err}`);
+          if (fetchId === fetchIdRef.current) {
+            setError(`${err}`);
+          }
         } finally {
-          setIsLoading(false);
+          if (fetchId === fetchIdRef.current) {
+            setIsLoading(false);
+          }
         }
       }
     },
     [pluginId, showLatestNovels],
   );
 
-  const fetchNextPage = () => {
+  const fetchNextPage = useCallback(() => {
     if (hasNextPage) setCurrentPage(prevState => prevState + 1);
-  };
+  }, [hasNextPage]);
 
   /**
    * On screen unmount
@@ -76,37 +88,51 @@ export const useBrowseSource = (
     fetchNovels(currentPage, selectedFilters);
   }, [fetchNovels, currentPage, selectedFilters]);
 
-  const refetchNovels = () => {
+  const refetchNovels = useCallback(() => {
     setError('');
     setIsLoading(true);
     setNovels([]);
     setCurrentPage(1);
     fetchNovels(1, selectedFilters);
-  };
+  }, [fetchNovels, selectedFilters]);
 
   const clearFilters = useCallback(
     (filters: Filters) => setSelectedFilters(filters),
     [],
   );
 
-  const setFilters = (filters?: FilterToValues<Filters>) => {
+  const setFilters = useCallback((filters?: FilterToValues<Filters>) => {
     setIsLoading(true);
     setCurrentPage(1);
-    fetchNovels(1, filters);
+    setNovels([]);
+    setHasNextPage(true);
     setSelectedFilters(filters);
-  };
+  }, []);
 
-  return {
-    isLoading,
-    novels,
-    hasNextPage,
-    fetchNextPage,
-    error,
-    filterValues,
-    setFilters,
-    clearFilters,
-    refetchNovels,
-  };
+  return useMemo(
+    () => ({
+      isLoading,
+      novels,
+      hasNextPage,
+      fetchNextPage,
+      error,
+      filterValues,
+      setFilters,
+      clearFilters,
+      refetchNovels,
+    }),
+    [
+      isLoading,
+      novels,
+      hasNextPage,
+      fetchNextPage,
+      error,
+      filterValues,
+      setFilters,
+      clearFilters,
+      refetchNovels,
+    ],
+  );
 };
 
 export const useSearchSource = (pluginId: string) => {
@@ -117,25 +143,28 @@ export const useSearchSource = (pluginId: string) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState('');
 
-  const searchSource = (searchTerm: string) => {
+  const isScreenMounted = useRef(true);
+  const searchIdRef = useRef(0);
+
+  const searchSource = useCallback((searchTerm: string) => {
     setSearchResults([]);
     setHasNextSearchPage(true);
     setCurrentPage(1);
     setSearchText(searchTerm);
     setIsSearching(true);
-  };
-
-  const isScreenMounted = useRef(true);
+  }, []);
 
   const fetchNovels = useCallback(
     async (localSearchText: string, page: number) => {
       if (isScreenMounted.current === true) {
+        const searchId = ++searchIdRef.current;
         try {
           const plugin = getPlugin(pluginId);
           if (!plugin) {
             throw new Error(`Unknown plugin: ${pluginId}`);
           }
           const res = await plugin.searchNovels(localSearchText, page);
+          if (searchId !== searchIdRef.current) return;
           setSearchResults(prevState =>
             page === 1 ? res : [...prevState, ...res],
           );
@@ -143,19 +172,28 @@ export const useSearchSource = (pluginId: string) => {
             setHasNextSearchPage(false);
           }
         } catch (err: unknown) {
+          if (searchId !== searchIdRef.current) return;
           setSearchError(`${err}`);
           setHasNextSearchPage(false);
         } finally {
-          setIsSearching(false);
+          if (searchId === searchIdRef.current) {
+            setIsSearching(false);
+          }
         }
       }
     },
     [pluginId],
   );
 
-  const searchNextPage = () => {
+  const searchNextPage = useCallback(() => {
     if (hasNextSearchPage) setCurrentPage(prevState => prevState + 1);
-  };
+  }, [hasNextSearchPage]);
+
+  useEffect(() => {
+    return () => {
+      isScreenMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (searchText) {
@@ -170,13 +208,24 @@ export const useSearchSource = (pluginId: string) => {
     setHasNextSearchPage(true);
   }, []);
 
-  return {
-    isSearching,
-    searchResults,
-    hasNextSearchPage,
-    searchNextPage,
-    searchSource,
-    clearSearchResults,
-    searchError,
-  };
+  return useMemo(
+    () => ({
+      isSearching,
+      searchResults,
+      hasNextSearchPage,
+      searchNextPage,
+      searchSource,
+      clearSearchResults,
+      searchError,
+    }),
+    [
+      isSearching,
+      searchResults,
+      hasNextSearchPage,
+      searchNextPage,
+      searchSource,
+      clearSearchResults,
+      searchError,
+    ],
+  );
 };

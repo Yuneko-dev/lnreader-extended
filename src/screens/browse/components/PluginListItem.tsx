@@ -2,7 +2,6 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Pressable, Image, View, Text, StyleSheet } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
-import { usePlugins } from '@hooks/persisted';
 import { PluginItem } from '@plugins/types';
 import { ThemeColors } from '@theme/types';
 import { getString } from '@strings/translations';
@@ -20,6 +19,10 @@ interface PluginListItemProps {
   settingsModal: UseBooleanReturnType;
   navigateToSource: (plugin: PluginItem, showLatestNovels?: boolean) => void;
   setSelectedPluginId: React.Dispatch<React.SetStateAction<string>>;
+  uninstallPlugin: (plugin: PluginItem) => Promise<void>;
+  updatePlugin: (plugin: PluginItem) => Promise<string | undefined>;
+  togglePinPlugin: (pluginId: string) => void;
+  isPinned: (pluginId: string) => boolean;
 }
 
 export const PluginListItem = memo(
@@ -30,10 +33,11 @@ export const PluginListItem = memo(
     settingsModal,
     navigateToSource,
     setSelectedPluginId,
+    uninstallPlugin,
+    updatePlugin,
+    togglePinPlugin,
+    isPinned,
   }: PluginListItemProps) => {
-    const { uninstallPlugin, updatePlugin, togglePinPlugin, isPinned } =
-      usePlugins();
-
     const isPluginPinned = isPinned(item.id);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 

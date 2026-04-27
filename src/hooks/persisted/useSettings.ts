@@ -356,46 +356,76 @@ export const useChapterReaderSettings = () => {
     useMMKVObject<ChapterReaderSettings>(CHAPTER_READER_SETTINGS);
 
   // Ensure TTS settings have proper defaults (migration for existing users)
-  const chapterReaderSettings = {
-    ...storedSettings,
-    tts: {
-      ...initialChapterReaderSettings.tts,
-      ...storedSettings.tts,
-      // Explicitly ensure these defaults if undefined
-      autoPageAdvance: storedSettings.tts?.autoPageAdvance ?? false,
-      scrollToTop: storedSettings.tts?.scrollToTop ?? true,
-      rate: storedSettings.tts?.rate ?? 1,
-      pitch: storedSettings.tts?.pitch ?? 1,
-    },
-  };
+  const chapterReaderSettings = useMemo(
+    () => ({
+      ...storedSettings,
+      tts: {
+        ...initialChapterReaderSettings.tts,
+        ...storedSettings.tts,
+        // Explicitly ensure these defaults if undefined
+        autoPageAdvance: storedSettings.tts?.autoPageAdvance ?? false,
+        scrollToTop: storedSettings.tts?.scrollToTop ?? true,
+        rate: storedSettings.tts?.rate ?? 1,
+        pitch: storedSettings.tts?.pitch ?? 1,
+      },
+    }),
+    [storedSettings],
+  );
 
-  const setChapterReaderSettings = (values: Partial<ChapterReaderSettings>) =>
-    setSettings({ ...chapterReaderSettings, ...values });
+  const setChapterReaderSettings = useCallback(
+    (values: Partial<ChapterReaderSettings>) =>
+      setSettings(prev => ({
+        ...initialChapterReaderSettings,
+        ...prev,
+        ...values,
+      })),
+    [setSettings],
+  );
 
-  const saveCustomReaderTheme = (theme: ReaderTheme) =>
-    setSettings({
-      ...chapterReaderSettings,
-      customThemes: [theme, ...chapterReaderSettings.customThemes],
-    });
+  const saveCustomReaderTheme = useCallback(
+    (theme: ReaderTheme) =>
+      setSettings(prev => {
+        const current = { ...initialChapterReaderSettings, ...prev };
+        return {
+          ...current,
+          customThemes: [theme, ...current.customThemes],
+        };
+      }),
+    [setSettings],
+  );
 
-  const deleteCustomReaderTheme = (theme: ReaderTheme) =>
-    setSettings({
-      ...chapterReaderSettings,
-      customThemes: chapterReaderSettings.customThemes.filter(
-        v =>
-          !(
-            v.backgroundColor === theme.backgroundColor &&
-            v.textColor === theme.textColor
+  const deleteCustomReaderTheme = useCallback(
+    (theme: ReaderTheme) =>
+      setSettings(prev => {
+        const current = { ...initialChapterReaderSettings, ...prev };
+        return {
+          ...current,
+          customThemes: current.customThemes.filter(
+            v =>
+              !(
+                v.backgroundColor === theme.backgroundColor &&
+                v.textColor === theme.textColor
+              ),
           ),
-      ),
-    });
+        };
+      }),
+    [setSettings],
+  );
 
-  return {
-    ...chapterReaderSettings,
-    setChapterReaderSettings,
-    saveCustomReaderTheme,
-    deleteCustomReaderTheme,
-  };
+  return useMemo(
+    () => ({
+      ...chapterReaderSettings,
+      setChapterReaderSettings,
+      saveCustomReaderTheme,
+      deleteCustomReaderTheme,
+    }),
+    [
+      chapterReaderSettings,
+      setChapterReaderSettings,
+      saveCustomReaderTheme,
+      deleteCustomReaderTheme,
+    ],
+  );
 };
 
 export const useTranslateSettings = () => {

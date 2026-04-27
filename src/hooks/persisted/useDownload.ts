@@ -4,7 +4,7 @@ import ServiceManager, {
   DownloadChapterTask,
   QueuedBackgroundTask,
 } from '@services/ServiceManager';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
 
 export const DOWNLOAD_QUEUE = 'DOWNLOAD';
@@ -25,26 +25,32 @@ export default function useDownload() {
     [downloadQueue],
   );
 
-  const downloadChapter = (novel: NovelInfo, chapter: ChapterInfo) =>
-    ServiceManager.manager.addTask({
-      name: 'DOWNLOAD_CHAPTER',
-      data: {
-        chapterId: chapter.id,
-        novelName: novel.name,
-        chapterName: chapter.name,
-      },
-    });
-  const downloadChapters = (novel: NovelInfo, chapters: ChapterInfo[]) =>
-    ServiceManager.manager.addTask(
-      chapters.map(chapter => ({
+  const downloadChapter = useCallback(
+    (novel: NovelInfo, chapter: ChapterInfo) =>
+      ServiceManager.manager.addTask({
         name: 'DOWNLOAD_CHAPTER',
         data: {
           chapterId: chapter.id,
           novelName: novel.name,
           chapterName: chapter.name,
         },
-      })),
-    );
+      }),
+    [],
+  );
+  const downloadChapters = useCallback(
+    (novel: NovelInfo, chapters: ChapterInfo[]) =>
+      ServiceManager.manager.addTask(
+        chapters.map(chapter => ({
+          name: 'DOWNLOAD_CHAPTER',
+          data: {
+            chapterId: chapter.id,
+            novelName: novel.name,
+            chapterName: chapter.name,
+          },
+        })),
+      ),
+    [],
+  );
   const resumeDownload = () => ServiceManager.manager.resume();
 
   const pauseDownload = () => ServiceManager.manager.pause();

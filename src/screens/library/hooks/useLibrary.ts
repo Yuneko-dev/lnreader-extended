@@ -145,18 +145,32 @@ export const useLibrary = (): UseLibraryReturnType => {
     prevRestoreTasksCountRef.current = restoreTasksCount;
   }, [getLibrary, restoreTasksCount]);
 
-  return {
-    library,
-    categories,
-    isLoading,
-    setLibrary,
-    setCategories,
-    refreshCategories,
-    novelInLibrary,
-    switchNovelToLibrary,
-    refetchLibrary: getLibrary,
-    setLibrarySearchText: setSearchText,
-  };
+  return useMemo(
+    () => ({
+      library,
+      categories,
+      isLoading,
+      setLibrary,
+      setCategories,
+      refreshCategories,
+      novelInLibrary,
+      switchNovelToLibrary,
+      refetchLibrary: getLibrary,
+      setLibrarySearchText: setSearchText,
+    }),
+    [
+      library,
+      categories,
+      isLoading,
+      setLibrary,
+      setCategories,
+      refreshCategories,
+      novelInLibrary,
+      switchNovelToLibrary,
+      getLibrary,
+      setSearchText,
+    ],
+  );
 };
 
 export const useLibraryNovels = () => {

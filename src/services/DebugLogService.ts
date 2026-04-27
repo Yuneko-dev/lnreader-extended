@@ -34,7 +34,6 @@ class DebugLogServiceClass {
 
   /** Debounce timer for subscriber notifications */
   private notifyTimer: ReturnType<typeof setTimeout> | null = null;
-  private notifyPending = false;
 
   // Store original console methods
   private originalConsole = {
@@ -174,7 +173,6 @@ class DebugLogServiceClass {
     if (this.subscribers.size === 0) {
       return; // No subscribers, skip entirely
     }
-    this.notifyPending = true;
     if (!this.notifyTimer) {
       this.notifyTimer = setTimeout(() => {
         this.flushNotify();
@@ -190,7 +188,6 @@ class DebugLogServiceClass {
       clearTimeout(this.notifyTimer);
       this.notifyTimer = null;
     }
-    this.notifyPending = false;
     const entries = this.getEntries();
     this.subscribers.forEach(cb => cb(entries));
   }

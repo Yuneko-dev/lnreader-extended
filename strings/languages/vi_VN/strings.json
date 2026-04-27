@@ -414,6 +414,19 @@
       "startGreaterThanEnd": "Chương đầu phải nhỏ hơn hoặc bằng chương cuối",
       "title": "Xuất truyện dưới dạng EPUB"
     },
+    "exportEpubLogsModal": {
+      "title": "Đang xuất EPUB",
+      "description": "Vui lòng chờ trong khi file EPUB đang được tạo. Không đóng ứng dụng.",
+      "start": "Bắt đầu",
+      "logStart": "Bắt đầu xuất EPUB...",
+      "logPreparing": "Đang chuẩn bị file EPUB...",
+      "logFetchChapters": "Đang tải các chương đã tải xuống...",
+      "logAddingChapter": "Đang thêm chương %{chapterNumber}: %{chapterName}...",
+      "logNoChapters": "Không tìm thấy chương đã tải xuống.",
+      "logCancelled": "Đã huỷ xuất bởi người dùng.",
+      "logSuccess": "Xuất thành công %{count} chương.",
+      "logFailed": "Lỗi khi xuất: %{error}"
+    },
     "epub": {
       "exportFailed": "Không thể xuất EPUB: %{error}",
       "exportSuccess": "Đã xuất thành công %{chapters} chương dưới dạng EPUB",

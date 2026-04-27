@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { FAB } from 'react-native-paper';
 import { ErrorScreenV2, SafeAreaView, SearchbarV2 } from '@components/index';
@@ -24,7 +24,10 @@ import { useLibraryContext } from '@components/Context/LibraryContext';
 const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   const theme = useTheme();
   const { pluginId, pluginName, site, showLatestNovels } = route.params;
-  const imageRequestInit = getPlugin(pluginId)?.imageRequestInit;
+  const imageRequestInit = useMemo(
+    () => getPlugin(pluginId)?.imageRequestInit,
+    [pluginId],
+  );
 
   const {
     isLoading,
@@ -51,22 +54,26 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   const errorMessage = error || searchError;
 
   const { searchText, setSearchText, clearSearchbar } = useSearch();
-  const onChangeText = (text: string) => setSearchText(text);
-  const onSubmitEditing = () => {
-    searchSource(searchText);
-  };
-  const handleClearSearchbar = () => {
+  const onChangeText = useCallback(
+    (text: string) => setSearchText(text),
+    [setSearchText],
+  );
+  const onSubmitEditing = useCallback(
+    () => searchSource(searchText),
+    [searchSource, searchText],
+  );
+  const handleClearSearchbar = useCallback(() => {
     clearSearchbar();
     clearSearchResults();
-  };
+  }, [clearSearchbar, clearSearchResults]);
 
-  const handleOpenWebView = async () => {
+  const handleOpenWebView = useCallback(() => {
     navigation.navigate('WebviewScreen', {
       name: pluginName,
       url: site,
       pluginId,
     });
-  };
+  }, [navigation, pluginName, site, pluginId]);
 
   const { novelInLibrary, switchNovelToLibrary } = useLibraryContext();
   const [inActivity, setInActivity] = useState<Record<string, boolean>>({});
@@ -85,6 +92,102 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
 
   const { bottom, right } = useSafeAreaInsets();
   const filterSheetRef = useRef<BottomSheetModal | null>(null);
+
+  const rightIcons = useMemo(
+    () => [{ iconName: 'earth' as const, onPress: handleOpenWebView }],
+    [handleOpenWebView],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: NovelItem | NovelInfo }) => {
+      const inLibrary = novelInLibrary(pluginId, item.path);
+
+      return (
+        <NovelCover
+          item={item}
+          theme={theme}
+          libraryStatus={inLibrary}
+          inActivity={inActivity[item.path]}
+          onPress={() => navigateToNovel(item)}
+          isSelected={false}
+          addSkeletonLoading={
+            (hasNextPage && !searchText) ||
+            (hasNextSearchPage && Boolean(searchText))
+          }
+          onLongPress={async () => {
+            setInActivity(prev => ({ ...prev, [item.path]: true }));
+            await switchNovelToLibrary(item.path, pluginId);
+            setInActivity(prev => ({ ...prev, [item.path]: false }));
+          }}
+          hasSelection={false}
+          imageRequestInit={imageRequestInit}
+        />
+      );
+    },
+    [
+      novelInLibrary,
+      pluginId,
+      theme,
+      inActivity,
+      navigateToNovel,
+      hasNextPage,
+      searchText,
+      hasNextSearchPage,
+      switchNovelToLibrary,
+      imageRequestInit,
+    ],
+  );
+
+  const onEndReached = useCallback(() => {
+    if (searchText) {
+      if (hasNextSearchPage) {
+        searchNextPage();
+      }
+    } else if (hasNextPage) {
+      fetchNextPage();
+    }
+  }, [
+    searchText,
+    hasNextSearchPage,
+    searchNextPage,
+    hasNextPage,
+    fetchNextPage,
+  ]);
+
+  const retryActions = useMemo(
+    () => [
+      {
+        iconName: 'refresh' as const,
+        title: getString('common.retry'),
+        onPress: () => {
+          if (searchText) {
+            searchSource(searchText);
+          } else {
+            refetchNovels();
+          }
+        },
+      },
+    ],
+    [searchText, searchSource, refetchNovels],
+  );
+
+  const fabStyle = useMemo(
+    () => [
+      styles.filterFab,
+      {
+        backgroundColor: theme.primary,
+        marginBottom: bottom + 16,
+        marginEnd: right + 16,
+      },
+    ],
+    [theme.primary, bottom, right],
+  );
+
+  const openFilterSheet = useCallback(
+    () => filterSheetRef?.current?.present(),
+    [],
+  );
+
   return (
     <SafeAreaView>
       <SearchbarV2
@@ -95,7 +198,7 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
         onSubmitEditing={onSubmitEditing}
         clearSearchbar={handleClearSearchbar}
         handleBackAction={navigation.goBack}
-        rightIcons={[{ iconName: 'earth', onPress: handleOpenWebView }]}
+        rightIcons={rightIcons}
         theme={theme}
       />
       {isLoading || isSearching ? (
@@ -103,60 +206,14 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
       ) : errorMessage || novelList.length === 0 ? (
         <ErrorScreenV2
           error={errorMessage || getString('sourceScreen.noResultsFound')}
-          actions={[
-            {
-              iconName: 'refresh',
-              title: getString('common.retry'),
-              onPress: () => {
-                if (searchText) {
-                  searchSource(searchText);
-                } else {
-                  refetchNovels();
-                }
-              },
-            },
-          ]}
+          actions={retryActions}
         />
       ) : (
         <NovelList
           data={novelList}
           inSource
-          renderItem={({ item }) => {
-            const inLibrary = novelInLibrary(pluginId, item.path);
-
-            return (
-              <NovelCover
-                item={item}
-                theme={theme}
-                libraryStatus={inLibrary}
-                inActivity={inActivity[item.path]}
-                onPress={() => navigateToNovel(item)}
-                isSelected={false}
-                addSkeletonLoading={
-                  (hasNextPage && !searchText) ||
-                  (hasNextSearchPage && Boolean(searchText))
-                }
-                onLongPress={async () => {
-                  setInActivity(prev => ({ ...prev, [item.path]: true }));
-
-                  await switchNovelToLibrary(item.path, pluginId);
-
-                  setInActivity(prev => ({ ...prev, [item.path]: false }));
-                }}
-                hasSelection={false}
-                imageRequestInit={imageRequestInit}
-              />
-            );
-          }}
-          onEndReached={() => {
-            if (searchText) {
-              if (hasNextSearchPage) {
-                searchNextPage();
-              }
-            } else if (hasNextPage) {
-              fetchNextPage();
-            }
-          }}
+          renderItem={renderItem}
+          onEndReached={onEndReached}
           onEndReachedThreshold={1.5}
         />
       )}
@@ -164,18 +221,11 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
         <>
           <FAB
             icon={'filter-variant'}
-            style={[
-              styles.filterFab,
-              {
-                backgroundColor: theme.primary,
-                marginBottom: bottom + 16,
-                marginEnd: right + 16,
-              },
-            ]}
+            style={fabStyle}
             label={getString('common.filter')}
             uppercase={false}
             color={theme.onPrimary}
-            onPress={() => filterSheetRef?.current?.present()}
+            onPress={openFilterSheet}
           />
           <FilterBottomSheet
             filterSheetRef={filterSheetRef}
@@ -189,7 +239,7 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   );
 };
 
-export default BrowseSourceScreen;
+export default React.memo(BrowseSourceScreen);
 
 const styles = StyleSheet.create({
   filterFab: {

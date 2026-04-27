@@ -473,6 +473,43 @@ const NovelScreenList = ({
     [lastRead],
   );
 
+  const renderChapterItem = useCallback(
+    ({ item }: { item: ChapterInfo }) => {
+      if (novel.id === 'NO_ID') {
+        return null;
+      }
+      return (
+        <ChapterItem
+          chapter={item}
+          isDownloading={downloadingChapterIds.has(item.id)}
+          isBookmarked={!!item.bookmark}
+          isLocal={novel.isLocal ?? false}
+          theme={theme}
+          showChapterTitles={showChapterTitles}
+          isSelected={selectedIds.has(item.id)}
+          novelName={novel.name}
+          onDeleteChapter={handleDeleteChapter}
+          onDownloadChapter={handleDownloadChapter}
+          onSelectPress={onSelectPress}
+          onSelectLongPress={onSelectLongPress}
+        />
+      );
+    },
+    [
+      novel.id,
+      novel.isLocal,
+      novel.name,
+      downloadingChapterIds,
+      theme,
+      showChapterTitles,
+      selectedIds,
+      handleDeleteChapter,
+      handleDownloadChapter,
+      onSelectPress,
+      onSelectLongPress,
+    ],
+  );
+
   return (
     <>
       <LegendList
@@ -481,27 +518,7 @@ const NovelScreenList = ({
         data={chapters}
         recycleItems
         ListEmptyComponent={listEmptyComponent}
-        renderItem={({ item }) => {
-          if (novel.id === 'NO_ID') {
-            return null;
-          }
-          return (
-            <ChapterItem
-              chapter={item}
-              isDownloading={downloadingChapterIds.has(item.id)}
-              isBookmarked={!!item.bookmark}
-              isLocal={novel.isLocal ?? false}
-              theme={theme}
-              showChapterTitles={showChapterTitles}
-              isSelected={selectedIds.has(item.id)}
-              novelName={novel.name}
-              onDeleteChapter={handleDeleteChapter}
-              onDownloadChapter={handleDownloadChapter}
-              onSelectPress={onSelectPress}
-              onSelectLongPress={onSelectLongPress}
-            />
-          );
-        }}
+        renderItem={renderChapterItem}
         keyExtractor={chapterKeyExtractor}
         extraData={[downloadingChapterIds, selectedIds]}
         contentContainerStyle={styles.contentContainer}

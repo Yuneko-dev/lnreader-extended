@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -36,301 +36,274 @@ const insertOrRemoveIntoArray = (array: string[], val: string): string[] =>
 
 type SelectedFilters = FilterToValues<Filters>;
 
+type OnFilterChange = (key: string, value: SelectedFilters[string]) => void;
+
 interface FilterItemProps {
   theme: ThemeColors;
   filter: Filters[string];
-  filterKey: keyof Filters;
-  selectedFilters: SelectedFilters;
-  setSelectedFilters: React.Dispatch<React.SetStateAction<SelectedFilters>>;
+  filterKey: string;
+  filterValue: SelectedFilters[string] | undefined;
+  onFilterChange: OnFilterChange;
 }
 
-const FilterItem: React.FC<FilterItemProps> = ({
-  theme,
-  filter,
-  filterKey,
-  selectedFilters,
-  setSelectedFilters,
-}) => {
-  const {
-    value: isVisible,
-    toggle: toggleCard,
-    setFalse: closeCard,
-  } = useBoolean();
-  const { width: screenWidth } = useWindowDimensions();
-  if (filter.type === FilterTypes.TextInput) {
-    const value = getValueFor<(typeof filter)['type']>(
-      filter,
-      selectedFilters[filterKey],
-    );
-    return (
-      <View style={styles.textContainer}>
-        <TextInput
-          render={props => <BottomSheetTextInput {...(props as any)} />}
-          style={[styles.flex, { width: screenWidth - 48 }]}
-          mode="outlined"
-          label={
-            <Text
-              style={[
-                {
-                  color: theme.onSurface,
-                  backgroundColor: overlay(2, theme.surface),
-                },
-              ]}
-            >
-              {` ${filter.label} `}
-            </Text>
-          }
-          defaultValue={value}
-          theme={{ colors: { background: 'transparent' } }}
-          outlineColor={theme.onSurface}
-          textColor={theme.onSurface}
-          onChangeText={text =>
-            setSelectedFilters(prevState => ({
-              ...prevState,
-              [filterKey]: { value: text, type: FilterTypes.TextInput },
-            }))
-          }
-        />
-      </View>
-    );
-  }
-  if (filter.type === FilterTypes.Picker) {
-    const value = getValueFor<(typeof filter)['type']>(
-      filter,
-      selectedFilters[filterKey],
-    );
-    const label =
-      filter.options.find(option => option.value === value)?.label ||
-      'whatever';
-    return (
-      <View style={styles.pickerContainer}>
-        <Menu
-          fullWidth
-          visible={isVisible}
-          contentStyle={{ backgroundColor: theme.surfaceVariant }}
-          anchor={
-            <Pressable
-              style={[styles.flex, { width: screenWidth - 48 }]}
-              onPress={toggleCard}
-            >
-              <TextInput
-                mode="outlined"
-                label={
-                  <Text
-                    style={[
-                      {
-                        color: isVisible ? theme.primary : theme.onSurface,
-                        backgroundColor: overlay(2, theme.surface),
-                      },
-                    ]}
-                  >
-                    {` ${filter.label} `}
-                  </Text>
-                }
-                value={label}
-                editable={false}
-                theme={{ colors: { background: 'transparent' } }}
-                outlineColor={isVisible ? theme.primary : theme.onSurface}
-                textColor={isVisible ? theme.primary : theme.onSurface}
-              />
-            </Pressable>
-          }
-          onDismiss={closeCard}
-        >
-          {filter.options.map(val => {
-            return (
-              <Menu.Item
-                key={val.label}
-                title={val.label}
-                titleStyle={{ color: theme.onSurfaceVariant }}
-                onPress={() => {
-                  closeCard();
-                  setSelectedFilters(prevFilters => ({
-                    ...prevFilters,
-                    [filterKey]: { value: val.value, type: FilterTypes.Picker },
-                  }));
-                }}
-              />
-            );
-          })}
-        </Menu>
-      </View>
-    );
-  }
-  if (filter.type === FilterTypes.CheckboxGroup) {
-    const value = getValueFor<(typeof filter)['type']>(
-      filter,
-      selectedFilters[filterKey],
-    );
-    return (
-      <View>
-        <Pressable
-          style={styles.checkboxHeader}
-          onPress={toggleCard}
-          android_ripple={{ color: theme.rippleColor }}
-        >
-          <Text style={[{ color: theme.onSurfaceVariant }]}>
-            {filter.label}
-          </Text>
-          <MaterialCommunityIcons
-            name={isVisible ? 'chevron-up' : 'chevron-down'}
-            color={theme.onSurface}
-            size={24}
-          />
-        </Pressable>
-        {isVisible
-          ? filter.options.map(val => {
-              return (
-                <Checkbox
-                  key={val.label}
-                  label={val.label}
-                  theme={theme}
-                  status={value.includes(val.value)}
-                  onPress={() =>
-                    setSelectedFilters(prevFilters => ({
-                      ...prevFilters,
-                      [filterKey]: {
-                        type: FilterTypes.CheckboxGroup,
-                        value: insertOrRemoveIntoArray(value, val.value),
-                      },
-                    }))
-                  }
-                />
-              );
-            })
-          : null}
-      </View>
-    );
-  }
-  if (filter.type === FilterTypes.Switch) {
-    const value = getValueFor<(typeof filter)['type']>(
-      filter,
-      selectedFilters[filterKey],
-    );
-    return (
-      <Pressable
-        android_ripple={{ color: theme.rippleColor }}
-        style={styles.container}
-        onPress={() => {
-          setSelectedFilters(prevState => ({
-            ...prevState,
-            [filterKey]: { value: !value, type: FilterTypes.Switch },
-          }));
-        }}
-      >
-        <View style={styles.switchContainer}>
-          <View style={styles.switchLabelContainer}>
-            <Text style={[{ color: theme.onSurface }, styles.switchLabel]}>
-              {filter.label}
-            </Text>
-          </View>
-          <Switch
-            value={value}
-            onValueChange={() => {
-              setSelectedFilters(prevState => ({
-                ...prevState,
-                [filterKey]: { value: !value, type: FilterTypes.Switch },
-              }));
-            }}
+const FilterItem: React.FC<FilterItemProps> = memo(
+  ({ theme, filter, filterKey, filterValue, onFilterChange }) => {
+    const {
+      value: isVisible,
+      toggle: toggleCard,
+      setFalse: closeCard,
+    } = useBoolean();
+    const { width: screenWidth } = useWindowDimensions();
+
+    // Fallback to filter's default value when selectedFilters doesn't have this key
+    const resolvedValue =
+      filterValue ??
+      ({ type: filter.type, value: filter.value } as SelectedFilters[string]);
+
+    if (filter.type === FilterTypes.TextInput) {
+      const value = getValueFor<(typeof filter)['type']>(filter, resolvedValue);
+      return (
+        <View style={styles.textContainer}>
+          <TextInput
+            render={props => <BottomSheetTextInput {...(props as any)} />}
+            style={[styles.flex, { width: screenWidth - 48 }]}
+            mode="outlined"
+            label={
+              <Text
+                style={[
+                  {
+                    color: theme.onSurface,
+                    backgroundColor: overlay(2, theme.surface),
+                  },
+                ]}
+              >
+                {` ${filter.label} `}
+              </Text>
+            }
+            defaultValue={value}
+            theme={{ colors: { background: 'transparent' } }}
+            outlineColor={theme.onSurface}
+            textColor={theme.onSurface}
+            onChangeText={text =>
+              onFilterChange(filterKey, {
+                value: text,
+                type: FilterTypes.TextInput,
+              })
+            }
           />
         </View>
-      </Pressable>
-    );
-  }
-  if (filter.type === FilterTypes.ExcludableCheckboxGroup) {
-    const value = getValueFor<(typeof filter)['type']>(
-      filter,
-      selectedFilters[filterKey],
-    );
-    return (
-      <View>
-        <Pressable
-          style={styles.checkboxHeader}
-          onPress={toggleCard}
-          android_ripple={{ color: theme.rippleColor }}
-        >
-          <Text style={[{ color: theme.onSurfaceVariant }]}>
-            {filter.label}
-          </Text>
-          <MaterialCommunityIcons
-            name={isVisible ? 'chevron-up' : 'chevron-down'}
-            color={theme.onSurface}
-            size={24}
-          />
-        </Pressable>
-        {isVisible
-          ? filter.options.map(val => {
-              return (
-                <Checkbox
-                  key={val.label}
-                  label={val.label}
-                  theme={theme}
-                  status={
-                    value.include?.includes(val.value)
-                      ? true
-                      : value.exclude?.includes(val.value)
-                      ? 'indeterminate'
-                      : false
+      );
+    }
+    if (filter.type === FilterTypes.Picker) {
+      const value = getValueFor<(typeof filter)['type']>(filter, resolvedValue);
+      const label =
+        filter.options.find(option => option.value === value)?.label ||
+        'whatever';
+      const contentStyle = useMemo(
+        () => ({ backgroundColor: theme.surfaceVariant }),
+        [theme.surfaceVariant],
+      );
+      return (
+        <View style={styles.pickerContainer}>
+          <Menu
+            fullWidth
+            visible={isVisible}
+            contentStyle={contentStyle}
+            anchor={
+              <Pressable
+                style={[styles.flex, { width: screenWidth - 48 }]}
+                onPress={toggleCard}
+              >
+                <TextInput
+                  mode="outlined"
+                  label={
+                    <Text
+                      style={[
+                        {
+                          color: isVisible ? theme.primary : theme.onSurface,
+                          backgroundColor: overlay(2, theme.surface),
+                        },
+                      ]}
+                    >
+                      {` ${filter.label} `}
+                    </Text>
                   }
+                  value={label}
+                  editable={false}
+                  theme={{ colors: { background: 'transparent' } }}
+                  outlineColor={isVisible ? theme.primary : theme.onSurface}
+                  textColor={isVisible ? theme.primary : theme.onSurface}
+                />
+              </Pressable>
+            }
+            onDismiss={closeCard}
+          >
+            {filter.options.map(val => {
+              return (
+                <Menu.Item
+                  key={val.label}
+                  title={val.label}
+                  titleStyle={{ color: theme.onSurfaceVariant }}
                   onPress={() => {
-                    if (value.exclude?.includes(val.value)) {
-                      setSelectedFilters(prev => {
-                        return {
-                          ...prev,
-                          [filterKey]: {
-                            type: FilterTypes.ExcludableCheckboxGroup,
-                            value: {
-                              include: [...(value.include || [])],
-                              exclude: [
-                                ...(value.exclude?.filter(
-                                  f => f !== val.value,
-                                ) || []),
-                              ],
-                            },
-                          },
-                        };
-                      });
-                    } else if (value.include?.includes(val.value)) {
-                      setSelectedFilters(prev => {
-                        return {
-                          ...prev,
-                          [filterKey]: {
-                            type: FilterTypes.ExcludableCheckboxGroup,
-                            value: {
-                              include: [
-                                ...(value.include?.filter(
-                                  f => f !== val.value,
-                                ) || []),
-                              ],
-                              exclude: [...(value.exclude || []), val.value],
-                            },
-                          },
-                        };
-                      });
-                    } else {
-                      setSelectedFilters(prev => {
-                        return {
-                          ...prev,
-                          [filterKey]: {
-                            type: FilterTypes.ExcludableCheckboxGroup,
-                            value: {
-                              include: [...(value.include || []), val.value],
-                              exclude: value.exclude,
-                            },
-                          },
-                        };
-                      });
-                    }
+                    closeCard();
+                    onFilterChange(filterKey, {
+                      value: val.value,
+                      type: FilterTypes.Picker,
+                    });
                   }}
                 />
               );
-            })
-          : null}
-      </View>
-    );
-  }
-  return <></>;
-};
+            })}
+          </Menu>
+        </View>
+      );
+    }
+    if (filter.type === FilterTypes.CheckboxGroup) {
+      const value = getValueFor<(typeof filter)['type']>(filter, resolvedValue);
+      return (
+        <View>
+          <Pressable
+            style={styles.checkboxHeader}
+            onPress={toggleCard}
+            android_ripple={{ color: theme.rippleColor }}
+          >
+            <Text style={[{ color: theme.onSurfaceVariant }]}>
+              {filter.label}
+            </Text>
+            <MaterialCommunityIcons
+              name={isVisible ? 'chevron-up' : 'chevron-down'}
+              color={theme.onSurface}
+              size={24}
+            />
+          </Pressable>
+          {isVisible
+            ? filter.options.map(val => {
+                return (
+                  <Checkbox
+                    key={val.label}
+                    label={val.label}
+                    theme={theme}
+                    status={value.includes(val.value)}
+                    onPress={() =>
+                      onFilterChange(filterKey, {
+                        type: FilterTypes.CheckboxGroup,
+                        value: insertOrRemoveIntoArray(value, val.value),
+                      })
+                    }
+                  />
+                );
+              })
+            : null}
+        </View>
+      );
+    }
+    if (filter.type === FilterTypes.Switch) {
+      const value = getValueFor<(typeof filter)['type']>(filter, resolvedValue);
+      return (
+        <Pressable
+          android_ripple={{ color: theme.rippleColor }}
+          style={styles.container}
+          onPress={() => {
+            onFilterChange(filterKey, {
+              value: !value,
+              type: FilterTypes.Switch,
+            });
+          }}
+        >
+          <View style={styles.switchContainer}>
+            <View style={styles.switchLabelContainer}>
+              <Text style={[{ color: theme.onSurface }, styles.switchLabel]}>
+                {filter.label}
+              </Text>
+            </View>
+            <Switch
+              value={value}
+              onValueChange={() => {
+                onFilterChange(filterKey, {
+                  value: !value,
+                  type: FilterTypes.Switch,
+                });
+              }}
+            />
+          </View>
+        </Pressable>
+      );
+    }
+    if (filter.type === FilterTypes.ExcludableCheckboxGroup) {
+      const value = getValueFor<(typeof filter)['type']>(filter, resolvedValue);
+      return (
+        <View>
+          <Pressable
+            style={styles.checkboxHeader}
+            onPress={toggleCard}
+            android_ripple={{ color: theme.rippleColor }}
+          >
+            <Text style={[{ color: theme.onSurfaceVariant }]}>
+              {filter.label}
+            </Text>
+            <MaterialCommunityIcons
+              name={isVisible ? 'chevron-up' : 'chevron-down'}
+              color={theme.onSurface}
+              size={24}
+            />
+          </Pressable>
+          {isVisible
+            ? filter.options.map(val => {
+                return (
+                  <Checkbox
+                    key={val.label}
+                    label={val.label}
+                    theme={theme}
+                    status={
+                      value.include?.includes(val.value)
+                        ? true
+                        : value.exclude?.includes(val.value)
+                        ? 'indeterminate'
+                        : false
+                    }
+                    onPress={() => {
+                      if (value.exclude?.includes(val.value)) {
+                        onFilterChange(filterKey, {
+                          type: FilterTypes.ExcludableCheckboxGroup,
+                          value: {
+                            include: [...(value.include || [])],
+                            exclude: [
+                              ...(value.exclude?.filter(f => f !== val.value) ||
+                                []),
+                            ],
+                          },
+                        });
+                      } else if (value.include?.includes(val.value)) {
+                        onFilterChange(filterKey, {
+                          type: FilterTypes.ExcludableCheckboxGroup,
+                          value: {
+                            include: [
+                              ...(value.include?.filter(f => f !== val.value) ||
+                                []),
+                            ],
+                            exclude: [...(value.exclude || []), val.value],
+                          },
+                        });
+                      } else {
+                        onFilterChange(filterKey, {
+                          type: FilterTypes.ExcludableCheckboxGroup,
+                          value: {
+                            include: [...(value.include || []), val.value],
+                            exclude: value.exclude,
+                          },
+                        });
+                      }
+                    }}
+                  />
+                );
+              })
+            : null}
+        </View>
+      );
+    }
+    return <></>;
+  },
+);
 
 interface BottomSheetProps {
   filterSheetRef: React.RefObject<BottomSheetModal | null>;
@@ -350,6 +323,49 @@ const FilterBottomSheet: React.FC<BottomSheetProps> = ({
   const [selectedFilters, setSelectedFilters] =
     useState<SelectedFilters>(filters);
 
+  // Stable callback for individual filter changes — prevents cascading re-renders
+  const handleFilterChange: OnFilterChange = useCallback((key, value) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  }, []);
+
+  // Memoize the data array to prevent FlatList from re-rendering on every parent render
+  const filterEntries = useMemo(
+    () =>
+      filters ? (Object.entries(filters) as [string, Filters[string]][]) : [],
+    [filters],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: [string, Filters[string]] }) => (
+      <FilterItem
+        theme={theme}
+        filter={item[1]}
+        filterKey={item[0]}
+        filterValue={selectedFilters[item[0]]}
+        onFilterChange={handleFilterChange}
+      />
+    ),
+    [theme, selectedFilters, handleFilterChange],
+  );
+
+  const handleReset = useCallback(() => {
+    setSelectedFilters(filters);
+    clearFilters(filters);
+  }, [filters, clearFilters]);
+
+  const handleApply = useCallback(() => {
+    setFilters(selectedFilters);
+    filterSheetRef?.current?.close();
+  }, [setFilters, selectedFilters, filterSheetRef]);
+
+  const borderStyle = useMemo(
+    () => [styles.buttonContainer, { borderBottomColor: theme.outline }],
+    [theme.outline],
+  );
+
   return (
     <BottomSheet
       bottomSheetRef={filterSheetRef}
@@ -358,46 +374,21 @@ const FilterBottomSheet: React.FC<BottomSheetProps> = ({
       handleComponent={null}
       children={
         <View style={styles.flex}>
-          <View
-            style={[
-              styles.buttonContainer,
-              { borderBottomColor: theme.outline },
-            ]}
-          >
-            <Button
-              title={getString('common.reset')}
-              onPress={() => {
-                setSelectedFilters(filters);
-                clearFilters(filters);
-              }}
-            />
+          <View style={borderStyle}>
+            <Button title={getString('common.reset')} onPress={handleReset} />
             <Button
               title={getString('common.filter')}
               textColor={theme.onPrimary}
-              onPress={() => {
-                setFilters(selectedFilters);
-                filterSheetRef?.current?.close();
-              }}
+              onPress={handleApply}
               mode="contained"
             />
           </View>
           <BottomSheetFlatList
-            data={
-              filters &&
-              (Object.entries(filters) as [string, Filters[string]][])
-            }
+            data={filterEntries}
             keyExtractor={(item: [string, Filters[string]]) =>
               'filter' + item[0]
             }
-            renderItem={({ item }: { item: [string, Filters[string]] }) => (
-              <FilterItem
-                theme={theme}
-                filter={item[1]}
-                filterKey={item[0]}
-                selectedFilters={selectedFilters}
-                setSelectedFilters={setSelectedFilters}
-              />
-            )}
+            renderItem={renderItem}
           />
         </View>
       }

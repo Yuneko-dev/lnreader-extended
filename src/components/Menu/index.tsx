@@ -15,6 +15,7 @@ import {
   ViewStyle,
   TextStyle,
   LayoutRectangle,
+  StatusBar,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Portal } from 'react-native-paper';
@@ -122,7 +123,12 @@ const Menu: React.FC<MenuProps> & { Item: React.FC<MenuItemProps> } = ({
 
     const showAbove = topPos + menuLayout.height > screenHeight;
     if (showAbove) {
-      topPos -= anchorLayout.height + menuLayout.height;
+      topPos = anchorLayout.y - menuLayout.height - 8;
+    }
+
+    const minTop = (StatusBar.currentHeight || 24) + 16;
+    if (topPos < minTop) {
+      topPos = minTop;
     }
 
     const maxWidth = fullWidth

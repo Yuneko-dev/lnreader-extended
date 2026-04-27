@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useMemo, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { ChapterInfo, NovelInfo } from '@database/types';
 import WebView from 'react-native-webview';
 import useChapter from './hooks/useChapter';
@@ -22,15 +28,25 @@ export function ChapterContextProvider({
   initialChapter: ChapterInfo;
 }) {
   const webViewRef = useRef<WebView>(null);
+  // Stabilize novel reference — only update when novel.id changes
+  const novelRef = useRef(novel);
+  useEffect(() => {
+    if (novelRef.current.id !== novel.id) {
+      novelRef.current = novel;
+    }
+  }, [novel]);
+  const stableNovel =
+    novelRef.current.id === novel.id ? novelRef.current : novel;
+
   const chapterHookContent = useChapter(webViewRef, initialChapter, novel);
 
   const contextValue = useMemo(
     () => ({
-      novel,
+      novel: stableNovel,
       webViewRef,
       ...chapterHookContent,
     }),
-    [novel, webViewRef, chapterHookContent],
+    [stableNovel, webViewRef, chapterHookContent],
   );
 
   return (

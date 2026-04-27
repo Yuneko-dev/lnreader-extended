@@ -29,6 +29,10 @@ export const InstalledTab = memo(
       lastUsedPlugin,
       setLastUsedPlugin,
       pinnedPlugins,
+      uninstallPlugin,
+      updatePlugin,
+      togglePinPlugin,
+      isPinned,
     } = usePlugins();
     const { showMyAnimeList, showAniList } = useBrowseSettings();
     const settingsModal = useBoolean();
@@ -95,10 +99,23 @@ export const InstalledTab = memo(
             settingsModal={settingsModal}
             navigateToSource={navigateToSource}
             setSelectedPluginId={setSelectedPluginId}
+            uninstallPlugin={uninstallPlugin}
+            updatePlugin={updatePlugin}
+            togglePinPlugin={togglePinPlugin}
+            isPinned={isPinned}
           />
         );
       },
-      [theme, navigation, navigateToSource, settingsModal],
+      [
+        theme,
+        navigation,
+        navigateToSource,
+        settingsModal,
+        uninstallPlugin,
+        updatePlugin,
+        togglePinPlugin,
+        isPinned,
+      ],
     );
 
     return (
@@ -156,6 +173,10 @@ export const InstalledTab = memo(
                     settingsModal={settingsModal}
                     navigateToSource={navigateToSource}
                     setSelectedPluginId={setSelectedPluginId}
+                    uninstallPlugin={uninstallPlugin}
+                    updatePlugin={updatePlugin}
+                    togglePinPlugin={togglePinPlugin}
+                    isPinned={isPinned}
                   />
                 ))}
               </>
@@ -176,6 +197,10 @@ export const InstalledTab = memo(
                   settingsModal={settingsModal}
                   navigateToSource={navigateToSource}
                   setSelectedPluginId={setSelectedPluginId}
+                  uninstallPlugin={uninstallPlugin}
+                  updatePlugin={updatePlugin}
+                  togglePinPlugin={togglePinPlugin}
+                  isPinned={isPinned}
                 />
               </>
             ) : null}
@@ -197,6 +222,10 @@ export const InstalledTab = memo(
                   settingsModal={settingsModal}
                   navigateToSource={navigateToSource}
                   setSelectedPluginId={setSelectedPluginId}
+                  uninstallPlugin={uninstallPlugin}
+                  updatePlugin={updatePlugin}
+                  togglePinPlugin={togglePinPlugin}
+                  isPinned={isPinned}
                 />
               </>
             ) : null}

@@ -347,6 +347,17 @@ export interface StringMap {
   'novelScreen.exportEpubModal.startChapter': 'string';
   'novelScreen.exportEpubModal.startGreaterThanEnd': 'string';
   'novelScreen.exportEpubModal.title': 'string';
+  'novelScreen.exportEpubLogsModal.title': 'string';
+  'novelScreen.exportEpubLogsModal.description': 'string';
+  'novelScreen.exportEpubLogsModal.start': 'string';
+  'novelScreen.exportEpubLogsModal.logStart': 'string';
+  'novelScreen.exportEpubLogsModal.logPreparing': 'string';
+  'novelScreen.exportEpubLogsModal.logFetchChapters': 'string';
+  'novelScreen.exportEpubLogsModal.logAddingChapter': 'string';
+  'novelScreen.exportEpubLogsModal.logNoChapters': 'string';
+  'novelScreen.exportEpubLogsModal.logCancelled': 'string';
+  'novelScreen.exportEpubLogsModal.logSuccess': 'string';
+  'novelScreen.exportEpubLogsModal.logFailed': 'string';
   'novelScreen.epub.exportFailed': 'string';
   'novelScreen.epub.exportSuccess': 'string';
   'novelScreen.epub.noDownloadedChapters': 'string';

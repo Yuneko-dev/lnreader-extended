@@ -414,6 +414,19 @@
       "startGreaterThanEnd": "Start chapter must be less than or equal to end chapter",
       "title": "Export Novel as EPUB"
     },
+    "exportEpubLogsModal": {
+      "title": "Exporting EPUB",
+      "description": "Please wait while the EPUB file is being created. Do not close the app.",
+      "start": "Start",
+      "logStart": "Starting EPUB export...",
+      "logPreparing": "Preparing EPUB file...",
+      "logFetchChapters": "Fetching downloaded chapters...",
+      "logAddingChapter": "Adding chapter %{chapterNumber}: %{chapterName}...",
+      "logNoChapters": "No downloaded chapters found.",
+      "logCancelled": "Export cancelled by user.",
+      "logSuccess": "Successfully exported %{count} chapters.",
+      "logFailed": "Export failed: %{error}"
+    },
     "epub": {
       "exportFailed": "Failed to export EPUB: %{error}",
       "exportSuccess": "Successfully exported %{chapters} chapters as EPUB",

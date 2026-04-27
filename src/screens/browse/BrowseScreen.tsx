@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { TabView, TabBar } from 'react-native-tab-view';
 import Color from 'color';
@@ -55,6 +55,69 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
     [navigation],
   );
 
+  const indicatorStyle = useMemo(
+    () => ({ backgroundColor: theme.primary, height: 3 }),
+    [theme.primary],
+  );
+  const tabBarStyle = useMemo(
+    () => ({
+      backgroundColor: theme.surface,
+      elevation: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: Color(theme.isDark ? '#FFFFFF' : '#000000')
+        .alpha(0.12)
+        .string(),
+    }),
+    [theme.surface, theme.isDark],
+  );
+
+  const renderScene = useCallback(
+    ({ route }: { route: { key: string } }) => {
+      if (languagesFilter.length === 0) {
+        return (
+          <EmptyView
+            icon="(･Д･。"
+            description={getString('browseScreen.listEmpty')}
+            theme={theme}
+          />
+        );
+      }
+      switch (route.key) {
+        case 'availableRoute':
+          return <AvailableTab theme={theme} searchText={searchText} />;
+        default:
+          return (
+            <InstalledTab
+              navigation={navigation}
+              theme={theme}
+              searchText={searchText}
+            />
+          );
+      }
+    },
+    [languagesFilter.length, theme, searchText, navigation],
+  );
+
+  const renderTabBar = useCallback(
+    (props: any) => (
+      <TabBar
+        {...props}
+        indicatorStyle={indicatorStyle}
+        style={tabBarStyle}
+        inactiveColor={theme.secondary}
+        activeColor={theme.primary}
+        android_ripple={{ color: theme.rippleColor }}
+      />
+    ),
+    [
+      indicatorStyle,
+      tabBarStyle,
+      theme.secondary,
+      theme.primary,
+      theme.rippleColor,
+    ],
+  );
+
   const [index, setIndex] = React.useState(0);
   return (
     <SafeAreaView excludeBottom>
@@ -70,51 +133,13 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
       <TabView
         navigationState={{ index, routes }}
         initialLayout={{ width: layout.width }}
-        renderScene={({ route }) => {
-          if (languagesFilter.length === 0) {
-            return (
-              <EmptyView
-                icon="(･Д･。"
-                description={getString('browseScreen.listEmpty')}
-                theme={theme}
-              />
-            );
-          }
-          switch (route.key) {
-            case 'availableRoute':
-              return <AvailableTab theme={theme} searchText={searchText} />;
-            default:
-              return (
-                <InstalledTab
-                  navigation={navigation}
-                  theme={theme}
-                  searchText={searchText}
-                />
-              );
-          }
-        }}
+        renderScene={renderScene}
         onIndexChange={setIndex}
-        renderTabBar={props => (
-          <TabBar
-            {...props}
-            indicatorStyle={{ backgroundColor: theme.primary, height: 3 }}
-            style={{
-              backgroundColor: theme.surface,
-              elevation: 0,
-              borderBottomWidth: 1,
-              borderBottomColor: Color(theme.isDark ? '#FFFFFF' : '#000000')
-                .alpha(0.12)
-                .string(),
-            }}
-            inactiveColor={theme.secondary}
-            activeColor={theme.primary}
-            android_ripple={{ color: theme.rippleColor }}
-          />
-        )}
+        renderTabBar={renderTabBar}
         swipeEnabled={false}
       />
     </SafeAreaView>
   );
 };
 
-export default BrowseScreen;
+export default React.memo(BrowseScreen);

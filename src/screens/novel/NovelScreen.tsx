@@ -388,7 +388,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   );
 };
 
-export default Novel;
+export default React.memo(Novel);
 
 function createStyles(theme: ThemeColors) {
   return StyleSheet.create({

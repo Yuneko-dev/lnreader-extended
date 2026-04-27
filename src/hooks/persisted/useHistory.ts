@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { History } from '@database/types';
@@ -16,50 +16,62 @@ const useHistory = () => {
   const [history, setHistory] = useState<History[]>([]);
   const [error, setError] = useState<string>();
 
-  const getHistory = () =>
-    getHistoryFromDb()
-      .then(res =>
-        setHistory(
-          res.map(localHistory => {
-            const parsedTime = dayjs(localHistory.releaseTime);
-            return {
-              ...localHistory,
-              releaseTime: parsedTime.isValid()
-                ? parsedTime.format('LL')
-                : localHistory.releaseTime,
-              chapterNumber: localHistory.chapterNumber
-                ? localHistory.chapterNumber
-                : parseChapterNumber(localHistory.novelName, localHistory.name),
-            };
-          }),
-        ),
-      )
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setIsLoading(false));
+  const getHistory = useCallback(
+    () =>
+      getHistoryFromDb()
+        .then(res =>
+          setHistory(
+            res.map(localHistory => {
+              const parsedTime = dayjs(localHistory.releaseTime);
+              return {
+                ...localHistory,
+                releaseTime: parsedTime.isValid()
+                  ? parsedTime.format('LL')
+                  : localHistory.releaseTime,
+                chapterNumber: localHistory.chapterNumber
+                  ? localHistory.chapterNumber
+                  : parseChapterNumber(
+                      localHistory.novelName,
+                      localHistory.name,
+                    ),
+              };
+            }),
+          ),
+        )
+        .catch((err: Error) => setError(err.message))
+        .finally(() => setIsLoading(false)),
+    [],
+  );
 
-  const clearAllHistory = async () => {
+  const clearAllHistory = useCallback(async () => {
     await deleteAllHistory();
     await getHistory();
-  };
+  }, [getHistory]);
 
-  const removeChapterFromHistory = async (chapterId: number) => {
-    await deleteChapterHistory(chapterId);
-    await getHistory();
-  };
+  const removeChapterFromHistory = useCallback(
+    async (chapterId: number) => {
+      await deleteChapterHistory(chapterId);
+      await getHistory();
+    },
+    [getHistory],
+  );
 
   useFocusEffect(
     useCallback(() => {
       getHistory();
-    }, []),
+    }, [getHistory]),
   );
 
-  return {
-    isLoading,
-    history,
-    error,
-    removeChapterFromHistory,
-    clearAllHistory,
-  };
+  return useMemo(
+    () => ({
+      isLoading,
+      history,
+      error,
+      removeChapterFromHistory,
+      clearAllHistory,
+    }),
+    [isLoading, history, error, removeChapterFromHistory, clearAllHistory],
+  );
 };
 
 export default useHistory;

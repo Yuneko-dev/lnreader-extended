@@ -26,96 +26,94 @@ interface AvailablePluginCardProps {
   installPlugin: (plugin: PluginItem) => Promise<void>;
 }
 
-const AvailablePluginCard = ({
-  plugin,
-  theme,
-  installPlugin,
-}: AvailablePluginCardProps) => {
-  const ratio = useSharedValue(1);
-  const imageStyles = useAnimatedStyle(() => ({
-    height: ratio.value * 40,
-  }));
-  const viewStyles = useAnimatedStyle(() => ({
-    height: ratio.value * 64,
-    paddingVertical: ratio.value * 12,
-  }));
-  const textStyles = useAnimatedStyle(() => ({
-    lineHeight: ratio.value * 20,
-  }));
+const AvailablePluginCard = memo(
+  ({ plugin, theme, installPlugin }: AvailablePluginCardProps) => {
+    const ratio = useSharedValue(1);
+    const imageStyles = useAnimatedStyle(() => ({
+      height: ratio.value * 40,
+    }));
+    const viewStyles = useAnimatedStyle(() => ({
+      height: ratio.value * 64,
+      paddingVertical: ratio.value * 12,
+    }));
+    const textStyles = useAnimatedStyle(() => ({
+      lineHeight: ratio.value * 20,
+    }));
 
-  return (
-    <View>
-      {plugin.header ? (
-        <Text style={[styles.listHeader, { color: theme.onSurfaceVariant }]}>
-          {getLocaleLanguageName(plugin.lang)}
-        </Text>
-      ) : null}
-      <Animated.View
-        style={[
-          styles.container,
-          { backgroundColor: theme.surface },
-          viewStyles,
-        ]}
-      >
-        <Animated.View style={styles.row}>
-          <Animated.Image
-            source={{ uri: plugin.iconUrl }}
-            style={[
-              styles.icon,
-              imageStyles,
-              { backgroundColor: theme.surface },
-            ]}
-          />
-          <Animated.View style={styles.details}>
-            <Animated.Text
-              numberOfLines={1}
+    return (
+      <View>
+        {plugin.header ? (
+          <Text style={[styles.listHeader, { color: theme.onSurfaceVariant }]}>
+            {getLocaleLanguageName(plugin.lang)}
+          </Text>
+        ) : null}
+        <Animated.View
+          style={[
+            styles.container,
+            { backgroundColor: theme.surface },
+            viewStyles,
+          ]}
+        >
+          <Animated.View style={styles.row}>
+            <Animated.Image
+              source={{ uri: plugin.iconUrl }}
               style={[
-                {
-                  color: theme.onSurface,
-                },
-                styles.name,
-                textStyles,
+                styles.icon,
+                imageStyles,
+                { backgroundColor: theme.surface },
               ]}
-            >
-              {plugin.name}
-            </Animated.Text>
-            <Animated.Text
-              numberOfLines={1}
-              style={[
-                { color: theme.onSurfaceVariant },
-                styles.addition,
-                textStyles,
-              ]}
-            >
-              {`${getLocaleLanguageName(plugin.lang)} - ${plugin.version}`}
-            </Animated.Text>
+            />
+            <Animated.View style={styles.details}>
+              <Animated.Text
+                numberOfLines={1}
+                style={[
+                  {
+                    color: theme.onSurface,
+                  },
+                  styles.name,
+                  textStyles,
+                ]}
+              >
+                {plugin.name}
+              </Animated.Text>
+              <Animated.Text
+                numberOfLines={1}
+                style={[
+                  { color: theme.onSurfaceVariant },
+                  styles.addition,
+                  textStyles,
+                ]}
+              >
+                {`${getLocaleLanguageName(plugin.lang)} - ${plugin.version}`}
+              </Animated.Text>
+            </Animated.View>
           </Animated.View>
+          <IconButtonV2
+            name="download-outline"
+            color={theme.primary}
+            onPress={() => {
+              ratio.value = withTiming(0, { duration: 500 });
+              installPlugin(plugin)
+                .then(() => {
+                  showToast(
+                    getString('browseScreen.installedPlugin', {
+                      name: plugin.name,
+                    }),
+                  );
+                })
+                .catch((error: Error) => {
+                  showToast(error.message);
+                  ratio.value = 1;
+                });
+            }}
+            size={22}
+            theme={theme}
+          />
         </Animated.View>
-        <IconButtonV2
-          name="download-outline"
-          color={theme.primary}
-          onPress={() => {
-            ratio.value = withTiming(0, { duration: 500 });
-            installPlugin(plugin)
-              .then(() => {
-                showToast(
-                  getString('browseScreen.installedPlugin', {
-                    name: plugin.name,
-                  }),
-                );
-              })
-              .catch((error: Error) => {
-                showToast(error.message);
-                ratio.value = 1;
-              });
-          }}
-          size={22}
-          theme={theme}
-        />
-      </Animated.View>
-    </View>
-  );
-};
+      </View>
+    );
+  },
+);
 
 export const AvailableTab = memo(({ searchText, theme }: AvailableTabProps) => {
   const navigation = useNavigation<MoreStackScreenProps['navigation']>();
