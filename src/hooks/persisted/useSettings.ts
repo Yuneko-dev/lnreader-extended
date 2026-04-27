@@ -252,8 +252,7 @@ export const initialTranslateSettings: TranslateSettings = {
   llmEndpoint: 'https://api.openai.com/v1',
   llmApiKey: '',
   llmModel: '',
-  llmSystemPrompt:
-    'You are a professional translator. Do NOT add any extra notes or conversational text. Maintain paragraph structural integrity by keeping the exact same ---PARAGRAPH_BREAK--- markers between translated paragraphs.',
+  llmSystemPrompt: '',
   llmEnableReasoning: false,
   llmReasoningEffort: 'low',
   autoTranslateNextChapter: false,
