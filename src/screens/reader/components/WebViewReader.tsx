@@ -15,6 +15,7 @@ import { getString } from '@strings/translations';
 import { getPlugin } from '@plugins/pluginManager';
 import { getLocalServerUrl } from '@plugins/local/localServerManager';
 import { MMKVStorage, getMMKVObject } from '@utils/mmkv/mmkv';
+import { getUserAgent } from '@hooks/persisted/useUserAgent';
 import {
   CHAPTER_GENERAL_SETTINGS,
   CHAPTER_READER_SETTINGS,
@@ -396,6 +397,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       scalesPageToFit={true}
       showsVerticalScrollIndicator={false}
       javaScriptEnabled={true}
+      userAgent={getUserAgent()}
       webviewDebuggingEnabled={__DEV__}
       onLoadEnd={() => {
         // Update battery level when WebView finishes loading

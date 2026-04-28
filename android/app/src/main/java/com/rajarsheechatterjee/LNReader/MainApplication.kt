@@ -66,7 +66,14 @@ class MainApplication : Application(), ReactApplication {
         super.onCreate()
 
         setupCrashHandler()
-        setupNetworkClient()
+        /**
+         * Conclusion: It is not possible to integrate DoH in a way that perfectly synchronizes cookies between React Native and WebView (or I just haven't found a way yet).
+         * However, at least I managed to get DoH working, and it can bypass Cloudflare for a certain number of requests.
+         * Of course, it's still buggy - there are many issues. I've decided to give up.
+         * Anyway, if a website is blocked, using DoH alone is not enough; more advanced solutions are required.
+         * Using Private DNS or a VPN should be left to the user.
+         */
+        // setupNetworkClient()
 
         loadReactNative(this)
         ApplicationLifecycleDispatcher.onApplicationCreate(this)
