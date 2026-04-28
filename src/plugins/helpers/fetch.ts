@@ -41,6 +41,7 @@ const makeInit = (init?: FetchInit) => {
   return init;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function applyCookieFromRequest(url: string, init: FetchInit) {
   const baseURL = new URL(url).origin;
   let cookieString = '';
