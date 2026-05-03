@@ -280,10 +280,6 @@ Task: Translate the following text from ${source} to ${target}.
 
       return this.adjustCount(translatedParagraphs, texts.length);
     } catch (e: any) {
-      if (e?.name === 'AbortError') {
-        throw e; // Re-throw abort errors without wrapping
-      }
-      // console.error('LLM Translation failed:', e);
       const message = e?.message || 'Unknown LLM error';
       throw new Error(`LLM Translation failed: ${message}`);
     } finally {
