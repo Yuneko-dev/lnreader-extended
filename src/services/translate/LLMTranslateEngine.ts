@@ -80,7 +80,7 @@ export class LLMTranslateEngine implements TranslateEngine {
   ): Promise<string[]> {
     if (!texts.length) return [];
 
-    const MARKER = '---PARAGRAPH_BREAK---';
+    const MARKER = '<br>';
     const userPrompt = texts.join('\n' + MARKER + '\n');
 
     const systemPrompt = `You are an Expert Transcreator. Your task is to translate the source text accurately while dynamically adapting the style, tone, and localization based on any provided custom guidelines.
@@ -90,7 +90,7 @@ Core Directives:
 2. Neutral Fallback: If no custom style guidelines are provided, produce a highly natural and fluent standard translation in the target language.
 
 Strict Technical Constraints (CRITICAL):
-- Formatting: You MUST maintain the exact structural integrity of the input. Keep all ---PARAGRAPH_BREAK--- markers exactly as they appear between paragraphs.
+- Formatting: You MUST maintain the exact structural integrity of the input. Keep all ${MARKER} markers exactly as they appear between paragraphs.
 - Clean Output: Output ONLY the final processed text. Do NOT include any explanations, formatting tags (unless present in the source), intro/outro conversational filler, or internal thinking.
 
 ---
@@ -130,12 +130,15 @@ Task: Translate the following text from ${source} to ${target}.
         throw new Error('Model is not specified');
       }
 
-      let progress = 0;
+      const startTime = Date.now();
+      const estimatedTimeMs = 20_000;
+      const maxProgress = 99;
       i = setInterval(() => {
-        if (Math.random() > 0.5 && progress < 96 && onProgress) {
-          onProgress(progress++);
+        if (onProgress) {
+          const elapsedTime = Date.now() - startTime;
+          onProgress(maxProgress * (1 - Math.exp(-elapsedTime / estimatedTimeMs)));
         }
-      }, 333);
+      }, 100);
 
       let resultText = '';
       let errorMessage: string | undefined | null = null;
