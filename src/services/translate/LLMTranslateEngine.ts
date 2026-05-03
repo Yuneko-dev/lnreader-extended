@@ -17,6 +17,8 @@ export interface LLMConfig {
   systemPrompt?: string;
   enableReasoning?: boolean;
   reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+  apiMode?: 'responses' | 'chat-completions';
+  temperature?: number;
 }
 
 export class LLMTranslateEngine implements TranslateEngine {
@@ -103,26 +105,6 @@ Task: Translate the following text from ${source} to ${target}.
 
     let i: ReturnType<typeof setInterval> | undefined;
 
-    // Helper: create a promise that rejects when aborted
-    const createAbortError = () => {
-      const err = new Error('Translation cancelled');
-      err.name = 'AbortError';
-      return err;
-    };
-    const abortCleanup = { remove: null as (() => void) | null };
-    const abortPromise = signal
-      ? new Promise<never>((_, reject) => {
-          if (signal.aborted) {
-            reject(createAbortError());
-            return;
-          }
-          const handler = () => reject(createAbortError());
-          signal.addEventListener('abort', handler, { once: true });
-          abortCleanup.remove = () =>
-            signal.removeEventListener('abort', handler);
-        })
-      : null;
-
     const startTime = Date.now();
 
     try {
@@ -149,6 +131,7 @@ Task: Translate the following text from ${source} to ${target}.
         const ai = this.createClient() as GoogleGenAI;
         const configOptions: GenerateContentConfig = {
           systemInstruction: systemPrompt,
+          abortSignal: signal,
         };
         if (this.config.enableReasoning) {
           configOptions.thinkingConfig = {};
@@ -204,14 +187,11 @@ Task: Translate the following text from ${source} to ${target}.
           },
         ];
 
-        const apiPromise = ai.models.generateContent({
+        const response = await ai.models.generateContent({
           model: this.config.model,
           contents: userPrompt,
           config: configOptions,
         });
-        const response = abortPromise
-          ? await Promise.race([apiPromise, abortPromise])
-          : await apiPromise;
         resultText = response?.text || '';
         errorMessage = response.promptFeedback?.blockReason;
         if (__DEV__) {
@@ -226,34 +206,61 @@ Task: Translate the following text from ${source} to ${target}.
         }
       } else {
         const client = this.createClient() as OpenAI;
-        let reasoningConfig: OpenAI.Reasoning | undefined = undefined;
-        if (this.config.enableReasoning) {
-          reasoningConfig = {
-            effort: this.config.reasoningEffort,
-            // summary: 'detailed',
-          };
-        }
-        const apiPromise = client.responses.create({
-          model: this.config.model,
-          instructions: systemPrompt,
-          input: userPrompt,
-          store: false,
-          reasoning: reasoningConfig,
-        });
-        const response = abortPromise
-          ? await Promise.race([apiPromise, abortPromise])
-          : await apiPromise;
-        resultText = response.output_text;
-        errorMessage = response.incomplete_details?.reason;
-        if (__DEV__) {
-          console.log('LLM Response Info', response);
-        } else {
-          console.log('LLM Response Info', {
-            usage: response.usage,
-            error: response.error,
-            incomplete_details: response.incomplete_details,
-            status: response.status,
+
+        if (this.config.apiMode === 'chat-completions') {
+          const response = await client.chat.completions.create({
+            model: this.config.model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: this.config.temperature ?? 0.6,
+            store: false,
+          }, {
+            signal,
           });
+          resultText = response.choices[0]?.message?.content || '';
+          errorMessage =
+            response.choices[0]?.finish_reason === 'content_filter'
+              ? 'content_filter'
+              : null;
+          if (__DEV__) {
+            console.log('LLM Chat Response Info', response);
+          } else {
+            console.log('LLM Chat Response Info', {
+              usage: response.usage,
+              finish_reason: response.choices[0]?.finish_reason,
+            });
+          }
+        } else {
+          let reasoningConfig: OpenAI.Reasoning | undefined = undefined;
+          if (this.config.enableReasoning) {
+            reasoningConfig = {
+              effort: this.config.reasoningEffort,
+              // summary: 'detailed',
+            };
+          }
+          const response = await client.responses.create({
+            model: this.config.model,
+            instructions: systemPrompt,
+            input: userPrompt,
+            store: false,
+            reasoning: reasoningConfig,
+          }, {
+            signal,
+          });
+          resultText = response.output_text;
+          errorMessage = response.incomplete_details?.reason;
+          if (__DEV__) {
+            console.log('LLM Response Info', response);
+          } else {
+            console.log('LLM Response Info', {
+              usage: response.usage,
+              error: response.error,
+              incomplete_details: response.incomplete_details,
+              status: response.status,
+            });
+          }
         }
       }
 
@@ -284,7 +291,6 @@ Task: Translate the following text from ${source} to ${target}.
         `LLM Translation finished in ${(Date.now() - startTime) / 1000}s`,
       );
       clearInterval(i);
-      abortCleanup.remove?.();
     }
   }
 }

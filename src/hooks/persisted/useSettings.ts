@@ -147,6 +147,8 @@ export interface TranslateSettings {
   llmSystemPrompt: string;
   llmEnableReasoning: boolean;
   llmReasoningEffort: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+  llmApiMode: 'responses' | 'chat-completions';
+  llmTemperature: number;
   autoTranslateNextChapter: boolean;
   downloadTranslated: boolean;
 }
@@ -255,6 +257,8 @@ export const initialTranslateSettings: TranslateSettings = {
   llmSystemPrompt: '',
   llmEnableReasoning: false,
   llmReasoningEffort: 'low',
+  llmApiMode: 'responses',
+  llmTemperature: 0.6,
   autoTranslateNextChapter: false,
   downloadTranslated: false,
 };

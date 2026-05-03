@@ -159,9 +159,6 @@ const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
 
   const [index, setIndex] = useState(0);
 
-  // Disable content panning gesture on readerTab (index 0) so the Slider is draggable
-  const enableContentPanningGesture = index !== 0;
-
   const renderTabBar = useCallback(
     (props: any) => (
       <TabBar
@@ -190,7 +187,7 @@ const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
         styles.container,
         { marginLeft: left, marginRight: right },
       ]}
-      enableContentPanningGesture={enableContentPanningGesture}
+      enableContentPanningGesture={true}
     >
       <BottomSheetView style={styles.flex}>
         <TabView

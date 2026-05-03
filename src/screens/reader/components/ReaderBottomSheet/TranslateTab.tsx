@@ -22,6 +22,7 @@ import { getString } from '@strings/translations';
 import { LLMTranslateEngine } from '@services/translate/LLMTranslateEngine';
 import { showToast } from '@utils/showToast';
 import { useChapterContext } from '@screens/reader/ChapterContext';
+import Slider from '@react-native-community/slider';
 
 const PROVIDERS: {
   label: string;
@@ -135,6 +136,8 @@ const TranslateTab: React.FC = () => {
     llmSystemPrompt,
     llmEnableReasoning,
     llmReasoningEffort,
+    llmApiMode,
+    llmTemperature,
     autoTranslateNextChapter,
     downloadTranslated,
     setTranslateSettings: _setTranslateSettings,
@@ -162,6 +165,7 @@ const TranslateTab: React.FC = () => {
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [reasoningEffortMenuVisible, setReasoningEffortMenuVisible] =
     useState(false);
+  const [apiModeMenuVisible, setApiModeMenuVisible] = useState(false);
 
   const getLangLabel = (code: string) => {
     return supportedLanguagesList.find(l => l.value === code)?.label || code;
@@ -400,7 +404,7 @@ const TranslateTab: React.FC = () => {
                   )}
                   mode="contained"
                   onPress={loadModels}
-                  style={{ marginLeft: 8 }}
+                  style={{ marginLeft: 8, marginTop: 6 }}
                   loading={isLoadingModels}
                   disabled={isLoadingModels}
                 />
@@ -429,53 +433,136 @@ const TranslateTab: React.FC = () => {
                 }}
               />
 
-              <View
-                style={[
-                  styles.settingItem,
-                  { paddingHorizontal: 0, paddingTop: 0 },
-                ]}
-              >
-                <Text style={{ color: theme.onSurface }}>Enable Reasoning</Text>
-                <Switch
-                  value={llmEnableReasoning}
-                  onValueChange={val =>
-                    setTranslateSettings({ llmEnableReasoning: val })
-                  }
-                  color={theme.primary}
-                />
-              </View>
-
-              {llmEnableReasoning && (
-                <Menu
-                  visible={reasoningEffortMenuVisible}
-                  onDismiss={() => setReasoningEffortMenuVisible(false)}
-                  anchor={
-                    <TouchableOpacity
-                      style={[styles.input, styles.dropdown]}
-                      onPress={() => setReasoningEffortMenuVisible(true)}
-                    >
-                      <Text style={{ color: theme.onSurfaceVariant }}>
-                        Reasoning Effort
-                      </Text>
-                      <Text style={{ color: theme.onSurface }}>
-                        {llmReasoningEffort || 'low'}
-                      </Text>
-                    </TouchableOpacity>
-                  }
-                >
-                  {REASONING_EFFORTS.map(eff => (
+              {llmProvider !== 'gemini' && (
+                <>
+                  <Menu
+                    visible={apiModeMenuVisible}
+                    onDismiss={() => setApiModeMenuVisible(false)}
+                    anchor={
+                      <TouchableOpacity
+                        style={[styles.input, styles.dropdown]}
+                        onPress={() => setApiModeMenuVisible(true)}
+                      >
+                        <Text style={{ color: theme.onSurfaceVariant }}>
+                          {getString(
+                            'readerScreen.bottomSheet.translateTab.apiMode',
+                          )}
+                        </Text>
+                        <Text style={{ color: theme.onSurface }}>
+                          {llmApiMode === 'chat-completions'
+                            ? getString(
+                                'readerScreen.bottomSheet.translateTab.apiModeChatCompletions',
+                              )
+                            : getString(
+                                'readerScreen.bottomSheet.translateTab.apiModeResponses',
+                              )}
+                        </Text>
+                      </TouchableOpacity>
+                    }
+                  >
                     <Menu.Item
-                      key={eff}
-                      title={eff}
+                      title={getString(
+                        'readerScreen.bottomSheet.translateTab.apiModeResponses',
+                      )}
                       onPress={() => {
-                        setTranslateSettings({
-                          llmReasoningEffort: eff as any,
-                        });
-                        setReasoningEffortMenuVisible(false);
+                        setTranslateSettings({ llmApiMode: 'responses' });
+                        setApiModeMenuVisible(false);
                       }}
                     />
-                  ))}
-                </Menu>
+                    <Menu.Item
+                      title={getString(
+                        'readerScreen.bottomSheet.translateTab.apiModeChatCompletions',
+                      )}
+                      onPress={() => {
+                        setTranslateSettings({ llmApiMode: 'chat-completions' });
+                        setApiModeMenuVisible(false);
+                      }}
+                    />
+                  </Menu>
+                </>
+              )}
+
+              {llmProvider !== 'gemini' && llmApiMode === 'chat-completions' && (
+                <View style={styles.temperatureSection}>
+                  <View style={styles.temperatureHeader}>
+                    <Text style={{ color: theme.onSurface }}>
+                      {getString(
+                        'readerScreen.bottomSheet.translateTab.temperature',
+                      )}
+                    </Text>
+                    <Text style={{ color: theme.onSurfaceVariant }}>
+                      {(llmTemperature ?? 0.6).toFixed(1)}
+                    </Text>
+                  </View>
+                  <Slider
+                    style={styles.slider}
+                    minimumValue={0}
+                    maximumValue={2}
+                    step={0.1}
+                    value={llmTemperature ?? 0.6}
+                    onSlidingComplete={val =>
+                      setTranslateSettings({
+                        llmTemperature: Math.round(val * 10) / 10,
+                      })
+                    }
+                    minimumTrackTintColor={theme.primary}
+                    maximumTrackTintColor={theme.surfaceVariant}
+                    thumbTintColor={theme.primary}
+                  />
+                </View>
+              )}
+
+              {(llmProvider === 'gemini' || llmApiMode === 'responses') && (
+                <>
+                  <View
+                    style={[
+                      styles.settingItem,
+                      { paddingHorizontal: 0, paddingTop: 0 },
+                    ]}
+                  >
+                    <Text style={{ color: theme.onSurface }}>Enable Reasoning</Text>
+                    <Switch
+                      value={llmEnableReasoning}
+                      onValueChange={val =>
+                        setTranslateSettings({ llmEnableReasoning: val })
+                      }
+                      color={theme.primary}
+                    />
+                  </View>
+
+                  {llmEnableReasoning && (
+                    <Menu
+                      visible={reasoningEffortMenuVisible}
+                      onDismiss={() => setReasoningEffortMenuVisible(false)}
+                      anchor={
+                        <TouchableOpacity
+                          style={[styles.input, styles.dropdown]}
+                          onPress={() => setReasoningEffortMenuVisible(true)}
+                        >
+                          <Text style={{ color: theme.onSurfaceVariant }}>
+                            Reasoning Effort
+                          </Text>
+                          <Text style={{ color: theme.onSurface }}>
+                            {llmReasoningEffort || 'low'}
+                          </Text>
+                        </TouchableOpacity>
+                      }
+                    >
+                      {REASONING_EFFORTS.map(eff => (
+                        <Menu.Item
+                          key={eff}
+                          title={eff}
+                          onPress={() => {
+                            setTranslateSettings({
+                              llmReasoningEffort: eff as any,
+                            });
+                            setReasoningEffortMenuVisible(false);
+                          }}
+                        />
+                      ))}
+                    </Menu>
+                  )}
+                </>
               )}
             </View>
           )}
@@ -640,5 +727,18 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: 16,
+  },
+  temperatureSection: {
+    marginBottom: 12,
+  },
+  temperatureHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
 });

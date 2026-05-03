@@ -466,6 +466,10 @@ export interface StringMap {
   'readerScreen.bottomSheet.translateTab.modelName': 'string';
   'readerScreen.bottomSheet.translateTab.loadModels': 'string';
   'readerScreen.bottomSheet.translateTab.systemPrompt': 'string';
+  'readerScreen.bottomSheet.translateTab.apiMode': 'string';
+  'readerScreen.bottomSheet.translateTab.apiModeResponses': 'string';
+  'readerScreen.bottomSheet.translateTab.apiModeChatCompletions': 'string';
+  'readerScreen.bottomSheet.translateTab.temperature': 'string';
   'readerScreen.bottomSheet.translateTab.preTranslateNextChapter': 'string';
   'readerScreen.bottomSheet.translateTab.downloadTranslated': 'string';
   'readerScreen.drawer.scrollToBottom': 'string';

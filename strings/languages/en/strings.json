@@ -553,6 +553,10 @@
         "modelName": "Model Name",
         "loadModels": "Load Models",
         "systemPrompt": "System Prompt",
+        "apiMode": "API Mode",
+        "apiModeResponses": "Responses API (New)",
+        "apiModeChatCompletions": "Chat Completions (Classic)",
+        "temperature": "Temperature",
         "preTranslateNextChapter": "Pre-translate next chapter",
         "downloadTranslated": "Download translated version instead of raw"
       }

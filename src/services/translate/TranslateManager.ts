@@ -14,6 +14,8 @@ export interface TranslateConfig {
   llmSystemPrompt?: string;
   llmEnableReasoning?: boolean;
   llmReasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+  llmApiMode?: 'responses' | 'chat-completions';
+  llmTemperature?: number;
 }
 
 export class TranslateManager {
@@ -27,6 +29,8 @@ export class TranslateManager {
         systemPrompt: config.llmSystemPrompt,
         enableReasoning: config.llmEnableReasoning,
         reasoningEffort: config.llmReasoningEffort as any,
+        apiMode: config.llmApiMode,
+        temperature: config.llmTemperature,
       });
     }
     return new GoogleTranslateFreeEngine();
