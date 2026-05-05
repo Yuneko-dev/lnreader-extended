@@ -104,9 +104,7 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
         // If split perfectly aligns
         if (data[0].length === chunk.indices.length) {
           chunk.indices.forEach((originalIndex, innerIdx) => {
-            results[originalIndex] = decode(
-              data[0][innerIdx] || '',
-            ).trim();
+            results[originalIndex] = decode(data[0][innerIdx] || '').trim();
           });
         } else {
           console.warn('Google chunk mismatch length');

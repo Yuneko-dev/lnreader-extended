@@ -15,10 +15,6 @@ interface DeferredPluginListItemProps {
   settingsModal: UseBooleanReturnType;
   navigateToSource: (plugin: PluginItem, showLatestNovels?: boolean) => void;
   setSelectedPluginId: React.Dispatch<React.SetStateAction<string>>;
-  uninstallPlugin: (plugin: PluginItem) => Promise<void>;
-  updatePlugin: (plugin: PluginItem) => Promise<string | undefined>;
-  togglePinPlugin: (pluginId: string) => void;
-  isPinned: (pluginId: string) => boolean;
 }
 
 export const DeferredPluginListItem = memo(

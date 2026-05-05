@@ -99,10 +99,6 @@ export const InstalledTab = memo(
             settingsModal={settingsModal}
             navigateToSource={navigateToSource}
             setSelectedPluginId={setSelectedPluginId}
-            uninstallPlugin={uninstallPlugin}
-            updatePlugin={updatePlugin}
-            togglePinPlugin={togglePinPlugin}
-            isPinned={isPinned}
           />
         );
       },
@@ -173,10 +169,6 @@ export const InstalledTab = memo(
                     settingsModal={settingsModal}
                     navigateToSource={navigateToSource}
                     setSelectedPluginId={setSelectedPluginId}
-                    uninstallPlugin={uninstallPlugin}
-                    updatePlugin={updatePlugin}
-                    togglePinPlugin={togglePinPlugin}
-                    isPinned={isPinned}
                   />
                 ))}
               </>
@@ -197,10 +189,6 @@ export const InstalledTab = memo(
                   settingsModal={settingsModal}
                   navigateToSource={navigateToSource}
                   setSelectedPluginId={setSelectedPluginId}
-                  uninstallPlugin={uninstallPlugin}
-                  updatePlugin={updatePlugin}
-                  togglePinPlugin={togglePinPlugin}
-                  isPinned={isPinned}
                 />
               </>
             ) : null}
@@ -222,10 +210,6 @@ export const InstalledTab = memo(
                   settingsModal={settingsModal}
                   navigateToSource={navigateToSource}
                   setSelectedPluginId={setSelectedPluginId}
-                  uninstallPlugin={uninstallPlugin}
-                  updatePlugin={updatePlugin}
-                  togglePinPlugin={togglePinPlugin}
-                  isPinned={isPinned}
                 />
               </>
             ) : null}

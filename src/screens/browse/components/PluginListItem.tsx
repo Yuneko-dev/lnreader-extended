@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Image, View, Text, StyleSheet } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { Pressable, Image, View, Text, StyleSheet } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 import { PluginItem } from '@plugins/types';
@@ -12,6 +11,7 @@ import { showToast } from '@utils/showToast';
 import { UseBooleanReturnType } from '@hooks';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
 import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { usePlugins } from '@hooks/persisted';
 
 interface PluginListItemProps {
   item: PluginItem;
@@ -20,10 +20,6 @@ interface PluginListItemProps {
   settingsModal: UseBooleanReturnType;
   navigateToSource: (plugin: PluginItem, showLatestNovels?: boolean) => void;
   setSelectedPluginId: React.Dispatch<React.SetStateAction<string>>;
-  uninstallPlugin: (plugin: PluginItem) => Promise<void>;
-  updatePlugin: (plugin: PluginItem) => Promise<string | undefined>;
-  togglePinPlugin: (pluginId: string) => void;
-  isPinned: (pluginId: string) => boolean;
 }
 
 export const PluginListItem = memo(
@@ -34,11 +30,10 @@ export const PluginListItem = memo(
     settingsModal,
     navigateToSource,
     setSelectedPluginId,
-    uninstallPlugin,
-    updatePlugin,
-    togglePinPlugin,
-    isPinned,
   }: PluginListItemProps) => {
+    const { uninstallPlugin, updatePlugin, togglePinPlugin, isPinned } =
+      usePlugins();
+
     const isPluginPinned = isPinned(item.id);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
