@@ -137,35 +137,36 @@ const UpdateNovelCard: React.FC<UpdateCardProps> = ({
 
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const Cover = useCallback(() => {
+  const coverElement = useMemo(() => {
     const uri = chapterListInfo.novelCover || defaultCover;
     return (
-      <Pressable onPress={navigateToNovel} style={styles.alignSelf}>
-        <Image source={{ uri }} style={styles.cover} />
-      </Pressable>
+      <View style={styles.novelCover}>
+        <Pressable onPress={navigateToNovel} style={styles.alignSelf}>
+          <Image source={{ uri }} style={styles.cover} />
+        </Pressable>
+      </View>
     );
   }, [
     chapterListInfo.novelCover,
     navigateToNovel,
     styles.alignSelf,
     styles.cover,
+    styles.novelCover,
   ]);
-
-  const coverElement = useMemo(
-    () => (
-      <View style={styles.novelCover}>
-        <Cover />
-      </View>
-    ),
-    [Cover, styles.novelCover],
-  );
 
   if (chapterListInfo.updatesPerDay > 1) {
     return (
       <List.Accordion
         title={chapterListInfo.novelName}
         titleStyle={styles.title}
-        left={Cover}
+        left={() => {
+          const uri = chapterListInfo.novelCover || defaultCover;
+          return (
+            <Pressable onPress={navigateToNovel} style={styles.alignSelf}>
+              <Image source={{ uri }} style={styles.cover} />
+            </Pressable>
+          );
+        }}
         descriptionStyle={styles.description}
         theme={{ colors: theme }}
         style={[styles.container, styles.padding]}

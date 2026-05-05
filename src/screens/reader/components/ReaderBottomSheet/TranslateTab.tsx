@@ -3,7 +3,7 @@ import {
   View,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
 } from 'react-native';
 import {
@@ -85,7 +85,7 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
         </Text>
         <ScrollView style={styles.languageList}>
           {supportedLanguagesList.map(lang => (
-            <TouchableOpacity
+            <Pressable
               key={lang.value}
               style={[
                 styles.languageItem,
@@ -108,7 +108,7 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
                   ✓
                 </Text>
               )}
-            </TouchableOpacity>
+            </Pressable>
           ))}
         </ScrollView>
         <Button
@@ -236,7 +236,7 @@ const TranslateTab: React.FC = () => {
             </View>
           </View>
 
-          <TouchableOpacity
+          <Pressable
             style={styles.settingItem}
             onPress={() => setSourceLangModalVisible(true)}
           >
@@ -248,9 +248,9 @@ const TranslateTab: React.FC = () => {
             <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
               {getLangLabel(sourceLang)}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             style={styles.settingItem}
             onPress={() => setTargetLangModalVisible(true)}
           >
@@ -262,7 +262,7 @@ const TranslateTab: React.FC = () => {
             <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
               {getLangLabel(targetLang)}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           <View style={[styles.settingItem]}>
             <Text style={[styles.label, { color: theme.onSurface }]}>
@@ -305,7 +305,7 @@ const TranslateTab: React.FC = () => {
                 visible={providerMenuVisible}
                 onDismiss={() => setProviderMenuVisible(false)}
                 anchor={
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.input, styles.dropdown]}
                     onPress={() => setProviderMenuVisible(true)}
                   >
@@ -317,7 +317,7 @@ const TranslateTab: React.FC = () => {
                     <Text style={{ color: theme.onSurface }}>
                       {getProviderLabel(llmProvider)}
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 }
               >
                 {PROVIDERS.map(p => (
@@ -426,7 +426,7 @@ const TranslateTab: React.FC = () => {
                 />
               </View>
 
-              <TouchableOpacity
+              <Pressable
                 style={[styles.settingItem, { paddingHorizontal: 0 }]}
                 onPress={() => setPromptManagerVisible(true)}
               >
@@ -439,7 +439,7 @@ const TranslateTab: React.FC = () => {
                   {llmSystemPrompts?.find(p => p.id === activeSystemPromptId)
                     ?.title || 'Default'}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
 
               {llmProvider !== 'gemini' && (
                 <>
@@ -447,7 +447,7 @@ const TranslateTab: React.FC = () => {
                     visible={apiModeMenuVisible}
                     onDismiss={() => setApiModeMenuVisible(false)}
                     anchor={
-                      <TouchableOpacity
+                      <Pressable
                         style={[styles.input, styles.dropdown]}
                         onPress={() => setApiModeMenuVisible(true)}
                       >
@@ -465,7 +465,7 @@ const TranslateTab: React.FC = () => {
                                 'readerScreen.bottomSheet.translateTab.apiModeResponses',
                               )}
                         </Text>
-                      </TouchableOpacity>
+                      </Pressable>
                     }
                   >
                     <Menu.Item
@@ -548,7 +548,7 @@ const TranslateTab: React.FC = () => {
                       visible={reasoningEffortMenuVisible}
                       onDismiss={() => setReasoningEffortMenuVisible(false)}
                       anchor={
-                        <TouchableOpacity
+                        <Pressable
                           style={[styles.input, styles.dropdown]}
                           onPress={() => setReasoningEffortMenuVisible(true)}
                         >
@@ -558,7 +558,7 @@ const TranslateTab: React.FC = () => {
                           <Text style={{ color: theme.onSurface }}>
                             {llmReasoningEffort || 'low'}
                           </Text>
-                        </TouchableOpacity>
+                        </Pressable>
                       }
                     >
                       {REASONING_EFFORTS.map(eff => (
@@ -610,7 +610,7 @@ const TranslateTab: React.FC = () => {
           </Text>
           <ScrollView style={styles.languageList}>
             {availableModels.map(m => (
-              <TouchableOpacity
+              <Pressable
                 key={m}
                 style={[
                   styles.languageItem,
@@ -631,7 +631,7 @@ const TranslateTab: React.FC = () => {
                     ✓
                   </Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             ))}
           </ScrollView>
           <Button

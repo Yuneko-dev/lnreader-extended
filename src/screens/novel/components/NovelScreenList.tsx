@@ -98,6 +98,8 @@ const NovelScreenList = ({
     disableHapticFeedback,
     downloadNewChapters,
     refreshNovelMetadata,
+    swipeActionLeft,
+    swipeActionRight,
   } = useAppSettings();
 
   const { filter, showChapterTitles = false } = novelSettings;
@@ -128,6 +130,10 @@ const NovelScreenList = ({
   const [isFabExtended, setIsFabExtended] = useState(true);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
+  // Use refs to track previous values, only trigger setState when value changes
+  const isFabExtendedRef = useRef(true);
+  const showScrollToTopRef = useRef(false);
+
   const novelBottomSheetRef = useRef<BottomSheetModalMethods>(null);
   const trackerSheetRef = useRef<BottomSheetModalMethods>(null);
   const pageNavigationSheetRef = useRef<BottomSheetModalMethods>(null);
@@ -147,12 +153,21 @@ const NovelScreenList = ({
 
       headerOpacity.set(y < 50 ? 0 : (y - 50) / 150);
       const currentScrollPosition = Math.floor(y) ?? 0;
+
       if (useFabForContinueReading && lastRead) {
-        setIsFabExtended(currentScrollPosition <= 0);
+        const newExtended = currentScrollPosition <= 0;
+        if (newExtended !== isFabExtendedRef.current) {
+          isFabExtendedRef.current = newExtended;
+          setIsFabExtended(newExtended);
+        }
       }
 
       const screenHeight = Dimensions.get('window').height;
-      setShowScrollToTop(currentScrollPosition > screenHeight / 2);
+      const newShowTop = currentScrollPosition > screenHeight / 2;
+      if (newShowTop !== showScrollToTopRef.current) {
+        showScrollToTopRef.current = newShowTop;
+        setShowScrollToTop(newShowTop);
+      }
     },
     [headerOpacity, useFabForContinueReading, lastRead],
   );
@@ -509,6 +524,9 @@ const NovelScreenList = ({
           showChapterTitles={showChapterTitles}
           isSelected={selectedIds.has(item.id)}
           novelName={novel.name}
+          swipeActionLeft={swipeActionLeft}
+          swipeActionRight={swipeActionRight}
+          disableHapticFeedback={disableHapticFeedback}
           onDeleteChapter={handleDeleteChapter}
           onDownloadChapter={handleDownloadChapter}
           onSelectPress={onSelectPress}
@@ -526,6 +544,9 @@ const NovelScreenList = ({
       theme,
       showChapterTitles,
       selectedIds,
+      swipeActionLeft,
+      swipeActionRight,
+      disableHapticFeedback,
       handleDeleteChapter,
       handleDownloadChapter,
       onSelectPress,

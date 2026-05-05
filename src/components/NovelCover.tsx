@@ -1,12 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  useWindowDimensions,
-  Pressable,
-  Image,
-} from 'react-native';
+import { StyleSheet, View, Text, Pressable, useWindowDimensions, Image } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 import ListView from './ListView';
@@ -52,7 +45,26 @@ type CoverItemPlugin =
       completeRow?: number;
     };
 
-interface INovelCover<TNovel> {
+/**
+ * Layout props computed by the parent to avoid per-item hook subscriptions.
+ * When provided, NovelCover skips calling useLibrarySettings/useWindowDimensions/useDeviceOrientation.
+ */
+interface NovelCoverLayoutProps {
+  /** Number of columns in the grid */
+  numColumns?: number;
+  /** Computed cover height in px */
+  coverHeight?: number;
+  /** Computed cover width in px (only for globalSearch) */
+  coverWidth?: number;
+  /** Display mode (Comfortable/Compact/List) */
+  displayMode?: number;
+  /** Whether to show download count badges */
+  showDownloadBadges?: boolean;
+  /** Whether to show unread count badges */
+  showUnreadBadges?: boolean;
+}
+
+interface INovelCover<TNovel> extends NovelCoverLayoutProps {
   item: TNovel;
   onPress: () => void;
   libraryStatus: boolean;
@@ -73,6 +85,38 @@ function isFromDB(
   return 'chaptersDownloaded' in item;
 }
 
+/**
+ * Hook to compute layout values for NovelCover.
+ * Call this ONCE in the parent list component, not inside each item.
+ */
+export function useNovelCoverLayout(globalSearch?: boolean) {
+  const {
+    displayMode = DisplayModes.Comfortable,
+    showDownloadBadges = true,
+    showUnreadBadges = true,
+    novelsPerRow = 3,
+  } = useLibrarySettings();
+  const window = useWindowDimensions();
+  const orientation = useDeviceOrientation();
+
+  const numColumns = orientation === 'landscape' ? 6 : novelsPerRow;
+
+  const coverHeight = globalSearch
+    ? ((window.width / 3 - 16) * 4) / 3
+    : (window.width / numColumns) * (4 / 3);
+
+  const coverWidth = globalSearch ? window.width / 3 - 16 : undefined;
+
+  return {
+    numColumns,
+    coverHeight,
+    coverWidth,
+    displayMode,
+    showDownloadBadges,
+    showUnreadBadges,
+  };
+}
+
 function NovelCover<
   TNovel extends CoverItemLibrary | CoverItemPlugin | CoverItemDB,
 >({
@@ -86,40 +130,33 @@ function NovelCover<
   onLongPress,
   hasSelection,
   globalSearch,
-  selectedNovelIds,
   imageRequestInit,
+  // Layout props from parent (preferred) or fallback to hooks
+  numColumns: numColumnsProp,
+  coverHeight: coverHeightProp,
+  coverWidth: coverWidthProp,
+  displayMode: displayModeProp,
+  showDownloadBadges: showDownloadBadgesProp,
+  showUnreadBadges: showUnreadBadgesProp,
 }: INovelCover<TNovel>) {
-  const selectionActive =
-    hasSelection ?? (selectedNovelIds != null && selectedNovelIds.length > 0);
-  const {
-    displayMode = DisplayModes.Comfortable,
-    showDownloadBadges = true,
-    showUnreadBadges = true,
-    novelsPerRow = 3,
-  } = useLibrarySettings();
+  const selectionActive = hasSelection ?? false;
 
-  const window = useWindowDimensions();
-
-  const orientation = useDeviceOrientation();
-
-  const numColumns = useMemo(
-    () => (orientation === 'landscape' ? 6 : novelsPerRow),
-    [orientation, novelsPerRow],
+  // Fallback: compute layout values if parent didn't provide them.
+  // When used inside a list, parents SHOULD pass these to avoid per-item hook subscriptions.
+  const fallback = useFallbackLayout(
+    numColumnsProp,
+    coverHeightProp,
+    displayModeProp,
+    globalSearch,
   );
 
-  const coverHeight = useMemo(() => {
-    if (globalSearch) {
-      return ((window.width / 3 - 16) * 4) / 3;
-    }
-    return (window.width / numColumns) * (4 / 3);
-  }, [globalSearch, window.width, numColumns]);
-
-  const coverWidth = useMemo(() => {
-    if (globalSearch) {
-      return window.width / 3 - 16;
-    }
-    return undefined;
-  }, [globalSearch, window.width]);
+  const numColumns = numColumnsProp ?? fallback.numColumns;
+  const coverHeight = coverHeightProp ?? fallback.coverHeight;
+  const coverWidth = coverWidthProp ?? fallback.coverWidth;
+  const displayMode =
+    displayModeProp ?? fallback.displayMode ?? DisplayModes.Comfortable;
+  const showDownloadBadges = showDownloadBadgesProp ?? fallback.showDownloadBadges ?? true;
+  const showUnreadBadges = showUnreadBadgesProp ?? fallback.showUnreadBadges ?? true;
 
   const selectNovel = () => onLongPress(item);
 
@@ -254,6 +291,58 @@ function NovelCover<
       isSelected={isSelected}
     />
   );
+}
+
+/**
+ * Internal fallback: only called when parent doesn't provide layout props.
+ * React hooks must always be called, so this always runs, but parents
+ * passing layout props means the values are simply unused.
+ */
+function useFallbackLayout(
+  numColumnsProp?: number,
+  coverHeightProp?: number,
+  displayModeProp?: number,
+  globalSearch?: boolean,
+) {
+  const {
+    displayMode = DisplayModes.Comfortable,
+    showDownloadBadges = true,
+    showUnreadBadges = true,
+    novelsPerRow = 3,
+  } = useLibrarySettings();
+  const window = useWindowDimensions();
+  const orientation = useDeviceOrientation();
+
+  // Skip computation if parent provided values
+  if (
+    numColumnsProp !== undefined &&
+    coverHeightProp !== undefined &&
+    displayModeProp !== undefined
+  ) {
+    return {
+      numColumns: numColumnsProp,
+      coverHeight: coverHeightProp,
+      coverWidth: undefined as number | undefined,
+      displayMode: displayModeProp,
+      showDownloadBadges,
+      showUnreadBadges,
+    };
+  }
+
+  const numColumns = orientation === 'landscape' ? 6 : novelsPerRow;
+  const coverHeight = globalSearch
+    ? ((window.width / 3 - 16) * 4) / 3
+    : (window.width / numColumns) * (4 / 3);
+  const coverWidth = globalSearch ? window.width / 3 - 16 : undefined;
+
+  return {
+    numColumns,
+    coverHeight,
+    coverWidth,
+    displayMode,
+    showDownloadBadges,
+    showUnreadBadges,
+  };
 }
 
 export default memo(NovelCover);

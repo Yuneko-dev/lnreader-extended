@@ -5,7 +5,7 @@ import { Portal, TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { GoogleSignin, User } from '@react-native-google-signin/google-signin';
 import { Button, EmptyView, Modal } from '@components';
-import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
+import { FlatList, Pressable } from 'react-native-gesture-handler';
 import * as Clipboard from 'expo-clipboard';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
@@ -288,7 +288,7 @@ export default function GoogleDriveModal({
             <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
               {getString('backupScreen.drive.googleDriveBackup')}
             </Text>
-            <TouchableOpacity
+            <Pressable
               onLongPress={() => {
                 if (user?.user.email) {
                   Clipboard.setStringAsync(user.user.email).then(success => {
@@ -309,7 +309,7 @@ export default function GoogleDriveModal({
                   style={styles.avatar}
                 />
               ) : null}
-            </TouchableOpacity>
+            </Pressable>
           </View>
           {renderModal()}
         </KeyboardAwareScrollView>

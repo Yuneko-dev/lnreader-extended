@@ -12,6 +12,12 @@ interface LibraryNovelItemProps {
   onSelect: (id: number) => void;
   onNavigate: (item: NovelInfo) => void;
   imageRequestInit: ImageRequestInit | undefined;
+  // Layout props from parent (avoids per-item hook subscriptions)
+  numColumns?: number;
+  coverHeight?: number;
+  displayMode?: number;
+  showDownloadBadges?: boolean;
+  showUnreadBadges?: boolean;
 }
 
 const LibraryNovelItem = memo(function LibraryNovelItem({
@@ -22,6 +28,11 @@ const LibraryNovelItem = memo(function LibraryNovelItem({
   onSelect,
   onNavigate,
   imageRequestInit,
+  numColumns,
+  coverHeight,
+  displayMode,
+  showDownloadBadges,
+  showUnreadBadges,
 }: LibraryNovelItemProps) {
   const handleLongPress = useCallback(() => {
     onSelect(item.id);
@@ -45,6 +56,11 @@ const LibraryNovelItem = memo(function LibraryNovelItem({
       onPress={handlePress}
       libraryStatus={false}
       imageRequestInit={imageRequestInit}
+      numColumns={numColumns}
+      coverHeight={coverHeight}
+      displayMode={displayMode}
+      showDownloadBadges={showDownloadBadges}
+      showUnreadBadges={showUnreadBadges}
     />
   );
 });

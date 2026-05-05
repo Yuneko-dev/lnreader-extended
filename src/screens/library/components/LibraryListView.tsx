@@ -4,6 +4,7 @@ import { RefreshControl, StyleSheet, View } from 'react-native';
 import { EmptyView } from '@components/index';
 import NovelList, { NovelListRenderItem } from '@components/NovelList';
 import LibraryNovelItem from './LibraryNovelItem';
+import { useNovelCoverLayout } from '@components/NovelCover';
 
 import { NovelInfo } from '@database/types';
 
@@ -28,6 +29,9 @@ export const LibraryView: React.FC<Props> = React.memo(
     const theme = useTheme();
     const { selectedIdsSet, hasSelection, toggleSelection } =
       useSelectionContext();
+
+    // Compute layout values ONCE for all items in this list
+    const layout = useNovelCoverLayout();
 
     const onNavigate = useCallback(
       (item: NovelInfo) => {
@@ -59,6 +63,11 @@ export const LibraryView: React.FC<Props> = React.memo(
           onSelect={toggleSelection}
           onNavigate={onNavigate}
           imageRequestInit={imageRequestInitMap.get(item.pluginId)}
+          numColumns={layout.numColumns}
+          coverHeight={layout.coverHeight}
+          displayMode={layout.displayMode}
+          showDownloadBadges={layout.showDownloadBadges}
+          showUnreadBadges={layout.showUnreadBadges}
         />
       ),
       [
@@ -68,6 +77,11 @@ export const LibraryView: React.FC<Props> = React.memo(
         toggleSelection,
         onNavigate,
         imageRequestInitMap,
+        layout.numColumns,
+        layout.coverHeight,
+        layout.displayMode,
+        layout.showDownloadBadges,
+        layout.showUnreadBadges,
       ],
     );
 
@@ -134,3 +148,4 @@ export const LibraryView: React.FC<Props> = React.memo(
 const styles = StyleSheet.create({
   flex: { flex: 1 },
 });
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Portal, Modal, TextInput, Menu, IconButton } from 'react-native-paper';
 import { Button } from '@components/index';
 import { useTheme } from '@hooks/persisted';
@@ -133,7 +133,7 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
                 onDismiss={() => setMenuVisible(false)}
                 contentStyle={{ backgroundColor: theme.surface }}
                 anchor={
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.dropdown, { borderColor: theme.outline }]}
                     onPress={() => setMenuVisible(true)}
                   >
@@ -148,7 +148,7 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
                     >
                       ▼
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 }
               >
                 {prompts.map(p => (

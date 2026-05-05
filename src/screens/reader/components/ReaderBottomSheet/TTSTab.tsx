@@ -4,7 +4,7 @@ import {
   StyleSheet,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
 } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
@@ -155,7 +155,7 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
             </Text>
           ) : (
             filteredVoices.map((voice: Voice, index: number) => (
-              <TouchableOpacity
+              <Pressable
                 key={index}
                 style={[
                   styles.voiceItem,
@@ -190,7 +190,7 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
                     ✓
                   </Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             ))
           )}
         </ScrollView>
@@ -248,7 +248,7 @@ const TTSTab: React.FC = () => {
 
           {TTSEnable && (
             <>
-              <TouchableOpacity
+              <Pressable
                 style={styles.settingItem}
                 onPress={() => setVoiceModalVisible(true)}
               >
@@ -258,7 +258,7 @@ const TTSTab: React.FC = () => {
                 <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
                   {tts?.voice?.name || 'System'}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
 
               <View style={styles.sliderSection}>
                 <Text style={[styles.sliderLabel, { color: theme.onSurface }]}>

@@ -11,7 +11,6 @@ import { MaterialDesignIconName } from '@type/icon';
 import { getString } from '@strings/translations';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import * as Haptics from 'expo-haptics';
-import { useAppSettings } from '@hooks/persisted';
 import Animated, {
   SharedValue,
   useAnimatedStyle,
@@ -151,6 +150,9 @@ interface ChapterItemProps {
   showChapterTitles: boolean;
   novelName: string;
   left?: ReactNode;
+  swipeActionLeft?: SwipeAction;
+  swipeActionRight?: SwipeAction;
+  disableHapticFeedback?: boolean;
   onDeleteChapter: (chapter: ChapterInfo) => void;
   onDownloadChapter: (chapter: ChapterInfo) => void;
   onSelectPress: (chapter: ChapterInfo) => void;
@@ -170,6 +172,9 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
   showChapterTitles,
   novelName,
   left,
+  swipeActionLeft: swipeActionLeftProp,
+  swipeActionRight: swipeActionRightProp,
+  disableHapticFeedback: disableHapticFeedbackProp,
   onDeleteChapter,
   onDownloadChapter,
   onSelectPress,
@@ -180,11 +185,9 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
   const { id, name, unread, releaseTime, bookmark, chapterNumber, progress } =
     chapter;
 
-  const {
-    swipeActionLeft = 'disabled' as SwipeAction,
-    swipeActionRight = 'disabled' as SwipeAction,
-    disableHapticFeedback,
-  } = useAppSettings();
+  const swipeActionLeft = swipeActionLeftProp ?? ('disabled' as SwipeAction);
+  const swipeActionRight = swipeActionRightProp ?? ('disabled' as SwipeAction);
+  const disableHapticFeedback = disableHapticFeedbackProp ?? false;
 
   isBookmarked ??= bookmark ?? false;
 
