@@ -46,7 +46,9 @@ sup {
   line-height: 0.1em;
 }
 
-img {
+img,
+video,
+iframe {
   display: block;
   width: auto;
   height: auto;

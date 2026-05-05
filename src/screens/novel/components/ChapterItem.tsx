@@ -26,7 +26,7 @@ import { SwipeAction } from '@hooks/persisted/useSettings';
  * Width of the action panel that Swipeable measures as its "open" position.
  * Keep this small so the snap-back animation is fast and natural.
  */
-const ACTION_WIDTH = 120;
+const ACTION_WIDTH = 90;
 
 const ICON_SIZE = 20;
 

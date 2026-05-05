@@ -399,6 +399,8 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       javaScriptEnabled={true}
       userAgent={getUserAgent()}
       webviewDebuggingEnabled={__DEV__}
+      mediaPlaybackRequiresUserAction={false}
+      allowsFullscreenVideo={true}
       onLoadEnd={() => {
         // Update battery level when WebView finishes loading
         const currentBatteryLevel = getBatteryLevelSync();
