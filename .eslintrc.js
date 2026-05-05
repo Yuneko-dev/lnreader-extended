@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   extends: ['@react-native'],
+  plugins: ['react-compiler'],
   overrides: [
     {
       // Test files only
@@ -11,6 +12,7 @@ module.exports = {
     {
       files: ['*.js', '*.jsx', '*.ts', '*.tsx'],
       rules: {
+        'react-compiler/react-compiler': 'error',
         'no-shadow': 'off',
         'no-undef': 'off',
         'no-console': 'warn',

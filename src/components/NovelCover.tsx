@@ -124,12 +124,16 @@ function NovelCover<
   const selectNovel = () => onLongPress(item);
 
   const uri = item.cover || defaultCover;
-  const requestInit = imageRequestInit || ({} as ImageRequestInit);
-  if (!requestInit.headers) {
-    requestInit.headers = {
-      'User-Agent': getUserAgent(),
+  const requestInit = useMemo(() => {
+    const init = imageRequestInit || ({} as ImageRequestInit);
+    if (init.headers) {
+      return init;
+    }
+    return {
+      ...init,
+      headers: { 'User-Agent': getUserAgent() },
     };
-  }
+  }, [imageRequestInit]);
 
   if (item.completeRow) {
     if (!addSkeletonLoading) {

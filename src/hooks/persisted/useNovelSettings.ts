@@ -87,28 +87,27 @@ export const useNovelSettings = () => {
   const cycleChapterFilter = useCallback(
     (key: ChapterFilterPositiveKey) => {
       filterManager.current?.cycle(key);
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [_filter],
+    },
+    [filterManager],
   );
 
   const setChapterFilterValue = useCallback(
     (key: ChapterFilterPositiveKey, value: keyof FilterStates) => {
       filterManager.current?.set(key, value);
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [_filter],
+    },
+    [filterManager],
   );
 
   const getChapterFilterState = useCallback(
     (key: ChapterFilterPositiveKey) => {
       return filterManager.current?.state(key) ?? false;
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [_filter],
+    },
+    [filterManager],
   );
 
   const getChapterFilter = useCallback(
     (key: ChapterFilterPositiveKey) => filterManager.current?.get(key),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [_filter],
+    [filterManager],
   );
 
   const setShowChapterTitles = useCallback(

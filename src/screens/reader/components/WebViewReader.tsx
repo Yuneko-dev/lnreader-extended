@@ -1,4 +1,11 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   AppState,
   NativeEventEmitter,
@@ -96,8 +103,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     () =>
       getMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS) ||
       initialChapterGeneralSettings,
-    // needed to preserve settings during chapter change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Intentional: re-read from MMKV when chapter changes
     [chapter.id],
   );
   const readerBottomInset = chapterGeneralSettings.fullScreenMode ? 0 : bottom;
@@ -129,14 +135,14 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
   const chapterIdForReadTimeRef = useRef<number>(chapter.id);
 
   // Start reading timer
-  const startReadTimer = () => {
+  const startReadTimer = useCallback(() => {
     if (!readStartTimeRef.current && !isTTSReadingRef.current) {
       readStartTimeRef.current = Date.now();
     }
-  };
+  }, []);
 
   // Pause reading timer and accumulate
-  const pauseReadTimer = () => {
+  const pauseReadTimer = useCallback(() => {
     if (readStartTimeRef.current) {
       const elapsed = Math.floor(
         (Date.now() - readStartTimeRef.current) / 1000,
@@ -144,17 +150,20 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       accumulatedReadTimeRef.current += elapsed;
       readStartTimeRef.current = null;
     }
-  };
+  }, []);
 
   // Save accumulated reading time to DB and reset
-  const saveReadTime = (chId: number) => {
-    pauseReadTimer();
-    const totalSeconds = accumulatedReadTimeRef.current;
-    if (totalSeconds > 0) {
-      addReadDuration(chId, totalSeconds).catch(() => {});
-      accumulatedReadTimeRef.current = 0;
-    }
-  };
+  const saveReadTime = useCallback(
+    (chId: number) => {
+      pauseReadTimer();
+      const totalSeconds = accumulatedReadTimeRef.current;
+      if (totalSeconds > 0) {
+        addReadDuration(chId, totalSeconds).catch(() => {});
+        accumulatedReadTimeRef.current = 0;
+      }
+    },
+    [pauseReadTimer],
+  );
 
   // Start timer on mount
   useEffect(() => {
@@ -163,8 +172,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       // Save on unmount (leaving reader)
       saveReadTime(chapterIdForReadTimeRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [startReadTimer, saveReadTime]);
 
   // Track chapter changes — save read time for previous chapter
   useEffect(() => {
@@ -173,8 +181,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       chapterIdForReadTimeRef.current = chapter.id;
       startReadTimer();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chapter.id]);
+  }, [chapter.id, saveReadTime, startReadTimer]);
 
   useEffect(() => {
     readerSettingsRef.current = readerSettings;
@@ -347,8 +354,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     });
 
     return () => subscription.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [webViewRef]);
+  }, [webViewRef, startReadTimer, pauseReadTimer]);
 
   const speakText = (text: string) => {
     Speech.speak(text, {

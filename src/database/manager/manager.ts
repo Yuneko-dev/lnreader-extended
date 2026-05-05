@@ -156,8 +156,7 @@ export function useLiveQuery<T extends ExecutableSelect>(
       },
     });
     return unsub;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sqlString, paramsKey, fireOnKey]);
+  }, [sqlString, paramsKey, fireOnKey, params, fireOn]);
 
   return data;
 }

@@ -75,8 +75,7 @@ const UpdateNovelCard: React.FC<UpdateCardProps> = ({
     if (chapterListInfoRaw && chapterList.length === 0) {
       updateList();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [chapterListInfoRaw, chapterList.length, updateList]);
 
   const handleDownloadChapter = useCallback(
     (chapter: ChapterInfo) => {

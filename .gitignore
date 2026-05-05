@@ -87,6 +87,7 @@ flake.lock
 
 .cursor/
 .agents/
+.agent/
 .claude/
 .jj/
 

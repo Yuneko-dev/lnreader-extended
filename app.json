@@ -3,6 +3,9 @@
     "name": "LNReader eXtended",
     "slug": "LNReader",
     "scheme": "lnreader",
+    "experiments": {
+      "reactCompiler": true
+    },
     "plugins": [
       "expo-localization",
       "react-native-edge-to-edge",
