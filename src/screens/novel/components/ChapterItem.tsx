@@ -191,11 +191,17 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
 
   isBookmarked ??= bookmark ?? false;
 
+  // Resolve effective action: disable download for local novels
+  const effectiveRight =
+    swipeActionRight === 'download' && isLocal ? 'disabled' : swipeActionRight;
+  const effectiveLeft =
+    swipeActionLeft === 'download' && isLocal ? 'disabled' : swipeActionLeft;
+
   // Swipe is disabled when toggle handlers are not provided (e.g. UpdateNovelCard)
   // or when the user has disabled both swipe actions in settings.
   const swipeEnabled =
     !!(onToggleRead && onToggleBookmark) &&
-    (swipeActionLeft !== 'disabled' || swipeActionRight !== 'disabled');
+    (effectiveLeft !== 'disabled' || effectiveRight !== 'disabled');
 
   // ── Callbacks ──────────────────────────────────────────────────────────
   const handlePress = useCallback(
@@ -295,12 +301,6 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
    *   → toValue = -rightWidth → onSwipeableOpen('left')
    *   → We use the user's "swipeActionLeft" setting
    */
-
-  // Resolve effective action: disable download for local novels
-  const effectiveRight =
-    swipeActionRight === 'download' && isLocal ? 'disabled' : swipeActionRight;
-  const effectiveLeft =
-    swipeActionLeft === 'download' && isLocal ? 'disabled' : swipeActionLeft;
 
   const leftActionConfig = useMemo(() => {
     if (!swipeEnabled || effectiveRight === 'disabled') return null;

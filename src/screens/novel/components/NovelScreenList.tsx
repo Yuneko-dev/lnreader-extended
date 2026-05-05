@@ -581,7 +581,7 @@ const NovelScreenList = ({
         onEndReachedThreshold={6}
         onScroll={onPageScroll}
         scrollEventThrottle={16}
-        drawDistance={250}
+        drawDistance={100}
         ListHeaderComponent={listHeader}
       />
       {novel.id !== 'NO_ID' ? (
