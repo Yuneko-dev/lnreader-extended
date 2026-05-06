@@ -675,7 +675,9 @@
     "unableToGetNovel": "Unable to get novel",
     "updatesLower": "updates",
     "updatingLibrary": "Updating library",
-    "alreadyUpdating": "Library update is already running"
+    "alreadyUpdating": "Library update is already running",
+    "updateFailedTitle": "%{num} failed to update",
+    "updateFailedDesc": "Tap to view full details"
   },
   "onboardingScreen": {
     "welcome": "Welcome",

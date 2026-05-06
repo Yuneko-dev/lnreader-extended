@@ -569,6 +569,8 @@ export interface StringMap {
   'updatesScreen.updatesLower': 'string';
   'updatesScreen.updatingLibrary': 'string';
   'updatesScreen.alreadyUpdating': 'string';
+  'updatesScreen.updateFailedTitle': 'string';
+  'updatesScreen.updateFailedDesc': 'string';
   'onboardingScreen.welcome': 'string';
   'onboardingScreen.pickATheme': 'string';
   'onboardingScreen.light': 'string';

@@ -24,6 +24,8 @@ import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
 import { useSecuritySettings, useLibrarySettings, useAppSettings } from '@hooks/persisted/useSettings';
 import NativeFile from '@specs/NativeFile';
 import { initLocalServer } from '@plugins/local/localServerManager';
+import FileViewer from 'react-native-file-viewer';
+import { showToast } from '@utils/showToast';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -101,6 +103,26 @@ const AppContent = () => {
     useAppLock();
   useScreenProtection();
   useClearCacheOnExit();
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      async response => {
+        const data = response.notification.request.content.data;
+        if (data?.action === 'open_update_error_log' && data?.filePath) {
+          try {
+            const cleanPath = (data.filePath as string).replace('file://', '');
+            await FileViewer.open(cleanPath);
+          } catch (e) {
+            showToast(`Failed to open error log: ${(e as any).message}`);
+          }
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   return (
     <>

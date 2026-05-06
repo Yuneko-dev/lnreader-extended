@@ -173,6 +173,9 @@ importers:
       react-native-file-access:
         specifier: ^3.2.0
         version: 3.2.0(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4)
+      react-native-file-viewer:
+        specifier: ^2.1.5
+        version: 2.1.5(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4))
       react-native-gesture-handler:
         specifier: ^2.30.0
         version: 2.30.0(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4)
@@ -5415,6 +5418,11 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-file-viewer@2.1.5:
+    resolution: {integrity: sha512-MGC6sx9jsqHdefhVQ6o0akdsPGpkXgiIbpygb2Sg4g4bh7v6K1cardLV1NwGB9A6u1yICOSDT/MOC//9Ez6EUg==}
+    peerDependencies:
+      react-native: '>=0.47'
 
   react-native-gesture-handler@2.30.0:
     resolution: {integrity: sha512-5YsnKHGa0X9C8lb5oCnKm0fLUPM6CRduvUUw2Bav4RIj/C3HcFh4RIUnF8wgG6JQWCL1//gRx4v+LVWgcIQdGA==}
@@ -12908,6 +12916,10 @@ snapshots:
   react-native-file-access@3.2.0(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4):
     dependencies:
       react: 19.1.4
+      react-native: 0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4)
+
+  react-native-file-viewer@2.1.5(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4)):
+    dependencies:
       react-native: 0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4)
 
   react-native-gesture-handler@2.30.0(react-native@0.81.6(@babel/core@7.29.0)(@react-native-community/cli@20.1.1(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4):

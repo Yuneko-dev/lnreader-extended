@@ -12,6 +12,9 @@ import { LAST_UPDATE_TIME } from '@hooks/persisted/useUpdates';
 import dayjs from 'dayjs';
 import { APP_SETTINGS, AppSettings } from '@hooks/persisted/useSettings';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Notifications from 'expo-notifications';
+import { getString } from '@strings/translations';
 
 const updateLibrary = async (
   {
@@ -54,6 +57,7 @@ const updateLibrary = async (
   }
 
   if (libraryNovels.length > 0) {
+    const errorLogs: string[] = [];
     MMKVStorage.set(LAST_UPDATE_TIME, dayjs().format('YYYY-MM-DD HH:mm:ss'));
     for (let i = 0; i < libraryNovels.length; i++) {
       setMeta(meta => ({
@@ -72,7 +76,36 @@ const updateLibrary = async (
         await sleep(1000);
       } catch (error: any) {
         showToast(libraryNovels[i].name + ': ' + error.message);
+        errorLogs.push(
+          `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] ${
+            libraryNovels[i].name
+          }: ${error.message}`,
+        );
         continue;
+      }
+    }
+
+    if (errorLogs.length > 0) {
+      try {
+        const errorContent = errorLogs.join('\n');
+        const cacheFilePath = FileSystem.cacheDirectory + 'update_errors.txt';
+        await FileSystem.writeAsStringAsync(cacheFilePath, errorContent);
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: getString('updatesScreen.updateFailedTitle', {
+              num: errorLogs.length,
+            }),
+            body: getString('updatesScreen.updateFailedDesc'),
+            data: {
+              action: 'open_update_error_log',
+              filePath: cacheFilePath,
+            },
+          },
+          trigger: null,
+        });
+      } catch (err: any) {
+        console.error('Failed to write update error log', err);
       }
     }
   } else {
