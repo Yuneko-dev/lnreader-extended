@@ -1,11 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  Pressable,
-  ScrollView,
-} from 'react-native';
+import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
 import {
   BottomSheetScrollView,
   BottomSheetTextInput,
@@ -15,8 +9,8 @@ import type {
   LLMProviderSupported,
   TranslateSettings,
 } from '@hooks/persisted/useSettings';
-import { List, Button } from '@components/index';
-import { Portal, Modal, TextInput, Menu, Switch } from 'react-native-paper';
+import { List, Button, SwitchItem } from '@components/index';
+import { Portal, Modal, TextInput, Menu } from 'react-native-paper';
 import { supportedLanguagesList } from '@services/translate/TranslateEngine';
 import { getString } from '@strings/translations';
 import { LLMTranslateEngine } from '@services/translate/LLMTranslateEngine';
@@ -211,7 +205,7 @@ const TranslateTab: React.FC = () => {
             )}
           </List.SubHeader>
 
-          <View style={styles.row}>
+          <View style={styles.engineRow}>
             <Text style={[styles.label, { color: theme.onSurface }]}>
               {getString('readerScreen.bottomSheet.translateTab.engine')}
             </Text>
@@ -236,63 +230,49 @@ const TranslateTab: React.FC = () => {
             </View>
           </View>
 
-          <Pressable
-            style={styles.settingItem}
+          <List.Item
+            title={getString(
+              'readerScreen.bottomSheet.translateTab.sourceLanguage',
+            )}
+            description={getLangLabel(sourceLang)}
             onPress={() => setSourceLangModalVisible(true)}
-          >
-            <Text style={[styles.label, { color: theme.onSurface }]}>
-              {getString(
-                'readerScreen.bottomSheet.translateTab.sourceLanguage',
-              )}
-            </Text>
-            <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
-              {getLangLabel(sourceLang)}
-            </Text>
-          </Pressable>
+            theme={theme}
+          />
 
-          <Pressable
-            style={styles.settingItem}
+          <List.Item
+            title={getString(
+              'readerScreen.bottomSheet.translateTab.targetLanguage',
+            )}
+            description={getLangLabel(targetLang)}
             onPress={() => setTargetLangModalVisible(true)}
-          >
-            <Text style={[styles.label, { color: theme.onSurface }]}>
-              {getString(
-                'readerScreen.bottomSheet.translateTab.targetLanguage',
-              )}
-            </Text>
-            <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
-              {getLangLabel(targetLang)}
-            </Text>
-          </Pressable>
+            theme={theme}
+          />
 
-          <View style={[styles.settingItem]}>
-            <Text style={[styles.label, { color: theme.onSurface }]}>
-              {getString(
-                'readerScreen.bottomSheet.translateTab.preTranslateNextChapter',
-              )}
-            </Text>
-            <Switch
-              value={autoTranslateNextChapter}
-              onValueChange={val =>
-                setTranslateSettings({ autoTranslateNextChapter: val })
-              }
-              color={theme.primary}
-            />
-          </View>
+          <SwitchItem
+            label={getString(
+              'readerScreen.bottomSheet.translateTab.preTranslateNextChapter',
+            )}
+            value={autoTranslateNextChapter}
+            onPress={() =>
+              setTranslateSettings({
+                autoTranslateNextChapter: !autoTranslateNextChapter,
+              })
+            }
+            theme={theme}
+          />
 
-          <View style={[styles.settingItem]}>
-            <Text style={[styles.label, { color: theme.onSurface }]}>
-              {getString(
-                'readerScreen.bottomSheet.translateTab.downloadTranslated',
-              )}
-            </Text>
-            <Switch
-              value={downloadTranslated}
-              onValueChange={val =>
-                setTranslateSettings({ downloadTranslated: val })
-              }
-              color={theme.primary}
-            />
-          </View>
+          <SwitchItem
+            label={getString(
+              'readerScreen.bottomSheet.translateTab.downloadTranslated',
+            )}
+            value={downloadTranslated}
+            onPress={() =>
+              setTranslateSettings({
+                downloadTranslated: !downloadTranslated,
+              })
+            }
+            theme={theme}
+          />
 
           {engine === 'llm' && (
             <View style={styles.llmConfigSection}>
@@ -305,19 +285,14 @@ const TranslateTab: React.FC = () => {
                 visible={providerMenuVisible}
                 onDismiss={() => setProviderMenuVisible(false)}
                 anchor={
-                  <Pressable
-                    style={[styles.input, styles.dropdown]}
+                  <List.Item
+                    title={getString(
+                      'readerScreen.bottomSheet.translateTab.provider',
+                    )}
+                    description={getProviderLabel(llmProvider)}
                     onPress={() => setProviderMenuVisible(true)}
-                  >
-                    <Text style={{ color: theme.onSurfaceVariant }}>
-                      {getString(
-                        'readerScreen.bottomSheet.translateTab.provider',
-                      )}
-                    </Text>
-                    <Text style={{ color: theme.onSurface }}>
-                      {getProviderLabel(llmProvider)}
-                    </Text>
-                  </Pressable>
+                    theme={theme}
+                  />
                 }
               >
                 {PROVIDERS.map(p => (
@@ -340,29 +315,56 @@ const TranslateTab: React.FC = () => {
               </Menu>
 
               {(llmProvider === 'custom' || llmProvider === 'gemini') && (
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    render={props => (
+                      <BottomSheetTextInput {...(props as any)} />
+                    )}
+                    label={
+                      llmProvider === 'gemini'
+                        ? getString(
+                            'readerScreen.bottomSheet.translateTab.baseUrlReverseProxy',
+                          )
+                        : getString(
+                            'readerScreen.bottomSheet.translateTab.endpointUrl',
+                          )
+                    }
+                    placeholder={
+                      llmProvider === 'gemini'
+                        ? getString(
+                            'readerScreen.bottomSheet.translateTab.baseUrlPlaceholder',
+                          )
+                        : undefined
+                    }
+                    value={llmEndpoint}
+                    onChangeText={text =>
+                      setTranslateSettings({ llmEndpoint: text })
+                    }
+                    mode="outlined"
+                    style={styles.input}
+                    theme={{
+                      colors: {
+                        primary: theme.primary,
+                        background: theme.surface,
+                        onSurface: theme.onSurface,
+                        onSurfaceVariant: theme.onSurfaceVariant,
+                      },
+                    }}
+                  />
+                </View>
+              )}
+              <View style={styles.inputContainer}>
                 <TextInput
                   render={props => <BottomSheetTextInput {...(props as any)} />}
-                  label={
-                    llmProvider === 'gemini'
-                      ? getString(
-                          'readerScreen.bottomSheet.translateTab.baseUrlReverseProxy',
-                        )
-                      : getString(
-                          'readerScreen.bottomSheet.translateTab.endpointUrl',
-                        )
-                  }
-                  placeholder={
-                    llmProvider === 'gemini'
-                      ? getString(
-                          'readerScreen.bottomSheet.translateTab.baseUrlPlaceholder',
-                        )
-                      : undefined
-                  }
-                  value={llmEndpoint}
+                  label={getString(
+                    'readerScreen.bottomSheet.translateTab.apiKey',
+                  )}
+                  value={llmApiKey}
                   onChangeText={text =>
-                    setTranslateSettings({ llmEndpoint: text })
+                    setTranslateSettings({ llmApiKey: text })
                   }
                   mode="outlined"
+                  secureTextEntry
                   style={styles.input}
                   theme={{
                     colors: {
@@ -373,27 +375,8 @@ const TranslateTab: React.FC = () => {
                     },
                   }}
                 />
-              )}
-              <TextInput
-                render={props => <BottomSheetTextInput {...(props as any)} />}
-                label={getString(
-                  'readerScreen.bottomSheet.translateTab.apiKey',
-                )}
-                value={llmApiKey}
-                onChangeText={text => setTranslateSettings({ llmApiKey: text })}
-                mode="outlined"
-                secureTextEntry
-                style={styles.input}
-                theme={{
-                  colors: {
-                    primary: theme.primary,
-                    background: theme.surface,
-                    onSurface: theme.onSurface,
-                    onSurfaceVariant: theme.onSurfaceVariant,
-                  },
-                }}
-              />
-              <View style={styles.modelRow}>
+              </View>
+              <View style={[styles.modelRow, styles.inputContainer]}>
                 <TextInput
                   render={props => <BottomSheetTextInput {...(props as any)} />}
                   label={getString(
@@ -426,20 +409,17 @@ const TranslateTab: React.FC = () => {
                 />
               </View>
 
-              <Pressable
-                style={[styles.settingItem, { paddingHorizontal: 0 }]}
+              <List.Item
+                title={getString(
+                  'readerScreen.bottomSheet.translateTab.systemPrompt',
+                )}
+                description={
+                  llmSystemPrompts?.find(p => p.id === activeSystemPromptId)
+                    ?.title || 'Default'
+                }
                 onPress={() => setPromptManagerVisible(true)}
-              >
-                <Text style={[styles.label, { color: theme.onSurface }]}>
-                  {getString(
-                    'readerScreen.bottomSheet.translateTab.systemPrompt',
-                  )}
-                </Text>
-                <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
-                  {llmSystemPrompts?.find(p => p.id === activeSystemPromptId)
-                    ?.title || 'Default'}
-                </Text>
-              </Pressable>
+                theme={theme}
+              />
 
               {llmProvider !== 'gemini' && (
                 <>
@@ -447,25 +427,22 @@ const TranslateTab: React.FC = () => {
                     visible={apiModeMenuVisible}
                     onDismiss={() => setApiModeMenuVisible(false)}
                     anchor={
-                      <Pressable
-                        style={[styles.input, styles.dropdown]}
-                        onPress={() => setApiModeMenuVisible(true)}
-                      >
-                        <Text style={{ color: theme.onSurfaceVariant }}>
-                          {getString(
-                            'readerScreen.bottomSheet.translateTab.apiMode',
-                          )}
-                        </Text>
-                        <Text style={{ color: theme.onSurface }}>
-                          {llmApiMode === 'chat-completions'
+                      <List.Item
+                        title={getString(
+                          'readerScreen.bottomSheet.translateTab.apiMode',
+                        )}
+                        description={
+                          llmApiMode === 'chat-completions'
                             ? getString(
                                 'readerScreen.bottomSheet.translateTab.apiModeChatCompletions',
                               )
                             : getString(
                                 'readerScreen.bottomSheet.translateTab.apiModeResponses',
-                              )}
-                        </Text>
-                      </Pressable>
+                              )
+                        }
+                        onPress={() => setApiModeMenuVisible(true)}
+                        theme={theme}
+                      />
                     }
                   >
                     <Menu.Item
@@ -525,40 +502,28 @@ const TranslateTab: React.FC = () => {
 
               {(llmProvider === 'gemini' || llmApiMode === 'responses') && (
                 <>
-                  <View
-                    style={[
-                      styles.settingItem,
-                      { paddingHorizontal: 0, paddingTop: 0 },
-                    ]}
-                  >
-                    <Text style={{ color: theme.onSurface }}>
-                      Enable Reasoning
-                    </Text>
-                    <Switch
-                      value={llmEnableReasoning}
-                      onValueChange={val =>
-                        setTranslateSettings({ llmEnableReasoning: val })
-                      }
-                      color={theme.primary}
-                    />
-                  </View>
+                  <SwitchItem
+                    label="Enable Reasoning"
+                    value={llmEnableReasoning}
+                    onPress={() =>
+                      setTranslateSettings({
+                        llmEnableReasoning: !llmEnableReasoning,
+                      })
+                    }
+                    theme={theme}
+                  />
 
                   {llmEnableReasoning && (
                     <Menu
                       visible={reasoningEffortMenuVisible}
                       onDismiss={() => setReasoningEffortMenuVisible(false)}
                       anchor={
-                        <Pressable
-                          style={[styles.input, styles.dropdown]}
+                        <List.Item
+                          title="Reasoning Effort"
+                          description={llmReasoningEffort || 'low'}
                           onPress={() => setReasoningEffortMenuVisible(true)}
-                        >
-                          <Text style={{ color: theme.onSurfaceVariant }}>
-                            Reasoning Effort
-                          </Text>
-                          <Text style={{ color: theme.onSurface }}>
-                            {llmReasoningEffort || 'low'}
-                          </Text>
-                        </Pressable>
+                          theme={theme}
+                        />
                       }
                     >
                       {REASONING_EFFORTS.map(eff => (
@@ -673,7 +638,7 @@ const styles = StyleSheet.create({
   section: {
     marginVertical: 8,
   },
-  row: {
+  engineRow: {
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -687,35 +652,18 @@ const styles = StyleSheet.create({
   btnSpacer: {
     width: 8,
   },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
   label: {
     fontSize: 16,
   },
-  value: {
-    fontSize: 14,
-  },
   llmConfigSection: {
     paddingTop: 16,
+  },
+  inputContainer: {
     paddingHorizontal: 16,
   },
   input: {
     marginBottom: 12,
     backgroundColor: 'transparent',
-  },
-  dropdown: {
-    borderWidth: 1,
-    borderColor: '#79747e', // rough outline
-    borderRadius: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   modelRow: {
     flexDirection: 'row',
@@ -758,6 +706,7 @@ const styles = StyleSheet.create({
   },
   temperatureSection: {
     marginBottom: 12,
+    paddingHorizontal: 16,
   },
   temperatureHeader: {
     flexDirection: 'row',
