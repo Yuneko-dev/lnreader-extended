@@ -601,6 +601,7 @@ export default function useChapter(
         originalChapterText.current = '';
 
         resetAutoScroll();
+        setLoading(true);
         getChapter(nextNavChapter);
       } else {
         showToast(
