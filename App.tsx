@@ -20,6 +20,7 @@ import AppErrorBoundary, {
 import Main from './src/navigators/Main';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useInitDatabase } from '@database/db';
+import { ThemeProvider } from '@hooks/persisted/useTheme';
 import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
 import { useSecuritySettings, useLibrarySettings, useAppSettings } from '@hooks/persisted/useSettings';
 import NativeFile from '@specs/NativeFile';
@@ -158,18 +159,20 @@ const App = () => {
     <Suspense fallback={null}>
       <GestureHandlerRootView style={styles.flex}>
         <KeyboardProvider>
-          <NativeCrashFallback>
-            <AppErrorBoundary>
-              <SafeAreaProvider>
-                <PaperProvider>
-                  <BottomSheetModalProvider>
-                    <StatusBar translucent={true} backgroundColor="transparent" />
-                    <AppContent />
-                  </BottomSheetModalProvider>
-                </PaperProvider>
-              </SafeAreaProvider>
-            </AppErrorBoundary>
-          </NativeCrashFallback>
+          <SafeAreaProvider>
+            <ThemeProvider>
+              <NativeCrashFallback>
+                <AppErrorBoundary>
+                  <PaperProvider>
+                    <BottomSheetModalProvider>
+                      <StatusBar translucent={true} backgroundColor="transparent" />
+                      <AppContent />
+                    </BottomSheetModalProvider>
+                  </PaperProvider>
+                </AppErrorBoundary>
+              </NativeCrashFallback>
+            </ThemeProvider>
+          </SafeAreaProvider>
         </KeyboardProvider>
       </GestureHandlerRootView>
     </Suspense>

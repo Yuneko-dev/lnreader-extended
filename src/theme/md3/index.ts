@@ -18,7 +18,7 @@ export const lightThemes = [
   takoTheme.light,
   catppuccinTheme.light,
   yinyangTheme.light,
-];
+].map((theme, i) => ({ ...theme, id: 100 + i }));
 export const darkThemes = [
   defaultTheme.dark,
   midnightDusk.dark,
@@ -29,4 +29,4 @@ export const darkThemes = [
   takoTheme.dark,
   catppuccinTheme.dark,
   yinyangTheme.dark,
-];
+].map((theme, i) => ({ ...theme, id: 100 + i }));

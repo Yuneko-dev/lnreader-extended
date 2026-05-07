@@ -3,14 +3,16 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Portal, TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Modal } from '@components';
+import { Button, Modal } from '@components';
 import { ThemeColors } from '../../theme/types';
+import { Row } from '@components/Common';
+import { getString } from '@strings/translations';
 
 interface ColorPickerModalProps {
   visible: boolean;
   title: string;
   color: string;
-  onSubmit: (val: string) => void;
+  onSubmit: (val: string | undefined) => void;
   closeModal: () => void;
   theme: ThemeColors;
   showAccentColors?: boolean;
@@ -47,6 +49,10 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
     } else {
       setError('Enter a valid hex color code');
     }
+  };
+  const onReset = () => {
+    onSubmit(undefined);
+    closeModal();
   };
 
   const accentColors = [
@@ -114,6 +120,13 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
             error={Boolean(error)}
           />
           <Text style={styles.errorText}>{error}</Text>
+          <Row style={styles.row}>
+            <Button title={getString('common.reset')} onPress={onReset} />
+            <Button
+              title={getString('common.save')}
+              onPress={onSubmitEditing}
+            />
+          </Row>
         </KeyboardAwareScrollView>
       </Modal>
     </Portal>
@@ -134,7 +147,6 @@ const styles = StyleSheet.create({
   item: {
     borderRadius: 4,
     overflow: 'hidden',
-
     flex: 1 / 4,
     height: 40,
     marginHorizontal: 4,
@@ -142,4 +154,7 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   marginBottom: { marginBottom: 8 },
+  row: {
+    justifyContent: 'flex-end',
+  },
 });

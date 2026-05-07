@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, ViewStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemeColors } from '@theme/types';
+import Color from 'color';
 
 const TAB_BAR_CONTENT_HEIGHT = 68;
 const TAB_ICON_CONTAINER_HEIGHT = 32;
@@ -53,6 +54,8 @@ function CustomBottomTabBar({
       }),
     [descriptors, state.routes],
   );
+
+  const transparentBg = Color(theme.primaryContainer).fade(1).rgb().toString();
 
   const getLabelText = useCallback(
     (route: TabRoute) => {
@@ -129,7 +132,7 @@ function CustomBottomTabBar({
                         : TAB_ICON_INACTIVE_WIDTH,
                       backgroundColor: isFocused
                         ? theme.primaryContainer
-                        : 'transparent',
+                        : transparentBg,
                     },
                   ]}
                 >

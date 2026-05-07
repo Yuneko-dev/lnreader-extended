@@ -7,6 +7,7 @@ import { SystemPrompt } from '@hooks/persisted/useSettings';
 import * as Clipboard from 'expo-clipboard';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 interface PromptManagerModalProps {
   visible: boolean;
@@ -88,153 +89,155 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
 
   return (
     <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={onDismiss}
-        contentContainerStyle={[
-          styles.modalContent,
-          { backgroundColor: theme.surface },
-        ]}
-      >
-        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-          System Prompt Manager
-        </Text>
+      <KeyboardAwareScrollView>
+        <Modal
+          visible={visible}
+          onDismiss={onDismiss}
+          contentContainerStyle={[
+            styles.modalContent,
+            { backgroundColor: theme.surface },
+          ]}
+        >
+          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+            System Prompt Manager
+          </Text>
 
-        <View style={styles.toolbar}>
-          {editTitleMode ? (
-            <View style={styles.editTitleContainer}>
-              <TextInput
-                value={tempTitle}
-                onChangeText={setTempTitle}
-                style={[
-                  styles.titleInput,
-                  { backgroundColor: theme.surfaceVariant },
-                ]}
-                mode="outlined"
-                dense
-                autoFocus
-                onBlur={saveTitle}
-                onSubmitEditing={saveTitle}
-                textColor={theme.onSurface}
-                theme={{
-                  colors: {
-                    primary: theme.primary,
-                    background: theme.surfaceVariant,
-                    onSurface: theme.onSurface,
-                    onSurfaceVariant: theme.onSurfaceVariant,
-                  },
-                }}
+          <View style={styles.toolbar}>
+            {editTitleMode ? (
+              <View style={styles.editTitleContainer}>
+                <TextInput
+                  value={tempTitle}
+                  onChangeText={setTempTitle}
+                  style={[
+                    styles.titleInput,
+                    { backgroundColor: theme.surfaceVariant },
+                  ]}
+                  mode="outlined"
+                  dense
+                  autoFocus
+                  onBlur={saveTitle}
+                  onSubmitEditing={saveTitle}
+                  textColor={theme.onSurface}
+                  theme={{
+                    colors: {
+                      primary: theme.primary,
+                      background: theme.surfaceVariant,
+                      onSurface: theme.onSurface,
+                      onSurfaceVariant: theme.onSurfaceVariant,
+                    },
+                  }}
+                />
+              </View>
+            ) : (
+              <View style={styles.dropdownWrapper}>
+                <Menu
+                  visible={menuVisible}
+                  onDismiss={() => setMenuVisible(false)}
+                  contentStyle={{ backgroundColor: theme.surface }}
+                  anchor={
+                    <Pressable
+                      style={[styles.dropdown, { borderColor: theme.outline }]}
+                      onPress={() => setMenuVisible(true)}
+                    >
+                      <Text
+                        style={{ color: theme.onSurface, flex: 1 }}
+                        numberOfLines={1}
+                      >
+                        {activePrompt?.title || 'Unknown'}
+                      </Text>
+                      <Text
+                        style={{ color: theme.onSurfaceVariant, marginLeft: 8 }}
+                      >
+                        ▼
+                      </Text>
+                    </Pressable>
+                  }
+                >
+                  {prompts.map(p => (
+                    <Menu.Item
+                      key={p.id}
+                      title={p.title}
+                      onPress={() => {
+                        onSelectPrompt(p.id);
+                        setMenuVisible(false);
+                      }}
+                      titleStyle={[
+                        { color: theme.onSurface },
+                        p.id === activePromptId
+                          ? { color: theme.primary, fontWeight: 'bold' }
+                          : {},
+                      ]}
+                    />
+                  ))}
+                </Menu>
+              </View>
+            )}
+
+            <View style={styles.actionsRow}>
+              <IconButton
+                icon="content-copy"
+                size={20}
+                iconColor={theme.onSurfaceVariant}
+                onPress={copyContent}
+                style={styles.iconBtn}
+              />
+              <IconButton
+                icon="pencil"
+                size={20}
+                iconColor={theme.onSurfaceVariant}
+                onPress={startEditTitle}
+                style={styles.iconBtn}
+              />
+              <IconButton
+                icon="delete"
+                size={20}
+                iconColor={
+                  activePromptId === 'default' || prompts.length <= 1
+                    ? theme.surfaceVariant
+                    : theme.error
+                }
+                onPress={deletePrompt}
+                disabled={activePromptId === 'default' || prompts.length <= 1}
+                style={[styles.iconBtn, { marginRight: -8 }]}
               />
             </View>
-          ) : (
-            <View style={styles.dropdownWrapper}>
-              <Menu
-                visible={menuVisible}
-                onDismiss={() => setMenuVisible(false)}
-                contentStyle={{ backgroundColor: theme.surface }}
-                anchor={
-                  <Pressable
-                    style={[styles.dropdown, { borderColor: theme.outline }]}
-                    onPress={() => setMenuVisible(true)}
-                  >
-                    <Text
-                      style={{ color: theme.onSurface, flex: 1 }}
-                      numberOfLines={1}
-                    >
-                      {activePrompt?.title || 'Unknown'}
-                    </Text>
-                    <Text
-                      style={{ color: theme.onSurfaceVariant, marginLeft: 8 }}
-                    >
-                      ▼
-                    </Text>
-                  </Pressable>
-                }
-              >
-                {prompts.map(p => (
-                  <Menu.Item
-                    key={p.id}
-                    title={p.title}
-                    onPress={() => {
-                      onSelectPrompt(p.id);
-                      setMenuVisible(false);
-                    }}
-                    titleStyle={[
-                      { color: theme.onSurface },
-                      p.id === activePromptId
-                        ? { color: theme.primary, fontWeight: 'bold' }
-                        : {},
-                    ]}
-                  />
-                ))}
-              </Menu>
-            </View>
-          )}
+          </View>
 
-          <View style={styles.actionsRow}>
-            <IconButton
-              icon="content-copy"
-              size={20}
-              iconColor={theme.onSurfaceVariant}
-              onPress={copyContent}
-              style={styles.iconBtn}
+          <TextInput
+            label="Prompt Content"
+            value={activePrompt.content}
+            onChangeText={handleContentChange}
+            mode="outlined"
+            multiline
+            textColor={theme.onSurface}
+            style={[styles.contentInput, { backgroundColor: theme.surface }]}
+            theme={{
+              colors: {
+                primary: theme.primary,
+                background: theme.surface,
+                onSurface: theme.onSurface,
+                onSurfaceVariant: theme.onSurfaceVariant,
+              },
+            }}
+          />
+
+          <View style={styles.footer}>
+            <Button
+              title={getString('common.add') || 'Add'}
+              mode="outlined"
+              onPress={addPrompt}
+              style={styles.flexBtn}
             />
-            <IconButton
-              icon="pencil"
-              size={20}
-              iconColor={theme.onSurfaceVariant}
-              onPress={startEditTitle}
-              style={styles.iconBtn}
-            />
-            <IconButton
-              icon="delete"
-              size={20}
-              iconColor={
-                activePromptId === 'default' || prompts.length <= 1
-                  ? theme.surfaceVariant
-                  : theme.error
-              }
-              onPress={deletePrompt}
-              disabled={activePromptId === 'default' || prompts.length <= 1}
-              style={[styles.iconBtn, { marginRight: -8 }]}
+            <View style={styles.spacer} />
+            <Button
+              title={getString('common.cancel') || 'Cancel'}
+              mode="contained"
+              onPress={onDismiss}
+              style={styles.flexBtn}
             />
           </View>
-        </View>
-
-        <TextInput
-          label="Prompt Content"
-          value={activePrompt.content}
-          onChangeText={handleContentChange}
-          mode="outlined"
-          multiline
-          textColor={theme.onSurface}
-          style={[styles.contentInput, { backgroundColor: theme.surface }]}
-          theme={{
-            colors: {
-              primary: theme.primary,
-              background: theme.surface,
-              onSurface: theme.onSurface,
-              onSurfaceVariant: theme.onSurfaceVariant,
-            },
-          }}
-        />
-
-        <View style={styles.footer}>
-          <Button
-            title={getString('common.add') || 'Add'}
-            mode="outlined"
-            onPress={addPrompt}
-            style={styles.flexBtn}
-          />
-          <View style={styles.spacer} />
-          <Button
-            title={getString('common.cancel') || 'Cancel'}
-            mode="contained"
-            onPress={onDismiss}
-            style={styles.flexBtn}
-          />
-        </View>
-      </Modal>
+        </Modal>
+      </KeyboardAwareScrollView>
     </Portal>
   );
 };
