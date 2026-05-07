@@ -532,7 +532,10 @@ export const _restoreNovelAndChapters = async (backupNovel: BackupNovel) => {
   await dbManager.write(async tx => {
     // Delete existing novel data
     await tx.delete(novelSchema).where(eq(novelSchema.id, novel.id)).run();
-    await tx.delete(chapterSchema).where(eq(chapterSchema.novelId, novel.id)).run();
+    await tx
+      .delete(chapterSchema)
+      .where(eq(chapterSchema.novelId, novel.id))
+      .run();
 
     // Restore novel
     await tx.insert(novelSchema).values(novel).run();

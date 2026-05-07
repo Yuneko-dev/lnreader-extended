@@ -16,8 +16,6 @@ import {
   createNovelTriggerQueryDelete,
   createNovelTriggerQueryInsert,
   createNovelTriggerQueryUpdate,
-} from './queryStrings/triggers';
-import {
   dropCategoryTriggerQuery,
   dropNovelTriggerQueryDelete,
   dropNovelTriggerQueryInsert,

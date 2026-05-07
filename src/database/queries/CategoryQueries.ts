@@ -237,11 +237,14 @@ export const _restoreCategory = async (
     if (category.novelIds && category.novelIds.length > 0) {
       const BATCH_SIZE = 100;
       for (let i = 0; i < category.novelIds.length; i += BATCH_SIZE) {
-        const batch = category.novelIds.slice(i, i + BATCH_SIZE).map(novelId => ({
-          categoryId: category.id,
-          novelId: novelId,
-        }));
-        await tx.insert(novelCategorySchema)
+        const batch = category.novelIds
+          .slice(i, i + BATCH_SIZE)
+          .map(novelId => ({
+            categoryId: category.id,
+            novelId: novelId,
+          }));
+        await tx
+          .insert(novelCategorySchema)
           .values(batch)
           .onConflictDoNothing()
           .run();
@@ -253,16 +256,17 @@ export const _restoreCategory = async (
 /**
  * Assign novels that are in library but have no category to the default category (id = 1)
  */
-export const assignOrphanedNovelsToDefaultCategory = async (): Promise<void> => {
-  await dbManager.write(async tx => {
-    const defaultCategoryId = 1;
-    // Find novels that are in library but not in any category
-    await tx.run(sql`
+export const assignOrphanedNovelsToDefaultCategory =
+  async (): Promise<void> => {
+    await dbManager.write(async tx => {
+      const defaultCategoryId = 1;
+      // Find novels that are in library but not in any category
+      await tx.run(sql`
       INSERT INTO NovelCategory (novelId, categoryId)
       SELECT id, ${defaultCategoryId}
       FROM Novel
       WHERE inLibrary = 1
       AND id NOT IN (SELECT DISTINCT novelId FROM NovelCategory)
     `);
-  });
-};
+    });
+  };

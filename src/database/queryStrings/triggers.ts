@@ -44,9 +44,12 @@ export const createCategoryTriggerQuery = `
   END;
 `;
 
-export const dropNovelTriggerQueryInsert = 'DROP TRIGGER IF EXISTS update_novel_stats;';
-export const dropNovelTriggerQueryUpdate = 'DROP TRIGGER IF EXISTS update_novel_stats_on_update;';
-export const dropNovelTriggerQueryDelete = 'DROP TRIGGER IF EXISTS update_novel_stats_on_delete;';
+export const dropNovelTriggerQueryInsert =
+  'DROP TRIGGER IF EXISTS update_novel_stats;';
+export const dropNovelTriggerQueryUpdate =
+  'DROP TRIGGER IF EXISTS update_novel_stats_on_update;';
+export const dropNovelTriggerQueryDelete =
+  'DROP TRIGGER IF EXISTS update_novel_stats_on_delete;';
 export const dropCategoryTriggerQuery = 'DROP TRIGGER IF EXISTS add_category;';
 
 export const refreshAllNovelsStatsQuery = `

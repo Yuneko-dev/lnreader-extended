@@ -28,7 +28,7 @@ import DebugLogService from '@services/DebugLogService';
 import { db, dropDbTriggers, createDbTriggers } from '@database/db';
 import { refreshAllNovelsStatsQuery } from '@database/queryStrings/triggers';
 
-const BTAG = "[Backup]"
+const BTAG = '[Backup]';
 
 const APP_STORAGE_URI = 'file://' + ROOT_STORAGE;
 
@@ -93,12 +93,20 @@ export const prepareBackupData = async (cacheDirPath: string) => {
   // novels
   DebugLogService.addEntry('log', `${BTAG} Backing up novels...`);
   await getAllNovels().then(async novels => {
-    DebugLogService.addEntry('log', `${BTAG} Found ${novels.length} novels to backup`);
+    DebugLogService.addEntry(
+      'log',
+      `${BTAG} Found ${novels.length} novels to backup`,
+    );
     for (let i_ = 0; i_ < novels.length; i_++) {
       const novel = novels[i_];
       try {
         const chapters = await getNovelChapters(novel.id);
-        DebugLogService.addEntry('log', `${BTAG} [${i_+1}/${novels.length}] Processing novel: ${novel.name} (${chapters.length} chapters)`);
+        DebugLogService.addEntry(
+          'log',
+          `${BTAG} [${i_ + 1}/${novels.length}] Processing novel: ${
+            novel.name
+          } (${chapters.length} chapters)`,
+        );
         NativeFile.writeFile(
           novelDirPath + '/' + novel.id + '.json',
           JSON.stringify({
@@ -123,7 +131,10 @@ export const prepareBackupData = async (cacheDirPath: string) => {
     DebugLogService.addEntry('log', `${BTAG} Backing up categories...`);
     const categories = await getCategoriesFromDb();
     const novelCategories = await getAllNovelCategories();
-    DebugLogService.addEntry('log', `${BTAG} Found ${categories.length} categories`);
+    DebugLogService.addEntry(
+      'log',
+      `${BTAG} Found ${categories.length} categories`,
+    );
     NativeFile.writeFile(
       cacheDirPath + '/' + BackupEntryName.CATEGORY,
       JSON.stringify(
@@ -181,14 +192,22 @@ export const restoreData = async (cacheDirPath: string) => {
     } else {
       try {
         const items = NativeFile.readDir(novelDirPath);
-        DebugLogService.addEntry('log', `${BTAG} Found ${items.length} novels to restore`);
+        DebugLogService.addEntry(
+          'log',
+          `${BTAG} Found ${items.length} novels to restore`,
+        );
         for (let i_ = 0; i_ < items.length; i_++) {
           const item = items[i_];
           if (!item.isDirectory) {
             try {
               const fileContent = NativeFile.readFile(item.path);
               const backupNovel = JSON.parse(fileContent) as BackupNovel;
-              DebugLogService.addEntry('log', `${BTAG} [${i_+1}/${items.length}] Processing novel: ${backupNovel.name} (${backupNovel.chapters.length} chapters)`);
+              DebugLogService.addEntry(
+                'log',
+                `${BTAG} [${i_ + 1}/${items.length}] Processing novel: ${
+                  backupNovel.name
+                } (${backupNovel.chapters.length} chapters)`,
+              );
 
               if (!backupNovel.cover?.startsWith('http')) {
                 backupNovel.cover = APP_STORAGE_URI + backupNovel.cover;
@@ -225,7 +244,9 @@ export const restoreData = async (cacheDirPath: string) => {
         }),
       );
     } else {
-      showToast(getString('backupScreen.novelsRestored', { count: novelCount }));
+      showToast(
+        getString('backupScreen.novelsRestored', { count: novelCount }),
+      );
     }
 
     // categories
@@ -240,11 +261,17 @@ export const restoreData = async (cacheDirPath: string) => {
       try {
         const fileContent = NativeFile.readFile(categoryFilePath);
         const categories: BackupCategory[] = JSON.parse(fileContent);
-        DebugLogService.addEntry('log', `${BTAG} Found ${categories.length} categories to restore`);
+        DebugLogService.addEntry(
+          'log',
+          `${BTAG} Found ${categories.length} categories to restore`,
+        );
 
         for (const category of categories) {
           try {
-            DebugLogService.addEntry('log', `${BTAG} Restoring category: ${category.name} (${category.id})`);
+            DebugLogService.addEntry(
+              'log',
+              `${BTAG} Restoring category: ${category.name} (${category.id})`,
+            );
             await _restoreCategory(category);
             categoryCount++;
           } catch (error: any) {
@@ -310,7 +337,10 @@ export const restoreData = async (cacheDirPath: string) => {
     DebugLogService.addEntry('log', `${BTAG} Assigning orphaned novels`);
     await assignOrphanedNovelsToDefaultCategory();
   } catch (e: any) {
-    DebugLogService.addEntry('error', `${BTAG} Error during restoreData: ${e.message}`);
+    DebugLogService.addEntry(
+      'error',
+      `${BTAG} Error during restoreData: ${e.message}`,
+    );
   } finally {
     // 4. Always re-enable triggers
     createDbTriggers(db);
