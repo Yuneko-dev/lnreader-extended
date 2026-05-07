@@ -159,20 +159,20 @@ const App = () => {
     <Suspense fallback={null}>
       <GestureHandlerRootView style={styles.flex}>
         <KeyboardProvider>
-          <NativeCrashFallback>
-            <AppErrorBoundary>
-              <SafeAreaProvider>
-                <ThemeProvider>
+          <SafeAreaProvider>
+            <ThemeProvider>
+              <NativeCrashFallback>
+                <AppErrorBoundary>
                   <PaperProvider>
                     <BottomSheetModalProvider>
                       <StatusBar translucent={true} backgroundColor="transparent" />
                       <AppContent />
                     </BottomSheetModalProvider>
                   </PaperProvider>
-                </ThemeProvider>
-              </SafeAreaProvider>
-            </AppErrorBoundary>
-          </NativeCrashFallback>
+                </AppErrorBoundary>
+              </NativeCrashFallback>
+            </ThemeProvider>
+          </SafeAreaProvider>
         </KeyboardProvider>
       </GestureHandlerRootView>
     </Suspense>
