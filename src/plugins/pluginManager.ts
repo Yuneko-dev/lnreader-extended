@@ -1,4 +1,15 @@
-import { gcm, cbc } from '@noble/ciphers/aes.js';
+import {
+  ctr,
+  ecb,
+  cbc,
+  cfb,
+  gcm,
+  gcmsiv,
+  aeskw,
+  aeskwp,
+  cmac,
+  aessiv,
+} from '@noble/ciphers/aes.js';
 import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils.js';
 import dayjs from 'dayjs';
 import { load } from 'cheerio';
@@ -46,7 +57,7 @@ const packages: Record<string, any> = {
   '@libs/isAbsoluteUrl': { isUrlAbsolute },
   '@libs/filterInputs': { FilterTypes },
   '@libs/defaultCover': { defaultCover },
-  '@libs/aes': { gcm, cbc },
+  '@libs/aes': { ctr, ecb, cbc, cfb, gcm, gcmsiv, aeskw, aeskwp, cmac, aessiv },
   '@libs/utils': {
     utf8ToBytes,
     bytesToUtf8,
