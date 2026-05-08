@@ -35,7 +35,12 @@ import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
 import { useFullscreenMode } from '@hooks';
-import { AppState, Dimensions, NativeEventEmitter, NativeModules } from 'react-native';
+import {
+  AppState,
+  Dimensions,
+  NativeEventEmitter,
+  NativeModules,
+} from 'react-native';
 import * as Speech from 'expo-speech';
 import { defaultTo } from 'lodash-es';
 import { showToast } from '@utils/showToast';
