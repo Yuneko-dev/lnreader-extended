@@ -24,6 +24,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
     private val bufferMap = ConcurrentHashMap<String, ByteArray>()
     private val preloadingTexts = Collections.synchronizedList(mutableListOf<String>())
     private val currentlySynthesizing = ConcurrentSkipListSet<String>()
+    private val openWebSockets = Collections.synchronizedSet(mutableSetOf<WebSocket>())
     
     private var activeWebSockets = 0
     private var isPlaying = false
@@ -110,6 +111,14 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
         isPlaying = false
         isPaused = false
         waitingForHash = null
+
+        synchronized(openWebSockets) {
+            for (ws in openWebSockets) {
+                ws.close(1001, "Stopped")
+            }
+            openWebSockets.clear()
+        }
+        retryMap.clear()
     }
 
     private fun processQueues() {
@@ -136,10 +145,11 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
         val url = "wss://sami-normal-sg.capcutapi.com/internal/api/v1/ws?device_id=7486429558272460289&iid=7486431924195657473&app_id=359289&region=VN&update_version_code=5.7.1.2101&version_code=5.7.1&appKey=ddjeqjLGMn&device_type=macos&device_platform=macos"
         
         val request = Request.Builder().url(url).build()
-        client.newWebSocket(request, object : WebSocketListener() {
+        val ws = client.newWebSocket(request, object : WebSocketListener() {
             private var pcmBuffer = mutableListOf<Byte>()
 
             override fun onOpen(webSocket: WebSocket, response: Response) {
+                openWebSockets.add(webSocket)
                 val message = createTikTokMessage(text, voice)
                 webSocket.send(message)
                 if (waitingForHash == hash) {
@@ -191,6 +201,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
 
             private fun handleSuccess(webSocket: WebSocket, hash: String, data: ByteArray) {
                 webSocket.close(1000, null)
+                openWebSockets.remove(webSocket)
                 currentlySynthesizing.remove(hash)
                 retryMap.remove(hash)
                 activeWebSockets--
@@ -204,6 +215,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
 
             private fun handleFailure(webSocket: WebSocket, hash: String, errorMsg: String) {
                 webSocket.close(1000, null)
+                openWebSockets.remove(webSocket)
                 val retries = retryMap[hash] ?: 0
                 if (retries < 3 && !isStopped) {
                     retryMap[hash] = retries + 1
