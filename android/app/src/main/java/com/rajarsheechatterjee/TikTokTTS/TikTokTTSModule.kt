@@ -14,6 +14,7 @@ import java.security.MessageDigest
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListSet
+import java.util.concurrent.atomic.AtomicInteger
 
 class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -26,7 +27,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
     private val currentlySynthesizing = ConcurrentSkipListSet<String>()
     private val openWebSockets = Collections.synchronizedSet(mutableSetOf<WebSocket>())
     
-    private var activeWebSockets = 0
+    private val activeWebSockets = AtomicInteger(0)
     private var isPlaying = false
     private var isPaused = false
     private var currentVoice: String? = null
@@ -77,7 +78,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
         } else {
             waitingForHash = hash
             if (!currentlySynthesizing.contains(hash)) {
-                activeWebSockets++
+                activeWebSockets.incrementAndGet()
                 currentlySynthesizing.add(hash)
                 startWebSocket(text, voice, hash)
             }
@@ -107,7 +108,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
         bufferMap.clear()
         preloadingTexts.clear()
         currentlySynthesizing.clear()
-        activeWebSockets = 0
+        activeWebSockets.set(0)
         isPlaying = false
         isPaused = false
         waitingForHash = null
@@ -125,14 +126,14 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
         if (isStopped || currentVoice == null) return
 
         synchronized(preloadingTexts) {
-            while (activeWebSockets < queueSize && preloadingTexts.isNotEmpty()) {
+            while (activeWebSockets.get() < queueSize && preloadingTexts.isNotEmpty()) {
                 val nextText = preloadingTexts.firstOrNull { 
                     val hash = getHash(it, currentVoice)
                     !bufferMap.containsKey(hash) && !currentlySynthesizing.contains(hash)
                 } ?: break
                 
                 val hash = getHash(nextText, currentVoice)
-                activeWebSockets++
+                activeWebSockets.incrementAndGet()
                 currentlySynthesizing.add(hash)
                 startWebSocket(nextText, currentVoice!!, hash)
             }
@@ -204,7 +205,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
                 openWebSockets.remove(webSocket)
                 currentlySynthesizing.remove(hash)
                 retryMap.remove(hash)
-                activeWebSockets--
+                activeWebSockets.decrementAndGet()
                 bufferMap[hash] = data
                 if (waitingForHash == hash) {
                     waitingForHash = null
@@ -245,7 +246,7 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
             private fun cleanup() {
                 currentlySynthesizing.remove(hash)
                 retryMap.remove(hash)
-                activeWebSockets--
+                activeWebSockets.decrementAndGet()
                 processQueues()
             }
         })
