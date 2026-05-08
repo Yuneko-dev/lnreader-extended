@@ -3,6 +3,8 @@ package com.rajarsheechatterjee.TikTokTTS
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.media.PlaybackParams
+import android.os.Build
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import okhttp3.*
@@ -28,6 +30,8 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
     private var isPaused = false
     private var currentVoice: String? = null
     private var queueSize: Int = 3
+    private var currentRate: Float = 1.0f
+    private var currentPitch: Float = 1.0f
     private var isStopped = false
     private var waitingForHash: String? = null
 
@@ -58,9 +62,11 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun speak(text: String, voice: String, queueSize: Int) {
+    fun speak(text: String, voice: String, queueSize: Int, rate: Double, pitch: Double) {
         this.currentVoice = voice
         this.queueSize = queueSize
+        this.currentRate = rate.toFloat()
+        this.currentPitch = pitch.toFloat()
         this.isStopped = false
         
         val hash = getHash(text, voice)
@@ -255,6 +261,18 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
             .build()
 
         audioTrack?.write(audioData, 0, audioData.size)
+        
+        // Apply playback params for Android 6.0+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val params = PlaybackParams()
+                params.speed = currentRate
+                params.pitch = currentPitch
+                audioTrack?.playbackParams = params
+            } catch (e: Exception) {
+                // Ignore if failed to set params
+            }
+        }
         
         // 16-bit PCM = 2 bytes per sample. Marker is position in frames.
         val frames = audioData.size / 2

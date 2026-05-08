@@ -438,7 +438,9 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
         return;
       }
       const queueSize = readerSettingsRef.current.tts?.queueSize || 3;
-      TikTokTTS.speak(text, voice, queueSize);
+      const rate = readerSettingsRef.current.tts?.rate || 1;
+      const pitch = readerSettingsRef.current.tts?.pitch || 1;
+      TikTokTTS.speak(text, voice, queueSize, rate, pitch);
       return;
     }
     Speech.speak(text, {

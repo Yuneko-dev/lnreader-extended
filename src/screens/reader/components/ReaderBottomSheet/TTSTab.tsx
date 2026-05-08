@@ -316,26 +316,24 @@ const TTSTab: React.FC = () => {
                 />
               </View>
 
-              {tts?.engine === 'native' && (
-                <View style={styles.sliderSection}>
-                  <Text style={[styles.sliderLabel, { color: theme.onSurface }]}>
-                    Pitch: {tts?.pitch?.toFixed(1) || '1.0'}
-                  </Text>
-                  <Slider
-                    style={styles.slider}
-                    value={tts?.pitch || 1}
-                    minimumValue={0.1}
-                    maximumValue={5}
-                    step={0.1}
-                    minimumTrackTintColor={theme.primary}
-                    maximumTrackTintColor={theme.surfaceVariant}
-                    thumbTintColor={theme.primary}
-                    onSlidingComplete={value =>
-                      setChapterReaderSettings({ tts: { ...tts, pitch: value } })
-                    }
-                  />
-                </View>
-              )}
+              <View style={styles.sliderSection}>
+                <Text style={[styles.sliderLabel, { color: theme.onSurface }]}>
+                  Pitch: {tts?.pitch?.toFixed(1) || '1.0'}
+                </Text>
+                <Slider
+                  style={styles.slider}
+                  value={tts?.pitch || 1}
+                  minimumValue={0.1}
+                  maximumValue={5}
+                  step={0.1}
+                  minimumTrackTintColor={theme.primary}
+                  maximumTrackTintColor={theme.surfaceVariant}
+                  thumbTintColor={theme.primary}
+                  onSlidingComplete={value =>
+                    setChapterReaderSettings({ tts: { ...tts, pitch: value } })
+                  }
+                />
+              </View>
 
               {tts?.engine === 'tiktok' && (
                 <View style={styles.sliderSection}>
