@@ -275,6 +275,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
 
           // Stop any currently playing speech
           Speech.stop();
+          TikTokTTS?.stop();
 
           // Update WebView settings
           webViewRef.current?.injectJavaScript(

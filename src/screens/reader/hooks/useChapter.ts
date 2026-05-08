@@ -35,7 +35,7 @@ import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
 import { useFullscreenMode } from '@hooks';
-import { AppState, Dimensions, NativeEventEmitter } from 'react-native';
+import { AppState, Dimensions, NativeEventEmitter, NativeModules } from 'react-native';
 import * as Speech from 'expo-speech';
 import { defaultTo } from 'lodash-es';
 import { showToast } from '@utils/showToast';
@@ -44,6 +44,9 @@ import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
 import NativeFile from '@specs/NativeFile';
 import { useNovelContext } from '@screens/novel/NovelContext';
 import { load } from 'cheerio';
+import { NativeModule } from 'react-native';
+
+const { TikTokTTS } = NativeModules;
 
 const emmiter = new NativeEventEmitter(NativeVolumeButtonListener);
 
@@ -146,6 +149,7 @@ export default function useChapter(
       emmiter.removeAllListeners('VolumeUp');
       emmiter.removeAllListeners('VolumeDown');
       Speech.stop();
+      TikTokTTS?.stop();
     };
   }, [useVolumeButtons, chapter, connectVolumeButton]);
 
