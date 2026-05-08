@@ -13,6 +13,7 @@ import { getString } from '@strings/translations';
 import { List, Button } from '@components/index';
 import { Portal, Modal, Chip } from 'react-native-paper';
 import ReaderSheetPreferenceItem from './ReaderSheetPreferenceItem';
+import { TIKTOK_VOICES } from '../../../../../demo/voice';
 
 interface VoicePickerModalProps {
   visible: boolean;
@@ -22,22 +23,35 @@ interface VoicePickerModalProps {
   currentVoice?: Voice;
 }
 
-const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
+const VoicePickerModal: React.FC<VoicePickerModalProps & { isTikTok: boolean }> = ({
   visible,
   onDismiss,
   voices,
   onSelect,
   currentVoice,
+  isTikTok,
 }) => {
   const theme = useTheme();
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   // Get system language safely using getLocales()
   const systemLocale = getLocales()[0]?.languageCode || 'en';
 
+  const availableVoices = useMemo(() => {
+    if (isTikTok) {
+      return TIKTOK_VOICES.map(v => ({
+        identifier: v.id,
+        name: v.name,
+        language: v.lang,
+        quality: 'Default',
+      })) as Voice[];
+    }
+    return voices;
+  }, [isTikTok, voices]);
+
   // Get unique languages from voices
   const availableLanguages = useMemo(() => {
     const languages = new Set<string>();
-    voices.forEach(voice => {
+    availableVoices.forEach(voice => {
       if (voice.language) {
         const lang = voice.language.split('-')[0];
         languages.add(lang);
@@ -49,25 +63,25 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
       if (b === systemLocale) return 1;
       return a.localeCompare(b);
     });
-  }, [voices, systemLocale]);
+  }, [availableVoices, systemLocale]);
 
   // Filter voices by selected languages
   const filteredVoices = useMemo(() => {
     if (selectedLanguages.length === 0) {
       // Show system language voices by default
-      return voices.filter(voice => {
+      return availableVoices.filter(voice => {
         if (voice.name === 'System') return true;
         const lang = voice.language?.split('-')[0];
         return lang === systemLocale;
       });
     }
 
-    return voices.filter(voice => {
+    return availableVoices.filter(voice => {
       if (voice.name === 'System') return true;
       const lang = voice.language?.split('-')[0];
       return lang && selectedLanguages.includes(lang);
     });
-  }, [voices, selectedLanguages, systemLocale]);
+  }, [availableVoices, selectedLanguages, systemLocale]);
 
   const toggleLanguage = (lang: string) => {
     setSelectedLanguages(prev => {
@@ -242,6 +256,34 @@ const TTSTab: React.FC = () => {
 
           {TTSEnable && (
             <>
+              <View style={styles.engineRow}>
+                <Text style={[styles.label, { color: theme.onSurface }]}>
+                  Engine
+                </Text>
+                <View style={styles.buttonGroup}>
+                  <Button
+                    title="Native"
+                    mode={tts?.engine === 'native' ? 'contained' : 'outlined'}
+                    onPress={() =>
+                      setChapterReaderSettings({
+                        tts: { ...tts, engine: 'native' },
+                      })
+                    }
+                    style={styles.flexBtn}
+                  />
+                  <View style={styles.btnSpacer} />
+                  <Button
+                    title="TikTok"
+                    mode={tts?.engine === 'tiktok' ? 'contained' : 'outlined'}
+                    onPress={() =>
+                      setChapterReaderSettings({
+                        tts: { ...tts, engine: 'tiktok' },
+                      })
+                    }
+                    style={styles.flexBtn}
+                  />
+                </View>
+              </View>
               <Pressable
                 style={styles.settingItem}
                 onPress={() => setVoiceModalVisible(true)}
@@ -250,7 +292,8 @@ const TTSTab: React.FC = () => {
                   Voice
                 </Text>
                 <Text style={[styles.value, { color: theme.onSurfaceVariant }]}>
-                  {tts?.voice?.name || 'System'}
+                  {tts?.voice?.name ||
+                    (tts?.engine === 'tiktok' ? 'Select Voice' : 'System')}
                 </Text>
               </Pressable>
 
@@ -273,24 +316,49 @@ const TTSTab: React.FC = () => {
                 />
               </View>
 
-              <View style={styles.sliderSection}>
-                <Text style={[styles.sliderLabel, { color: theme.onSurface }]}>
-                  Pitch: {tts?.pitch?.toFixed(1) || '1.0'}
-                </Text>
-                <Slider
-                  style={styles.slider}
-                  value={tts?.pitch || 1}
-                  minimumValue={0.1}
-                  maximumValue={5}
-                  step={0.1}
-                  minimumTrackTintColor={theme.primary}
-                  maximumTrackTintColor={theme.surfaceVariant}
-                  thumbTintColor={theme.primary}
-                  onSlidingComplete={value =>
-                    setChapterReaderSettings({ tts: { ...tts, pitch: value } })
-                  }
-                />
-              </View>
+              {tts?.engine === 'native' && (
+                <View style={styles.sliderSection}>
+                  <Text style={[styles.sliderLabel, { color: theme.onSurface }]}>
+                    Pitch: {tts?.pitch?.toFixed(1) || '1.0'}
+                  </Text>
+                  <Slider
+                    style={styles.slider}
+                    value={tts?.pitch || 1}
+                    minimumValue={0.1}
+                    maximumValue={5}
+                    step={0.1}
+                    minimumTrackTintColor={theme.primary}
+                    maximumTrackTintColor={theme.surfaceVariant}
+                    thumbTintColor={theme.primary}
+                    onSlidingComplete={value =>
+                      setChapterReaderSettings({ tts: { ...tts, pitch: value } })
+                    }
+                  />
+                </View>
+              )}
+
+              {tts?.engine === 'tiktok' && (
+                <View style={styles.sliderSection}>
+                  <Text style={[styles.sliderLabel, { color: theme.onSurface }]}>
+                    Queue Size: {tts?.queueSize || 3}
+                  </Text>
+                  <Slider
+                    style={styles.slider}
+                    value={tts?.queueSize || 3}
+                    minimumValue={1}
+                    maximumValue={10}
+                    step={1}
+                    minimumTrackTintColor={theme.primary}
+                    maximumTrackTintColor={theme.surfaceVariant}
+                    thumbTintColor={theme.primary}
+                    onSlidingComplete={value =>
+                      setChapterReaderSettings({
+                        tts: { ...tts, queueSize: value },
+                      })
+                    }
+                  />
+                </View>
+              )}
 
               <ReaderSheetPreferenceItem
                 label="Auto Page Advance"
@@ -348,6 +416,7 @@ const TTSTab: React.FC = () => {
         voices={voices}
         onSelect={handleVoiceSelect}
         currentVoice={tts?.voice}
+        isTikTok={tts?.engine === 'tiktok'}
       />
     </>
   );
@@ -459,5 +528,19 @@ const styles = StyleSheet.create({
   },
   checkIcon: {
     fontSize: 16,
+  },
+  engineRow: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  flexBtn: {
+    flex: 1,
+  },
+  btnSpacer: {
+    width: 8,
   },
 });

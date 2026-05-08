@@ -46,3 +46,30 @@
   width: 24px;
   height: 24px;
 }
+
+#TTS-Controller.loading button {
+  position: relative;
+}
+
+#TTS-Controller.loading button::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--readerSettings-textColor);
+  animation: tts-spin 1s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tts-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

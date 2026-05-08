@@ -471,6 +471,17 @@ window.tts = new (function () {
       this.next();
     }
   };
+
+  this.setLoading = loading => {
+    const controller = document.getElementById('TTS-Controller');
+    if (controller) {
+      if (loading) {
+        controller.classList.add('loading');
+      } else {
+        controller.classList.remove('loading');
+      }
+    }
+  };
 })();
 
 // Watch for TTSEnable changes and stop TTS when disabled

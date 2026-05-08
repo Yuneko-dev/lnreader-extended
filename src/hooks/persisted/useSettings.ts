@@ -119,9 +119,11 @@ export interface ChapterReaderSettings {
   customJS: string;
   customThemes: ReaderTheme[];
   tts?: {
+    engine?: 'native' | 'tiktok';
     voice?: Voice;
     rate?: number;
     pitch?: number;
+    queueSize?: number;
     autoPageAdvance?: boolean;
     scrollToTop?: boolean;
   };
@@ -248,8 +250,10 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
   customJS: '',
   customThemes: [],
   tts: {
+    engine: 'native',
     rate: 1,
     pitch: 1,
+    queueSize: 3,
     autoPageAdvance: false,
     scrollToTop: true,
   },
@@ -391,6 +395,8 @@ export const useChapterReaderSettings = () => {
         scrollToTop: storedSettings.tts?.scrollToTop ?? true,
         rate: storedSettings.tts?.rate ?? 1,
         pitch: storedSettings.tts?.pitch ?? 1,
+        engine: storedSettings.tts?.engine ?? 'native',
+        queueSize: storedSettings.tts?.queueSize ?? 3,
       },
     }),
     [storedSettings],
