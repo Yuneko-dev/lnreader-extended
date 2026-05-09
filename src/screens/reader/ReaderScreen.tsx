@@ -124,13 +124,11 @@ export const ChapterContent = ({
   return (
     <View style={[{ paddingStart: left, paddingEnd: right }, styles.container]}>
       {keepScreenOn ? <KeepScreenAwake /> : null}
-      {loading ? (
-        <ChapterLoadingScreen />
-      ) : (
+      <ChapterLoadingScreen isLoading={loading}>
         <View style={styles.container}>
           <WebViewReader onPress={hideHeader} />
         </View>
-      )}
+      </ChapterLoadingScreen>
       <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
       {!hidden && (
         <View style={StyleSheet.absoluteFill} pointerEvents="auto">
