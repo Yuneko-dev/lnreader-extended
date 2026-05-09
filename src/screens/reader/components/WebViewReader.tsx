@@ -46,6 +46,22 @@ import {
 } from '@utils/ttsNotification';
 import { addReadDuration } from '@database/queries/ChapterQueries';
 import { showToast } from '@utils/showToast';
+import { load as cheerioLoad } from 'cheerio';
+
+function parseChapterTextForTTS(chapterHtml: string): string[] {
+  const $ = cheerioLoad(chapterHtml, null, false);
+  const results: string[] = [];
+  // Same selectors as WebView JS tts.readableSelector
+  $('p, li, h1, h2, h3, h4, h5, h6, blockquote, td, th, dt, dd, figcaption, caption, pre').each(
+    (_, el) => {
+      const text = $(el).text().trim();
+      if (text.length > 0) {
+        results.push(text);
+      }
+    },
+  );
+  return results;
+}
 
 type WebViewPostEvent = {
   type: string;
@@ -132,6 +148,8 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
   const appStateRef = useRef(AppState.currentState);
   const ttsQueueRef = useRef<string[]>([]);
   const ttsQueueIndexRef = useRef<number>(0);
+  const navigateChapterRef = useRef(navigateChapter);
+  const nextChapterRef = useRef(nextChapter);
 
   // --- Reading time tracking ---
   const readStartTimeRef = useRef<number | null>(null);
@@ -187,9 +205,49 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     }
   }, [chapter.id, saveReadTime, startReadTimer]);
 
+  // Auto-start TTS on chapter change when in background
+  useEffect(() => {
+    if (!autoStartTTSRef.current) {
+      return;
+    }
+    const isBackground =
+      appStateRef.current === 'background' ||
+      appStateRef.current === 'inactive';
+    if (!isBackground) {
+      return; // foreground: onLoadEnd will handle it via WebView JS
+    }
+    autoStartTTSRef.current = false;
+    const queue = parseChapterTextForTTS(html);
+    if (queue.length > 0) {
+      ttsQueueRef.current = queue;
+      ttsQueueIndexRef.current = 0;
+      isTTSReadingRef.current = true;
+      updateTTSNotification({
+        novelName: novel?.name || 'Unknown',
+        chapterName: chapter.name,
+        coverUri: novel?.cover || '',
+        isPlaying: true,
+      });
+      updateTTSProgress(0, queue.length);
+      speakText(queue[0]);
+    } else {
+      isTTSReadingRef.current = false;
+      dismissTTSNotification();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter.id]);
+
   useEffect(() => {
     readerSettingsRef.current = readerSettings;
   }, [readerSettings]);
+
+  useEffect(() => {
+    navigateChapterRef.current = navigateChapter;
+  }, [navigateChapter]);
+
+  useEffect(() => {
+    nextChapterRef.current = nextChapter;
+  }, [nextChapter]);
 
   useEffect(() => {
     const playListener = ttsMediaEmitter.addListener('TTSPlay', () => {
@@ -397,9 +455,16 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
             return;
           }
         }
-        // No more sentences in queue — stop
-        isTTSReadingRef.current = false;
-        dismissTTSNotification();
+        // No more sentences — auto-advance to next chapter if available
+        const autoAdvance =
+          readerSettingsRef.current.tts?.autoPageAdvance === true;
+        if (autoAdvance && nextChapterRef.current) {
+          autoStartTTSRef.current = true;
+          navigateChapterRef.current('NEXT');
+        } else {
+          isTTSReadingRef.current = false;
+          dismissTTSNotification();
+        }
         return;
       }
 
@@ -452,9 +517,16 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               return;
             }
           }
-          // No more sentences — stop
-          isTTSReadingRef.current = false;
-          dismissTTSNotification();
+          // No more sentences — auto-advance to next chapter if available
+          const autoAdvance =
+            readerSettingsRef.current.tts?.autoPageAdvance === true;
+          if (autoAdvance && nextChapterRef.current) {
+            autoStartTTSRef.current = true;
+            navigateChapterRef.current('NEXT');
+          } else {
+            isTTSReadingRef.current = false;
+            dismissTTSNotification();
+          }
           return;
         }
 
