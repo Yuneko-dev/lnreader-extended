@@ -205,7 +205,64 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     }
   }, [chapter.id, saveReadTime, startReadTimer]);
 
+  const speakText = useCallback((text: string) => {
+    if (readerSettingsRef.current.tts?.engine === 'tiktok') {
+      const voice = readerSettingsRef.current.tts?.voice?.identifier;
+      if (!voice) {
+        // Voice must be selected for TikTok TTS
+        showToast('TikTok TTS: No voice selected');
+        return;
+      }
+      const queueSize = readerSettingsRef.current.tts?.queueSize || 3;
+      const rate = readerSettingsRef.current.tts?.rate || 1;
+      const pitch = readerSettingsRef.current.tts?.pitch || 1;
+      TikTokTTS.speak(text, voice, queueSize, rate, pitch);
+      return;
+    }
+    Speech.speak(text, {
+      onDone() {
+        const isBackground =
+          appStateRef.current === 'background' ||
+          appStateRef.current === 'inactive';
+
+        if (isBackground) {
+          // Advance queue directly from JS refs (WebView JS may be suspended)
+          if (
+            ttsQueueRef.current.length > 0 &&
+            ttsQueueIndexRef.current + 1 < ttsQueueRef.current.length
+          ) {
+            const nextIndex = ttsQueueIndexRef.current + 1;
+            const nextText = ttsQueueRef.current[nextIndex];
+            if (nextText) {
+              ttsQueueIndexRef.current = nextIndex;
+              updateTTSProgress(nextIndex, ttsQueueRef.current.length);
+              speakText(nextText);
+              return;
+            }
+          }
+          // No more sentences — auto-advance to next chapter if available
+          const autoAdvance =
+            readerSettingsRef.current.tts?.autoPageAdvance === true;
+          if (autoAdvance && nextChapterRef.current) {
+            autoStartTTSRef.current = true;
+            navigateChapterRef.current('NEXT');
+          } else {
+            isTTSReadingRef.current = false;
+            dismissTTSNotification();
+          }
+          return;
+        }
+
+        webViewRef.current?.injectJavaScript('tts.next?.()');
+      },
+      voice: readerSettingsRef.current.tts?.voice?.identifier,
+      pitch: readerSettingsRef.current.tts?.pitch || 1,
+      rate: readerSettingsRef.current.tts?.rate || 1,
+    });
+  }, []);
+
   // Auto-start TTS on chapter change when in background
+  // (onLoadEnd + WebView JS won't execute when app is backgrounded)
   useEffect(() => {
     if (!autoStartTTSRef.current) {
       return;
@@ -234,8 +291,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       isTTSReadingRef.current = false;
       dismissTTSNotification();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chapter.id]);
+  }, [chapter.id, chapter.name, html, novel, speakText]);
 
   useEffect(() => {
     readerSettingsRef.current = readerSettings;
@@ -482,61 +538,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     };
   }, [webViewRef]);
 
-  const speakText = (text: string) => {
-    if (readerSettingsRef.current.tts?.engine === 'tiktok') {
-      const voice = readerSettingsRef.current.tts?.voice?.identifier;
-      if (!voice) {
-        // Voice must be selected for TikTok TTS
-        showToast('TikTok TTS: No voice selected');
-        return;
-      }
-      const queueSize = readerSettingsRef.current.tts?.queueSize || 3;
-      const rate = readerSettingsRef.current.tts?.rate || 1;
-      const pitch = readerSettingsRef.current.tts?.pitch || 1;
-      TikTokTTS.speak(text, voice, queueSize, rate, pitch);
-      return;
-    }
-    Speech.speak(text, {
-      onDone() {
-        const isBackground =
-          appStateRef.current === 'background' ||
-          appStateRef.current === 'inactive';
-
-        if (isBackground) {
-          // Advance queue directly from JS refs (WebView JS may be suspended)
-          if (
-            ttsQueueRef.current.length > 0 &&
-            ttsQueueIndexRef.current + 1 < ttsQueueRef.current.length
-          ) {
-            const nextIndex = ttsQueueIndexRef.current + 1;
-            const nextText = ttsQueueRef.current[nextIndex];
-            if (nextText) {
-              ttsQueueIndexRef.current = nextIndex;
-              updateTTSProgress(nextIndex, ttsQueueRef.current.length);
-              speakText(nextText);
-              return;
-            }
-          }
-          // No more sentences — auto-advance to next chapter if available
-          const autoAdvance =
-            readerSettingsRef.current.tts?.autoPageAdvance === true;
-          if (autoAdvance && nextChapterRef.current) {
-            autoStartTTSRef.current = true;
-            navigateChapterRef.current('NEXT');
-          } else {
-            isTTSReadingRef.current = false;
-            dismissTTSNotification();
-          }
-          return;
-        }
-
-        webViewRef.current?.injectJavaScript('tts.next?.()');
-      },
-      voice: readerSettingsRef.current.tts?.voice?.identifier,
-      pitch: readerSettingsRef.current.tts?.pitch || 1,
-      rate: readerSettingsRef.current.tts?.rate || 1,
-    });
-  };
   const isRTL = plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew';
   const readerDir = isRTL ? 'rtl' : 'ltr';
 
