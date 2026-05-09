@@ -46,6 +46,7 @@ window.reader = new (function () {
   this.chapterEndingVisible = van.state(false);
 
   this.post = obj => window.ReactNativeWebView.postMessage(JSON.stringify(obj));
+  this.refetch = () => this.post({ type: 'refetch' });
   this.refresh = () => {
     if (this.generalSettings.val.pageReader) {
       this.chapterWidth = this.chapterElement.scrollWidth;

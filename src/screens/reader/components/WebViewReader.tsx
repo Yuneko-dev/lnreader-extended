@@ -93,6 +93,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     prevChapter,
     webViewRef,
     resetAutoScroll,
+    refetch,
   } = useChapterContext();
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();
@@ -641,6 +642,9 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               }
             }
             break;
+          case 'refetch':
+            refetch();
+            break;
           case 'video-fullscreen-enter':
             ScreenOrientation.lockAsync(
               ScreenOrientation.OrientationLock.LANDSCAPE,
@@ -649,6 +653,10 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           case 'video-fullscreen-exit':
             ScreenOrientation.unlockAsync();
             break;
+          default: {
+            console.warn(`Unknown event: ${event.type}`, event);
+            break;
+          }
         }
       }}
       source={{
