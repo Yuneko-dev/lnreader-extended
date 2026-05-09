@@ -82,7 +82,7 @@ const SwipeActionView = React.memo(
       const absX = Math.abs(dragX.value);
       const progress = interpolate(
         absX,
-        [VISUAL_THRESHOLD - ICON_SIZE, VISUAL_THRESHOLD],
+        [ICON_SIZE, VISUAL_THRESHOLD],
         [0, 1],
         Extrapolation.CLAMP,
       );
@@ -96,13 +96,13 @@ const SwipeActionView = React.memo(
       const absX = Math.abs(dragX.value);
       const opacity = interpolate(
         absX,
-        [VISUAL_THRESHOLD - 25, VISUAL_THRESHOLD],
+        [VISUAL_THRESHOLD - ICON_SIZE, VISUAL_THRESHOLD],
         [0, 1],
         Extrapolation.CLAMP,
       );
       const scale = interpolate(
         absX,
-        [VISUAL_THRESHOLD - 25, VISUAL_THRESHOLD],
+        [VISUAL_THRESHOLD - ICON_SIZE, VISUAL_THRESHOLD],
         [0.5, 1],
         Extrapolation.CLAMP,
       );
