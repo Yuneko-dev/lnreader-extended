@@ -5,19 +5,61 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      build_target:
+        description: 'Select build target'
+        required: true
+        default: 'Build all'
+        type: choice
+        options:
+          - Build all
+          - All Architectures
+          - arm64-v8a
+          - armeabi-v7a
+          - x86
+          - x86_64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  prepare:
+    name: Prepare Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          ALL='[
+            {"name":"All Architectures","abi":"all","apk_suffix":"universal"},
+            {"name":"arm64-v8a","abi":"arm64-v8a","apk_suffix":"arm64-v8a"},
+            {"name":"armeabi-v7a","abi":"armeabi-v7a","apk_suffix":"armeabi-v7a"},
+            {"name":"x86","abi":"x86","apk_suffix":"x86"},
+            {"name":"x86_64","abi":"x86_64","apk_suffix":"x86_64"}
+          ]'
+
+          BUILD_TARGET="${{ inputs.build_target }}"
+
+          if [[ "${{ github.event_name }}" == "push" || "$BUILD_TARGET" == "Build all" || -z "$BUILD_TARGET" ]]; then
+            MATRIX="$ALL"
+          else
+            MATRIX=$(echo "$ALL" | jq -c --arg name "$BUILD_TARGET" '[.[] | select(.name == $name)]')
+          fi
+
+          echo "matrix={\"include\":$(echo $MATRIX | jq -c '.')}" >> $GITHUB_OUTPUT
+
   build-and-release:
-    name: Build & Release Beta
+    name: Build & Release ${{ matrix.name }}
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: write
-
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -92,8 +134,12 @@ jobs:
           COMMIT_COUNT: ${{ env.COMMIT_COUNT }}
           COMMIT_ID: ${{ env.COMMIT_ID }}
         run: |
-          cd android && ./gradlew assembleRelease --build-cache
-          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/LNReader-beta.apk
+          if [[ "${{ matrix.abi }}" == "all" ]]; then
+            cd android && ./gradlew assembleRelease --build-cache
+          else
+            cd android && ./gradlew assembleRelease --build-cache -PreactNativeArchitectures=${{ matrix.abi }}
+          fi
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/LNReader-beta-${{ matrix.apk_suffix }}.apk
 
       - name: Create Release Note
         run: |
@@ -110,4 +156,4 @@ jobs:
           prerelease: true
           make_latest: false
           files: |
-            android/app/build/outputs/apk/release/LNReader-beta.apk
+            android/app/build/outputs/apk/release/LNReader-beta-${{ matrix.apk_suffix }}.apk
