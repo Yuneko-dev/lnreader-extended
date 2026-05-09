@@ -360,18 +360,8 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
         // Pause reading timer on background/inactive
         pauseReadTimer();
 
-        // Stop TTS on background to prevent sync issues
-        if (isTTSReadingRef.current) {
-          Speech.stop();
-          TikTokTTS?.stop();
-          isTTSReadingRef.current = false;
-          ttsQueueRef.current = [];
-          ttsQueueIndexRef.current = 0;
-          dismissTTSNotification();
-          webViewRef.current?.injectJavaScript(`
-            if (window.tts) { tts.stop(); }
-          `);
-        }
+        // TTS continues playing in background — no stop here.
+        // When the user returns to foreground, the highlight will be synced.
       }
     });
 
@@ -392,9 +382,9 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
         appStateRef.current === 'background' ||
         appStateRef.current === 'inactive';
 
-      /*
+      if (isBackground) {
+        // Advance queue directly from JS refs (WebView JS may be suspended)
         if (
-          isBackground &&
           ttsQueueRef.current.length > 0 &&
           ttsQueueIndexRef.current + 1 < ttsQueueRef.current.length
         ) {
@@ -402,20 +392,14 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           const nextText = ttsQueueRef.current[nextIndex];
           if (nextText) {
             ttsQueueIndexRef.current = nextIndex;
+            updateTTSProgress(nextIndex, ttsQueueRef.current.length);
             speakText(nextText);
             return;
           }
         }
-
-        if (isBackground) {
-          isTTSReadingRef.current = false;
-          dismissTTSNotification();
-          webViewRef.current?.injectJavaScript('tts.stop?.()');
-          return;
-        }
-        */
-
-      if (isBackground) {
+        // No more sentences in queue — stop
+        isTTSReadingRef.current = false;
+        dismissTTSNotification();
         return;
       }
 
@@ -454,6 +438,23 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           appStateRef.current === 'inactive';
 
         if (isBackground) {
+          // Advance queue directly from JS refs (WebView JS may be suspended)
+          if (
+            ttsQueueRef.current.length > 0 &&
+            ttsQueueIndexRef.current + 1 < ttsQueueRef.current.length
+          ) {
+            const nextIndex = ttsQueueIndexRef.current + 1;
+            const nextText = ttsQueueRef.current[nextIndex];
+            if (nextText) {
+              ttsQueueIndexRef.current = nextIndex;
+              updateTTSProgress(nextIndex, ttsQueueRef.current.length);
+              speakText(nextText);
+              return;
+            }
+          }
+          // No more sentences — stop
+          isTTSReadingRef.current = false;
+          dismissTTSNotification();
           return;
         }
 

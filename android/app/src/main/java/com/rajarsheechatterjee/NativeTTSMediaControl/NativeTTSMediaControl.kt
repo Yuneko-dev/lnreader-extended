@@ -311,6 +311,11 @@ class NativeTTSMediaControl(private val appContext: ReactApplicationContext) :
         registerReceiver()
         loadCoverBitmap(coverUri)
         updateNotification()
+
+        // Start foreground service to keep TTS alive in background
+        try {
+            TTSForegroundService.start(appContext)
+        } catch (_: Exception) {}
     }
 
     override fun updatePlaybackState(isPlaying: Boolean) {
@@ -325,6 +330,11 @@ class NativeTTSMediaControl(private val appContext: ReactApplicationContext) :
     }
 
     override fun dismiss() {
+        // Stop foreground service
+        try {
+            TTSForegroundService.stop(appContext)
+        } catch (_: Exception) {}
+
         mediaSession?.isActive = false
         mediaSession?.release()
         mediaSession = null
