@@ -119,7 +119,7 @@ Task: Translate the following text from ${source} to ${target}.
       }
 
       const startTime = Date.now();
-      const estimatedTimeMs = 20_000;
+      const estimatedTimeMs = 30_000;
       const maxProgress = 99;
       i = setInterval(() => {
         if (onProgress) {
