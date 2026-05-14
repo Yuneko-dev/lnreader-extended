@@ -110,7 +110,7 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
             {editTitleMode ? (
               <View style={styles.editTitleContainer}>
                 <TextInput
-                  value={tempTitle}
+                  defaultValue={tempTitle}
                   onChangeText={setTempTitle}
                   style={[
                     styles.titleInput,
@@ -208,8 +208,9 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
           </View>
 
           <TextInput
+            key={activePromptId}
             label="Prompt Content"
-            value={activePrompt.content}
+            defaultValue={activePrompt.content}
             onChangeText={handleContentChange}
             mode="outlined"
             multiline

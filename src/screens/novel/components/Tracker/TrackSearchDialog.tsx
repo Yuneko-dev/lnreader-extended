@@ -123,9 +123,9 @@ const TrackSearchDialog: React.FC<TrackSearchDialogProps> = ({
 
   return (
     <Modal visible={visible} onDismiss={onDismiss}>
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
         <TextInput
-          value={searchText}
+          defaultValue={searchText}
           onChangeText={setSearchText}
           onSubmitEditing={getSearchResults}
           textColor={theme.onSurface}

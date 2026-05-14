@@ -95,14 +95,14 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
 
   return (
     <Modal visible={isVisible} onDismiss={onDismiss}>
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView key={isVisible ? 'visible' : 'hidden'}>
         <View>
           <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
             {getString('novelScreen.exportEpubModal.title')}
           </Text>
           <TextInput
             onChangeText={setUri}
-            value={uri}
+            defaultValue={uri}
             placeholder={getString('novelScreen.exportEpubModal.selectFolder')}
             onSubmitEditing={onSubmit}
             mode="outlined"
@@ -128,7 +128,7 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
             <View style={styles.rangeInputs}>
               <TextInput
                 label={getString('novelScreen.exportEpubModal.startChapter')}
-                value={startChapter}
+                defaultValue={startChapter}
                 onChangeText={setStartChapter}
                 keyboardType="numeric"
                 mode="outlined"
@@ -139,7 +139,7 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
               />
               <TextInput
                 label={getString('novelScreen.exportEpubModal.endChapter')}
-                value={endChapter}
+                defaultValue={endChapter}
                 onChangeText={setEndChapter}
                 keyboardType="numeric"
                 mode="outlined"

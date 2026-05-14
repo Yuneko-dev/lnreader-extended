@@ -36,7 +36,7 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
           {title}
         </Text>
         <TextInput
-          value={ipv4}
+          defaultValue={ipv4}
           placeholder={'xxx.xxx.xxx.xxx'}
           onChangeText={setIpv4}
           mode="outlined"
@@ -45,7 +45,7 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
           placeholderTextColor={theme.onSurfaceDisabled}
         />
         <TextInput
-          value={port}
+          defaultValue={port}
           onChangeText={setPort}
           mode="outlined"
           underlineColor={theme.outline}

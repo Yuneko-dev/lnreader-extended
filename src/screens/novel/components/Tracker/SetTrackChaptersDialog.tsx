@@ -35,10 +35,10 @@ const SetTrackChaptersDialog: React.FC<TrackChaptersDialogProps> = ({
 
   return (
     <Modal visible={visible} onDismiss={onDismiss}>
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
         <DialogTitle title="Chapters" />
         <TextInput
-          value={chapters}
+          defaultValue={chapters}
           onChangeText={handleChangeText}
           mode="outlined"
           keyboardType="numeric"

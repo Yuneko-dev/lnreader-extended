@@ -55,8 +55,10 @@ const EditInfoModal = ({
 }: EditInfoModalProps) => {
   const initialNovelInfo = { ...novel };
   const [novelInfo, setNovelInfo] = useState(novel);
+  const [resetKey, setResetKey] = useState(0);
 
   const [newGenre, setNewGenre] = useState('');
+  const [genreKey, setGenreKey] = useState(0);
 
   const removeTag = (t: string) => {
     setNovelInfo(prev => ({
@@ -73,7 +75,7 @@ const EditInfoModal = ({
   return (
     <Portal>
       <Modal visible={modalVisible} onDismiss={hideModal}>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView key={resetKey}>
           <Text style={[styles.modalTitle, getModalTitleColor(theme)]}>
             {getString('novelScreen.edit.info')}
           </Text>
@@ -118,7 +120,6 @@ const EditInfoModal = ({
           </View>
           <TextInput
             defaultValue={initialNovelInfo.name}
-            value={novelInfo.name}
             placeholder={getString('novelScreen.edit.title', {
               title: novel.name,
             })}
@@ -133,7 +134,6 @@ const EditInfoModal = ({
           />
           <TextInput
             defaultValue={initialNovelInfo.author ?? undefined}
-            value={novelInfo.author ?? undefined}
             placeholder={getString('novelScreen.edit.author', {
               author: novel.author,
             })}
@@ -148,7 +148,6 @@ const EditInfoModal = ({
           />
           <TextInput
             defaultValue={initialNovelInfo.artist ?? undefined}
-            value={novelInfo.artist ?? undefined}
             placeholder={'Artist: ' + novel.artist}
             numberOfLines={1}
             mode="outlined"
@@ -161,7 +160,6 @@ const EditInfoModal = ({
           />
           <TextInput
             defaultValue={initialNovelInfo.summary ?? undefined}
-            value={novelInfo.summary ?? undefined}
             placeholder={getString('novelScreen.edit.summary', {
               summary: novel.summary?.substring(0, 16),
             })}
@@ -176,7 +174,8 @@ const EditInfoModal = ({
           />
 
           <TextInput
-            value={newGenre}
+            key={'genreInput' + genreKey}
+            defaultValue={newGenre}
             placeholder={getString('novelScreen.edit.addTag')}
             numberOfLines={1}
             mode="outlined"
@@ -195,6 +194,7 @@ const EditInfoModal = ({
                   : newGenreTrimmed,
               }));
               setNewGenre('');
+              setGenreKey(prev => prev + 1);
             }}
             theme={{ colors: { ...theme } }}
             dense
@@ -220,6 +220,7 @@ const EditInfoModal = ({
               onPress={() => {
                 setNovelInfo(initialNovelInfo);
                 updateNovelInfo(initialNovelInfo);
+                setResetKey(prev => prev + 1);
               }}
             >
               {getString('common.reset')}

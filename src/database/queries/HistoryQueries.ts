@@ -32,7 +32,8 @@ export const getHistoryFromDb = async () => {
  */
 export const insertHistory = async (chapterId: number): Promise<void> => {
   await dbManager.write(async tx => {
-    await tx.update(chapterSchema)
+    await tx
+      .update(chapterSchema)
       .set({
         readTime: sql`datetime('now','localtime')`,
       })
@@ -48,7 +49,8 @@ export const deleteChapterHistory = async (
   chapterId: number,
 ): Promise<void> => {
   await dbManager.write(async tx => {
-    await tx.update(chapterSchema)
+    await tx
+      .update(chapterSchema)
       .set({ readTime: null })
       .where(eq(chapterSchema.id, chapterId))
       .run();

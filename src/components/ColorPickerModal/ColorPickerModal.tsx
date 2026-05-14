@@ -43,7 +43,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
   const onSubmitEditing = () => {
     const re = /^#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})$/i;
 
-    if (text.match(re)) {
+    if (text?.match(re)) {
       onSubmit(text);
       closeModal();
     } else {
@@ -81,7 +81,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
   return (
     <Portal>
       <Modal visible={visible} onDismiss={onDismiss}>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
           <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
             {title}
           </Text>
@@ -108,8 +108,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
             />
           ) : null}
           <TextInput
-            value={text}
-            defaultValue={typeof color === 'string' ? color : ''}
+            defaultValue={text}
             placeholder="Hex Color Code (E.g. #3399FF)"
             onChangeText={onChangeText}
             onSubmitEditing={onSubmitEditing}

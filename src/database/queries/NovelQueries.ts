@@ -64,7 +64,8 @@ export const insertNovelAndChapters = async (
           getPlugin(pluginId)?.imageRequestInit,
         );
         await dbManager.write(async tx => {
-          await tx.update(novelSchema)
+          await tx
+            .update(novelSchema)
             .set({ cover: novelCoverUri })
             .where(eq(novelSchema.id, novelId))
             .run();
@@ -259,12 +260,14 @@ export const removeNovelsFromLibrary = async (novelIds: Array<number>) => {
 
   // Step 1: Remove all novels from library (same as remote behavior)
   await dbManager.write(async tx => {
-    await tx.update(novelSchema)
+    await tx
+      .update(novelSchema)
       .set({ inLibrary: false })
       .where(inArray(novelSchema.id, novelIds))
       .run();
 
-    await tx.delete(novelCategorySchema)
+    await tx
+      .delete(novelCategorySchema)
       .where(inArray(novelCategorySchema.novelId, novelIds))
       .run();
   });
@@ -282,10 +285,12 @@ export const removeNovelsFromLibrary = async (novelIds: Array<number>) => {
 
     if (orphanedIds.length) {
       await dbManager.write(async tx => {
-        await tx.delete(chapterSchema)
+        await tx
+          .delete(chapterSchema)
           .where(inArray(chapterSchema.novelId, orphanedIds))
           .run();
-        await tx.delete(novelSchema)
+        await tx
+          .delete(novelSchema)
           .where(inArray(novelSchema.id, orphanedIds))
           .run();
       });
@@ -399,7 +404,8 @@ export const restoreLibrary = async (novel: NovelInfo) => {
 
 export const updateNovelInfo = async (info: NovelInfo) => {
   await dbManager.write(async tx => {
-    await tx.update(novelSchema)
+    await tx
+      .update(novelSchema)
       .set({
         name: info.name,
         cover: info.cover || '',
@@ -430,7 +436,8 @@ export const pickCustomNovelCover = async (novel: NovelInfo) => {
     NativeFile.copyFile(image.assets[0].uri, novelCoverUri);
     novelCoverUri += '?' + Date.now();
     await dbManager.write(async tx => {
-      await tx.update(novelSchema)
+      await tx
+        .update(novelSchema)
         .set({ cover: novelCoverUri })
         .where(eq(novelSchema.id, novel.id))
         .run();
@@ -445,7 +452,8 @@ export const updateNovelCategoryById = async (
 ) => {
   await dbManager.write(async tx => {
     for (const categoryId of categoryIds) {
-      await tx.insert(novelCategorySchema)
+      await tx
+        .insert(novelCategorySchema)
         .values({ novelId, categoryId })
         .onConflictDoNothing()
         .run();

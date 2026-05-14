@@ -40,7 +40,7 @@ function CreateBackup({
   return (
     <>
       <TextInput
-        value={backupName}
+        defaultValue={backupName}
         placeholder={getString('backupScreen.backupName')}
         onChangeText={setBackupName}
         mode="outlined"
@@ -158,7 +158,7 @@ function SetHost({
   return (
     <>
       <TextInput
-        value={host}
+        defaultValue={host}
         placeholder={getString('backupScreen.remote.host')}
         onChangeText={setHost}
         mode="outlined"

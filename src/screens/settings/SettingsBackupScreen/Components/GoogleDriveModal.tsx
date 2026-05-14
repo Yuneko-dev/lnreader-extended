@@ -117,7 +117,7 @@ function CreateBackup({
   return (
     <>
       <TextInput
-        value={backupName}
+        defaultValue={backupName}
         placeholder={getString('backupScreen.backupName')}
         onChangeText={setBackupName}
         mode="outlined"
