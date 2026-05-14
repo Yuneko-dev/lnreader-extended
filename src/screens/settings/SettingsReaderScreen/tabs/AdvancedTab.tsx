@@ -17,6 +17,8 @@ import { useBoolean } from '@hooks';
 
 type CodeTab = 'css' | 'js';
 
+const RenderBottomSheetInput = (props: any) => <BottomSheetTextInput {...props} />;
+
 const AdvancedTab: React.FC = () => {
   const theme = useTheme();
   const styles = createStyles(theme);
@@ -199,7 +201,7 @@ if (title) {
         {/* Code Editor */}
         <View style={styles.editorContainer}>
           <TextInput
-            render={props => <BottomSheetTextInput {...(props as any)} />}
+            render={RenderBottomSheetInput}
             mode="flat"
             value={activeCodeTab === 'css' ? cssValue : jsValue}
             onChangeText={text =>

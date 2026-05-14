@@ -58,6 +58,8 @@ const EditInfoModal = ({
 
   const [newGenre, setNewGenre] = useState('');
 
+  const textInputTheme = React.useMemo(() => ({ colors: { ...theme } }), [theme]);
+
   const removeTag = (t: string) => {
     setNovelInfo(prev => ({
       ...prev,
@@ -124,7 +126,7 @@ const EditInfoModal = ({
             })}
             numberOfLines={1}
             mode="outlined"
-            theme={{ colors: { ...theme } }}
+            theme={textInputTheme}
             onChangeText={text =>
               setNovelInfo(prev => ({ ...prev, name: text }))
             }
@@ -139,7 +141,7 @@ const EditInfoModal = ({
             })}
             numberOfLines={1}
             mode="outlined"
-            theme={{ colors: { ...theme } }}
+            theme={textInputTheme}
             onChangeText={text =>
               setNovelInfo(prev => ({ ...prev, author: text }))
             }
@@ -152,7 +154,7 @@ const EditInfoModal = ({
             placeholder={'Artist: ' + novel.artist}
             numberOfLines={1}
             mode="outlined"
-            theme={{ colors: { ...theme } }}
+            theme={textInputTheme}
             onChangeText={text =>
               setNovelInfo(prev => ({ ...prev, artist: text }))
             }
@@ -170,7 +172,7 @@ const EditInfoModal = ({
             onChangeText={text =>
               setNovelInfo(prev => ({ ...prev, summary: text }))
             }
-            theme={{ colors: { ...theme } }}
+            theme={textInputTheme}
             dense
             style={styles.inputWrapper}
           />
@@ -196,7 +198,7 @@ const EditInfoModal = ({
               }));
               setNewGenre('');
             }}
-            theme={{ colors: { ...theme } }}
+            theme={textInputTheme}
             dense
             style={styles.inputWrapper}
           />

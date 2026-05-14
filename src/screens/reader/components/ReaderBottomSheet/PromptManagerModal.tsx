@@ -30,17 +30,45 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const [editTitleMode, setEditTitleMode] = useState(false);
   const [tempTitle, setTempTitle] = useState('');
-
+  
   const activePrompt = prompts.find(p => p.id === activePromptId) || prompts[0];
+
+  const [localContent, setLocalContent] = useState(activePrompt.content);
+
+  const textInputTheme = React.useMemo(
+    () => ({
+      colors: {
+        primary: theme.primary,
+        background: theme.surfaceVariant,
+        onSurface: theme.onSurface,
+        onSurfaceVariant: theme.onSurfaceVariant,
+      },
+    }),
+    [theme],
+  );
+
+  const contentInputTheme = React.useMemo(
+    () => ({
+      colors: {
+        primary: theme.primary,
+        background: theme.surface,
+        onSurface: theme.onSurface,
+        onSurfaceVariant: theme.onSurfaceVariant,
+      },
+    }),
+    [theme],
+  );
 
   useEffect(() => {
     if (visible) {
       setEditTitleMode(false);
       setMenuVisible(false);
+      setLocalContent(activePrompt.content);
     }
-  }, [visible, activePromptId]);
+  }, [visible, activePromptId, activePrompt.content]);
 
   const handleContentChange = (text: string) => {
+    setLocalContent(text);
     const newPrompts = prompts.map(p =>
       p.id === activePromptId ? { ...p, content: text } : p,
     );
@@ -122,14 +150,7 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
                   onBlur={saveTitle}
                   onSubmitEditing={saveTitle}
                   textColor={theme.onSurface}
-                  theme={{
-                    colors: {
-                      primary: theme.primary,
-                      background: theme.surfaceVariant,
-                      onSurface: theme.onSurface,
-                      onSurfaceVariant: theme.onSurfaceVariant,
-                    },
-                  }}
+                  theme={textInputTheme}
                 />
               </View>
             ) : (
@@ -209,20 +230,13 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
 
           <TextInput
             label="Prompt Content"
-            value={activePrompt.content}
+            value={localContent}
             onChangeText={handleContentChange}
             mode="outlined"
             multiline
             textColor={theme.onSurface}
             style={[styles.contentInput, { backgroundColor: theme.surface }]}
-            theme={{
-              colors: {
-                primary: theme.primary,
-                background: theme.surface,
-                onSurface: theme.onSurface,
-                onSurfaceVariant: theme.onSurfaceVariant,
-              },
-            }}
+            theme={contentInputTheme}
           />
 
           <View style={styles.footer}>

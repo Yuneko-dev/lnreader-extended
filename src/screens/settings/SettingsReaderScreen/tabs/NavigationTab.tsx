@@ -11,6 +11,8 @@ import { getString } from '@strings/translations';
 import { List, Button } from '@components/index';
 import SettingSwitch from '../../components/SettingSwitch';
 
+const RenderBottomSheetInput = (props: any) => <BottomSheetTextInput {...props} />;
+
 const NavigationTab: React.FC = () => {
   const theme = useTheme();
   const {
@@ -26,6 +28,8 @@ const NavigationTab: React.FC = () => {
     einkRefreshOnPageTurn = false,
     setChapterGeneralSettings,
   } = useChapterGeneralSettings();
+
+  const textInputTheme = React.useMemo(() => ({ colors: { ...theme } }), [theme]);
 
   const { height: screenHeight } = useWindowDimensions();
 
@@ -51,7 +55,7 @@ const NavigationTab: React.FC = () => {
         {useVolumeButtons && (
           <View style={styles.inputContainer}>
             <TextInput
-              render={props => <BottomSheetTextInput {...(props as any)} />}
+              render={RenderBottomSheetInput}
               label={getString('readerSettings.volumeButtonsOffset')}
               mode="outlined"
               keyboardType="numeric"
@@ -67,7 +71,7 @@ const NavigationTab: React.FC = () => {
                 }
               }}
               style={styles.textInput}
-              theme={{ colors: { ...theme } }}
+              theme={textInputTheme}
             />
           </View>
         )}
@@ -135,7 +139,7 @@ const NavigationTab: React.FC = () => {
           <>
             <View style={styles.inputContainer}>
               <TextInput
-                render={props => <BottomSheetTextInput {...(props as any)} />}
+                render={RenderBottomSheetInput}
                 label={getString('readerSettings.autoScrollInterval')}
                 mode="outlined"
                 keyboardType="numeric"
@@ -148,12 +152,12 @@ const NavigationTab: React.FC = () => {
                   }
                 }}
                 style={styles.textInput}
-                theme={{ colors: { ...theme } }}
+                theme={textInputTheme}
               />
             </View>
             <View style={styles.inputContainer}>
               <TextInput
-                render={props => <BottomSheetTextInput {...(props as any)} />}
+                render={RenderBottomSheetInput}
                 label={getString('readerSettings.autoScrollOffset')}
                 mode="outlined"
                 keyboardType="numeric"
@@ -169,7 +173,7 @@ const NavigationTab: React.FC = () => {
                   }
                 }}
                 style={styles.textInput}
-                theme={{ colors: { ...theme } }}
+                theme={textInputTheme}
               />
             </View>
             {!areAutoScrollSettingsDefault && (

@@ -19,6 +19,8 @@ import { useChapterContext } from '@screens/reader/ChapterContext';
 import Slider from '@react-native-community/slider';
 import PromptManagerModal from './PromptManagerModal';
 
+const RenderBottomSheetInput = (props: any) => <BottomSheetTextInput {...props} />;
+
 const PROVIDERS: {
   label: string;
   value: LLMProviderSupported;
@@ -163,6 +165,18 @@ const TranslateTab: React.FC = () => {
     useState(false);
   const [apiModeMenuVisible, setApiModeMenuVisible] = useState(false);
   const [promptManagerVisible, setPromptManagerVisible] = useState(false);
+
+  const textInputTheme = React.useMemo(
+    () => ({
+      colors: {
+        primary: theme.primary,
+        background: theme.surface,
+        onSurface: theme.onSurface,
+        onSurfaceVariant: theme.onSurfaceVariant,
+      },
+    }),
+    [theme],
+  );
 
   const getLangLabel = (code: string) => {
     return supportedLanguagesList.find(l => l.value === code)?.label || code;
@@ -317,9 +331,7 @@ const TranslateTab: React.FC = () => {
               {(llmProvider === 'custom' || llmProvider === 'gemini') && (
                 <View style={styles.inputContainer}>
                   <TextInput
-                    render={props => (
-                      <BottomSheetTextInput {...(props as any)} />
-                    )}
+                    render={RenderBottomSheetInput}
                     label={
                       llmProvider === 'gemini'
                         ? getString(
@@ -342,20 +354,13 @@ const TranslateTab: React.FC = () => {
                     }
                     mode="outlined"
                     style={styles.input}
-                    theme={{
-                      colors: {
-                        primary: theme.primary,
-                        background: theme.surface,
-                        onSurface: theme.onSurface,
-                        onSurfaceVariant: theme.onSurfaceVariant,
-                      },
-                    }}
+                    theme={textInputTheme}
                   />
                 </View>
               )}
               <View style={styles.inputContainer}>
                 <TextInput
-                  render={props => <BottomSheetTextInput {...(props as any)} />}
+                  render={RenderBottomSheetInput}
                   label={getString(
                     'readerScreen.bottomSheet.translateTab.apiKey',
                   )}
@@ -366,19 +371,12 @@ const TranslateTab: React.FC = () => {
                   mode="outlined"
                   secureTextEntry
                   style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: theme.primary,
-                      background: theme.surface,
-                      onSurface: theme.onSurface,
-                      onSurfaceVariant: theme.onSurfaceVariant,
-                    },
-                  }}
+                  theme={textInputTheme}
                 />
               </View>
               <View style={[styles.modelRow, styles.inputContainer]}>
                 <TextInput
-                  render={props => <BottomSheetTextInput {...(props as any)} />}
+                  render={RenderBottomSheetInput}
                   label={getString(
                     'readerScreen.bottomSheet.translateTab.modelName',
                   )}
@@ -388,14 +386,7 @@ const TranslateTab: React.FC = () => {
                   }
                   mode="outlined"
                   style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                  theme={{
-                    colors: {
-                      primary: theme.primary,
-                      background: theme.surface,
-                      onSurface: theme.onSurface,
-                      onSurfaceVariant: theme.onSurfaceVariant,
-                    },
-                  }}
+                  theme={textInputTheme}
                 />
                 <Button
                   title={getString(

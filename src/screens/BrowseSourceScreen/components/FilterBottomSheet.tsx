@@ -34,6 +34,9 @@ import Switch from '@components/Switch/Switch';
 const insertOrRemoveIntoArray = (array: string[], val: string): string[] =>
   array.indexOf(val) > -1 ? array.filter(ele => ele !== val) : [...array, val];
 
+const RenderBottomSheetInput = (props: any) => <BottomSheetTextInput {...props} />;
+const transparentTheme = { colors: { background: 'transparent' } };
+
 type SelectedFilters = FilterToValues<Filters>;
 
 type OnFilterChange = (key: string, value: SelectedFilters[string]) => void;
@@ -71,7 +74,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
       return (
         <View style={styles.textContainer}>
           <TextInput
-            render={props => <BottomSheetTextInput {...(props as any)} />}
+            render={RenderBottomSheetInput}
             style={[styles.flex, { width: screenWidth - 48 }]}
             mode="outlined"
             label={
@@ -87,7 +90,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
               </Text>
             }
             defaultValue={value}
-            theme={{ colors: { background: 'transparent' } }}
+            theme={transparentTheme}
             outlineColor={theme.onSurface}
             textColor={theme.onSurface}
             onChangeText={text =>
@@ -132,7 +135,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
                   }
                   value={label}
                   editable={false}
-                  theme={{ colors: { background: 'transparent' } }}
+                  theme={transparentTheme}
                   outlineColor={isVisible ? theme.primary : theme.onSurface}
                   textColor={isVisible ? theme.primary : theme.onSurface}
                 />
