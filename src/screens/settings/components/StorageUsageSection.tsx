@@ -1,16 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useAppSettings, useTheme } from '@hooks/persisted';
+import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import NativeFile from '@specs/NativeFile';
-import SettingSwitch from './SettingSwitch';
 import { List } from '@components';
 import { showToast } from '@utils/showToast';
 
 export default function StorageUsageSection() {
   const theme = useTheme();
-  const { clearCacheOnExit, setAppSettings } = useAppSettings();
   const constants = NativeFile.getConstants();
 
   const [cacheSize, setCacheSize] = useState<number>(0);
@@ -136,13 +134,6 @@ export default function StorageUsageSection() {
           size: formatBytes(cacheSize, 2),
         })}
         onPress={handleClearCache}
-        theme={theme}
-      />
-
-      <SettingSwitch
-        label={getString('advancedSettingsScreen.clearCacheOnExit')}
-        value={clearCacheOnExit}
-        onPress={() => setAppSettings({ clearCacheOnExit: !clearCacheOnExit })}
         theme={theme}
       />
     </View>

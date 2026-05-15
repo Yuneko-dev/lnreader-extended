@@ -31,7 +31,6 @@ export interface StringMap {
   'advancedSettingsScreen.storageAvailable': 'string';
   'advancedSettingsScreen.cleanCache': 'string';
   'advancedSettingsScreen.cacheUsed': 'string';
-  'advancedSettingsScreen.clearCacheOnExit': 'string';
   'advancedSettingsScreen.cacheCleared': 'string';
   'advancedSettingsScreen.importEpub': 'string';
   'advancedSettingsScreen.importNovel': 'string';

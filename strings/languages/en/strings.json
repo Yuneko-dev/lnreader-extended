@@ -30,7 +30,6 @@
     "storageAvailable": "Available: %{available} / Total: %{total}",
     "cleanCache": "Clean up cache",
     "cacheUsed": "Used: %{size}",
-    "clearCacheOnExit": "Clear chapter cache on exit",
     "cacheCleared": "Cache cleared",
     "importEpub": "Import Epub",
     "importNovel": "Import Novel",

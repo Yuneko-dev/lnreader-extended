@@ -59,7 +59,6 @@ export interface AppSettings {
 
   hideBackdrop: boolean;
   defaultChapterSort: ChapterOrderKey;
-  clearCacheOnExit: boolean;
   swipeActionLeft: SwipeAction;
   swipeActionRight: SwipeAction;
 }
@@ -207,7 +206,6 @@ const initialAppSettings: AppSettings = {
 
   hideBackdrop: false,
   defaultChapterSort: 'positionAsc',
-  clearCacheOnExit: false,
   swipeActionLeft: 'disabled',
   swipeActionRight: 'disabled',
 };

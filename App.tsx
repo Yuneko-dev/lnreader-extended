@@ -4,7 +4,7 @@ import { enableFreeze } from 'react-native-screens';
 enableFreeze(true);
 
 import React, { Suspense, useEffect } from 'react';
-import { AppState, NativeModules, StatusBar, StyleSheet } from 'react-native';
+import { NativeModules, StatusBar, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LottieSplashScreen from 'react-native-lottie-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -22,8 +22,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useInitDatabase } from '@database/db';
 import { ThemeProvider } from '@hooks/persisted/useTheme';
 import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
-import { useSecuritySettings, useLibrarySettings, useAppSettings } from '@hooks/persisted/useSettings';
-import NativeFile from '@specs/NativeFile';
+import { useSecuritySettings, useLibrarySettings } from '@hooks/persisted/useSettings';
 import { initLocalServer } from '@plugins/local/localServerManager';
 import FileViewer from 'react-native-file-viewer';
 import { showToast } from '@utils/showToast';
@@ -71,37 +70,6 @@ const useScreenProtection = () => {
 };
 
 /**
- * Clear chapter cache on app exit/backgrounded
- */
-const useClearCacheOnExit = () => {
-  const { clearCacheOnExit } = useAppSettings();
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (nextAppState.match(/inactive|background/) && clearCacheOnExit) {
-        const constants = NativeFile.getConstants();
-
-        try {
-          NativeFile.unlink(constants.ExternalCachesDirectoryPath);
-        } catch (e) {
-          console.error(e);
-        }
-
-        try {
-          NativeFile.mkdir(constants.ExternalCachesDirectoryPath);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [clearCacheOnExit]);
-};
-
-/**
  * Cancel stuck backup tasks from previous sessions
  */
 const useCancelStuckBackupTasks = () => {
@@ -131,7 +99,6 @@ const AppContent = () => {
   const { isLocked, isCredentialsRevoked, authenticate, dismissRevoked } =
     useAppLock();
   useScreenProtection();
-  useClearCacheOnExit();
   useCancelStuckBackupTasks();
 
   useEffect(() => {
