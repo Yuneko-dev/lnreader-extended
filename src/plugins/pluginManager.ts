@@ -65,6 +65,7 @@ const packages: Record<string, any> = {
     encodeHtmlEntities,
     decodeHtmlEntities,
     NodeCrypto, 
+    getUserAgent,
   },
   '@libs/cookie': {
     set: CookieManager.set,
