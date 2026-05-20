@@ -17,8 +17,14 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
     override fun removeListeners(count: Double) {
     }
 
+    override fun setActive(active: Boolean) {
+        readerActive = active
+    }
+
     companion object {
         private lateinit var appContext: ReactApplicationContext
+        @Volatile
+        private var readerActive = false
 
         const val EVENT_NEXT_PAGE = "SPenRemoteNextPage"
         const val EVENT_PREV_PAGE = "SPenRemotePrevPage"
@@ -31,10 +37,10 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
                 KeyEvent.KEYCODE_PAGE_UP,
                 KeyEvent.KEYCODE_F7,
                 KeyEvent.KEYCODE_F8
-            )
+        )
 
         val isActive: Boolean
-            get() = ::appContext.isInitialized
+            get() = ::appContext.isInitialized && readerActive
 
         fun shouldHandleKeyCode(keyCode: Int): Boolean =
             isActive && handledKeyCodes.contains(keyCode)
