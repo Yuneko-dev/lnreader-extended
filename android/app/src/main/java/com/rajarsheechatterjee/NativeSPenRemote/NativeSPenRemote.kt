@@ -1,6 +1,7 @@
 package com.rajarsheechatterjee.NativeSPenRemote
 
 import android.view.KeyEvent
+import android.view.InputDevice
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.lnreader.spec.NativeSPenRemoteSpec
@@ -38,7 +39,7 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
         )
 
         val isActive: Boolean
-            get() = ::appContext.isInitialized && listenerCount > 0
+            get() = ::appContext.isInitialized
 
         fun shouldHandleKeyCode(keyCode: Int): Boolean =
             isActive && handledKeyCodes.contains(keyCode)
@@ -46,12 +47,23 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
         fun shouldHandleKeyEvent(event: KeyEvent): Boolean =
             shouldHandleKeyCode(event.keyCode)
 
+        fun shouldConsumeKeyEvent(event: KeyEvent): Boolean =
+            shouldHandleKeyEvent(event) && (listenerCount > 0 || !isPhysicalKeyboardEvent(event))
+
         fun handleKeyEvent(event: KeyEvent): Boolean {
             if (!shouldHandleKeyEvent(event)) {
                 return false
             }
 
+            if (listenerCount == 0 && isPhysicalKeyboardEvent(event)) {
+                return false
+            }
+
             if (event.action != KeyEvent.ACTION_DOWN || event.repeatCount > 0) {
+                return true
+            }
+
+            if (listenerCount == 0) {
                 return true
             }
 
@@ -60,6 +72,12 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit(eventName, null)
             return true
+        }
+
+        private fun isPhysicalKeyboardEvent(event: KeyEvent): Boolean {
+            val device = event.device ?: return false
+            return device.keyboardType == InputDevice.KEYBOARD_TYPE_ALPHABETIC &&
+                !device.name.contains("S Pen", ignoreCase = true)
         }
 
         private fun getEventName(keyCode: Int): String? =

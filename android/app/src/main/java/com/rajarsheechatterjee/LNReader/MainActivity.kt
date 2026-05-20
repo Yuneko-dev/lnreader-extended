@@ -60,7 +60,7 @@ class MainActivity : ReactActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        if (NativeSPenRemote.shouldHandleKeyCode(keyCode)) {
+        if (NativeSPenRemote.shouldConsumeKeyEvent(event)) {
             return true
         }
 
