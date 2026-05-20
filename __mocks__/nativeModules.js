@@ -59,7 +59,6 @@ jest.mock('@specs/NativeVolumeButtonListener', () => ({
 jest.mock('@specs/NativeSPenRemote', () => ({
   __esModule: true,
   default: {
-    setActive: jest.fn(),
     addListener: jest.fn(),
     removeListeners: jest.fn(),
   },

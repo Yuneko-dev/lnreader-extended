@@ -12,19 +12,17 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
     }
 
     override fun addListener(eventName: String?) {
+        listenerCount += 1
     }
 
     override fun removeListeners(count: Double) {
-    }
-
-    override fun setActive(active: Boolean) {
-        readerActive = active
+        listenerCount = (listenerCount - count.toInt()).coerceAtLeast(0)
     }
 
     companion object {
         private lateinit var appContext: ReactApplicationContext
         @Volatile
-        private var readerActive = false
+        private var listenerCount = 0
 
         const val EVENT_NEXT_PAGE = "SPenRemoteNextPage"
         const val EVENT_PREV_PAGE = "SPenRemotePrevPage"
@@ -40,7 +38,7 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
         )
 
         val isActive: Boolean
-            get() = ::appContext.isInitialized && readerActive
+            get() = ::appContext.isInitialized && listenerCount > 0
 
         fun shouldHandleKeyCode(keyCode: Int): Boolean =
             isActive && handledKeyCodes.contains(keyCode)

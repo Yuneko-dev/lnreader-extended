@@ -45,7 +45,6 @@ import * as Speech from 'expo-speech';
 import { defaultTo } from 'lodash-es';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
-import { useFocusEffect } from '@react-navigation/native';
 import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
 import NativeSPenRemote from '@specs/NativeSPenRemote';
 import NativeFile from '@specs/NativeFile';
@@ -663,16 +662,6 @@ export default function useChapter(
       disconnect();
     };
   }, [connectSPenRemote]);
-
-  useFocusEffect(
-    useCallback(() => {
-      NativeSPenRemote?.setActive(true);
-
-      return () => {
-        NativeSPenRemote?.setActive(false);
-      };
-    }, []),
-  );
 
   useEffect(() => {
     if (!incognitoMode) {
