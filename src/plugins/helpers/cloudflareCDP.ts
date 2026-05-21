@@ -1,4 +1,4 @@
-import NativeCDPProxy from '../../../specs/NativeCDPProxy';
+import NativeCDPProxy from '@specs/NativeCDPProxy';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

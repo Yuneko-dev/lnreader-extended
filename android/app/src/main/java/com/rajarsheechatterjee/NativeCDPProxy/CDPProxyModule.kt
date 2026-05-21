@@ -79,7 +79,9 @@ class CDPProxyModule(reactContext: ReactApplicationContext) : NativeCDPProxySpec
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    if (isProxyRunning) {
+                        e.printStackTrace()
+                    }
                 }
             }
             promise.resolve(allocatedPort)

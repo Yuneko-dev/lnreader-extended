@@ -7,6 +7,7 @@ interface Task {
   url: string;
   type: 'interstitial' | 'turnstile';
   resolve: (value: boolean) => void;
+  timeoutId: NodeJS.Timeout;
 }
 
 interface CloudflareState {
@@ -23,7 +24,11 @@ export const useCloudflareStore = create<CloudflareState>((set, get) => ({
   tasks: [],
   pushTask: (url, type) => {
     return new Promise(resolve => {
-      const newTask = { id: ++taskId, url, type, resolve };
+      const id = ++taskId;
+      const timeoutId = setTimeout(() => {
+        get().completeTask(id, false);
+      }, 45000);
+      const newTask = { id, url, type, resolve, timeoutId };
       set(state => ({ tasks: [...state.tasks, newTask] }));
     });
   },
@@ -31,6 +36,7 @@ export const useCloudflareStore = create<CloudflareState>((set, get) => ({
     const { tasks } = get();
     const taskIndex = tasks.findIndex(t => t.id === id);
     if (taskIndex !== -1) {
+      clearTimeout(tasks[taskIndex].timeoutId);
       tasks[taskIndex].resolve(result);
       set(state => ({ tasks: state.tasks.filter(t => t.id !== id) }));
     }
