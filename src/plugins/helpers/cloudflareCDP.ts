@@ -28,7 +28,7 @@ class CDPClient {
           }
           this.pendingRequests.delete(response.id);
         }
-      } catch (e) {
+      } catch {
         // Ignore parse errors
       }
     };
@@ -41,7 +41,7 @@ class CDPClient {
       this.pendingRequests.clear();
     };
 
-    this.ws.onerror = e => {
+    this.ws.onerror = () => {
       this.isOpen = false;
       this.pendingRequests.forEach(req =>
         req.reject(new Error('WebSocket error')),
@@ -294,7 +294,7 @@ export async function solveCloudflare(
     if (client) {
       try {
         client.close();
-      } catch (e) {}
+      } catch {}
     }
     return false;
   }
