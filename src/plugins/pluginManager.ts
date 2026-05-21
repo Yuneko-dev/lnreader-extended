@@ -42,6 +42,7 @@ import { downloadFile, fetchApi, fetchProto, fetchText } from './helpers/fetch';
 import { FilterTypes } from './types/filterTypes';
 import { isUrlAbsolute } from './helpers/isAbsoluteUrl';
 import { localPlugin } from './local/LocalPlugin';
+import { solveCloudflareAPI } from './helpers/cloudflareStore';
 
 const getBypassCacheUrl = (url: string) => {
   return `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
@@ -66,6 +67,7 @@ const packages: Record<string, any> = {
     decodeHtmlEntities,
     NodeCrypto,
     getUserAgent,
+    solveCloudflare: solveCloudflareAPI,
   },
   '@libs/cookie': {
     set: CookieManager.set,

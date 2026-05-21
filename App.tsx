@@ -22,6 +22,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useInitDatabase } from '@database/db';
 import { ThemeProvider } from '@hooks/persisted/useTheme';
 import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
+import { CloudflareSolverOverlay } from '@plugins/helpers/CloudflareSolverOverlay';
 import { useSecuritySettings, useLibrarySettings } from '@hooks/persisted/useSettings';
 import { initLocalServer } from '@plugins/local/localServerManager';
 import FileViewer from 'react-native-file-viewer';
@@ -130,6 +131,7 @@ const AppContent = () => {
         isCredentialsRevoked={isCredentialsRevoked}
         onDismissRevoked={dismissRevoked}
       />
+      <CloudflareSolverOverlay />
     </>
   );
 };
