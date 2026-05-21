@@ -5,8 +5,10 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 class CDPClient {
   ws: WebSocket;
   messageId: number = 1;
-  pendingRequests: Map<number, { resolve: Function; reject: Function }> =
-    new Map();
+  pendingRequests: Map<
+    number,
+    { resolve: Function; reject: Function; timeout: NodeJS.Timeout }
+  > = new Map();
   isOpen: boolean = false;
 
   constructor(wsUrl: string) {
@@ -20,7 +22,10 @@ class CDPClient {
       try {
         const response = JSON.parse(event.data);
         if (response.id && this.pendingRequests.has(response.id)) {
-          const { resolve, reject } = this.pendingRequests.get(response.id)!;
+          const { resolve, reject, timeout } = this.pendingRequests.get(
+            response.id,
+          )!;
+          clearTimeout(timeout);
           if (response.error) {
             reject(response.error);
           } else {
@@ -35,17 +40,19 @@ class CDPClient {
 
     this.ws.onclose = () => {
       this.isOpen = false;
-      this.pendingRequests.forEach(req =>
-        req.reject(new Error('WebSocket closed')),
-      );
+      this.pendingRequests.forEach(req => {
+        clearTimeout(req.timeout);
+        req.reject(new Error('WebSocket closed'));
+      });
       this.pendingRequests.clear();
     };
 
     this.ws.onerror = () => {
       this.isOpen = false;
-      this.pendingRequests.forEach(req =>
-        req.reject(new Error('WebSocket error')),
-      );
+      this.pendingRequests.forEach(req => {
+        clearTimeout(req.timeout);
+        req.reject(new Error('WebSocket error'));
+      });
       this.pendingRequests.clear();
     };
   }
@@ -69,14 +76,9 @@ class CDPClient {
       }, 10000);
 
       this.pendingRequests.set(id, {
-        resolve: (res: any) => {
-          clearTimeout(timeout);
-          resolve(res);
-        },
-        reject: (err: any) => {
-          clearTimeout(timeout);
-          reject(err);
-        },
+        resolve,
+        reject,
+        timeout,
       });
 
       if (this.isOpen) {
@@ -152,14 +154,26 @@ export async function solveCloudflare(
     NativeCDPProxy.enableWebViewDebugging();
     const port = await NativeCDPProxy.startProxy();
 
-    // 2. Fetch targets to find our WebView
-    const res = await fetch(`http://127.0.0.1:${port}/json/list`);
-    const targets = await res.json();
+    let target: any = null;
+    let targetAttempts = 0;
+    while (targetAttempts < 20 && !target) {
+      try {
+        const res = await fetch(`http://127.0.0.1:${port}/json/list`);
+        const targets = await res.json();
+        target = targets.find(
+          (t: any) => t.url.includes(url) || url.includes(t.url),
+        );
+      } catch {
+        // proxy might be starting
+      }
+      if (!target) {
+        await sleep(500);
+        targetAttempts++;
+      }
+    }
 
-    const target = targets.find(
-      (t: any) => t.url.includes(url) || url.includes(t.url),
-    );
     if (!target || !target.webSocketDebuggerUrl) {
+      console.error('[solveCloudflare] Target WebView not found for URL:', url);
       return false;
     }
 
@@ -291,11 +305,13 @@ export async function solveCloudflare(
     return solved;
   } catch (err) {
     console.error('[solveCloudflare] Error:', err);
+    return false;
+  } finally {
     if (client) {
       try {
         client.close();
       } catch {}
     }
-    return false;
+    NativeCDPProxy.stopProxy();
   }
 }

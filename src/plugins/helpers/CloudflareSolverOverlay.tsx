@@ -6,18 +6,19 @@ import { solveCloudflare } from './cloudflareCDP';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
 
 export const CloudflareSolverOverlay = () => {
-  const { task, completeTask } = useCloudflareStore();
+  const { tasks, completeTask } = useCloudflareStore();
+  const task = tasks[0];
 
   useEffect(() => {
     if (task) {
       let isCancelled = false;
       solveCloudflare(task.url, task.type)
         .then(result => {
-          if (!isCancelled) completeTask(result);
+          if (!isCancelled) completeTask(task.id, result);
         })
         .catch(err => {
           console.error('[CloudflareSolverOverlay] Error:', err);
-          if (!isCancelled) completeTask(false);
+          if (!isCancelled) completeTask(task.id, false);
         });
 
       return () => {
@@ -39,7 +40,7 @@ export const CloudflareSolverOverlay = () => {
       {isDev && (
         <View style={styles.header}>
           <Text style={styles.title}>Cloudflare Solver (DEV)</Text>
-          <Button title="Close" onPress={() => completeTask(false)} />
+          <Button title="Close" onPress={() => completeTask(task.id, false)} />
         </View>
       )}
       <WebView

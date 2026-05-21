@@ -5,18 +5,15 @@ import android.net.LocalSocketAddress
 import android.os.Process
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.UiThreadUtil
-import com.facebook.react.module.annotations.ReactModule
+import com.lnreader.spec.NativeCDPProxySpec
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetAddress
 import java.net.ServerSocket
 import kotlin.concurrent.thread
 
-@ReactModule(name = CDPProxyModule.NAME)
-class CDPProxyModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class CDPProxyModule(reactContext: ReactApplicationContext) : NativeCDPProxySpec(reactContext) {
 
     companion object {
         const val NAME = "NativeCDPProxy"
@@ -30,15 +27,13 @@ class CDPProxyModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
     private var isProxyRunning = false
     private val activeClients = java.util.Collections.synchronizedList(mutableListOf<java.net.Socket>())
 
-    @ReactMethod
-    fun enableWebViewDebugging() {
+    override fun enableWebViewDebugging() {
         UiThreadUtil.runOnUiThread {
             android.webkit.WebView.setWebContentsDebuggingEnabled(true)
         }
     }
 
-    @ReactMethod
-    fun startProxy(promise: Promise) {
+    override fun startProxy(promise: Promise) {
         if (isProxyRunning && serverSocket != null) {
             promise.resolve(serverSocket!!.localPort)
             return
@@ -93,8 +88,7 @@ class CDPProxyModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
         }
     }
 
-    @ReactMethod
-    fun stopProxy() {
+    override fun stopProxy() {
         isProxyRunning = false
         try {
             serverSocket?.close()

@@ -8,27 +8,29 @@ interface Task {
 }
 
 interface CloudflareState {
-  task: Task | null;
+  tasks: Task[];
   pushTask: (
     url: string,
     type: 'interstitial' | 'turnstile',
   ) => Promise<boolean>;
-  completeTask: (result: boolean) => void;
+  completeTask: (id: number, result: boolean) => void;
 }
 
 let taskId = 0;
 export const useCloudflareStore = create<CloudflareState>((set, get) => ({
-  task: null,
+  tasks: [],
   pushTask: (url, type) => {
     return new Promise(resolve => {
-      set({ task: { id: ++taskId, url, type, resolve } });
+      const newTask = { id: ++taskId, url, type, resolve };
+      set(state => ({ tasks: [...state.tasks, newTask] }));
     });
   },
-  completeTask: result => {
-    const task = get().task;
-    if (task) {
-      task.resolve(result);
-      set({ task: null });
+  completeTask: (id, result) => {
+    const { tasks } = get();
+    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (taskIndex !== -1) {
+      tasks[taskIndex].resolve(result);
+      set(state => ({ tasks: state.tasks.filter(t => t.id !== id) }));
     }
   },
 }));
