@@ -25,6 +25,7 @@ import { getUserAgentSync } from 'react-native-device-info';
 import CookieManager from '@preeternal/react-native-cookie-manager';
 import { store } from '@plugins/helpers/storage';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import NativeLocalServer from '@specs/NativeLocalServer';
 
 const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   const theme = useTheme();
@@ -39,7 +40,8 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   };
 
   const { userAgent, setUserAgent } = useUserAgent();
-  const { verboseLogging, setAppSettings } = useAppSettings();
+  const appSettings = useAppSettings();
+  const { verboseLogging, setAppSettings } = appSettings;
   const [userAgentInput, setUserAgentInput] = useState(userAgent);
   /**
    * Confirm Clear Database Dialog
@@ -128,6 +130,33 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
               showToast(
                 getString('advancedSettingsScreen.restartRequiredToast'),
               );
+            }}
+            theme={theme}
+          />
+          <SettingSwitch
+            label={getString('advancedSettingsScreen.allowCloudflareBypass')}
+            description={getString(
+              'advancedSettingsScreen.allowCloudflareBypassDesc',
+            )}
+            value={appSettings.allowCloudflareBypass}
+            onPress={() => {
+              setAppSettings({
+                allowCloudflareBypass: !appSettings.allowCloudflareBypass,
+              });
+              showToast(
+                getString('advancedSettingsScreen.restartRequiredToast'),
+              );
+            }}
+            theme={theme}
+          />
+          <SettingSwitch
+            label={getString('advancedSettingsScreen.allowProxyAPI')}
+            description={getString('advancedSettingsScreen.allowProxyAPIDesc')}
+            value={appSettings.allowProxyAPI}
+            onPress={() => {
+              const newValue = !appSettings.allowProxyAPI;
+              setAppSettings({ allowProxyAPI: newValue });
+              NativeLocalServer.setAllowProxyAPI(newValue);
             }}
             theme={theme}
           />

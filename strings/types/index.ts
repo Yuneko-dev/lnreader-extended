@@ -43,6 +43,10 @@ export interface StringMap {
   'advancedSettingsScreen.recreateDBIndexesDialogTitle': 'string';
   'advancedSettingsScreen.recreateDBIndexesDesc': 'string';
   'advancedSettingsScreen.developer': 'string';
+  'advancedSettingsScreen.allowCloudflareBypass': 'string';
+  'advancedSettingsScreen.allowCloudflareBypassDesc': 'string';
+  'advancedSettingsScreen.allowProxyAPI': 'string';
+  'advancedSettingsScreen.allowProxyAPIDesc': 'string';
   'advancedSettingsScreen.verboseLogging': 'string';
   'advancedSettingsScreen.verboseLoggingDesc': 'string';
   'advancedSettingsScreen.restartRequiredToast': 'string';

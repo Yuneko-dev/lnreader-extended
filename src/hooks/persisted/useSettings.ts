@@ -26,6 +26,8 @@ export interface AppSettings {
   incognitoMode: boolean;
   disableHapticFeedback: boolean;
   verboseLogging: boolean;
+  allowCloudflareBypass: boolean;
+  allowProxyAPI: boolean;
 
   /**
    * Appearence settings
@@ -173,6 +175,8 @@ const initialAppSettings: AppSettings = {
   incognitoMode: false,
   disableHapticFeedback: false,
   verboseLogging: false,
+  allowCloudflareBypass: false,
+  allowProxyAPI: false,
 
   /**
    * Appearence settings
@@ -297,6 +301,7 @@ export const useAppSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialAppSettings,
       ...appSettings,
       setAppSettings,
     }),
@@ -316,6 +321,7 @@ export const useBrowseSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialBrowseSettings,
       ...browseSettings,
       setBrowseSettings,
     }),
@@ -370,6 +376,7 @@ export const useChapterGeneralSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialChapterGeneralSettings,
       ...chapterGeneralSettings,
       setChapterGeneralSettings,
     }),
@@ -472,6 +479,7 @@ export const useTranslateSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialTranslateSettings,
       ...translateSettings,
       setTranslateSettings,
     }),
@@ -518,6 +526,7 @@ export const useSecuritySettings = () => {
 
   return useMemo(
     () => ({
+      ...initialSecuritySettings,
       ...securitySettings,
       setSecuritySettings,
     }),

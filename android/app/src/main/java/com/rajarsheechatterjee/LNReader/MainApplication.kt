@@ -22,6 +22,7 @@ import com.rajarsheechatterjee.NativeZipArchive.NativeZipArchivePackage
 import com.rajarsheechatterjee.NativeEpub.NativeEpubPackage
 import com.rajarsheechatterjee.LocalServer.LocalServerPackage
 import com.rajarsheechatterjee.TikTokTTS.TikTokTTSPackage
+import com.rajarsheechatterjee.NativeCDPProxy.CDPProxyPackage
 import expo.modules.ApplicationLifecycleDispatcher
 
 import com.facebook.react.modules.network.OkHttpClientProvider
@@ -51,6 +52,7 @@ class MainApplication : Application(), ReactApplication {
                     add(NativeEpubPackage())
                     add(LocalServerPackage())
                     add(TikTokTTSPackage())
+                    add(CDPProxyPackage())
                 }
 
             override fun getJSMainModuleName(): String = "index"

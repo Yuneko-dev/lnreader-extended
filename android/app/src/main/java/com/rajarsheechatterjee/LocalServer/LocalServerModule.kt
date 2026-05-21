@@ -12,6 +12,7 @@ class LocalServerModule(context: ReactApplicationContext) : NativeLocalServerSpe
         private const val TAG = "LocalServerModule"
         @Volatile private var mHttpServer: LocalHttpServer? = null
         @Volatile private var mServerUrl: String = ""
+        @Volatile private var mAllowProxyAPI: Boolean = false
     }
 
     @ReactMethod
@@ -29,6 +30,7 @@ class LocalServerModule(context: ReactApplicationContext) : NativeLocalServerSpe
 
             // Use port 0 to let the OS assign a random available port
             val httpServer = LocalHttpServer(0, novelsPath)
+            httpServer.allowProxyAPI = mAllowProxyAPI
             httpServer.start()
 
             mHttpServer = httpServer
@@ -57,5 +59,10 @@ class LocalServerModule(context: ReactApplicationContext) : NativeLocalServerSpe
 
     override fun getServerUrl(): String {
         return mServerUrl
+    }
+
+    override fun setAllowProxyAPI(allow: Boolean) {
+        mAllowProxyAPI = allow
+        mHttpServer?.allowProxyAPI = allow
     }
 }
