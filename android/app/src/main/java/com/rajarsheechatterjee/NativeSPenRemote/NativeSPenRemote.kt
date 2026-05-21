@@ -1,7 +1,7 @@
 package com.rajarsheechatterjee.NativeSPenRemote
 
-import android.view.KeyEvent
 import android.view.InputDevice
+import android.view.KeyEvent
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.lnreader.spec.NativeSPenRemoteSpec
@@ -36,7 +36,7 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
                 KeyEvent.KEYCODE_PAGE_UP,
                 KeyEvent.KEYCODE_F7,
                 KeyEvent.KEYCODE_F8
-        )
+            )
 
         val isActive: Boolean
             get() = ::appContext.isInitialized
@@ -48,22 +48,18 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
             shouldHandleKeyCode(event.keyCode)
 
         fun shouldConsumeKeyEvent(event: KeyEvent): Boolean =
-            shouldHandleKeyEvent(event) && (listenerCount > 0 || !isPhysicalKeyboardEvent(event))
+            shouldHandleKeyEvent(event) && !shouldPassThroughPhysicalKeyboard(event)
 
         fun handleKeyEvent(event: KeyEvent): Boolean {
             if (!shouldHandleKeyEvent(event)) {
                 return false
             }
 
-            if (listenerCount == 0 && isPhysicalKeyboardEvent(event)) {
+            if (shouldPassThroughPhysicalKeyboard(event)) {
                 return false
             }
 
             if (event.action != KeyEvent.ACTION_DOWN || event.repeatCount > 0) {
-                return true
-            }
-
-            if (listenerCount == 0) {
                 return true
             }
 
@@ -74,10 +70,25 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
             return true
         }
 
-        private fun isPhysicalKeyboardEvent(event: KeyEvent): Boolean {
+        private fun shouldPassThroughPhysicalKeyboard(event: KeyEvent): Boolean =
+            listenerCount == 0 && isExternalPhysicalKeyboardEvent(event)
+
+        private fun isExternalPhysicalKeyboardEvent(event: KeyEvent): Boolean {
             val device = event.device ?: return false
-            return device.keyboardType == InputDevice.KEYBOARD_TYPE_ALPHABETIC &&
-                !device.name.contains("S Pen", ignoreCase = true)
+
+            if (!event.isFromSource(InputDevice.SOURCE_KEYBOARD)) {
+                return false
+            }
+
+            if (!device.isExternal) {
+                return false
+            }
+
+            if (device.keyboardType != InputDevice.KEYBOARD_TYPE_ALPHABETIC) {
+                return false
+            }
+
+            return true
         }
 
         private fun getEventName(keyCode: Int): String? =
