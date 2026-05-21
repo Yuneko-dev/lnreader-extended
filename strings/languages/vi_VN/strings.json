@@ -44,6 +44,8 @@
     "developer": "Nhà phát triển",
     "allowCloudflareBypass": "Cho phép plugin sử dụng API bypass Cloudflare",
     "allowCloudflareBypassDesc": "Bật tính năng vượt qua Cloudflare Turnstile cho các plugin. Yêu cầu khởi động lại ứng dụng.",
+    "allowProxyAPI": "Cho phép plugin sử dụng Proxy API",
+    "allowProxyAPIDesc": "Bật tính năng Proxy API cho LocalHttpServer để giúp plugin vượt qua CORS. Áp dụng ngay lập tức.",
     "verboseLogging": "Ghi nhật ký chi tiết",
     "verboseLoggingDesc": "In các ghi chép tường tận đến cả hệ thống (giảm hiệu suất)",
     "restartRequiredToast": "Vui lòng khởi động lại ứng dụng để áp dụng thay đổi"

@@ -23,6 +23,8 @@ class LocalHttpServer(port: Int, private val basePath: String) : NanoHTTPD("127.
         private val EMPTY_BYTE_ARRAY = ByteArray(0)
     }
 
+    var allowProxyAPI: Boolean = false
+
     override fun serve(session: IHTTPSession): Response {
         val uri = session.uri ?: return newFixedLengthResponse(
             Response.Status.BAD_REQUEST, "text/plain", "Bad request"
@@ -39,6 +41,13 @@ class LocalHttpServer(port: Int, private val basePath: String) : NanoHTTPD("127.
         }
 
         if (uri.startsWith("/proxy")) {
+            if (!allowProxyAPI) {
+                val errRes = newFixedLengthResponse(Response.Status.FORBIDDEN, "text/plain", "Proxy API is disabled in settings")
+                val origin = session.headers["origin"] ?: "*"
+                errRes.addHeader("Access-Control-Allow-Origin", origin)
+                errRes.addHeader("Access-Control-Allow-Credentials", "true")
+                return errRes
+            }
             return handleProxyRequest(session)
         }
 

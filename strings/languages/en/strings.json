@@ -44,6 +44,8 @@
     "developer": "Developer",
     "allowCloudflareBypass": "Allow plugins to use Cloudflare bypass API",
     "allowCloudflareBypassDesc": "Enables the Cloudflare Turnstile bypass API for plugins. Requires app restart.",
+    "allowProxyAPI": "Allow plugins to use Proxy API",
+    "allowProxyAPIDesc": "Enables the LocalHttpServer Proxy API used by plugins to bypass CORS. Takes effect immediately.",
     "verboseLogging": "Verbose Logging",
     "verboseLoggingDesc": "Print detailed logs including system logs (reduces performance)",
     "restartRequiredToast": "Please restart the app to apply changes"

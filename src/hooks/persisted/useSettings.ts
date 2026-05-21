@@ -27,6 +27,7 @@ export interface AppSettings {
   disableHapticFeedback: boolean;
   verboseLogging: boolean;
   allowCloudflareBypass: boolean;
+  allowProxyAPI: boolean;
 
   /**
    * Appearence settings
@@ -175,6 +176,7 @@ const initialAppSettings: AppSettings = {
   disableHapticFeedback: false,
   verboseLogging: false,
   allowCloudflareBypass: false,
+  allowProxyAPI: false,
 
   /**
    * Appearence settings

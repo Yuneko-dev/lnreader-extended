@@ -1,4 +1,6 @@
 import NativeLocalServer from '@specs/NativeLocalServer';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 
 let serverStarted = false;
 
@@ -15,6 +17,16 @@ export const initLocalServer = async (): Promise<void> => {
     return;
   }
   try {
+    const appSettingsStr = MMKVStorage.getString(APP_SETTINGS);
+    let allowProxyAPI = false;
+    if (appSettingsStr) {
+      try {
+        const settings = JSON.parse(appSettingsStr);
+        allowProxyAPI = !!settings.allowProxyAPI;
+      } catch {}
+    }
+    NativeLocalServer.setAllowProxyAPI(allowProxyAPI);
+
     console.info('[LocalServer] Starting server...');
     const port = await NativeLocalServer.startServer();
     serverStarted = true;
