@@ -7,7 +7,7 @@ export interface Spec extends TurboModule {
 
 const NativeSPenRemote =
   Platform.OS === 'android'
-    ? TurboModuleRegistry.get<Spec>('NativeSPenRemote')
+    ? TurboModuleRegistry.getEnforcing<Spec>('NativeSPenRemote')
     : null;
 
 export default NativeSPenRemote;
