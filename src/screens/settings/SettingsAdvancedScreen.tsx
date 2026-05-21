@@ -39,7 +39,8 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   };
 
   const { userAgent, setUserAgent } = useUserAgent();
-  const { verboseLogging, setAppSettings } = useAppSettings();
+  const appSettings = useAppSettings();
+  const { verboseLogging, setAppSettings } = appSettings;
   const [userAgentInput, setUserAgentInput] = useState(userAgent);
   /**
    * Confirm Clear Database Dialog
@@ -125,6 +126,22 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             value={verboseLogging}
             onPress={() => {
               setAppSettings({ verboseLogging: !verboseLogging });
+              showToast(
+                getString('advancedSettingsScreen.restartRequiredToast'),
+              );
+            }}
+            theme={theme}
+          />
+          <SettingSwitch
+            label={getString('advancedSettingsScreen.allowCloudflareBypass')}
+            description={getString(
+              'advancedSettingsScreen.allowCloudflareBypassDesc',
+            )}
+            value={appSettings.allowCloudflareBypass}
+            onPress={() => {
+              setAppSettings({
+                allowCloudflareBypass: !appSettings.allowCloudflareBypass,
+              });
               showToast(
                 getString('advancedSettingsScreen.restartRequiredToast'),
               );

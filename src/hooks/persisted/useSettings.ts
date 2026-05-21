@@ -26,6 +26,7 @@ export interface AppSettings {
   incognitoMode: boolean;
   disableHapticFeedback: boolean;
   verboseLogging: boolean;
+  allowCloudflareBypass: boolean;
 
   /**
    * Appearence settings
@@ -173,6 +174,7 @@ const initialAppSettings: AppSettings = {
   incognitoMode: false,
   disableHapticFeedback: false,
   verboseLogging: false,
+  allowCloudflareBypass: false,
 
   /**
    * Appearence settings

@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 
 interface Task {
   id: number;
@@ -35,9 +37,22 @@ export const useCloudflareStore = create<CloudflareState>((set, get) => ({
   },
 }));
 
+const appSettingsStr = MMKVStorage.getString(APP_SETTINGS);
+let initialAllowBypass = false;
+if (appSettingsStr) {
+  try {
+    const settings = JSON.parse(appSettingsStr);
+    initialAllowBypass = !!settings.allowCloudflareBypass;
+  } catch {}
+}
+
 export const solveCloudflareAPI = async (
   url: string,
   type: 'interstitial' | 'turnstile' = 'turnstile',
 ): Promise<boolean> => {
+  if (!initialAllowBypass) {
+    throw new Error('Cloudflare bypass is disabled in settings.');
+  }
+
   return useCloudflareStore.getState().pushTask(url, type);
 };

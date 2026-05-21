@@ -42,6 +42,8 @@
     "recreateDBIndexesDialogTitle": "Tất cả DB indexes sẽ được tạo lại.\nViệc này có thể mất một lúc.",
     "recreateDBIndexesDesc": "Tạo lại DB indexes. Việc này có thể cải thiện hiệu năng trên các thiết bị chậm hơn.",
     "developer": "Nhà phát triển",
+    "allowCloudflareBypass": "Cho phép plugin sử dụng API bypass Cloudflare",
+    "allowCloudflareBypassDesc": "Bật tính năng vượt qua Cloudflare Turnstile cho các plugin. Yêu cầu khởi động lại ứng dụng.",
     "verboseLogging": "Ghi nhật ký chi tiết",
     "verboseLoggingDesc": "In các ghi chép tường tận đến cả hệ thống (giảm hiệu suất)",
     "restartRequiredToast": "Vui lòng khởi động lại ứng dụng để áp dụng thay đổi"
