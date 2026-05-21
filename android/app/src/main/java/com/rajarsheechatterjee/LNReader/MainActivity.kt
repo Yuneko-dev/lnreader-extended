@@ -48,6 +48,10 @@ class MainActivity : ReactActivity() {
             }
         }
 
+        if (NativeSPenRemote.handleKeyEvent(event)) {
+            return true
+        }
+
         return super.dispatchKeyEvent(event)
     }
 
