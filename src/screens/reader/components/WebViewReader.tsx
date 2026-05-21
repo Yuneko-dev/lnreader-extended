@@ -46,6 +46,7 @@ import {
 } from '@utils/ttsNotification';
 import { addReadDuration } from '@database/queries/ChapterQueries';
 import { showToast } from '@utils/showToast';
+import CookieManager from '@preeternal/react-native-cookie-manager';
 
 type WebViewPostEvent = {
   type: string;
@@ -653,6 +654,55 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           case 'video-fullscreen-exit':
             ScreenOrientation.unlockAsync();
             break;
+          case 'native-fetch': {
+            const fetchData = event.data as {
+              url?: string;
+              requestId?: string;
+              headers?: Record<string, string>;
+              responseType?: string;
+            } | undefined;
+            if (fetchData?.url && fetchData?.requestId) {
+              const { url: fetchUrl, requestId, headers: extraHeaders, responseType } = fetchData;
+              CookieManager.get(fetchUrl)
+                .then((cookies: Record<string, { name: string; value: string }>) => {
+                  const cookieStr = Object.values(cookies)
+                    .map(c => `${c.name}=${c.value}`)
+                    .join('; ');
+                  const fetchHeaders: Record<string, string> = {
+                    'User-Agent': getUserAgent(),
+                    ...extraHeaders,
+                    ...(cookieStr ? { Cookie: cookieStr } : {}),
+                  };
+                  return fetch(fetchUrl, { headers: fetchHeaders });
+                })
+                .then(async (res: Response) => {
+                  const resHeaders: Record<string, string> = {};
+                  res.headers.forEach((v, k) => { resHeaders[k.toLowerCase()] = v; });
+                  if (responseType === 'hex') {
+                    const buf = await res.arrayBuffer();
+                    const bytes = new Uint8Array(buf);
+                    let hex = '';
+                    for (let i = 0; i < bytes.length; i++) {
+                      hex += bytes[i].toString(16).padStart(2, '0');
+                    }
+                    return { status: res.status, text: hex, headers: resHeaders };
+                  }
+                  const text = await res.text();
+                  return { status: res.status, text, headers: resHeaders };
+                })
+                .then(({ status, text, headers }: { status: number; text: string; headers: Record<string, string> }) => {
+                  webViewRef.current?.injectJavaScript(
+                    `window._nativeFetchResolve && window._nativeFetchResolve(${JSON.stringify(requestId)}, ${status}, ${JSON.stringify(text)}, ${JSON.stringify(headers)})`,
+                  );
+                })
+                .catch((err: Error) => {
+                  webViewRef.current?.injectJavaScript(
+                    `window._nativeFetchReject && window._nativeFetchReject(${JSON.stringify(requestId)}, ${JSON.stringify(err?.message || 'Fetch failed')})`,
+                  );
+                });
+            }
+            break;
+          }
           default: {
             console.warn(`Unknown event: ${event.type}`, event);
             break;
