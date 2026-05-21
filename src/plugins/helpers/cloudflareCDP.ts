@@ -147,6 +147,7 @@ async function getIframeRectViaCDP(client: CDPClient) {
 export async function solveCloudflare(
   url: string,
   type: 'interstitial' | 'turnstile' = 'turnstile',
+  signal?: AbortSignal,
 ): Promise<boolean> {
   let client: CDPClient | null = null;
   try {
@@ -157,6 +158,7 @@ export async function solveCloudflare(
     let target: any = null;
     let targetAttempts = 0;
     while (targetAttempts < 20 && !target) {
+      if (signal?.aborted) return false;
       try {
         const res = await fetch(`http://127.0.0.1:${port}/json/list`);
         const targets = await res.json();
@@ -185,6 +187,7 @@ export async function solveCloudflare(
     let iframeRect = null;
     let attempts = 0;
     while (attempts < 15) {
+      if (signal?.aborted) return false;
       if (type === 'interstitial') {
         const evalRes = await client.sendCommand('Runtime.evaluate', {
           expression: `!!document.querySelector('script[src*="/cdn-cgi/challenge-platform/"]')`,
@@ -257,6 +260,7 @@ export async function solveCloudflare(
 
     let solved = false;
     for (let i = 0; i < 15; i++) {
+      if (signal?.aborted) return false;
       await sleep(1000);
 
       if (type === 'turnstile') {

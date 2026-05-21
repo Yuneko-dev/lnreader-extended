@@ -12,7 +12,9 @@ export const CloudflareSolverOverlay = () => {
   useEffect(() => {
     if (task) {
       let isCancelled = false;
-      solveCloudflare(task.url, task.type)
+      const abortController = new AbortController();
+
+      solveCloudflare(task.url, task.type, abortController.signal)
         .then(result => {
           if (!isCancelled) completeTask(task.id, result);
         })
@@ -23,6 +25,7 @@ export const CloudflareSolverOverlay = () => {
 
       return () => {
         isCancelled = true;
+        abortController.abort();
       };
     }
   }, [task, completeTask]);

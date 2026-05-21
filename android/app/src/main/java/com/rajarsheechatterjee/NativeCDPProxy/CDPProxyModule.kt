@@ -23,8 +23,10 @@ class CDPProxyModule(reactContext: ReactApplicationContext) : NativeCDPProxySpec
         return NAME
     }
 
+    private var executorService: ExecutorService? = null
+
+    @Volatile private var isProxyRunning = false
     private var serverSocket: ServerSocket? = null
-    private var isProxyRunning = false
     private val activeClients = java.util.Collections.synchronizedList(mutableListOf<java.net.Socket>())
 
     override fun enableWebViewDebugging() {
