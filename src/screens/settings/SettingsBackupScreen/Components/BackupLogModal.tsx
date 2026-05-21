@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Portal } from 'react-native-paper';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Portal, Button } from 'react-native-paper';
 import * as Clipboard from 'expo-clipboard';
 
 import { Modal } from '@components';
@@ -162,7 +162,7 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
           data={entries}
           keyExtractor={item => String(item.id)}
           renderItem={renderItem}
-          style={[styles.list, { backgroundColor: '#0D1117' }]}
+          style={[styles.list, { backgroundColor: theme.surfaceVariant }]}
           contentContainerStyle={styles.listContent}
           initialNumToRender={30}
           ListEmptyComponent={
@@ -174,51 +174,27 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
 
         <View style={styles.footer}>
           {hasActiveBackupOnly ? (
-            <Pressable
-              style={[styles.footerBtn, { borderColor: theme.error }]}
+            <Button
+              mode="outlined"
+              textColor={theme.error}
               onPress={cancelBackup}
             >
-              <Text style={{ color: theme.error, fontSize: 13 }}>
-                {getString('backupLogScreen.cancelBackup')}
-              </Text>
-            </Pressable>
+              {getString('backupLogScreen.cancelBackup')}
+            </Button>
           ) : (
             <View />
           )}
           <View style={styles.footerRight}>
-            <Pressable
-              style={[styles.footerBtn, { borderColor: theme.outline }]}
-              onPress={copyLog}
-            >
-              <Text style={{ color: theme.primary, fontSize: 13 }}>
-                {getString('debugLogScreen.copyAll')}
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.footerBtn,
-                {
-                  borderColor: hasActiveBackupRestore
-                    ? theme.surfaceVariant
-                    : theme.outline,
-                  marginLeft: 8,
-                  opacity: hasActiveBackupRestore ? 0.4 : 1,
-                },
-              ]}
+            <Button mode="text" textColor={theme.primary} onPress={copyLog}>
+              {getString('debugLogScreen.copyAll')}
+            </Button>
+            <Button
+              mode="contained-tonal"
               onPress={closeModal}
               disabled={hasActiveBackupRestore}
             >
-              <Text
-                style={{
-                  color: hasActiveBackupRestore
-                    ? theme.onSurfaceVariant
-                    : theme.onSurface,
-                  fontSize: 13,
-                }}
-              >
-                {getString('common.ok')}
-              </Text>
-            </Pressable>
+              {getString('common.ok')}
+            </Button>
           </View>
         </View>
       </Modal>
@@ -236,14 +212,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 12,
   },
-  footerBtn: {
-    borderRadius: 6,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
   footerRight: {
     flexDirection: 'row',
+    gap: 8,
   },
   header: {
     flexDirection: 'row',

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { Appbar as PaperAppbar, Chip } from 'react-native-paper';
 
 import { Appbar, SafeAreaView } from '@components';
 import { useTheme } from '@hooks/persisted';
@@ -100,62 +101,44 @@ const DebugLogScreen = ({ navigation }: any) => {
         title={getString('debugLogScreen.title')}
         handleGoBack={() => navigation.goBack()}
         theme={theme}
-      />
+      >
+        <PaperAppbar.Action
+          icon="content-copy"
+          iconColor={theme.onSurface}
+          onPress={copyAll}
+        />
+        <PaperAppbar.Action
+          icon="delete-outline"
+          iconColor={theme.error}
+          onPress={clearLog}
+        />
+      </Appbar>
       <View style={styles.toolbar}>
-        <View style={styles.filterRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
           {filterButtons.map(btn => (
-            <Pressable
+            <Chip
               key={btn.value}
-              style={[
-                styles.filterBtn,
-                {
-                  backgroundColor:
-                    filter === btn.value ? theme.primary : theme.surfaceVariant,
-                  borderColor: theme.outline,
-                },
-              ]}
+              mode={filter === btn.value ? 'flat' : 'outlined'}
+              selected={filter === btn.value}
+              showSelectedOverlay
               onPress={() => setFilter(btn.value)}
+              style={styles.filterChip}
             >
-              <Text
-                style={{
-                  color:
-                    filter === btn.value
-                      ? theme.onPrimary
-                      : theme.onSurfaceVariant,
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                }}
-              >
-                {btn.label}
-              </Text>
-            </Pressable>
+              {btn.label}
+            </Chip>
           ))}
-        </View>
-        <View style={styles.actionRow}>
-          <Pressable
-            style={[styles.actionBtn, { borderColor: theme.outline }]}
-            onPress={copyAll}
-          >
-            <Text style={{ color: theme.primary, fontSize: 12 }}>
-              {getString('debugLogScreen.copyAll')}
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[styles.actionBtn, { borderColor: theme.outline }]}
-            onPress={clearLog}
-          >
-            <Text style={{ color: theme.error, fontSize: 12 }}>
-              {getString('common.clear')}
-            </Text>
-          </Pressable>
-        </View>
+        </ScrollView>
       </View>
       <FlatList
         ref={flatListRef}
         data={filteredEntries}
         keyExtractor={item => String(item.id)}
         renderItem={renderItem}
-        style={[styles.list, { backgroundColor: '#0D1117' }]}
+        style={[styles.list, { backgroundColor: theme.surfaceVariant }]}
         contentContainerStyle={styles.listContent}
         onScrollBeginDrag={() => {
           autoScrollRef.current = false;
@@ -184,25 +167,12 @@ const DebugLogScreen = ({ navigation }: any) => {
 export default DebugLogScreen;
 
 const styles = StyleSheet.create({
-  actionBtn: {
-    borderRadius: 6,
-    borderWidth: 1,
-    marginLeft: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  actionRow: {
-    flexDirection: 'row',
-  },
-  filterBtn: {
-    borderRadius: 6,
-    borderWidth: 1,
-    marginRight: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  filterChip: {
+    borderRadius: 100,
   },
   filterRow: {
-    flexDirection: 'row',
+    paddingHorizontal: 12,
+    gap: 8,
   },
   list: {
     flex: 1,
@@ -238,10 +208,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   toolbar: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
 });
