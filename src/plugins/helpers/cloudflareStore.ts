@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { APP_SETTINGS } from '@hooks/persisted/useSettings';
+import { showToast } from '@utils/showToast';
 
 interface Task {
   id: number;
@@ -58,6 +59,13 @@ export const solveCloudflareAPI = async (
 ): Promise<boolean> => {
   if (!initialAllowBypass) {
     throw new Error('Cloudflare bypass is disabled in settings.');
+  }
+
+  try {
+    const hostname = new URL(url).hostname;
+    showToast(`Bypassing Cloudflare: ${hostname}`);
+  } catch {
+    showToast(`Bypassing Cloudflare...`);
   }
 
   return useCloudflareStore.getState().pushTask(url, type);
