@@ -1,6 +1,5 @@
 package com.rajarsheechatterjee.NativeSPenRemote
 
-import android.view.InputDevice
 import android.view.KeyEvent
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -48,14 +47,10 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
             shouldHandleKeyCode(event.keyCode)
 
         fun shouldConsumeKeyEvent(event: KeyEvent): Boolean =
-            shouldHandleKeyEvent(event) && !shouldPassThroughPhysicalKeyboard(event)
+            shouldHandleKeyEvent(event) && listenerCount > 0
 
         fun handleKeyEvent(event: KeyEvent): Boolean {
-            if (!shouldHandleKeyEvent(event)) {
-                return false
-            }
-
-            if (shouldPassThroughPhysicalKeyboard(event)) {
+            if (!shouldConsumeKeyEvent(event)) {
                 return false
             }
 
@@ -67,27 +62,6 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
             appContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit(eventName, null)
-            return true
-        }
-
-        private fun shouldPassThroughPhysicalKeyboard(event: KeyEvent): Boolean =
-            listenerCount == 0 && isExternalPhysicalKeyboardEvent(event)
-
-        private fun isExternalPhysicalKeyboardEvent(event: KeyEvent): Boolean {
-            val device = event.device ?: return false
-
-            if (!event.isFromSource(InputDevice.SOURCE_KEYBOARD)) {
-                return false
-            }
-
-            if (!device.isExternal) {
-                return false
-            }
-
-            if (device.keyboardType != InputDevice.KEYBOARD_TYPE_ALPHABETIC) {
-                return false
-            }
-
             return true
         }
 

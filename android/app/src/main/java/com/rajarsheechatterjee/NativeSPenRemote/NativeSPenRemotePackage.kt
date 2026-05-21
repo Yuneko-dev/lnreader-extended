@@ -21,7 +21,7 @@ class NativeSPenRemotePackage : BaseReactPackage() {
                 NativeSPenRemoteSpec.NAME,
                 NativeSPenRemoteSpec.NAME,
                 canOverrideExistingModule = false,
-                needsEagerInit = true,
+                needsEagerInit = false,
                 isCxxModule = false,
                 isTurboModule = true
             )
