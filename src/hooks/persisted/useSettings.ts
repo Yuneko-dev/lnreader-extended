@@ -301,6 +301,7 @@ export const useAppSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialAppSettings,
       ...appSettings,
       setAppSettings,
     }),
@@ -320,6 +321,7 @@ export const useBrowseSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialBrowseSettings,
       ...browseSettings,
       setBrowseSettings,
     }),
@@ -374,6 +376,7 @@ export const useChapterGeneralSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialChapterGeneralSettings,
       ...chapterGeneralSettings,
       setChapterGeneralSettings,
     }),
@@ -476,6 +479,7 @@ export const useTranslateSettings = () => {
 
   return useMemo(
     () => ({
+      ...initialTranslateSettings,
       ...translateSettings,
       setTranslateSettings,
     }),
@@ -522,6 +526,7 @@ export const useSecuritySettings = () => {
 
   return useMemo(
     () => ({
+      ...initialSecuritySettings,
       ...securitySettings,
       setSecuritySettings,
     }),
