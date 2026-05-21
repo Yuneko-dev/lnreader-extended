@@ -779,6 +779,25 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               <script src="${assetsUriPrefix}/js/core.js"></script>
               <script src="${assetsUriPrefix}/js/index.js"></script>
               <script src="${assetsUriPrefix}/js/videoFullscreen.js"></script>
+              <script>
+                window.reader.fetch = async function(url, init = {}) {
+                  const targetUrl = encodeURIComponent(url);
+                  const proxyUrl = '${getLocalServerUrl()}/proxy?url=' + targetUrl;
+
+                  let modifiedHeaders = {};
+                  if (init.headers) {
+                    const h = new Headers(init.headers);
+                    h.forEach((value, key) => {
+                      modifiedHeaders['x-ln-forward-header-' + key] = value;
+                    });
+                  }
+
+                  const modifiedInit = { ...init };
+                  modifiedInit.headers = modifiedHeaders;
+
+                  return fetch(proxyUrl, modifiedInit);
+                };
+              </script>
               <script src="${pluginCustomJS}"></script>
               <script>
                 ${readerSettings.customJS}

@@ -64,7 +64,7 @@ const packages: Record<string, any> = {
     Buffer: NodeCrypto.Buffer,
     encodeHtmlEntities,
     decodeHtmlEntities,
-    NodeCrypto, 
+    NodeCrypto,
     getUserAgent,
   },
   '@libs/cookie': {
