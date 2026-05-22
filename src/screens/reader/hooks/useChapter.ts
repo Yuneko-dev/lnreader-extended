@@ -637,6 +637,11 @@ export default function useChapter(
     [getChapter, nextChapter, prevChapter, resetAutoScroll],
   );
 
+  const navigateChapterRef = useRef(navigateChapter);
+  useEffect(() => {
+    navigateChapterRef.current = navigateChapter;
+  }, [navigateChapter]);
+
   const connectSPenRemote = useCallback(() => {
     if (!sPenEmitter) {
       return () => {};
@@ -646,14 +651,20 @@ export default function useChapter(
       Object.values(SPEN_REMOTE_EVENTS) as SPenRemoteEventName[]
     ).map(eventName =>
       sPenEmitter.addListener(eventName, () =>
-        handleSPenRemoteEvent({ navigateChapter, webViewRef }, eventName),
+        handleSPenRemoteEvent(
+          {
+            navigateChapter: pos => navigateChapterRef.current(pos),
+            webViewRef,
+          },
+          eventName,
+        ),
       ),
     );
 
     return () => {
       subscriptions.forEach(subscription => subscription.remove());
     };
-  }, [navigateChapter, webViewRef]);
+  }, [webViewRef]);
 
   useEffect(() => {
     const disconnect = connectSPenRemote();

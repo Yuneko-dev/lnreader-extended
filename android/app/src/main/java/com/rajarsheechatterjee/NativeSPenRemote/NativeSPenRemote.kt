@@ -9,6 +9,7 @@ class NativeSPenRemote(appContext: ReactApplicationContext) :
     NativeSPenRemoteSpec(appContext) {
     init {
         Companion.appContext = appContext
+        listenerCount = 0
     }
 
     override fun addListener(eventName: String?) {

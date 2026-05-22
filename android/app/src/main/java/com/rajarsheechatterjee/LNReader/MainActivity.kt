@@ -55,21 +55,7 @@ class MainActivity : ReactActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (NativeSPenRemote.handleKeyEvent(event)) {
-            return true
-        }
 
-        return super.onKeyDown(keyCode, event)
-    }
-
-    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        if (NativeSPenRemote.shouldConsumeKeyEvent(event)) {
-            return true
-        }
-
-        return super.onKeyUp(keyCode, event)
-    }
 
     /**
      * Returns the name of the main component registered from JavaScript.
