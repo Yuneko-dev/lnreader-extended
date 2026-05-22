@@ -119,7 +119,7 @@ const initPlugin = (pluginId: string, rawCode: string) => {
 
     return plugin;
   } catch (e) {
-    console.error("Init Plugin Failed:", e);
+    console.error('Init Plugin Failed:', e);
     return undefined;
   }
 };
@@ -137,7 +137,11 @@ const installPlugin = async (
     return undefined;
   }
   let currentPlugin = plugins[plugin.id];
-  if (!currentPlugin || newer(plugin.version, currentPlugin.version)) {
+  if (
+    !currentPlugin ||
+    newer(plugin.version, currentPlugin.version) ||
+    __DEV__
+  ) {
     plugins[plugin.id] = plugin;
     currentPlugin = plugin;
 
@@ -149,13 +153,17 @@ const installPlugin = async (
     const customCSSPath = pluginDir + '/custom.css';
     if (_plugin.customJS) {
       await downloadFile(getBypassCacheUrl(_plugin.customJS), customJSPath);
+      console.log(`[${plugin.id}]: Updated JS`);
     } else if (NativeFile.exists(customJSPath)) {
       NativeFile.unlink(customJSPath);
+      console.log(`[${plugin.id}]: Deleted JS`);
     }
     if (_plugin.customCSS) {
       await downloadFile(getBypassCacheUrl(_plugin.customCSS), customCSSPath);
+      console.log(`[${plugin.id}]: Updated CSS`);
     } else if (NativeFile.exists(customCSSPath)) {
       NativeFile.unlink(customCSSPath);
+      console.log(`[${plugin.id}]: Deleted CSS`);
     }
     NativeFile.writeFile(pluginPath, rawCode);
   }
@@ -170,8 +178,17 @@ const uninstallPlugin = async (_plugin: PluginItem) => {
     }
   });
   const pluginFilePath = `${PLUGIN_STORAGE}/${_plugin.id}/index.js`;
+  const customJSPath = `${PLUGIN_STORAGE}/${_plugin.id}/custom.js`;
+  const customCSSPath = `${PLUGIN_STORAGE}/${_plugin.id}/custom.css`;
+
   if (NativeFile.exists(pluginFilePath)) {
     NativeFile.unlink(pluginFilePath);
+  }
+  if (NativeFile.exists(customJSPath)) {
+    NativeFile.unlink(customJSPath);
+  }
+  if (NativeFile.exists(customCSSPath)) {
+    NativeFile.unlink(customCSSPath);
   }
 };
 

@@ -76,10 +76,9 @@ export default function usePlugins() {
         const remote = fetchedPlugins.find(p => p.id === installed.id);
         if (remote && newer(remote.version, installed.version)) {
           const updated = {
-            ...installed,
+            ...remote,
+            hasSettings: installed.hasSettings,
             hasUpdate: true,
-            iconUrl: remote.iconUrl,
-            url: remote.url,
           };
           if (installed.id === lastUsedPlugin?.id) {
             setLastUsedPlugin(updated);
@@ -170,8 +169,13 @@ export default function usePlugins() {
 
   const updatePlugin = useCallback(
     (plugin: PluginItem) => {
-      return _update(plugin).then(_plg => {
-        if (plugin.version === _plg?.version && !__DEV__) {
+      const availablePlugins =
+        getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
+      const latestPlugin =
+        availablePlugins.find(p => p.id === plugin.id) || plugin;
+
+      return _update(latestPlugin).then(_plg => {
+        if (latestPlugin.version === _plg?.version && !__DEV__) {
           throw new Error('No update found!');
         }
         if (_plg) {
@@ -184,7 +188,7 @@ export default function usePlugins() {
                 return plg;
               }
               const newPlugin: PluginItem = {
-                ...plugin,
+                ...latestPlugin,
                 site: _plg.site,
                 name: _plg.name,
                 version: _plg.version,
