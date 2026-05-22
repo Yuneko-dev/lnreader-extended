@@ -118,7 +118,8 @@ const initPlugin = (pluginId: string, rawCode: string) => {
     }
 
     return plugin;
-  } catch {
+  } catch (e) {
+    console.error("Init Plugin Failed:", e);
     return undefined;
   }
 };
