@@ -76,9 +76,10 @@ export default function usePlugins() {
         const remote = fetchedPlugins.find(p => p.id === installed.id);
         if (remote && newer(remote.version, installed.version)) {
           const updated = {
-            ...remote,
-            hasSettings: installed.hasSettings,
+            ...installed,
             hasUpdate: true,
+            iconUrl: remote.iconUrl,
+            url: remote.url,
           };
           if (installed.id === lastUsedPlugin?.id) {
             setLastUsedPlugin(updated);
@@ -175,7 +176,7 @@ export default function usePlugins() {
         availablePlugins.find(p => p.id === plugin.id) || plugin;
 
       return _update(latestPlugin).then(_plg => {
-        if (latestPlugin.version === _plg?.version && !__DEV__) {
+        if (plugin.version === _plg?.version && !__DEV__) {
           throw new Error('No update found!');
         }
         if (_plg) {
