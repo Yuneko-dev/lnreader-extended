@@ -46,13 +46,22 @@ import { defaultTo } from 'lodash-es';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
+import NativeSPenRemote from '@specs/NativeSPenRemote';
 import NativeFile from '@specs/NativeFile';
 import { useNovelContext } from '@screens/novel/NovelContext';
 import { load } from 'cheerio';
+import {
+  handleSPenRemoteEvent,
+  SPenRemoteEventName,
+  SPEN_REMOTE_EVENTS,
+} from '../utils/sPenRemote';
 
 const { TikTokTTS } = NativeModules;
 
 const emmiter = new NativeEventEmitter(NativeVolumeButtonListener);
+const sPenEmitter = NativeSPenRemote
+  ? new NativeEventEmitter(NativeSPenRemote)
+  : null;
 
 export default function useChapter(
   webViewRef: RefObject<WebView | null>,
@@ -627,6 +636,32 @@ export default function useChapter(
     },
     [getChapter, nextChapter, prevChapter, resetAutoScroll],
   );
+
+  const connectSPenRemote = useCallback(() => {
+    if (!sPenEmitter) {
+      return () => {};
+    }
+
+    const subscriptions = (
+      Object.values(SPEN_REMOTE_EVENTS) as SPenRemoteEventName[]
+    ).map(eventName =>
+      sPenEmitter.addListener(eventName, () =>
+        handleSPenRemoteEvent({ navigateChapter, webViewRef }, eventName),
+      ),
+    );
+
+    return () => {
+      subscriptions.forEach(subscription => subscription.remove());
+    };
+  }, [navigateChapter, webViewRef]);
+
+  useEffect(() => {
+    const disconnect = connectSPenRemote();
+
+    return () => {
+      disconnect();
+    };
+  }, [connectSPenRemote]);
 
   useEffect(() => {
     if (!incognitoMode) {

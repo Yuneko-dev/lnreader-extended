@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<remote-actions
+    version="1.2"
+    actionset_label="@string/s_pen_remote_action_set_label">
+    <action
+        id="reader_next_page"
+        label="@string/s_pen_remote_next_page"
+        priority="1"
+        trigger_key="PAGE_DOWN">
+        <preference
+            name="gesture"
+            value="click" />
+        <preference
+            name="button_only"
+            value="true" />
+    </action>
+
+    <action
+        id="reader_prev_page"
+        label="@string/s_pen_remote_previous_page"
+        priority="2"
+        trigger_key="PAGE_UP">
+        <preference
+            name="gesture"
+            value="double_click" />
+        <preference
+            name="button_only"
+            value="true" />
+    </action>
+
+    <action
+        id="reader_prev_chapter"
+        label="@string/s_pen_remote_previous_chapter"
+        priority="3"
+        trigger_key="F7">
+        <preference
+            name="gesture"
+            value="swipe_left" />
+        <preference
+            name="motion_only"
+            value="true" />
+    </action>
+
+    <action
+        id="reader_next_chapter"
+        label="@string/s_pen_remote_next_chapter"
+        priority="4"
+        trigger_key="F8">
+        <preference
+            name="gesture"
+            value="swipe_right" />
+        <preference
+            name="motion_only"
+            value="true" />
+    </action>
+</remote-actions>
