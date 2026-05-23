@@ -127,6 +127,19 @@ async function getIframeRectViaCDP(client: CDPClient) {
     traverse(root);
 
     if (targetNodeId) {
+      try {
+        const { object } = await client.sendCommand('DOM.resolveNode', { nodeId: targetNodeId });
+        if (object && object.objectId) {
+          await client.sendCommand('Runtime.callFunctionOn', {
+            objectId: object.objectId,
+            functionDeclaration: 'function() { this.scrollIntoView({ behavior: "instant", block: "center", inline: "center" }); }',
+          });
+          await sleep(50);
+        }
+      } catch (scrollErr) {
+        console.error('[CDP Scroll Error]', scrollErr);
+      }
+
       const { model } = await client.sendCommand('DOM.getBoxModel', {
         nodeId: targetNodeId,
       });
