@@ -45,6 +45,8 @@ export interface StringMap {
   'advancedSettingsScreen.developer': 'string';
   'advancedSettingsScreen.allowCloudflareBypass': 'string';
   'advancedSettingsScreen.allowCloudflareBypassDesc': 'string';
+  'advancedSettingsScreen.hideCloudflareOverlay': 'string';
+  'advancedSettingsScreen.hideCloudflareOverlayDesc': 'string';
   'advancedSettingsScreen.allowProxyAPI': 'string';
   'advancedSettingsScreen.allowProxyAPIDesc': 'string';
   'advancedSettingsScreen.verboseLogging': 'string';

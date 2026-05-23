@@ -44,6 +44,8 @@
     "developer": "Nhà phát triển",
     "allowCloudflareBypass": "Cho phép plugin sử dụng API bypass Cloudflare",
     "allowCloudflareBypassDesc": "Bật tính năng vượt qua Cloudflare Turnstile cho các plugin. Yêu cầu khởi động lại ứng dụng.",
+    "hideCloudflareOverlay": "Ẩn overlay WebView khi bypass CF",
+    "hideCloudflareOverlayDesc": "Ẩn giao diện giải Cloudflare. Tắt đi nếu bạn muốn xem quá trình giải.",
     "allowProxyAPI": "Cho phép plugin sử dụng Proxy API",
     "allowProxyAPIDesc": "Bật tính năng Proxy API cho LocalHttpServer để giúp plugin vượt qua CORS. Áp dụng ngay lập tức.",
     "verboseLogging": "Ghi nhật ký chi tiết",
