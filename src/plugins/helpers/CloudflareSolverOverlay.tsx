@@ -4,7 +4,12 @@ import { WebView } from 'react-native-webview';
 import { useCloudflareStore } from './cloudflareStore';
 import { solveCloudflare } from './cloudflareCDP';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
-import { Surface, Text, IconButton, ActivityIndicator } from 'react-native-paper';
+import {
+  Surface,
+  Text,
+  IconButton,
+  ActivityIndicator,
+} from 'react-native-paper';
 import { useTheme, useAppSettings } from '@hooks/persisted';
 
 export const CloudflareSolverOverlay = () => {
@@ -53,13 +58,27 @@ export const CloudflareSolverOverlay = () => {
       pointerEvents={isHidden ? 'none' : 'auto'}
     >
       {!isHidden && (
-        <Surface style={[styles.header, { backgroundColor: theme.surface }]} elevation={2}>
+        <Surface
+          style={[styles.header, { backgroundColor: theme.surface }]}
+          elevation={2}
+        >
           <View style={styles.headerTitleContainer}>
-             <ActivityIndicator size="small" style={{ marginRight: 16 }} color={theme.primary} />
-             <View>
-               <Text variant="titleMedium" style={{ color: theme.onSurface }}>Bypassing Cloudflare</Text>
-               <Text variant="bodySmall" style={{ color: theme.onSurfaceVariant }}>{hostname}</Text>
-             </View>
+            <ActivityIndicator
+              size="small"
+              style={{ marginRight: 16 }}
+              color={theme.primary}
+            />
+            <View>
+              <Text variant="titleMedium" style={{ color: theme.onSurface }}>
+                Bypassing Cloudflare
+              </Text>
+              <Text
+                variant="bodySmall"
+                style={{ color: theme.onSurfaceVariant }}
+              >
+                {hostname}
+              </Text>
+            </View>
           </View>
           <IconButton
             icon="close"

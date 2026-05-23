@@ -233,7 +233,9 @@ export async function solveCloudflare(
     for (let attempt = 0; attempt < 3; attempt++) {
       if (signal?.aborted) return false;
       if (attempt > 0) {
-        console.log(`[solveCloudflare] Retrying click (attempt ${attempt + 1})...`);
+        console.log(
+          `[solveCloudflare] Retrying click (attempt ${attempt + 1})...`,
+        );
         await sleep(2000);
       }
 
@@ -290,11 +292,18 @@ export async function solveCloudflare(
           if (evalRes && evalRes.result && evalRes.result.value) {
             const indicators = evalRes.result.value;
             if (type === 'turnstile') {
-              if (indicators.turnstileValue && indicators.turnstileValue.length > 0) {
-                console.log('[solveCloudflare] Turnstile response token found.');
+              if (
+                indicators.turnstileValue &&
+                indicators.turnstileValue.length > 0
+              ) {
+                console.log(
+                  '[solveCloudflare] Turnstile response token found.',
+                );
                 isNavigatingOrSolved = true;
               } else if (!indicators.hasTurnstile) {
-                console.log('[solveCloudflare] Turnstile indicators no longer present.');
+                console.log(
+                  '[solveCloudflare] Turnstile indicators no longer present.',
+                );
                 isNavigatingOrSolved = true;
               }
             } else {
@@ -304,24 +313,36 @@ export async function solveCloudflare(
               }
             }
           } else {
-             // Unexpected result (e.g. context destroyed returned as a success with no value in some edge cases)
-             console.log('[solveCloudflare] Evaluation returned no value, assuming navigated/solved.');
-             isNavigatingOrSolved = true;
+            // Unexpected result (e.g. context destroyed returned as a success with no value in some edge cases)
+            console.log(
+              '[solveCloudflare] Evaluation returned no value, assuming navigated/solved.',
+            );
+            isNavigatingOrSolved = true;
           }
         } catch (e) {
           // Context destroyed usually means the page navigated away successfully
-          console.log('[solveCloudflare] Context destroyed, assuming navigated/solved.');
+          console.warn(
+            '[solveCloudflare] Context destroyed, assuming navigated/solved.',
+            e,
+          );
           isNavigatingOrSolved = true;
         }
 
         // Additional check for Turnstile: the success div inside shadow DOM
         if (!isNavigatingOrSolved && type === 'turnstile') {
           try {
-            const { root } = await client.sendCommand('DOM.getDocument', { depth: -1, pierce: true });
+            const { root } = await client.sendCommand('DOM.getDocument', {
+              depth: -1,
+              pierce: true,
+            });
             let success = false;
             function traverse(node: any) {
               if (success) return;
-              if (node.nodeName && node.nodeName.toLowerCase() === 'div' && node.attributes) {
+              if (
+                node.nodeName &&
+                node.nodeName.toLowerCase() === 'div' &&
+                node.attributes
+              ) {
                 const idIdx = node.attributes.indexOf('id');
                 if (idIdx !== -1 && node.attributes[idIdx + 1] === 'success') {
                   success = true;
@@ -337,11 +358,14 @@ export async function solveCloudflare(
             }
             traverse(root);
             if (success) {
-              console.log('[solveCloudflare] Turnstile success div found inside shadow DOM.');
+              console.log(
+                '[solveCloudflare] Turnstile success div found inside shadow DOM.',
+              );
               isNavigatingOrSolved = true;
             }
           } catch (e) {
             // Ignore CDP errors
+            console.error('CDP error:', e);
           }
         }
 

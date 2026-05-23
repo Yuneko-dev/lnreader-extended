@@ -151,11 +151,15 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
           />
           <SettingSwitch
             label={getString('advancedSettingsScreen.hideCloudflareOverlay')}
-            description={getString('advancedSettingsScreen.hideCloudflareOverlayDesc')}
+            description={getString(
+              'advancedSettingsScreen.hideCloudflareOverlayDesc',
+            )}
             value={appSettings.hideCloudflareOverlay}
             disabled={!appSettings.allowCloudflareBypass}
             onPress={() => {
-              setAppSettings({ hideCloudflareOverlay: !appSettings.hideCloudflareOverlay });
+              setAppSettings({
+                hideCloudflareOverlay: !appSettings.hideCloudflareOverlay,
+              });
             }}
             theme={theme}
           />
