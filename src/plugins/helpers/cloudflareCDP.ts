@@ -273,38 +273,81 @@ export async function solveCloudflare(
         if (signal?.aborted) return false;
         await sleep(1000);
 
-        if (type === 'turnstile') {
-          const rect = await getIframeRectViaCDP(client);
-          if (!rect) {
-            solved = true;
-            break;
-          }
+        let isNavigatingOrSolved = false;
 
+        try {
           const evalRes = await client.sendCommand('Runtime.evaluate', {
-            expression: `(function() {
-              const input = document.querySelector('input[name="cf-turnstile-response"]');
-              return input ? input.value : null;
+            expression: `(() => {
+               const hasScript = !!document.querySelector('script[src*="/cdn-cgi/challenge-platform/"]');
+               const hasTurnstile = !!document.querySelector('script[src*="challenges.cloudflare.com/turnstile/v0"]') || !!document.querySelector('input[name="cf-turnstile-response"]');
+               const input = document.querySelector('input[name="cf-turnstile-response"]');
+               const turnstileValue = input ? input.value : null;
+               return { hasScript, hasTurnstile, turnstileValue };
             })();`,
             returnByValue: true,
           });
-          const responseValue = evalRes?.result?.value;
 
-          if (responseValue && responseValue.length > 0) {
-            solved = true;
-            console.log('[solveCloudflare] Turnstile response token found.');
-            break;
+          if (evalRes && evalRes.result && evalRes.result.value) {
+            const indicators = evalRes.result.value;
+            if (type === 'turnstile') {
+              if (indicators.turnstileValue && indicators.turnstileValue.length > 0) {
+                console.log('[solveCloudflare] Turnstile response token found.');
+                isNavigatingOrSolved = true;
+              } else if (!indicators.hasTurnstile) {
+                console.log('[solveCloudflare] Turnstile indicators no longer present.');
+                isNavigatingOrSolved = true;
+              }
+            } else {
+              if (!indicators.hasScript) {
+                console.log('[solveCloudflare] Interstitial challenge passed.');
+                isNavigatingOrSolved = true;
+              }
+            }
+          } else {
+             // Unexpected result (e.g. context destroyed returned as a success with no value in some edge cases)
+             console.log('[solveCloudflare] Evaluation returned no value, assuming navigated/solved.');
+             isNavigatingOrSolved = true;
           }
-        } else {
-          const evalRes = await client.sendCommand('Runtime.evaluate', {
-            expression: `!!document.querySelector('script[src*="/cdn-cgi/challenge-platform/"]')`,
-            returnByValue: true,
-          });
-          const scriptExists = evalRes?.result?.value;
-          if (!scriptExists) {
-            solved = true;
-            console.log('[solveCloudflare] Interstitial challenge passed.');
-            break;
+        } catch (e) {
+          // Context destroyed usually means the page navigated away successfully
+          console.log('[solveCloudflare] Context destroyed, assuming navigated/solved.');
+          isNavigatingOrSolved = true;
+        }
+
+        // Additional check for Turnstile: the success div inside shadow DOM
+        if (!isNavigatingOrSolved && type === 'turnstile') {
+          try {
+            const { root } = await client.sendCommand('DOM.getDocument', { depth: -1, pierce: true });
+            let success = false;
+            function traverse(node: any) {
+              if (success) return;
+              if (node.nodeName && node.nodeName.toLowerCase() === 'div' && node.attributes) {
+                const idIdx = node.attributes.indexOf('id');
+                if (idIdx !== -1 && node.attributes[idIdx + 1] === 'success') {
+                  success = true;
+                  return;
+                }
+              }
+              if (node.children) {
+                for (const child of node.children) traverse(child);
+              }
+              if (node.shadowRoots) {
+                for (const shadow of node.shadowRoots) traverse(shadow);
+              }
+            }
+            traverse(root);
+            if (success) {
+              console.log('[solveCloudflare] Turnstile success div found inside shadow DOM.');
+              isNavigatingOrSolved = true;
+            }
+          } catch (e) {
+            // Ignore CDP errors
           }
+        }
+
+        if (isNavigatingOrSolved) {
+          solved = true;
+          break;
         }
       }
 
