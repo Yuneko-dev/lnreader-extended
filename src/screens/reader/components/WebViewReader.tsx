@@ -775,6 +775,13 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
                   },
                 })}
               </script>
+              <script src="${assetsUriPrefix}/js/polyfill-onscrollend.js"></script>
+              <script src="${assetsUriPrefix}/js/icons.js"></script>
+              <script src="${assetsUriPrefix}/js/van.js"></script>
+              <script src="${assetsUriPrefix}/js/text-vibe.js"></script>
+              <script src="${assetsUriPrefix}/js/core.js"></script>
+              <script src="${assetsUriPrefix}/js/index.js"></script>
+              <script src="${assetsUriPrefix}/js/videoFullscreen.js"></script>
               <script>
                 const ORIGINAL_FETCH = Symbol();
                 window[ORIGINAL_FETCH] = window.fetch;
@@ -796,13 +803,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
                   return window[ORIGINAL_FETCH](proxyUrl, modifiedInit);
                 };
               </script>
-              <script src="${assetsUriPrefix}/js/polyfill-onscrollend.js"></script>
-              <script src="${assetsUriPrefix}/js/icons.js"></script>
-              <script src="${assetsUriPrefix}/js/van.js"></script>
-              <script src="${assetsUriPrefix}/js/text-vibe.js"></script>
-              <script src="${assetsUriPrefix}/js/core.js"></script>
-              <script src="${assetsUriPrefix}/js/index.js"></script>
-              <script src="${assetsUriPrefix}/js/videoFullscreen.js"></script>
               <script src="${pluginCustomJS}"></script>
               <script>
                 ${readerSettings.customJS}
