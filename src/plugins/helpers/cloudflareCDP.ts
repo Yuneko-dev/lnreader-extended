@@ -160,14 +160,74 @@ async function getIframeRectViaCDP(client: CDPClient) {
   return null;
 }
 
+async function performClickAndVerify<T>(
+  client: CDPClient,
+  iframeRect: any,
+  logPrefix: string,
+  signal: AbortSignal | undefined,
+  verificationFn: () => Promise<T | null>,
+): Promise<T | null> {
+  const clickX = iframeRect.x + Math.floor(iframeRect.width / 2);
+  const clickY = iframeRect.y + Math.floor(iframeRect.height / 2);
+
+  await sleep(4000);
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (signal?.aborted) return null;
+    if (attempt > 0) {
+      console.log(`${logPrefix} Retrying click (attempt ${attempt + 1})...`);
+      await sleep(2000);
+    }
+
+    try {
+      await client.sendCommand('Input.dispatchMouseEvent', {
+        type: 'mouseMoved',
+        x: clickX,
+        y: clickY,
+      });
+      await sleep(50);
+      await client.sendCommand('Input.dispatchMouseEvent', {
+        type: 'mousePressed',
+        x: clickX,
+        y: clickY,
+        button: 'left',
+        clickCount: 1,
+      });
+      await sleep(50);
+      await client.sendCommand('Input.dispatchMouseEvent', {
+        type: 'mouseReleased',
+        x: clickX,
+        y: clickY,
+        button: 'left',
+        clickCount: 1,
+      });
+      console.log(`${logPrefix} CDP Clicked iframe center:`, clickX, clickY);
+    } catch (e) {
+      console.error(`${logPrefix} CDP Click failed:`, e);
+    }
+
+    for (let i = 0; i < 7; i++) {
+      await sleep(1000);
+      if (signal?.aborted) return null;
+
+      const result = await verificationFn();
+      if (result !== null) {
+        return result;
+      }
+    }
+  }
+
+  return null;
+}
+
 export async function solveCloudflare(
   url: string,
   type: 'interstitial' | 'turnstile' = 'turnstile',
   signal?: AbortSignal,
 ): Promise<boolean> {
   let client: CDPClient | null = null;
+  const logPrefix = '[solveCloudflare]';
   try {
-    // 1. Enable debugging & start proxy
     NativeCDPProxy.enableWebViewDebugging();
     const port = await NativeCDPProxy.startProxy();
 
@@ -181,9 +241,7 @@ export async function solveCloudflare(
         target = targets.find(
           (t: any) => t.url.includes(url) || url.includes(t.url),
         );
-      } catch {
-        // proxy might be starting
-      }
+      } catch {}
       if (!target) {
         await sleep(500);
         targetAttempts++;
@@ -191,13 +249,11 @@ export async function solveCloudflare(
     }
 
     if (!target || !target.webSocketDebuggerUrl) {
-      console.error('[solveCloudflare] Target WebView not found for URL:', url);
+      console.error(`${logPrefix} Target WebView not found for URL:`, url);
       return false;
     }
 
-    // Connect WebSocket
-    const wsUrl = target.webSocketDebuggerUrl;
-    client = new CDPClient(wsUrl);
+    client = new CDPClient(target.webSocketDebuggerUrl);
     await client.waitForOpen();
 
     let iframeRect = null;
@@ -209,10 +265,9 @@ export async function solveCloudflare(
           expression: `!!document.querySelector('script[src*="/cdn-cgi/challenge-platform/"]')`,
           returnByValue: true,
         });
-        const scriptExists = evalRes?.result?.value;
-        if (!scriptExists) {
+        if (!evalRes?.result?.value) {
           console.log(
-            '[solveCloudflare] Interstitial challenge passed automatically.',
+            `${logPrefix} Interstitial challenge passed automatically.`,
           );
           client.close();
           return true;
@@ -229,72 +284,23 @@ export async function solveCloudflare(
     }
 
     if (!iframeRect) {
-      console.error(
-        '[solveCloudflare] Cloudflare iframe not found or not visible.',
-      );
+      console.error(`${logPrefix} Cloudflare iframe not found or not visible.`);
       client.close();
       return false;
     }
 
-    console.log('[solveCloudflare] Found iframe at:', iframeRect);
+    console.log(`${logPrefix} Found iframe at:`, iframeRect);
 
-    const clickX = iframeRect.x + Math.floor(iframeRect.width / 2);
-    const clickY = iframeRect.y + Math.floor(iframeRect.height / 2);
-
-    let solved = false;
-
-    // Wait for the Cloudflare widget to finish its initial animation/spinner
-    await sleep(4000);
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (signal?.aborted) return false;
-      if (attempt > 0) {
-        console.log(
-          `[solveCloudflare] Retrying click (attempt ${attempt + 1})...`,
-        );
-        await sleep(2000);
-      }
-
-      try {
-        await client.sendCommand('Input.dispatchMouseEvent', {
-          type: 'mouseMoved',
-          x: clickX,
-          y: clickY,
-        });
-        await sleep(50);
-        await client.sendCommand('Input.dispatchMouseEvent', {
-          type: 'mousePressed',
-          x: clickX,
-          y: clickY,
-          button: 'left',
-          clickCount: 1,
-        });
-        await sleep(50);
-        await client.sendCommand('Input.dispatchMouseEvent', {
-          type: 'mouseReleased',
-          x: clickX,
-          y: clickY,
-          button: 'left',
-          clickCount: 1,
-        });
-        console.log(
-          '[solveCloudflare] CDP Clicked iframe center:',
-          clickX,
-          clickY,
-        );
-      } catch (e) {
-        console.error('[solveCloudflare] CDP Click failed:', e);
-      }
-
-      // Wait up to 7 seconds to see if solved
-      for (let i = 0; i < 7; i++) {
-        if (signal?.aborted) return false;
-        await sleep(1000);
-
+    const result = await performClickAndVerify<boolean>(
+      client,
+      iframeRect,
+      logPrefix,
+      signal,
+      async () => {
         let isNavigatingOrSolved = false;
 
         try {
-          const evalRes = await client.sendCommand('Runtime.evaluate', {
+          const evalRes = await client!.sendCommand('Runtime.evaluate', {
             expression: `(() => {
                const hasScript = !!document.querySelector('script[src*="/cdn-cgi/challenge-platform/"]');
                const hasTurnstile = !!document.querySelector('script[src*="challenges.cloudflare.com/turnstile/v0"]') || !!document.querySelector('input[name="cf-turnstile-response"]');
@@ -312,42 +318,37 @@ export async function solveCloudflare(
                 indicators.turnstileValue &&
                 indicators.turnstileValue.length > 0
               ) {
-                console.log(
-                  '[solveCloudflare] Turnstile response token found.',
-                );
+                console.log(`${logPrefix} Turnstile response token found.`);
                 isNavigatingOrSolved = true;
               } else if (!indicators.hasTurnstile) {
                 console.log(
-                  '[solveCloudflare] Turnstile indicators no longer present.',
+                  `${logPrefix} Turnstile indicators no longer present.`,
                 );
                 isNavigatingOrSolved = true;
               }
             } else {
               if (!indicators.hasScript) {
-                console.log('[solveCloudflare] Interstitial challenge passed.');
+                console.log(`${logPrefix} Interstitial challenge passed.`);
                 isNavigatingOrSolved = true;
               }
             }
           } else {
-            // Unexpected result (e.g. context destroyed returned as a success with no value in some edge cases)
             console.log(
-              '[solveCloudflare] Evaluation returned no value, assuming navigated/solved.',
+              `${logPrefix} Evaluation returned no value, assuming navigated/solved.`,
             );
             isNavigatingOrSolved = true;
           }
         } catch (e) {
-          // Context destroyed usually means the page navigated away successfully
           console.warn(
-            '[solveCloudflare] Context destroyed, assuming navigated/solved.',
+            `${logPrefix} Context destroyed, assuming navigated/solved.`,
             e,
           );
           isNavigatingOrSolved = true;
         }
 
-        // Additional check for Turnstile: the success div inside shadow DOM
         if (!isNavigatingOrSolved && type === 'turnstile') {
           try {
-            const { root } = await client.sendCommand('DOM.getDocument', {
+            const { root } = await client!.sendCommand('DOM.getDocument', {
               depth: -1,
               pierce: true,
             });
@@ -375,47 +376,160 @@ export async function solveCloudflare(
             traverse(root);
             if (success) {
               console.log(
-                '[solveCloudflare] Turnstile success div found inside shadow DOM.',
+                `${logPrefix} Turnstile success div found inside shadow DOM.`,
               );
               isNavigatingOrSolved = true;
             }
-          } catch (e) {
-            // Ignore CDP errors
-            console.error('CDP error:', e);
-          }
+          } catch {}
         }
 
         if (isNavigatingOrSolved) {
-          solved = true;
-          // Some websites need a short amount of time to send the Cloudflare challenge result to the server, so we should wait for a brief moment.
           await sleep(2000);
-          break;
+          return true;
         }
-      }
+        return null;
+      },
+    );
 
-      if (solved) {
-        break;
-      }
-    }
-
-    if (solved) {
-      console.log('[solveCloudflare] Challenge solved successfully.');
+    if (result) {
+      console.log(`${logPrefix} Challenge solved successfully.`);
     } else {
-      console.error('[solveCloudflare] Failed to solve challenge (timeout).');
+      console.error(`${logPrefix} Failed to solve challenge (timeout).`);
     }
 
     await sleep(2000);
     client.close();
-    return solved;
+    return result || false;
   } catch (err) {
-    console.error('[solveCloudflare] Error:', err);
+    console.error(`${logPrefix} Error:`, err);
+    if (client) client.close();
     return false;
   } finally {
-    if (client) {
+    NativeCDPProxy.stopProxy();
+  }
+}
+
+export async function solveCloudflareTurnstile(
+  url: string,
+  sitekey: string,
+  signal?: AbortSignal,
+): Promise<string> {
+  let client: CDPClient | null = null;
+  const logPrefix = '[solveCloudflareTurnstile]';
+
+  try {
+    NativeCDPProxy.enableWebViewDebugging();
+    const port = await NativeCDPProxy.startProxy();
+
+    let target: any = null;
+    let targetAttempts = 0;
+    while (targetAttempts < 20 && !target) {
+      if (signal?.aborted) return '';
       try {
-        client.close();
+        const res = await fetch(`http://127.0.0.1:${port}/json/list`);
+        const targets = await res.json();
+        target = targets.find(
+          (t: any) => t.url.includes(url) || url.includes(t.url),
+        );
       } catch {}
+      if (!target) {
+        await sleep(500);
+        targetAttempts++;
+      }
     }
+
+    if (!target || !target.webSocketDebuggerUrl) {
+      console.error(`${logPrefix} Target WebView not found for URL:`, url);
+      return '';
+    }
+
+    client = new CDPClient(target.webSocketDebuggerUrl);
+    await client.waitForOpen();
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #fff;">
+  <div id="captcha"></div>
+  <script>
+    window.turnstileToken = null;
+    window.onload = function() {
+      turnstile.render('#captcha', {
+        sitekey: '${sitekey}',
+        callback: function(token) {
+          window.turnstileToken = token;
+        }
+      });
+    };
+  </script>
+</body>
+</html>`;
+
+    await client.sendCommand('Runtime.evaluate', {
+      expression: `
+        document.open();
+        document.write(${JSON.stringify(html)});
+        document.close();
+      `,
+    });
+
+    let iframeRect = null;
+    let attempts = 0;
+    while (attempts < 15) {
+      if (signal?.aborted) return '';
+      iframeRect = await getIframeRectViaCDP(client);
+      if (iframeRect && iframeRect.width > 5 && iframeRect.height > 5) {
+        break;
+      }
+      iframeRect = null;
+      await sleep(1000);
+      attempts++;
+    }
+
+    if (!iframeRect) {
+      console.error(`${logPrefix} Cloudflare iframe not found or not visible.`);
+      client.close();
+      return '';
+    }
+
+    console.log(`${logPrefix} Found iframe at:`, iframeRect);
+
+    const token = await performClickAndVerify<string>(
+      client,
+      iframeRect,
+      logPrefix,
+      signal,
+      async () => {
+        try {
+          const evalRes = await client!.sendCommand('Runtime.evaluate', {
+            expression: `window.turnstileToken`,
+            returnByValue: true,
+          });
+          if (
+            evalRes &&
+            evalRes.result &&
+            typeof evalRes.result.value === 'string' &&
+            evalRes.result.value.length > 0
+          ) {
+            console.log(`${logPrefix} Turnstile token retrieved!`);
+            return evalRes.result.value;
+          }
+        } catch {
+          // ignore
+        }
+        return null;
+      },
+    );
+
+    client.close();
+    return token || '';
+  } catch (err) {
+    console.error(`${logPrefix} Error:`, err);
+    if (client) client.close();
+    return '';
+  } finally {
     NativeCDPProxy.stopProxy();
   }
 }

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useCloudflareStore } from './cloudflareStore';
-import { solveCloudflare } from './cloudflareCDP';
+import { solveCloudflare, solveCloudflareTurnstile } from './cloudflareCDP';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
 import {
   Surface,
@@ -23,14 +23,29 @@ export const CloudflareSolverOverlay = () => {
       let isCancelled = false;
       const abortController = new AbortController();
 
-      solveCloudflare(task.url, task.type, abortController.signal)
-        .then(result => {
-          if (!isCancelled) completeTask(task.id, result);
-        })
-        .catch(err => {
-          console.error('[CloudflareSolverOverlay] Error:', err);
-          if (!isCancelled) completeTask(task.id, false);
-        });
+      if (task.type === 'solve-turnstile' && task.sitekey) {
+        solveCloudflareTurnstile(task.url, task.sitekey, abortController.signal)
+          .then(result => {
+            if (!isCancelled) completeTask(task.id, result);
+          })
+          .catch(err => {
+            console.error('[CloudflareSolverOverlay] Error:', err);
+            if (!isCancelled) completeTask(task.id, '');
+          });
+      } else {
+        solveCloudflare(
+          task.url,
+          task.type as 'interstitial' | 'turnstile',
+          abortController.signal,
+        )
+          .then(result => {
+            if (!isCancelled) completeTask(task.id, result);
+          })
+          .catch(err => {
+            console.error('[CloudflareSolverOverlay] Error:', err);
+            if (!isCancelled) completeTask(task.id, false);
+          });
+      }
 
       return () => {
         isCancelled = true;
