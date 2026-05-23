@@ -653,6 +653,9 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           case 'video-fullscreen-exit':
             ScreenOrientation.unlockAsync();
             break;
+          case 'console':
+          case 'error':
+            break;
           default: {
             console.warn(`Unknown event: ${event.type}`, event);
             break;
