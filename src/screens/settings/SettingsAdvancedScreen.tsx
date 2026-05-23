@@ -149,19 +149,21 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             }}
             theme={theme}
           />
-          {appSettings.allowCloudflareBypass && <SettingSwitch
-            label={getString('advancedSettingsScreen.hideCloudflareOverlay')}
-            description={getString(
-              'advancedSettingsScreen.hideCloudflareOverlayDesc',
-            )}
-            value={appSettings.hideCloudflareOverlay}
-            onPress={() => {
-              setAppSettings({
-                hideCloudflareOverlay: !appSettings.hideCloudflareOverlay,
-              });
-            }}
-            theme={theme}
-          />}
+          {appSettings.allowCloudflareBypass && (
+            <SettingSwitch
+              label={getString('advancedSettingsScreen.hideCloudflareOverlay')}
+              description={getString(
+                'advancedSettingsScreen.hideCloudflareOverlayDesc',
+              )}
+              value={appSettings.hideCloudflareOverlay}
+              onPress={() => {
+                setAppSettings({
+                  hideCloudflareOverlay: !appSettings.hideCloudflareOverlay,
+                });
+              }}
+              theme={theme}
+            />
+          )}
           <SettingSwitch
             label={getString('advancedSettingsScreen.allowProxyAPI')}
             description={getString('advancedSettingsScreen.allowProxyAPIDesc')}

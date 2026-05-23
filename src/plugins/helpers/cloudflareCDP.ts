@@ -128,11 +128,14 @@ async function getIframeRectViaCDP(client: CDPClient) {
 
     if (targetNodeId) {
       try {
-        const { object } = await client.sendCommand('DOM.resolveNode', { nodeId: targetNodeId });
+        const { object } = await client.sendCommand('DOM.resolveNode', {
+          nodeId: targetNodeId,
+        });
         if (object && object.objectId) {
           await client.sendCommand('Runtime.callFunctionOn', {
             objectId: object.objectId,
-            functionDeclaration: 'function() { this.scrollIntoView({ behavior: "instant", block: "center", inline: "center" }); }',
+            functionDeclaration:
+              'function() { this.scrollIntoView({ behavior: "instant", block: "center", inline: "center" }); }',
           });
           await sleep(50);
         }
