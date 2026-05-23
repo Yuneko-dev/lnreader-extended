@@ -398,13 +398,16 @@ export async function solveCloudflare(
     }
 
     await sleep(2000);
-    client.close();
     return result || false;
   } catch (err) {
     console.error(`${logPrefix} Error:`, err);
-    if (client) client.close();
     return false;
   } finally {
+    if (client) {
+      try {
+        client.close();
+      } catch {}
+    }
     NativeCDPProxy.stopProxy();
   }
 }
@@ -445,6 +448,25 @@ export async function solveCloudflareTurnstile(
 
     client = new CDPClient(target.webSocketDebuggerUrl);
     await client.waitForOpen();
+
+    let readyAttempts = 0;
+    while (readyAttempts < 30) {
+      if (signal?.aborted) return '';
+      try {
+        const readyRes = await client.sendCommand('Runtime.evaluate', {
+          expression: 'document.readyState',
+          returnByValue: true,
+        });
+        if (
+          readyRes?.result?.value === 'complete' ||
+          readyRes?.result?.value === 'interactive'
+        ) {
+          break;
+        }
+      } catch {}
+      await sleep(500);
+      readyAttempts++;
+    }
 
     const html = `<!DOCTYPE html>
 <html>
@@ -490,7 +512,6 @@ export async function solveCloudflareTurnstile(
 
     if (!iframeRect) {
       console.error(`${logPrefix} Cloudflare iframe not found or not visible.`);
-      client.close();
       return '';
     }
 
@@ -523,13 +544,16 @@ export async function solveCloudflareTurnstile(
       },
     );
 
-    client.close();
     return token || '';
   } catch (err) {
     console.error(`${logPrefix} Error:`, err);
-    if (client) client.close();
     return '';
   } finally {
+    if (client) {
+      try {
+        client.close();
+      } catch {}
+    }
     NativeCDPProxy.stopProxy();
   }
 }
