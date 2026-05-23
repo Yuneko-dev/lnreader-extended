@@ -31,7 +31,8 @@ This is a modified version for my personal use. It is perfectly compatible with 
 - **Smooth Backups**: Optimized the Backup & Restore menu to prevent UI freezes.
 - **Developer Tools**: Added a Debug menu and a Storage/Cache viewer.
 - **UI Enhancements**: Minor but meaningful tweaks and improvements to the user interface.
-- **Samsung S-Pen Air Actions (Only on N10-N20U/S21U-S24U/Tab S6-Tab S10U)**: Support for Samsung users with S-Pen to control without touching the screen when reading. 
+- **Samsung S-Pen Air Actions (Only on N10-N20U/S21U-S24U/Tab S6-Tab S10U)**: Support for Samsung users with S-Pen to control without touching the screen when reading.
+- **Bypass CF Turnstile**: wtf
 
 ---
 
