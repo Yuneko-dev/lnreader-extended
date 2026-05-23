@@ -384,6 +384,8 @@ export async function solveCloudflare(
 
         if (isNavigatingOrSolved) {
           solved = true;
+          // Some websites need a short amount of time to send the Cloudflare challenge result to the server, so we should wait for a brief moment.
+          await sleep(2000);
           break;
         }
       }
