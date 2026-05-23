@@ -214,7 +214,10 @@ class LocalHttpServer(port: Int, private val basePath: String) : NanoHTTPD("127.
                 if (!name.equals("Content-Encoding", true) && 
                     !name.equals("Transfer-Encoding", true) && 
                     !name.equals("Content-Length", true) &&
-                    !name.equals("Content-Type", true)) {
+                    !name.equals("Content-Type", true) &&
+                    !name.equals("Access-Control-Allow-Origin", true) &&
+                    !name.equals("Access-Control-Allow-Credentials", true) &&
+                    !name.equals("Access-Control-Expose-Headers", true)) {
                     nanoResponse.addHeader(name, value)
                 }
             }
