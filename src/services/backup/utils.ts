@@ -25,7 +25,7 @@ import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 import DebugLogService from '@services/DebugLogService';
-import { db, dropDbTriggers, createDbTriggers } from '@database/db';
+import { db } from '@database/db';
 import { refreshAllNovelsStatsQuery } from '@database/queryStrings/triggers';
 
 const BTAG = '[Backup]';
@@ -177,7 +177,7 @@ export const restoreData = async (cacheDirPath: string) => {
 
   try {
     // 1. Disable triggers to speed up insertion
-    dropDbTriggers(db);
+    // dropDbTriggers(db);
 
     // version
     // nothing to do
@@ -343,6 +343,6 @@ export const restoreData = async (cacheDirPath: string) => {
     );
   } finally {
     // 4. Always re-enable triggers
-    createDbTriggers(db);
+    // createDbTriggers(db);
   }
 };

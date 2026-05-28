@@ -85,6 +85,7 @@ export class DebugLogServiceClass {
             depth: 2,
             customInspect: true,
             maxStringLength: 500,
+            colors: false,
           });
         } catch {
           return String(arg);

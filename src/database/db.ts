@@ -79,16 +79,14 @@ export const runDatabaseBootstrap = (executor: SqlExecutor) => {
   populateDatabase(executor);
 };
 
-export const dropDbTriggers = (executor: SqlExecutor) => {
-  console.log('Dropping database triggers');
+const createDbTriggers = (executor: SqlExecutor) => {
+  console.log('Creating database triggers');
+  // --- drop ---
   executor.executeSync(dropNovelTriggerQueryInsert);
   executor.executeSync(dropNovelTriggerQueryUpdate);
   executor.executeSync(dropNovelTriggerQueryDelete);
   executor.executeSync(dropCategoryTriggerQuery);
-};
-
-export const createDbTriggers = (executor: SqlExecutor) => {
-  console.log('Creating database triggers');
+  // --- create ---
   executor.executeSync(createNovelTriggerQueryInsert);
   executor.executeSync(createNovelTriggerQueryUpdate);
   executor.executeSync(createNovelTriggerQueryDelete);

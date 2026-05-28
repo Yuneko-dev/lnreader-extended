@@ -1,4 +1,4 @@
-import parse, { HTMLElement } from 'node-html-parser';
+import { load, Element } from 'cheerio';
 import { EpubSettings, EpubChapter, Parameter, File } from '../../types';
 import { parseJSon, isValid, sleep } from '../methods/helper';
 
@@ -22,25 +22,27 @@ export async function EpubSettingsLoader(
       file.find(x => x.path.indexOf('.opf') != -1)?.content ?? '';
     const style =
       file.find(x => x.path.indexOf('styles.css') != -1)?.content ?? '';
-    let chapters = [] as string[] | HTMLElement[];
+    let chapters = [] as Element[];
 
     epubSettings.stylesheet = style;
-    let page = undefined as undefined | HTMLElement;
-    page = parse(pageContent);
-    epubSettings.parameter = page.querySelectorAll('param').map(a => {
+    const $page = load(pageContent, { xmlMode: true });
+    
+    epubSettings.parameter = $page('param').map((_, a) => {
+      const $a = $page(a);
       return {
-        name: a.getAttribute('name'),
-        value: a.getAttribute('value'),
+        name: $a.attr('name') ?? null,
+        value: $a.attr('value') ?? null,
       } as Parameter;
-    });
-    epubSettings.title = page.querySelector('.title')?.innerText!;
-    epubSettings.author = page.querySelector('.author')?.innerText!;
-    epubSettings.rights = page.querySelector('.rights')?.innerText!;
-    epubSettings.description = page.querySelector('.description')?.innerText!;
-    epubSettings.language = page.querySelector('.language')?.innerText!;
-    epubSettings.bookId = page.querySelector('.identifier')?.innerHTML!;
-    epubSettings.source = page.querySelector('.source')?.innerText!;
-    chapters = page.querySelectorAll('itemref');
+    }).get();
+    
+    epubSettings.title = $page('.title').text();
+    epubSettings.author = $page('.author').text();
+    epubSettings.rights = $page('.rights').text();
+    epubSettings.description = $page('.description').text();
+    epubSettings.language = $page('.language').text();
+    epubSettings.bookId = $page('.identifier').html() ?? '';
+    epubSettings.source = $page('.source').text();
+    chapters = $page('itemref').toArray();
 
     if (!epubSettings.chapters) {
       epubSettings.chapters = [] as EpubChapter[];
@@ -52,23 +54,23 @@ export async function EpubSettingsLoader(
       try {
         let content = '';
         let chItem = '';
-        const chId = x.getAttribute('idref');
-        chItem =
-          page
-            ?.querySelector("item[id='" + chId + "']")
-            ?.getAttribute('href') ?? '';
+        const chId = $page(x).attr('idref');
+        chItem = $page(`item[id='${chId}']`).attr('href') ?? '';
         content = file.find(x => x.path.indexOf(chItem) != -1)?.content ?? '';
-        const chapter = parse(content);
+        const $chapter = load(content, { xmlMode: true });
+        
         epubSettings.chapters.push({
-          parameter: chapter.querySelectorAll('param').map((a: any) => {
+          parameter: $chapter('param').map((_, a) => {
+            const $a = $chapter(a);
             return {
-              name: a.getAttribute('name'),
-              value: a.getAttribute('value'),
+              name: $a.attr('name') ?? null,
+              value: $a.attr('value') ?? null,
             } as Parameter;
-          }),
-          title: chapter.querySelector('title')?.innerText ?? '',
-          htmlBody: chapter.querySelector('body')?.innerHTML!,
+          }).get(),
+          title: $chapter('title').text(),
+          htmlBody: $chapter('body').html() ?? '',
         });
+        
         dProgress = (index / parseFloat(len.toString())) * 100;
         localOnProgress?.(dProgress);
         index++;
