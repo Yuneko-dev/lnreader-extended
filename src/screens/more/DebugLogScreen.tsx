@@ -1,22 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, StyleSheet, Text, View, ScrollView } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Appbar as PaperAppbar, Chip } from 'react-native-paper';
 
-import { Appbar, SafeAreaView } from '@components';
+import { Appbar, SafeAreaView, LogViewer } from '@components';
 import { useTheme } from '@hooks/persisted';
 import DebugLogService, { LogEntry, LogLevel } from '@services/DebugLogService';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 
 type FilterLevel = 'all' | LogLevel;
-
-const LEVEL_COLORS: Record<LogLevel, string> = {
-  log: '#A0A0A0',
-  info: '#58A6FF',
-  warn: '#D29922',
-  error: '#F85149',
-};
 
 const LEVEL_LABELS: Record<LogLevel, string> = {
   log: 'LOG',
@@ -31,17 +24,10 @@ const DebugLogScreen = ({ navigation }: any) => {
     DebugLogService.getEntries(),
   );
   const [filter, setFilter] = useState<FilterLevel>('all');
-  const flatListRef = useRef<FlatList>(null);
-  const autoScrollRef = useRef(true);
 
   useEffect(() => {
     const unsubscribe = DebugLogService.subscribe(newEntries => {
       setEntries(newEntries);
-      if (autoScrollRef.current) {
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: false });
-        }, 50);
-      }
     });
     return unsubscribe;
   }, []);
@@ -65,27 +51,6 @@ const DebugLogScreen = ({ navigation }: any) => {
   const clearLog = useCallback(() => {
     DebugLogService.clear();
   }, []);
-
-  const renderItem = useCallback(
-    ({ item }: { item: LogEntry }) => (
-      <View style={styles.logEntry}>
-        <Text style={[styles.logTimestamp, { color: theme.onSurfaceVariant }]}>
-          {item.timestamp.toLocaleTimeString()}
-        </Text>
-        <Text style={[styles.logLevel, { color: LEVEL_COLORS[item.level] }]}>
-          {LEVEL_LABELS[item.level]}
-        </Text>
-        <Text
-          style={[styles.logMessage, { color: theme.onSurface }]}
-          selectable
-          numberOfLines={10}
-        >
-          {item.message}
-        </Text>
-      </View>
-    ),
-    [theme],
-  );
 
   const filterButtons: { label: string; value: FilterLevel }[] = [
     { label: 'All', value: 'all' },
@@ -133,27 +98,10 @@ const DebugLogScreen = ({ navigation }: any) => {
           ))}
         </ScrollView>
       </View>
-      <FlatList
-        ref={flatListRef}
-        data={filteredEntries}
-        keyExtractor={item => String(item.id)}
-        renderItem={renderItem}
-        style={[styles.list, { backgroundColor: theme.surfaceVariant }]}
-        contentContainerStyle={styles.listContent}
-        onScrollBeginDrag={() => {
-          autoScrollRef.current = false;
-        }}
-        onEndReached={() => {
-          autoScrollRef.current = true;
-        }}
-        onEndReachedThreshold={0.1}
-        initialNumToRender={50}
-        maxToRenderPerBatch={30}
-        getItemLayout={(_, index) => ({
-          length: 40,
-          offset: 40 * index,
-          index,
-        })}
+      <LogViewer
+        logs={filteredEntries}
+        theme={theme}
+        style={{ flex: 1, backgroundColor: theme.surfaceVariant }}
       />
       <View style={[styles.statusBar, { backgroundColor: theme.surface }]}>
         <Text style={{ color: theme.onSurfaceVariant, fontSize: 12 }}>
@@ -174,35 +122,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     gap: 8,
   },
-  list: {
-    flex: 1,
-  },
-  listContent: {
-    paddingBottom: 16,
-    paddingHorizontal: 8,
-  },
-  logEntry: {
-    flexDirection: 'row',
-    paddingVertical: 3,
-  },
-  logLevel: {
-    fontFamily: 'monospace',
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginRight: 8,
-    width: 30,
-  },
-  logMessage: {
-    flex: 1,
-    fontFamily: 'monospace',
-    fontSize: 11,
-  },
-  logTimestamp: {
-    fontFamily: 'monospace',
-    fontSize: 10,
-    marginRight: 8,
-    width: 70,
-  },
+
   statusBar: {
     alignItems: 'center',
     paddingVertical: 4,

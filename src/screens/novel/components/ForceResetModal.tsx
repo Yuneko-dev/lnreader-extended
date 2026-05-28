@@ -1,7 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal, Switch } from 'react-native-paper';
-import { Modal } from '@components';
+import { Modal, LogViewer } from '@components';
+import { BaseLogEntry } from '@components/LogViewer';
 import { ThemeColors } from '@theme/types';
 import { getString } from '@strings/translations';
 import { NovelInfo } from '@database/types';
@@ -27,8 +28,7 @@ export default function ForceResetModal({
   const [deleteDownloads, setDeleteDownloads] = useState(false);
 
   const [isResetting, setIsResetting] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const flatListRef = useRef<FlatList>(null);
+  const [logs, setLogs] = useState<BaseLogEntry[]>([]);
 
   const { refreshChapters, getNovel, setPageIndex } = useNovelContext();
 
@@ -45,11 +45,15 @@ export default function ForceResetModal({
   }, [isResetting, onDismiss]);
 
   const addLog = useCallback((msg: string) => {
-    const time = new Date().toLocaleTimeString();
-    setLogs(prev => [...prev, `[${time}] ${msg}`]);
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 50);
+    setLogs(prev => [
+      ...prev,
+      {
+        id: `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}`,
+        message: msg,
+        timestamp: new Date(),
+        level: 'info',
+      },
+    ]);
   }, []);
 
   const handleStart = async () => {
@@ -86,20 +90,6 @@ export default function ForceResetModal({
     }
   };
 
-  const renderItem = useCallback(
-    ({ item }: { item: string }) => (
-      <View style={styles.logEntry}>
-        <Text
-          style={[styles.logMessage, { color: theme.onSurface }]}
-          selectable
-        >
-          {item}
-        </Text>
-      </View>
-    ),
-    [theme],
-  );
-
   return (
     <Portal>
       <Modal
@@ -119,14 +109,11 @@ export default function ForceResetModal({
         </View>
 
         {logs.length > 0 || isResetting ? (
-          <FlatList
-            ref={flatListRef}
-            data={logs}
-            keyExtractor={(item, index) => String(index)}
-            renderItem={renderItem}
-            style={[styles.list, { backgroundColor: '#0D1117' }]}
+          <LogViewer
+            logs={logs}
+            theme={theme}
+            style={[styles.list, { backgroundColor: theme.surfaceVariant }]}
             contentContainerStyle={styles.listContent}
-            initialNumToRender={30}
           />
         ) : (
           <View>
@@ -269,15 +256,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 8,
   },
-  logEntry: {
-    flexDirection: 'row',
-    paddingVertical: 3,
-  },
-  logMessage: {
-    flex: 1,
-    fontFamily: 'monospace',
-    fontSize: 11,
-  },
+
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

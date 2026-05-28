@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Portal, Button } from 'react-native-paper';
 import * as Clipboard from 'expo-clipboard';
 
-import { Modal } from '@components';
+import { Modal, LogViewer } from '@components';
 import { ThemeColors } from '@theme/types';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
@@ -12,13 +12,6 @@ import ServiceManager, {
   type QueuedBackgroundTask,
 } from '@services/ServiceManager';
 import { useMMKVObject } from 'react-native-mmkv';
-
-const LEVEL_COLORS: Record<LogLevel, string> = {
-  log: '#A0A0A0',
-  info: '#58A6FF',
-  warn: '#D29922',
-  error: '#F85149',
-};
 
 /**
  * Tag used to filter backup-related log entries.
@@ -48,7 +41,6 @@ interface BackupLogModalProps {
 
 export default function BackupLogModal({ theme }: BackupLogModalProps) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
-  const flatListRef = useRef<FlatList>(null);
   const sessionStartIdRef = useRef<number | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -86,13 +78,15 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
 
     const unsubscribe = DebugLogService.subscribe(newEntries => {
       const sessionStart = sessionStartIdRef.current ?? 0;
-      const filtered = newEntries.filter(
-        e => e.id >= sessionStart && e.message.startsWith(BACKUP_LOG_TAG),
-      );
+      const filtered = newEntries
+        .filter(
+          e => e.index >= sessionStart && e.message.startsWith(BACKUP_LOG_TAG),
+        )
+        .map(e => ({
+          ...e,
+          message: e.message.replace(BACKUP_LOG_TAG + ' ', ''),
+        }));
       setEntries(filtered);
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 50);
     });
     return unsubscribe;
   }, [visible]);
@@ -123,26 +117,6 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
     showToast(getString('backupLogScreen.backupCancelled'));
   }, []);
 
-  const renderItem = useCallback(
-    ({ item }: { item: LogEntry }) => (
-      <View style={styles.logEntry}>
-        <Text style={[styles.logTimestamp, { color: theme.onSurfaceVariant }]}>
-          {item.timestamp.toLocaleTimeString()}
-        </Text>
-        <Text
-          style={[
-            styles.logMessage,
-            { color: LEVEL_COLORS[item.level] || theme.onSurface },
-          ]}
-          selectable
-        >
-          {item.message.replace(BACKUP_LOG_TAG + ' ', '')}
-        </Text>
-      </View>
-    ),
-    [theme],
-  );
-
   return (
     <Portal>
       <Modal visible={visible} onDismiss={closeModal}>
@@ -157,14 +131,11 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
           )}
         </View>
 
-        <FlatList
-          ref={flatListRef}
-          data={entries}
-          keyExtractor={item => String(item.id)}
-          renderItem={renderItem}
-          style={[styles.list, { backgroundColor: theme.surfaceVariant }]}
+        <LogViewer
+          logs={entries}
+          theme={theme}
+          style={{ backgroundColor: theme.surfaceVariant, ...styles.list }}
           contentContainerStyle={styles.listContent}
-          initialNumToRender={30}
           ListEmptyComponent={
             <Text style={[styles.emptyText, { color: theme.onSurfaceVariant }]}>
               {getString('backupLogScreen.noLogs')}
@@ -230,21 +201,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 8,
   },
-  logEntry: {
-    flexDirection: 'row',
-    paddingVertical: 3,
-  },
-  logMessage: {
-    flex: 1,
-    fontFamily: 'monospace',
-    fontSize: 11,
-  },
-  logTimestamp: {
-    fontFamily: 'monospace',
-    fontSize: 10,
-    marginRight: 8,
-    width: 70,
-  },
+
   runningText: {
     fontSize: 12,
     fontWeight: 'bold',

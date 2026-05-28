@@ -20,3 +20,4 @@ export { SegmentedControl } from './SegmentedControl';
 export { DialogTitle } from './DialogTitle';
 export { default as BottomTabBar } from './BottomTabBar';
 export { default as Menu } from './Menu';
+export * from './LogViewer';

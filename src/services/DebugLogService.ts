@@ -8,7 +8,8 @@ import util from 'util';
 export type LogLevel = 'log' | 'warn' | 'error' | 'info';
 
 export interface LogEntry {
-  id: number;
+  id: string;
+  index: number;
   timestamp: Date;
   level: LogLevel;
   message: string;
@@ -98,8 +99,10 @@ export class DebugLogServiceClass {
    * Add a log entry directly (useful for backup/restore logging).
    */
   addEntry(level: LogLevel, message: string) {
+    const entryIndex = this.totalWritten++;
     const entry: LogEntry = {
-      id: this.totalWritten++,
+      id: `${Date.now().toString(36)}-${entryIndex}`,
+      index: entryIndex,
       timestamp: new Date(),
       level,
       message,
@@ -150,7 +153,7 @@ export class DebugLogServiceClass {
   }
 
   /**
-   * Get the next ID that will be assigned (useful for session tracking).
+   * Get the next ID index (useful for session tracking).
    */
   getNextId(): number {
     return this.totalWritten;

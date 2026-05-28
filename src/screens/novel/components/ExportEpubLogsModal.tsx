@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
-import { Modal } from '@components';
+import { Modal, LogViewer } from '@components';
+import { BaseLogEntry } from '@components/LogViewer';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { NovelInfo } from '@database/types';
@@ -37,18 +38,21 @@ export default function ExportEpubLogsModal({
   const theme = useTheme();
 
   const [isExporting, setIsExporting] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const flatListRef = useRef<FlatList>(null);
+  const [logs, setLogs] = useState<BaseLogEntry[]>([]);
 
   // Ref to handle cancellation inside the async loop
   const isCancelledRef = useRef(false);
 
   const addLog = useCallback((msg: string) => {
-    const time = new Date().toLocaleTimeString();
-    setLogs(prev => [...prev, `[${time}] ${msg}`]);
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 50);
+    setLogs(prev => [
+      ...prev,
+      {
+        id: `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}`,
+        message: msg,
+        timestamp: new Date(),
+        level: 'info',
+      },
+    ]);
   }, []);
 
   const handleDismiss = useCallback(() => {
@@ -213,20 +217,6 @@ export default function ExportEpubLogsModal({
     }
   }, [visible, logs.length, isExporting, startExport]);
 
-  const renderItem = useCallback(
-    ({ item }: { item: string }) => (
-      <View style={styles.logEntry}>
-        <Text
-          style={[styles.logMessage, { color: theme.onSurface }]}
-          selectable
-        >
-          {item}
-        </Text>
-      </View>
-    ),
-    [theme],
-  );
-
   return (
     <Portal>
       <Modal
@@ -250,14 +240,11 @@ export default function ExportEpubLogsModal({
             {getString('novelScreen.exportEpubLogsModal.description')}
           </Text>
 
-          <FlatList
-            ref={flatListRef}
-            data={logs}
-            keyExtractor={(item, index) => String(index)}
-            renderItem={renderItem}
-            style={[styles.list, { backgroundColor: '#0D1117' }]}
+          <LogViewer
+            logs={logs}
+            theme={theme}
+            style={{ backgroundColor: theme.surfaceVariant, ...styles.list }}
             contentContainerStyle={styles.listContent}
-            initialNumToRender={30}
           />
         </View>
 
@@ -312,15 +299,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 8,
   },
-  logEntry: {
-    flexDirection: 'row',
-    paddingVertical: 3,
-  },
-  logMessage: {
-    flex: 1,
-    fontFamily: 'monospace',
-    fontSize: 11,
-  },
+
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
