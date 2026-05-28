@@ -202,6 +202,7 @@ export const forceResetNovel = async (
       const oldState = oldStateMap.get(path);
 
       toInsert.push({
+        ...(oldState ? { id: oldState.id } : {}),
         novelId,
         path,
         name,
