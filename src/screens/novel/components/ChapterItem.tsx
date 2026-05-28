@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, ReactNode } from 'react';
+import React, { memo, useCallback, useMemo, ReactNode, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import {
   ChapterBookmarkButton,
@@ -348,6 +348,12 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
 
   const swipeableRef = React.useRef<any>(null);
 
+  useEffect(() => {
+    if (swipeableRef.current) {
+      swipeableRef.current.close();
+    }
+  }, [id]);
+
   /**
    * Use onSwipeableWillOpen instead of onSwipeableOpen to trigger immediately
    * upon release, eliminating the pause where the panel waits at ACTION_WIDTH.
@@ -486,12 +492,11 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
   );
 
   if (!swipeEnabled) {
-    return <View key={'chapterItem' + id}>{chapterContent}</View>;
+    return chapterContent;
   }
 
   return (
-    <View key={'chapterItem' + id}>
-      <Swipeable
+    <Swipeable
         ref={swipeableRef}
         renderLeftActions={leftActionConfig ? renderLeftActions : undefined}
         renderRightActions={rightActionConfig ? renderRightActions : undefined}
@@ -503,7 +508,6 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
       >
         {chapterContent}
       </Swipeable>
-    </View>
   );
 };
 
