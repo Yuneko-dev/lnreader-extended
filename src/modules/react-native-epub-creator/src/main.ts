@@ -11,6 +11,7 @@ import {
   openDocumentTree,
   unlink,
   writeFile,
+  hasPermission,
 } from 'react-native-saf-x';
 import { Dirs, FileSystem } from 'react-native-file-access';
 
@@ -200,6 +201,11 @@ export default class EpubBuilder {
 
     if (!this.outputPath) {
       await this.pickFolder();
+    } else {
+      const isPermitted = await hasPermission(this.outputPath);
+      if (!isPermitted) {
+        await this.pickFolder(); 
+      }
     }
   }
 
