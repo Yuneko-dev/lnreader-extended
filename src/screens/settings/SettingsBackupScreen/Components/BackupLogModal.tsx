@@ -7,7 +7,7 @@ import { Modal, LogViewer } from '@components';
 import { ThemeColors } from '@theme/types';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
-import DebugLogService, { LogEntry, LogLevel } from '@services/DebugLogService';
+import DebugLogService, { LogEntry } from '@services/DebugLogService';
 import ServiceManager, {
   type QueuedBackgroundTask,
 } from '@services/ServiceManager';
