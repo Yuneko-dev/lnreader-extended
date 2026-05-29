@@ -48,7 +48,9 @@ export default function ForceResetModal({
     setLogs(prev => [
       ...prev,
       {
-        id: `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}`,
+        id: `${Date.now().toString(36)}-${Math.random()
+          .toString(36)
+          .substring(2)}`,
         message: msg,
         timestamp: new Date(),
         level: 'info',

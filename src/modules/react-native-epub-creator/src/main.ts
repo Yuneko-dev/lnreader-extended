@@ -204,7 +204,7 @@ export default class EpubBuilder {
     } else {
       const isPermitted = await hasPermission(this.outputPath);
       if (!isPermitted) {
-        await this.pickFolder(); 
+        await this.pickFolder();
       }
     }
   }

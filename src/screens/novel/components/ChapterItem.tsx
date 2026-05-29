@@ -375,11 +375,10 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
   );
 
   // ── Visual styles ──────────────────────────────────────────────────────
-  const selectedStyle = useMemo(
-    () =>
-      isSelected
-        ? [styles.chapterCardContainer, { backgroundColor: theme.rippleColor }]
-        : [styles.chapterCardContainer, { backgroundColor: theme.surface }],
+  const backgroundStyle = useMemo(
+    () => ({
+      backgroundColor: isSelected ? theme.rippleColor : theme.surface,
+    }),
     [isSelected, theme.rippleColor, theme.surface],
   );
 
@@ -412,11 +411,12 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
   // ── Render ─────────────────────────────────────────────────────────────
   const chapterContent = (
     <Pressable
-      style={selectedStyle}
+      style={styles.chapterCardContainer}
       onPress={handlePress}
       onLongPress={handleLongPress}
       android_ripple={ripple}
     >
+      <View style={[StyleSheet.absoluteFill, backgroundStyle]} />
       <View style={styles.row}>
         {left}
         {isBookmarked ? <ChapterBookmarkButton theme={theme} /> : null}
@@ -497,17 +497,17 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
 
   return (
     <Swipeable
-        ref={swipeableRef}
-        renderLeftActions={leftActionConfig ? renderLeftActions : undefined}
-        renderRightActions={rightActionConfig ? renderRightActions : undefined}
-        onSwipeableWillOpen={onSwipeableWillOpen}
-        overshootFriction={8}
-        friction={1.5}
-        leftThreshold={VISUAL_THRESHOLD}
-        rightThreshold={VISUAL_THRESHOLD}
-      >
-        {chapterContent}
-      </Swipeable>
+      ref={swipeableRef}
+      renderLeftActions={leftActionConfig ? renderLeftActions : undefined}
+      renderRightActions={rightActionConfig ? renderRightActions : undefined}
+      onSwipeableWillOpen={onSwipeableWillOpen}
+      overshootFriction={8}
+      friction={1.5}
+      leftThreshold={VISUAL_THRESHOLD}
+      rightThreshold={VISUAL_THRESHOLD}
+    >
+      {chapterContent}
+    </Swipeable>
   );
 };
 

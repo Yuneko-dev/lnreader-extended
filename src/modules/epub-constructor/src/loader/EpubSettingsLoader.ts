@@ -26,15 +26,17 @@ export async function EpubSettingsLoader(
 
     epubSettings.stylesheet = style;
     const $page = load(pageContent, { xmlMode: true });
-    
-    epubSettings.parameter = $page('param').map((_, a) => {
-      const $a = $page(a);
-      return {
-        name: $a.attr('name') ?? null,
-        value: $a.attr('value') ?? null,
-      } as Parameter;
-    }).get();
-    
+
+    epubSettings.parameter = $page('param')
+      .map((_, a) => {
+        const $a = $page(a);
+        return {
+          name: $a.attr('name') ?? null,
+          value: $a.attr('value') ?? null,
+        } as Parameter;
+      })
+      .get();
+
     epubSettings.title = $page('.title').text();
     epubSettings.author = $page('.author').text();
     epubSettings.rights = $page('.rights').text();
@@ -58,19 +60,21 @@ export async function EpubSettingsLoader(
         chItem = $page(`item[id='${chId}']`).attr('href') ?? '';
         content = file.find(x => x.path.indexOf(chItem) != -1)?.content ?? '';
         const $chapter = load(content, { xmlMode: true });
-        
+
         epubSettings.chapters.push({
-          parameter: $chapter('param').map((_, a) => {
-            const $a = $chapter(a);
-            return {
-              name: $a.attr('name') ?? null,
-              value: $a.attr('value') ?? null,
-            } as Parameter;
-          }).get(),
+          parameter: $chapter('param')
+            .map((_, a) => {
+              const $a = $chapter(a);
+              return {
+                name: $a.attr('name') ?? null,
+                value: $a.attr('value') ?? null,
+              } as Parameter;
+            })
+            .get(),
           title: $chapter('title').text(),
           htmlBody: $chapter('body').html() ?? '',
         });
-        
+
         dProgress = (index / parseFloat(len.toString())) * 100;
         localOnProgress?.(dProgress);
         index++;

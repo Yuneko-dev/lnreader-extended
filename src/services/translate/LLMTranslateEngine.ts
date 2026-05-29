@@ -118,12 +118,12 @@ Task: Translate the following text from ${source} to ${target}.
         throw new Error('Model is not specified');
       }
 
-      const startTime = Date.now();
+      const startTimeEstimate = Date.now();
       const estimatedTimeMs = 30_000;
       const maxProgress = 99;
       i = setInterval(() => {
         if (onProgress) {
-          const elapsedTime = Date.now() - startTime;
+          const elapsedTime = Date.now() - startTimeEstimate;
           onProgress(
             maxProgress * (1 - Math.exp(-elapsedTime / estimatedTimeMs)),
           );
@@ -244,7 +244,7 @@ Task: Translate the following text from ${source} to ${target}.
             });
           }
         } else {
-          let reasoningConfig: OpenAI.Reasoning | undefined = undefined;
+          let reasoningConfig: OpenAI.Reasoning | undefined;
           if (this.config.enableReasoning) {
             reasoningConfig = {
               effort: this.config.reasoningEffort,
