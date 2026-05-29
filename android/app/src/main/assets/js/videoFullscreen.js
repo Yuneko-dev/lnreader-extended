@@ -1,7 +1,8 @@
 (function() {
   function handleFullscreenChange() {
     const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
-    if (fullscreenElement && fullscreenElement.tagName === 'VIDEO') {
+    const containsVideoTag = fullscreenElement?.querySelector('video') !== null;
+    if (fullscreenElement && (fullscreenElement.tagName === 'VIDEO' || containsVideoTag)) {
       window.ReactNativeWebView.postMessage(JSON.stringify({
         type: 'video-fullscreen-enter'
       }));
