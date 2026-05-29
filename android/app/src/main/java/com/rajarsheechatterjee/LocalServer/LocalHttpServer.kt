@@ -201,7 +201,8 @@ class LocalHttpServer(port: Int, private val basePath: String) : NanoHTTPD("127.
             val origin = session.headers["origin"] ?: "*"
             nanoResponse.addHeader("Access-Control-Allow-Origin", origin)
             nanoResponse.addHeader("Access-Control-Allow-Credentials", "true")
-            nanoResponse.addHeader("Access-Control-Expose-Headers", "*")
+            
+            val exposeHeaders = mutableSetOf<String>()
             
             for (i in 0 until response.headers.size) {
                 val name = response.headers.name(i)
@@ -219,9 +220,14 @@ class LocalHttpServer(port: Int, private val basePath: String) : NanoHTTPD("127.
                     !name.equals("Access-Control-Allow-Credentials", true) &&
                     !name.equals("Access-Control-Expose-Headers", true)) {
                     nanoResponse.addHeader(name, value)
+                    exposeHeaders.add(name)
                 }
             }
             cookieManager.flush()
+            
+            if (exposeHeaders.isNotEmpty()) {
+                nanoResponse.addHeader("Access-Control-Expose-Headers", exposeHeaders.joinToString(", "))
+            }
             
             nanoResponse
         } catch (e: Exception) {
