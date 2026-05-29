@@ -29,6 +29,7 @@ export const CloudflareSolverOverlay = () => {
             if (!isCancelled) completeTask(task.id, result);
           })
           .catch(err => {
+            // eslint-disable-next-line no-console
             console.error('[CloudflareSolverOverlay] Error:', err);
             if (!isCancelled) completeTask(task.id, '');
           });
@@ -42,6 +43,7 @@ export const CloudflareSolverOverlay = () => {
             if (!isCancelled) completeTask(task.id, result);
           })
           .catch(err => {
+            // eslint-disable-next-line no-console
             console.error('[CloudflareSolverOverlay] Error:', err);
             if (!isCancelled) completeTask(task.id, false);
           });
@@ -80,7 +82,7 @@ export const CloudflareSolverOverlay = () => {
           <View style={styles.headerTitleContainer}>
             <ActivityIndicator
               size="small"
-              style={{ marginRight: 16 }}
+              style={styles.activityIndicator}
               color={theme.primary}
             />
             <View>
@@ -151,5 +153,8 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  activityIndicator: {
+    marginRight: 16,
   },
 });

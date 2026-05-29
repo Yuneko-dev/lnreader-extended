@@ -65,7 +65,7 @@ const getFolderPath = (path: string) => {
 };
 
 const isInternalStorage = (path: string) => {
-  return /^\/[a-z]+(?=\:)|^c[a-z]+(?=\:)|^f[a-z]+(?=\:)/.test(path.trim());
+  return /^\/[a-z]+(?=:)|^c[a-z]+(?=:)|^f[a-z]+(?=:)/.test(path.trim());
 };
 
 export default class EpubBuilder {

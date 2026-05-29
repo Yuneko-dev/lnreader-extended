@@ -64,8 +64,10 @@ const onLogMessage = (payload: { nativeEvent: { data: string } }) => {
     const dataPayload = JSON.parse(payload.nativeEvent.data);
     if (dataPayload) {
       if (dataPayload.type === 'console') {
+        // eslint-disable-next-line no-console
         console[dataPayload.method as 'log'](`[WebView]`, ...dataPayload.args);
       } else if (dataPayload.type === 'error') {
+        // eslint-disable-next-line no-console
         console.error(`[WebView Error]`, dataPayload.msg);
       }
     }
@@ -423,6 +425,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     });
     const onError = tiktokTTSEmitter.addListener('TikTokTTS_onError', err => {
       webViewRef.current?.injectJavaScript('tts.setLoading(false)');
+      // eslint-disable-next-line no-console
       console.error('TikTokTTS Error:', err.message);
     });
 
@@ -657,6 +660,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           case 'error':
             break;
           default: {
+            // eslint-disable-next-line no-console
             console.warn(`Unknown event: ${event.type}`, event);
             break;
           }

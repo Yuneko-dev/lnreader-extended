@@ -116,10 +116,10 @@ const SwipeActionView = React.memo(
       <View
         style={[
           styles.actionContainer,
-          {
-            justifyContent: 'center',
-            alignItems: side === 'left' ? 'flex-end' : 'flex-start',
-          },
+          styles.actionContainerJustifyCenter,
+          side === 'left'
+            ? styles.actionContainerLeft
+            : styles.actionContainerRight,
         ]}
       >
         {/* Colored overlay that fades in */}
@@ -240,7 +240,6 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
       }
     },
     [
-      disableHapticFeedback,
       chapter,
       onToggleBookmark,
       onToggleRead,
@@ -518,6 +517,15 @@ const styles = StyleSheet.create({
     width: ACTION_WIDTH,
     height: '100%',
     overflow: 'hidden',
+  },
+  actionContainerJustifyCenter: {
+    justifyContent: 'center',
+  },
+  actionContainerLeft: {
+    alignItems: 'flex-end',
+  },
+  actionContainerRight: {
+    alignItems: 'flex-start',
   },
   iconWrapper: {
     paddingHorizontal: 24,

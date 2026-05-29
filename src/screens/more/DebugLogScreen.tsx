@@ -101,10 +101,10 @@ const DebugLogScreen = ({ navigation }: any) => {
       <LogViewer
         logs={filteredEntries}
         theme={theme}
-        style={{ flex: 1, backgroundColor: theme.surfaceVariant }}
+        style={[styles.viewer, { backgroundColor: theme.surfaceVariant }]}
       />
       <View style={[styles.statusBar, { backgroundColor: theme.surface }]}>
-        <Text style={{ color: theme.onSurfaceVariant, fontSize: 12 }}>
+        <Text style={[styles.entriesText, { color: theme.onSurfaceVariant }]}>
           {filteredEntries.length} {getString('debugLogScreen.entries')}
         </Text>
       </View>
@@ -129,5 +129,11 @@ const styles = StyleSheet.create({
   },
   toolbar: {
     paddingVertical: 12,
+  },
+  viewer: {
+    flex: 1,
+  },
+  entriesText: {
+    fontSize: 12,
   },
 });

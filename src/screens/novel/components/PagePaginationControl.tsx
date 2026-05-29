@@ -58,9 +58,9 @@ const PagePaginationControl: React.FC<PagePaginationControlProps> = ({
       <Pressable
         style={[
           styles.volumeButton,
+          styles.volumeButtonTransparentBorder,
           {
             backgroundColor: color(theme.primary).alpha(0.12).string(),
-            borderColor: 'transparent',
           },
         ]}
         onPress={onOpenDrawer}
@@ -125,6 +125,9 @@ const styles = StyleSheet.create({
     height: 44,
     marginHorizontal: 8,
     paddingHorizontal: 16,
+  },
+  volumeButtonTransparentBorder: {
+    borderColor: 'transparent',
   },
   navButton: {
     alignItems: 'center',

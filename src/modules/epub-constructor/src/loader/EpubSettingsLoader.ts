@@ -19,9 +19,9 @@ export async function EpubSettingsLoader(
     }
 
     const pageContent =
-      file.find(x => x.path.indexOf('.opf') != -1)?.content ?? '';
+      file.find(x => x.path.indexOf('.opf') !== -1)?.content ?? '';
     const style =
-      file.find(x => x.path.indexOf('styles.css') != -1)?.content ?? '';
+      file.find(x => x.path.indexOf('styles.css') !== -1)?.content ?? '';
     let chapters = [] as Element[];
 
     epubSettings.stylesheet = style;
@@ -52,13 +52,13 @@ export async function EpubSettingsLoader(
 
     const len = chapters.length + 1;
     let index = 0;
-    for (const x of chapters) {
+    for (const chapterElem of chapters) {
       try {
         let content = '';
         let chItem = '';
-        const chId = $page(x).attr('idref');
+        const chId = $page(chapterElem).attr('idref');
         chItem = $page(`item[id='${chId}']`).attr('href') ?? '';
-        content = file.find(x => x.path.indexOf(chItem) != -1)?.content ?? '';
+        content = file.find(f => f.path.indexOf(chItem) !== -1)?.content ?? '';
         const $chapter = load(content, { xmlMode: true });
 
         epubSettings.chapters.push({

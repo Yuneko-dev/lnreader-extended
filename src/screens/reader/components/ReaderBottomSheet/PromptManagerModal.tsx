@@ -144,13 +144,19 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
                       onPress={() => setMenuVisible(true)}
                     >
                       <Text
-                        style={{ color: theme.onSurface, flex: 1 }}
+                        style={[
+                          styles.dropdownText,
+                          { color: theme.onSurface },
+                        ]}
                         numberOfLines={1}
                       >
                         {activePrompt?.title || 'Unknown'}
                       </Text>
                       <Text
-                        style={{ color: theme.onSurfaceVariant, marginLeft: 8 }}
+                        style={[
+                          styles.dropdownIcon,
+                          { color: theme.onSurfaceVariant },
+                        ]}
                       >
                         ▼
                       </Text>
@@ -168,7 +174,7 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
                       titleStyle={[
                         { color: theme.onSurface },
                         p.id === activePromptId
-                          ? { color: theme.primary, fontWeight: 'bold' }
+                          ? [styles.activeTitleStyle, { color: theme.primary }]
                           : {},
                       ]}
                     />
@@ -202,7 +208,7 @@ const PromptManagerModal: React.FC<PromptManagerModalProps> = ({
                 }
                 onPress={deletePrompt}
                 disabled={activePromptId === 'default' || prompts.length <= 1}
-                style={[styles.iconBtn, { marginRight: -8 }]}
+                style={[styles.iconBtn, styles.deleteBtn]}
               />
             </View>
           </View>
@@ -279,6 +285,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+  dropdownText: {
+    flex: 1,
+  },
+  dropdownIcon: {
+    marginLeft: 8,
+  },
+  activeTitleStyle: {
+    fontWeight: 'bold',
+  },
   editTitleContainer: {
     flex: 1,
     marginRight: 8,
@@ -293,6 +308,9 @@ const styles = StyleSheet.create({
   iconBtn: {
     margin: 0,
     marginLeft: 8,
+  },
+  deleteBtn: {
+    marginRight: -8,
   },
   contentInput: {
     minHeight: 150,

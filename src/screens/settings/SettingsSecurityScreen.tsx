@@ -179,7 +179,7 @@ const SettingsSecurityScreen = ({ navigation }: any) => {
                   />
                 )}
               </View>
-              <Text style={{ color: theme.onSurface, marginLeft: 12 }}>
+              <Text style={[styles.radioText, { color: theme.onSurface }]}>
                 {getString(option.label)}
               </Text>
             </Pressable>
@@ -210,7 +210,7 @@ const SettingsSecurityScreen = ({ navigation }: any) => {
                   />
                 )}
               </View>
-              <Text style={{ color: theme.onSurface, marginLeft: 12 }}>
+              <Text style={[styles.radioText, { color: theme.onSurface }]}>
                 {getString(option.label)}
               </Text>
             </Pressable>
@@ -248,5 +248,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 4,
     paddingVertical: 14,
+  },
+  radioText: {
+    marginLeft: 12,
   },
 });

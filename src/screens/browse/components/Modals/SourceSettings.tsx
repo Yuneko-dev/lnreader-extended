@@ -96,7 +96,7 @@ const SourceSettingsModal: React.FC<SourceSettingsModal> = ({
       <Modal visible={visible} onDismiss={onDismiss}>
         <ActivityIndicator
           size={40}
-          style={{ margin: 24 }}
+          style={styles.loadingIndicator}
           color={theme.primary}
         />
       </Modal>
@@ -273,6 +273,9 @@ const styles = StyleSheet.create({
   },
   customCSSButtons: {
     flexDirection: 'row',
+  },
+  loadingIndicator: {
+    margin: 24,
   },
   modalTitle: {
     fontSize: 24,

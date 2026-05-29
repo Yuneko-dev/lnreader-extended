@@ -119,12 +119,14 @@ export default function ForceResetModal({
           />
         ) : (
           <View>
-            <Text style={[{ color: theme.onSurfaceVariant, marginBottom: 16 }]}>
+            <Text
+              style={[styles.description, { color: theme.onSurfaceVariant }]}
+            >
               {getString('novelScreen.forceResetModal.description')}
             </Text>
 
             <View style={styles.row}>
-              <Text style={[{ color: theme.onSurface, flex: 1 }]}>
+              <Text style={[styles.rowText, { color: theme.onSurface }]}>
                 {getString('novelScreen.forceResetModal.reloadMetadata')}
               </Text>
               <Switch
@@ -135,7 +137,7 @@ export default function ForceResetModal({
             </View>
 
             <View style={styles.row}>
-              <Text style={[{ color: theme.onSurface, flex: 1 }]}>
+              <Text style={[styles.rowText, { color: theme.onSurface }]}>
                 {getString('novelScreen.forceResetModal.reloadChapters')}
               </Text>
               <Switch
@@ -147,16 +149,14 @@ export default function ForceResetModal({
 
             {reloadChapters && isPagePlugin && (
               <View style={[styles.row]}>
-                <View style={{ flex: 1 }}>
+                <View style={styles.rowText}>
                   <Text style={[{ color: theme.onSurface }]}>
                     ╰─{' '}
                     {getString('novelScreen.forceResetModal.reloadAllPages', {
                       totalPages: novel.totalPages,
                     })}
                   </Text>
-                  <Text
-                    style={[{ color: theme.error, fontSize: 12, marginTop: 4 }]}
-                  >
+                  <Text style={[styles.warningText, { color: theme.error }]}>
                     {getString(
                       'novelScreen.forceResetModal.reloadAllPagesWarning',
                     )}
@@ -172,7 +172,7 @@ export default function ForceResetModal({
 
             {reloadChapters ? (
               <View style={[styles.row]}>
-                <Text style={[{ color: theme.onSurface, flex: 1 }]}>
+                <Text style={[styles.rowText, { color: theme.onSurface }]}>
                   ╰─ {getString('novelScreen.forceResetModal.deleteDownloads')}
                 </Text>
                 <Switch
@@ -189,14 +189,11 @@ export default function ForceResetModal({
           <View style={styles.footerRight}>
             {!isResetting && logs.length === 0 && (
               <Pressable
-                style={[
-                  styles.footerBtn,
-                  { borderColor: theme.primary, marginRight: 8 },
-                ]}
+                style={[styles.footerBtn, styles.startBtn]}
                 onPress={handleStart}
                 disabled={!reloadMetadata && !reloadChapters}
               >
-                <Text style={{ color: theme.primary, fontSize: 13 }}>
+                <Text style={[styles.btnText, { color: theme.primary }]}>
                   {getString('novelScreen.forceResetModal.start')}
                 </Text>
               </Pressable>
@@ -208,17 +205,21 @@ export default function ForceResetModal({
                   borderColor: isResetting
                     ? theme.surfaceVariant
                     : theme.outline,
-                  opacity: isResetting ? 0.4 : 1,
                 },
+                isResetting ? styles.opacity40 : styles.opacity100,
               ]}
               onPress={handleDismiss}
               disabled={isResetting}
             >
               <Text
-                style={{
-                  color: isResetting ? theme.onSurfaceVariant : theme.onSurface,
-                  fontSize: 13,
-                }}
+                style={[
+                  styles.btnText,
+                  {
+                    color: isResetting
+                      ? theme.onSurfaceVariant
+                      : theme.onSurface,
+                  },
+                ]}
               >
                 {getString(logs.length > 0 ? 'common.ok' : 'common.cancel')}
               </Text>
@@ -245,6 +246,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  description: {
+    marginBottom: 16,
+  },
+  rowText: {
+    flex: 1,
+  },
+  warningText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -269,6 +280,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 8,
+  },
+  startBtn: {
+    marginRight: 8,
+  },
+  btnText: {
+    fontSize: 13,
+  },
+  opacity40: {
+    opacity: 0.4,
+  },
+  opacity100: {
+    opacity: 1,
   },
   footerRight: {
     flexDirection: 'row',

@@ -387,7 +387,7 @@ const TranslateTab: React.FC = () => {
                     setTranslateSettings({ llmModel: text })
                   }
                   mode="outlined"
-                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                  style={[styles.input, styles.modelInput]}
                   theme={{
                     colors: {
                       primary: theme.primary,
@@ -403,7 +403,7 @@ const TranslateTab: React.FC = () => {
                   )}
                   mode="contained"
                   onPress={loadModels}
-                  style={{ marginLeft: 8, marginTop: 6 }}
+                  style={styles.loadModelsBtn}
                   loading={isLoadingModels}
                   disabled={isLoadingModels}
                 />
@@ -669,6 +669,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  modelInput: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  loadModelsBtn: {
+    marginLeft: 8,
+    marginTop: 6,
   },
   bottomSpacing: {
     height: 48,

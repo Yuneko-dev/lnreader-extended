@@ -238,7 +238,7 @@ export default function ExportEpubLogsModal({
         </View>
 
         <View>
-          <Text style={[{ color: theme.onSurfaceVariant, marginBottom: 16 }]}>
+          <Text style={[styles.description, { color: theme.onSurfaceVariant }]}>
             {getString('novelScreen.exportEpubLogsModal.description')}
           </Text>
 
@@ -255,18 +255,18 @@ export default function ExportEpubLogsModal({
             <Pressable
               style={[
                 styles.footerBtn,
-                {
-                  borderColor: isExporting ? theme.outline : theme.primary,
-                  backgroundColor: isExporting ? 'transparent' : theme.primary,
-                },
+                { borderColor: isExporting ? theme.outline : theme.primary },
+                isExporting
+                  ? styles.bgTransparent
+                  : { backgroundColor: theme.primary },
               ]}
               onPress={handleDismiss}
             >
               <Text
-                style={{
-                  color: isExporting ? theme.onSurface : theme.onPrimary,
-                  fontSize: 13,
-                }}
+                style={[
+                  styles.footerBtnText,
+                  { color: isExporting ? theme.onSurface : theme.onPrimary },
+                ]}
               >
                 {getString(isExporting ? 'common.cancel' : 'common.ok')}
               </Text>
@@ -288,6 +288,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  description: {
+    marginBottom: 16,
   },
   runningText: {
     fontSize: 12,
@@ -312,6 +315,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 8,
+  },
+  footerBtnText: {
+    fontSize: 13,
+  },
+  bgTransparent: {
+    backgroundColor: 'transparent',
   },
   footerRight: {
     flexDirection: 'row',

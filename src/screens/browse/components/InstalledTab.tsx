@@ -29,10 +29,6 @@ export const InstalledTab = memo(
       lastUsedPlugin,
       setLastUsedPlugin,
       pinnedPlugins,
-      uninstallPlugin,
-      updatePlugin,
-      togglePinPlugin,
-      isPinned,
     } = usePlugins();
     const { showMyAnimeList, showAniList } = useBrowseSettings();
     const settingsModal = useBoolean();
@@ -102,16 +98,7 @@ export const InstalledTab = memo(
           />
         );
       },
-      [
-        theme,
-        navigation,
-        navigateToSource,
-        settingsModal,
-        uninstallPlugin,
-        updatePlugin,
-        togglePinPlugin,
-        isPinned,
-      ],
+      [theme, navigation, navigateToSource, settingsModal],
     );
 
     return (

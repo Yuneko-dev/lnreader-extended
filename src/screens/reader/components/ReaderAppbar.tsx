@@ -140,7 +140,7 @@ const ReaderAppbar = ({
           <View
             style={[
               styles.progressBarContainer,
-              { opacity: isTranslating ? 1 : 0 },
+              isTranslating ? styles.opacity1 : styles.opacity0,
             ]}
           >
             <View
@@ -223,5 +223,11 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: '100%',
     borderRadius: 1.5,
+  },
+  opacity1: {
+    opacity: 1,
+  },
+  opacity0: {
+    opacity: 0,
   },
 });
