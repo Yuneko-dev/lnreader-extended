@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, ViewStyle, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemeColors } from '@theme/types';
+import Animated from 'react-native-reanimated';
 import Color from 'color';
 
 const TAB_BAR_CONTENT_HEIGHT = 68;
@@ -123,7 +124,7 @@ function CustomBottomTabBar({
               style={styles.pressable}
             >
               <View style={styles.itemContent}>
-                <View
+                <Animated.View
                   style={[
                     styles.iconContainer,
                     {
@@ -133,13 +134,16 @@ function CustomBottomTabBar({
                       backgroundColor: isFocused
                         ? theme.primaryContainer
                         : transparentBg,
+                      transitionProperty: ['width', 'backgroundColor'],
+                      transitionDuration: 250,
+                      transitionTimingFunction: 'ease-in-out',
                     },
                   ]}
                 >
                   <View style={styles.iconSlot}>
                     {renderIcon({ color: iconColor, route })}
                   </View>
-                </View>
+                </Animated.View>
 
                 <View style={styles.labelSlot}>
                   {showLabel ? (
