@@ -3,7 +3,9 @@ import { version } from '../../../package.json';
 import { newer } from '@utils/compareVersion';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { GITHUB_USER, GITHUB_REPO } from '@utils/constants/metadata';
-import { GIT_HASH, BUILD_TYPE } from '@env';
+import Config from '@env';
+
+const { GIT_HASH, BUILD_TYPE } = Config;
 
 export interface GithubUpdateRelease {
   tag_name: string;

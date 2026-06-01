@@ -1,0 +1,45 @@
+diff --git a/dist/src/lib/getReactNativeDeps.js b/dist/src/lib/getReactNativeDeps.js
+index d523e094eb456f91ee8c4de0f65500e4ec002991..545593562f94ba7c03d5426e444606dec4a59331 100644
+--- a/dist/src/lib/getReactNativeDeps.js
++++ b/dist/src/lib/getReactNativeDeps.js
+@@ -1,15 +1,16 @@
+ import { createRequire } from 'node:module';
++import { pathToFileURL } from 'node:url';
+ export async function getDevMiddleware(reactNativePath) {
+     const require = createRequire(import.meta.url);
+     const reactNativeCommunityCliPluginPath = require.resolve('@react-native/community-cli-plugin', { paths: [reactNativePath] });
+     const devMiddlewarePath = require.resolve('@react-native/dev-middleware', {
+         paths: [reactNativeCommunityCliPluginPath],
+     });
+-    return import(devMiddlewarePath);
++    return import(pathToFileURL(devMiddlewarePath).href);
+ }
+ export async function getReactNativeCommunityCliPlugin(reactNativePath) {
+     const require = createRequire(import.meta.url);
+     const reactNativeCommunityCliPluginPath = require.resolve('@react-native/community-cli-plugin', { paths: [reactNativePath] });
+-    return import(reactNativeCommunityCliPluginPath);
++    return import(pathToFileURL(reactNativeCommunityCliPluginPath).href);
+ }
+ //# sourceMappingURL=getReactNativeDeps.js.map
+\ No newline at end of file
+diff --git a/dist/src/lib/start/loadMetroConfig.js b/dist/src/lib/start/loadMetroConfig.js
+index 60d8d8e96c88cb227d7675d88fa348c6bf42da0d..527b1a716b3a0fec7eaa8573584eacc3888bccae 100644
+--- a/dist/src/lib/start/loadMetroConfig.js
++++ b/dist/src/lib/start/loadMetroConfig.js
+@@ -6,6 +6,7 @@
+  */
+ import { createRequire } from 'node:module';
+ import path from 'node:path';
++import { pathToFileURL } from 'node:url';
+ import { logger } from '@rock-js/tools';
+ import { loadConfig, mergeConfig, resolveConfig } from 'metro-config';
+ import { reactNativePlatformResolver } from './metroPlatformResolver.js';
+@@ -52,7 +53,7 @@ export default async function loadMetroConfig(ctx, options = {}) {
+     const require = createRequire(import.meta.url);
+     let RNMetroConfig = null;
+     try {
+-        RNMetroConfig = await import(require.resolve('@react-native/metro-config', { paths: [ctx.root] }));
++        RNMetroConfig = await import(pathToFileURL(require.resolve('@react-native/metro-config', { paths: [ctx.root] })).href);
+     }
+     catch {
+         throw new Error("Cannot resolve `@react-native/metro-config`. Ensure it is listed in your project's `devDependencies`.");

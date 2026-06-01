@@ -8,7 +8,7 @@ import { MoreHeader } from './components/MoreHeader';
 import { useTheme } from '@hooks/persisted';
 import { List, SafeAreaView } from '@components';
 import { AboutScreenProps } from '@navigators/types';
-import { GIT_HASH, RELEASE_DATE, BUILD_TYPE } from '@env';
+import Config from '@env';
 import * as Clipboard from 'expo-clipboard';
 import { version } from '../../../package.json';
 import {
@@ -19,6 +19,8 @@ import {
 } from '@utils/constants/metadata';
 import { fetchUpdateInfo } from '@hooks/common/useGithubUpdateChecker';
 import { showToast } from '@utils/showToast';
+
+const { GIT_HASH, RELEASE_DATE, BUILD_TYPE } = Config;
 
 const AboutScreen = ({ navigation }: AboutScreenProps) => {
   const theme = useTheme();

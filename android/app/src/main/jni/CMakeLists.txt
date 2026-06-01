@@ -4,4 +4,4 @@ cmake_minimum_required(VERSION 3.13)
 project(appmodules)
 
 # This file includes all the necessary to let you build your React Native application
-include(${REACT_ANDROID_DIR}/cmake-utils/ReactNative-application.cmake)
+include(${REACT_ANDROID_DIR}/cmake-utils/ReactNative-application.cmake)

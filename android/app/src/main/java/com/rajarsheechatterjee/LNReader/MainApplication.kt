@@ -1,18 +1,14 @@
 package com.rajarsheechatterjee.LNReader
+import expo.modules.ExpoReactHostFactory
 
 import android.app.Application
-import android.util.Log
-import android.webkit.CookieManager
 import android.content.res.Configuration
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
-import com.facebook.react.ReactNativeHost
-import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
-import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import com.rajarsheechatterjee.NativeFile.NativePackage
@@ -26,24 +22,11 @@ import com.rajarsheechatterjee.TikTokTTS.TikTokTTSPackage
 import com.rajarsheechatterjee.NativeCDPProxy.CDPProxyPackage
 import expo.modules.ApplicationLifecycleDispatcher
 
-import com.facebook.react.modules.network.OkHttpClientProvider
-import com.facebook.react.modules.network.OkHttpClientFactory
-import okhttp3.HttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.dnsoverhttps.DnsOverHttps
-import okhttp3.ResponseBody.Companion.toResponseBody
-import okhttp3.brotli.BrotliInterceptor
-import java.net.InetAddress
-import org.jsoup.Jsoup
-
 class MainApplication : Application(), ReactApplication {
-
-    private val manager by lazy { CookieManager.getInstance() }
-
-    override val reactNativeHost: ReactNativeHost =
-        object : DefaultReactNativeHost(this) {
-            override fun getPackages(): List<ReactPackage> =
+    override val reactHost: ReactHost by lazy {
+        ExpoReactHostFactory.getDefaultReactHost(
+            context = applicationContext,
+            packageList =
                 PackageList(this).packages.apply {
                     add(NativePackage())
                     add(NativeSPenRemotePackage())
@@ -55,32 +38,13 @@ class MainApplication : Application(), ReactApplication {
                     add(LocalServerPackage())
                     add(TikTokTTSPackage())
                     add(CDPProxyPackage())
-                }
+                },
+        )
+    }
 
-            override fun getJSMainModuleName(): String = "index"
-
-            override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
-
-            override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-            override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
-        }
-
-    override val reactHost: ReactHost
-        get() = getDefaultReactHost(applicationContext, reactNativeHost)
- 
     override fun onCreate() {
         super.onCreate()
-
         setupCrashHandler()
-        /**
-         * Conclusion: It is not possible to integrate DoH in a way that perfectly synchronizes cookies between React Native and WebView (or I just haven't found a way yet).
-         * However, at least I managed to get DoH working, and it can bypass Cloudflare for a certain number of requests.
-         * Of course, it's still buggy - there are many issues. I've decided to give up.
-         * Anyway, if a website is blocked, using DoH alone is not enough; more advanced solutions are required.
-         * Using Private DNS or a VPN should be left to the user.
-         */
-        // setupNetworkClient()
-
         loadReactNative(this)
         ApplicationLifecycleDispatcher.onApplicationCreate(this)
     }
@@ -108,85 +72,8 @@ class MainApplication : Application(), ReactApplication {
         }
     }
 
-    private fun setupNetworkClient() {
-        OkHttpClientProvider.setOkHttpClientFactory(object : OkHttpClientFactory {
-            var client: OkHttpClient? = null
-            override fun createNewNetworkModuleClient(): OkHttpClient {
-                val bootstrapClient = OkHttpClient.Builder().build()
-                val dns = DnsOverHttps.Builder().client(bootstrapClient)
-                    .url("https://cloudflare-dns.com/dns-query".toHttpUrl())
-                    .bootstrapDnsHosts(
-                        InetAddress.getByName("162.159.36.1"),
-                        InetAddress.getByName("162.159.46.1"),
-                        InetAddress.getByName("1.1.1.1"),
-                        InetAddress.getByName("1.0.0.1"),
-                        InetAddress.getByName("162.159.132.53"),
-                        InetAddress.getByName("2606:4700:4700::1111"),
-                        InetAddress.getByName("2606:4700:4700::1001"),
-                        InetAddress.getByName("2606:4700:4700::0064"),
-                        InetAddress.getByName("2606:4700:4700::6400"),
-                    )
-                    .build()
-                val builder = OkHttpClientProvider.createClientBuilder()
-                builder.dns(dns)
-                builder.addInterceptor { chain ->
-                    val originalRequest = chain.request()
-                    val request = originalRequest.newBuilder().removeHeader("Accept-Encoding").build()
-                    val response = chain.proceed(request)
-                    Log.d("LNReader_Debug_Network", "URL: ${request.url}")
-                    val isCloudflareBlock = response.code in ERROR_CODES && response.header("Server") in SERVER_CHECK;
-                    var isCaptcha = false
-                    if (isCloudflareBlock) {
-                        try {
-                            val rawHtml = response.peekBody(Long.MAX_VALUE).string()
-                            // Log.d("LNReader_Debug_Network", "Raw HTML: $rawHtml")
-                            val document = Jsoup.parse(
-                                rawHtml,
-                                response.request.url.toString(),
-                            )
-                            isCaptcha = document.getElementById("challenge-error-title") != null ||
-                                        document.getElementById("challenge-error-text") != null
-                            Log.d("LNReader_Debug_Network", "isCaptcha = $isCaptcha")
-                        } catch (e: Exception) {
-                            Log.e("LNReader_Debug_Network", "Error: $e")
-                        }
-                    }
-                    if (isCaptcha) {
-                        removeCookies(request.url, COOKIE_NAMES, 0)
-                    }
-                    response
-                }
-                builder.addInterceptor(BrotliInterceptor)
-                return builder.build()
-            }
-        })
-    }
-
-    private fun removeCookies(url: HttpUrl, cookieNames: List<String>? = null, maxAge: Int = -1): Int {
-        val urlString = url.toString()
-        val cookies = manager.getCookie(urlString) ?: return 0
-
-        fun List<String>.filterNames(): List<String> {
-            return if (cookieNames != null) {
-                this.filter { it in cookieNames }
-            } else {
-                this
-            }
-        }
-
-        return cookies.split(";")
-            .map { it.substringBefore("=") }
-            .filterNames()
-            .onEach { manager.setCookie(urlString, "$it=;Max-Age=$maxAge") }
-            .count()
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
     }
 }
-
-private val ERROR_CODES = listOf(403, 503)
-private val SERVER_CHECK = arrayOf("cloudflare-nginx", "cloudflare")
-private val COOKIE_NAMES = listOf("cf_clearance")

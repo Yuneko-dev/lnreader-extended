@@ -15,7 +15,7 @@ react {
     //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen
     // codegenDir = file("../../node_modules/@react-native/codegen")
     //   The cli.js file which is the React Native CLI entrypoint. Default is ../../node_modules/react-native/cli.js
-    // cliFile = file("../../node_modules/react-native/cli.js")
+    cliFile = file("../../node_modules/rock/dist/src/bin.js")
 
     /* Variants */
     //   The list of variants to that are debuggable. For those we're going to
@@ -84,7 +84,7 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
     namespace "com.rajarsheechatterjee.LNReader"
     defaultConfig {
-        applicationId project.hasProperty('customAppId') ? project.getProperty('customAppId') : 'com.rajarsheechatterjee.LNReader'
+        applicationId 'com.rajarsheechatterjee.LNReader'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Generated version code. Supports versions up to 1024.1024.2048
@@ -98,14 +98,6 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
-            if (System.getenv("KEYSTORE_FILE")) {
-                storeFile file(System.getenv("KEYSTORE_FILE"))
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEY_ALIAS")
-                keyPassword System.getenv("KEY_PASSWORD")
-            }
-        }
     }
     buildTypes {
         debug {
@@ -113,14 +105,21 @@ android {
             applicationIdSuffix 'debug'
             versionNameSuffix '-debug'
         }
+        preRelease {
+            initWith release
+            matchingFallbacks = ["release"]
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            applicationIdSuffix 'preRelease'
+            versionNameSuffix '-pre-release'
+            signingConfig signingConfigs.debug
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            if (System.getenv("KEYSTORE_FILE")) {
-                signingConfig signingConfigs.release
-            } else {
-                signingConfig signingConfigs.debug
-            }
+            signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -141,8 +140,6 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.media:media:1.7.0'
 
-    implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0")
-    implementation("com.squareup.okhttp3:okhttp-brotli:4.12.0")
     implementation 'org.jsoup:jsoup:1.22.1'
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
 

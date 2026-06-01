@@ -251,10 +251,10 @@ export const forceResetNovel = async (
         if (newLastRead) {
           MMKVStorage.set(lastReadKey, JSON.stringify(newLastRead));
         } else {
-          MMKVStorage.delete(lastReadKey);
+          MMKVStorage.remove(lastReadKey);
         }
       } catch {
-        MMKVStorage.delete(lastReadKey);
+        MMKVStorage.remove(lastReadKey);
       }
     }
   }
