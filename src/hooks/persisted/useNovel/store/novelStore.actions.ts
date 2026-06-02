@@ -196,13 +196,15 @@ export const createNovelStoreActions = ({
           // ce4af365179057aaad99bafe51de84742f5fa6aa
           // Local novel was fully deleted from DB — clear state
           // to prevent re-fetch cascade (getChapters → parseNovel → error)
-          return {}
-        } else return {
-          novel: {
-            ...inner.novel,
-            inLibrary: !inner.novel.inLibrary,
-          },
-        };
+          return {};
+        } else {
+          return {
+            novel: {
+              ...inner.novel,
+              inLibrary: !inner.novel.inLibrary,
+            },
+          };
+        }
       });
     },
   };
