@@ -257,7 +257,9 @@ export const deleteChapterAction = (
           }),
         );
 
-        deps.showToast(deps.getString('common.deleted', { name: _chapter.name }));
+        deps.showToast(
+          deps.getString('common.deleted', { name: _chapter.name }),
+        );
       })(),
       deps,
     );

@@ -28,9 +28,7 @@ import { novelCategory } from './novelCategory';
 import { repository } from './repository';
 import { extendedChapterHistorySchema as extendedChapterHistory } from './extendedChapterHistory';
 
-export {
-  extendedChapterHistorySchema,
-} from './extendedChapterHistory';
+export { extendedChapterHistorySchema } from './extendedChapterHistory';
 
 /**
  * Unified schema object containing all database tables

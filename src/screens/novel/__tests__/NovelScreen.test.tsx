@@ -207,7 +207,8 @@ jest.mock('../components/DownloadCustomChapterModal', () => {
 jest.mock('../components/ForceResetModal', () => {
   const React = require('react');
   const { Text } = require('react-native');
-  return () => React.createElement(Text, { testID: 'force-reset-modal' }, 'force reset');
+  return () =>
+    React.createElement(Text, { testID: 'force-reset-modal' }, 'force reset');
 });
 
 jest.mock('../components/LoadingAnimation/NovelScreenLoading', () => {

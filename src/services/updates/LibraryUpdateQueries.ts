@@ -147,7 +147,12 @@ const updateNovelChapters = async (
 
     if (page) {
       for (const existing of existingChapters) {
-        if (!fetchedPaths.has(existing.path) && existing.unread && !existing.bookmark && !existing.isDownloaded) {
+        if (
+          !fetchedPaths.has(existing.path) &&
+          existing.unread &&
+          !existing.bookmark &&
+          !existing.isDownloaded
+        ) {
           toDelete.push(existing.id);
         }
       }
@@ -155,7 +160,13 @@ const updateNovelChapters = async (
       const sourcePages = new Set(chapters.map(c => c.page || '1'));
       for (const existing of existingChapters) {
         const existingPage = existing.page || '1';
-        if (sourcePages.has(existingPage) && !fetchedPaths.has(existing.path) && existing.unread && !existing.bookmark && !existing.isDownloaded) {
+        if (
+          sourcePages.has(existingPage) &&
+          !fetchedPaths.has(existing.path) &&
+          existing.unread &&
+          !existing.bookmark &&
+          !existing.isDownloaded
+        ) {
           toDelete.push(existing.id);
         }
       }
@@ -180,7 +191,12 @@ const updateNovelChapters = async (
       await dbManager.write(async tx => {
         await tx
           .delete(chapterSchema)
-          .where(and(inArray(chapterSchema.id, chunk), eq(chapterSchema.novelId, novelId)))
+          .where(
+            and(
+              inArray(chapterSchema.id, chunk),
+              eq(chapterSchema.novelId, novelId),
+            ),
+          )
           .run();
       });
     }
@@ -189,12 +205,26 @@ const updateNovelChapters = async (
   // 6. Post-processing: Download Queue & Exact UpdatedTime Ordering
   if (newPaths.length > 0) {
     const insertedNewChapters = await dbManager
-      .select({ id: chapterSchema.id, path: chapterSchema.path, name: chapterSchema.name })
+      .select({
+        id: chapterSchema.id,
+        path: chapterSchema.path,
+        name: chapterSchema.name,
+      })
       .from(chapterSchema)
-      .where(and(eq(chapterSchema.novelId, novelId), inArray(chapterSchema.path, newPaths)))
+      .where(
+        and(
+          eq(chapterSchema.novelId, novelId),
+          inArray(chapterSchema.path, newPaths),
+        ),
+      )
       .all();
 
-    const chapterNameByPath = new Map(chapters.map((chapter, index) => [chapter.path, chapter.name || `Chapter ${index + 1}`]));
+    const chapterNameByPath = new Map(
+      chapters.map((chapter, index) => [
+        chapter.path,
+        chapter.name || `Chapter ${index + 1}`,
+      ]),
+    );
 
     // Queue downloads
     if (downloadNewChapters) {
@@ -211,13 +241,19 @@ const updateNovelChapters = async (
     }
 
     // Apply exact ordering to updatedTime
-    const novelInfo = await dbManager.select({ inLibrary: novelSchema.inLibrary }).from(novelSchema).where(eq(novelSchema.id, novelId)).get();
+    const novelInfo = await dbManager
+      .select({ inLibrary: novelSchema.inLibrary })
+      .from(novelSchema)
+      .where(eq(novelSchema.id, novelId))
+      .get();
     const inLibrary = novelInfo?.inLibrary ?? false;
 
     if (!isFirstPopulation && !skipUpdateFlag && inLibrary) {
       // Sort to match original fetched array
       const pathToIndex = new Map(chapters.map((c, i) => [c.path, i]));
-      insertedNewChapters.sort((a, b) => pathToIndex.get(a.path)! - pathToIndex.get(b.path)!);
+      insertedNewChapters.sort(
+        (a, b) => pathToIndex.get(a.path)! - pathToIndex.get(b.path)!,
+      );
 
       const nowMs = Date.now();
       let itemCount = insertedNewChapters.length;
@@ -233,7 +269,10 @@ const updateNovelChapters = async (
       });
 
       // Force UI refresh
-      MMKVStorage.set(NOVEL_UPDATE_RANDOM_KEY, Math.random().toString(36).substring(2, 15));
+      MMKVStorage.set(
+        NOVEL_UPDATE_RANDOM_KEY,
+        Math.random().toString(36).substring(2, 15),
+      );
     }
   }
 };

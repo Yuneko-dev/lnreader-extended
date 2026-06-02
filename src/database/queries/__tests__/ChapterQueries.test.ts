@@ -325,7 +325,6 @@ describe('ChapterQueries', () => {
       expect(chapters[0].name).toBe('Chapter 1');
     });
 
-
     it('should force page override option when inserting chapters', async () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });

@@ -1,4 +1,4 @@
-import { createMMKV  } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv';
 
 const store = createMMKV({ id: 'plugin_db' });
 
