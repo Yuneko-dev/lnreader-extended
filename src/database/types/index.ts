@@ -39,8 +39,11 @@ export interface ChapterInfo {
   page: string | null;
   progress: number | null;
   position?: number | null;
-  readDuration?: number | null;
-  dateFetch?: string | null;
+}
+
+export interface ExtendedChapterHistory {
+  chapterId: number;
+  readDuration: number;
 }
 
 export interface DownloadedChapter extends ChapterInfo {

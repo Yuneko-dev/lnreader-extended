@@ -20,7 +20,11 @@ import { ChapterItem } from '@plugins/types';
 import { getString } from '@strings/translations';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { dbManager } from '@database/db';
-import { chapterSchema, novelSchema } from '@database/schema';
+import {
+  chapterSchema,
+  extendedChapterHistorySchema,
+  novelSchema,
+} from '@database/schema';
 import NativeFile from '@specs/NativeFile';
 import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
 import { chapterFilterToSQL, chapterOrderToSQL } from '@database/utils/parser';
@@ -268,11 +272,17 @@ export const addReadDuration = async (
   }
   await dbManager.write(async tx => {
     await tx
-      .update(chapterSchema)
-      .set({
-        readDuration: sql`COALESCE(${chapterSchema.readDuration}, 0) + ${durationSeconds}`,
+      .insert(extendedChapterHistorySchema)
+      .values({
+        chapterId,
+        readDuration: durationSeconds,
       })
-      .where(eq(chapterSchema.id, chapterId))
+      .onConflictDoUpdate({
+        target: extendedChapterHistorySchema.chapterId,
+        set: {
+          readDuration: sql`COALESCE(${extendedChapterHistorySchema.readDuration}, 0) + ${durationSeconds}`,
+        },
+      })
       .run();
   });
 };

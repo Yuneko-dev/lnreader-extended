@@ -40,10 +40,14 @@ const MIGRATION_STATEMENTS = [
 	page text DEFAULT '1',
 	position integer DEFAULT 0,
 	progress integer,
-	readDuration integer DEFAULT 0
 )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS chapter_novel_path_unique ON Chapter (novelId, path)`,
   `CREATE INDEX IF NOT EXISTS chapterNovelIdIndex ON Chapter (novelId, position, page, id)`,
+  `CREATE TABLE IF NOT EXISTS LNReader_eXtended_Chapter_History (
+	chapterId integer PRIMARY KEY NOT NULL,
+	readDuration integer DEFAULT 0 NOT NULL,
+	FOREIGN KEY (chapterId) REFERENCES Chapter(id) ON DELETE CASCADE
+)`,
   `CREATE TABLE IF NOT EXISTS Novel (
 	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	path text NOT NULL,

@@ -23,8 +23,14 @@ export {
 import { category } from './category';
 import { novel } from './novel';
 import { chapter } from './chapter';
+
 import { novelCategory } from './novelCategory';
 import { repository } from './repository';
+import { extendedChapterHistorySchema as extendedChapterHistory } from './extendedChapterHistory';
+
+export {
+  extendedChapterHistorySchema,
+} from './extendedChapterHistory';
 
 /**
  * Unified schema object containing all database tables
@@ -36,6 +42,7 @@ export const schema = {
   chapter,
   novelCategory,
   repository,
+  extendedChapterHistory,
 } as const;
 
 export type Schema = typeof schema;

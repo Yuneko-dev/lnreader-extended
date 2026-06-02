@@ -2,7 +2,11 @@ import { countBy } from 'lodash-es';
 import { eq, count, and, sql } from 'drizzle-orm';
 import { LibraryStats } from '../types';
 import { dbManager } from '@database/db';
-import { novelSchema, chapterSchema } from '@database/schema';
+import {
+  novelSchema,
+  chapterSchema,
+  extendedChapterHistorySchema,
+} from '@database/schema';
 
 /**
  * Get library statistics (novel count and distinct sources) using Drizzle ORM
@@ -134,9 +138,13 @@ export const getNovelStatusFromDb = async (): Promise<LibraryStats> => {
 export const getTotalReadingTimeFromDb = async (): Promise<LibraryStats> => {
   const result = await dbManager
     .select({
-      totalReadingTime: sql<number>`COALESCE(SUM(${chapterSchema.readDuration}), 0)`,
+      totalReadingTime: sql<number>`COALESCE(SUM(${extendedChapterHistorySchema.readDuration}), 0)`,
     })
-    .from(chapterSchema)
+    .from(extendedChapterHistorySchema)
+    .innerJoin(
+      chapterSchema,
+      eq(extendedChapterHistorySchema.chapterId, chapterSchema.id),
+    )
     .innerJoin(novelSchema, eq(chapterSchema.novelId, novelSchema.id))
     .where(eq(novelSchema.inLibrary, true))
     .get();

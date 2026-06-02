@@ -105,13 +105,13 @@ const fetchReducer = (
   state$1: InitDbState,
   action:
     | {
-      type: 'migrating' | 'migrated';
-      payload?: boolean | undefined;
-    }
+        type: 'migrating' | 'migrated';
+        payload?: boolean | undefined;
+      }
     | {
-      type: 'error';
-      payload: Error;
-    },
+        type: 'error';
+        payload: Error;
+      },
 ) => {
   switch (action.type) {
     case 'migrating':
@@ -153,6 +153,28 @@ export const useInitDatabase = () => {
 
     migrate(drizzleDb, migrations)
       .then(() => {
+        // Fix database migrations
+        const queryChapter = db.executeRawSync(`PRAGMA table_info(Chapter);`);
+        const readDurationCheck = queryChapter.some(
+          (row: unknown[]) => row[1] === 'readDuration',
+        );
+        const dateFetchCheck = queryChapter.some(
+          (row: unknown[]) => row[1] === 'dateFetch',
+        );
+        if (dateFetchCheck) {
+          db.executeRawSync('ALTER TABLE Chapter DROP COLUMN dateFetch;');
+        }
+        if (readDurationCheck) {
+          // 1. Migrate existing readDuration data to a new table
+          db.executeRawSync(`
+            INSERT OR IGNORE INTO LNReader_eXtended_Chapter_History (chapterId, readDuration)
+            SELECT id, readDuration 
+            FROM Chapter 
+            WHERE readDuration IS NOT NULL AND readDuration > 0;
+          `);
+          // 2. Drop the readDuration column from Chapter table
+          db.executeRawSync('ALTER TABLE Chapter DROP COLUMN readDuration;');
+        }
         runDatabaseBootstrap(_db);
         dispatch({
           type: 'migrated',

@@ -215,7 +215,6 @@ export const forceResetNovel = async (
         isDownloaded:
           oldState && !deleteDownloads ? oldState.isDownloaded : false,
         progress: oldState ? oldState.progress : null,
-        readDuration: oldState ? oldState.readDuration : 0,
         // updatedTime is explicitly NOT SET to avoid emitting updates
         updatedTime: null,
       });
