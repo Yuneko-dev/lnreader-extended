@@ -252,7 +252,10 @@ export default function useChapter(
   const getChapter = useCallback(
     async (navChapter?: ChapterInfo) => {
       try {
-        const chap = navChapter ?? chapter;
+        const dbChapter = navChapter
+          ? undefined
+          : await getDbChapter(chapter.id);
+        const chap = dbChapter ?? navChapter ?? chapter;
         const cachedText = await chapterTextCache.read(chap.id);
         const text =
           cachedText && cachedText.length > 0

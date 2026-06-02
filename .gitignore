@@ -93,6 +93,7 @@ src/generated/**/*
 .claude/
 .jj/
 .sisyphus/
+test_db/
 
 # TypeScript
 *.tsbuildinfo
