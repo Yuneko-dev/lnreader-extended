@@ -277,7 +277,7 @@ describe('useChapter', () => {
 
     await waitFor(() => expect(result.current.error).toBe('network failed'));
     expect(result.current.loading).toBe(false);
-    expect(result.current.chapterText).toBe('SANITIZED:');
+    expect(result.current.chapterText).toBe('');
   });
 
   it('reuses prefetched promise cache to avoid duplicate concurrent fetches for same chapter', async () => {

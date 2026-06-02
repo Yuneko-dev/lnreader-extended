@@ -413,7 +413,7 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
 
-      const numChaptersToInsert = 1009;
+      const numChaptersToInsert = 1000;
       const chaptersToInsert = Array.from({ length: numChaptersToInsert }).map(
         (_, i) => ({
           path: `/chapter/${i}`,

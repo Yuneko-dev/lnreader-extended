@@ -115,6 +115,7 @@ const createStore = (overrides: Record<string, unknown> = {}) => {
     fetching: false,
     batchInformation: { batch: 0, total: 1, totalChapters: 2 },
     getNextChapterBatch: jest.fn(),
+    loadUpToBatch: jest.fn(),
     setPageIndex: jest.fn(),
     openPage: jest.fn(),
     ...overrides,
@@ -144,6 +145,7 @@ describe('ChapterDrawer (task 12 context boundary cutover)', () => {
     );
     mockUseNovelActions.mockReturnValue({
       getNextChapterBatch: store.state.getNextChapterBatch,
+      loadUpToBatch: store.state.loadUpToBatch,
       openPage: store.state.openPage,
     });
 
