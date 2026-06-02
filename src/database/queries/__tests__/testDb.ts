@@ -40,8 +40,7 @@ const MIGRATION_STATEMENTS = [
 	page text DEFAULT '1',
 	position integer DEFAULT 0,
 	progress integer,
-	readDuration integer DEFAULT 0,
-	dateFetch text
+	readDuration integer DEFAULT 0
 )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS chapter_novel_path_unique ON Chapter (novelId, path)`,
   `CREATE INDEX IF NOT EXISTS chapterNovelIdIndex ON Chapter (novelId, position, page, id)`,

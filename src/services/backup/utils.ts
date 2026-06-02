@@ -100,6 +100,13 @@ export const prepareBackupData = async (cacheDirPath: string) => {
     for (let i_ = 0; i_ < novels.length; i_++) {
       const novel = novels[i_];
       try {
+        if (!novel.inLibrary && !novel.isLocal) {
+          DebugLogService.addEntry(
+            'log',
+            `${BTAG} Skipping novel not in library and not local: ${novel.name}`,
+          );
+          continue;
+        }
         const chapters = await getNovelChapters(novel.id);
         DebugLogService.addEntry(
           'log',
@@ -176,9 +183,6 @@ export const restoreData = async (cacheDirPath: string) => {
   const novelDirPath = cacheDirPath + '/' + BackupEntryName.NOVEL_AND_CHAPTERS;
 
   try {
-    // 1. Disable triggers to speed up insertion
-    // dropDbTriggers(db);
-
     // version
     // nothing to do
 
@@ -328,12 +332,12 @@ export const restoreData = async (cacheDirPath: string) => {
       }
     }
 
-    // 2. Refresh stats for all novels in bulk
+    // Refresh stats for all novels in bulk
     showToast(getString('backupScreen.finishingRestore'));
     DebugLogService.addEntry('log', `${BTAG} Refreshing all novel stats`);
     db.executeSync(refreshAllNovelsStatsQuery);
 
-    // 3. Assign orphaned novels to default category
+    // Assign orphaned novels to default category
     DebugLogService.addEntry('log', `${BTAG} Assigning orphaned novels`);
     await assignOrphanedNovelsToDefaultCategory();
   } catch (e: any) {
@@ -342,7 +346,6 @@ export const restoreData = async (cacheDirPath: string) => {
       `${BTAG} Error during restoreData: ${e.message}`,
     );
   } finally {
-    // 4. Always re-enable triggers
-    // createDbTriggers(db);
+    //
   }
 };

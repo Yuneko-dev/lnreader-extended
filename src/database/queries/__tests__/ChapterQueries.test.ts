@@ -563,20 +563,20 @@ describe('ChapterQueries', () => {
   });
 
   describe('clearUpdates', () => {
-    it('should clear all dateFetch timestamps', async () => {
+    it('should clear all updatedTime timestamps', async () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: '2024-01-01T00:00:00.000Z',
+        updatedTime: '2024-01-01T00:00:00.000Z',
       });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: '2024-01-02T00:00:00.000Z',
+        updatedTime: '2024-01-02T00:00:00.000Z',
       });
 
       await clearUpdates();
 
       const chapters = await getNovelChapters(novelId);
-      expect(chapters.every(c => c.dateFetch === null)).toBe(true);
+      expect(chapters.every(c => c.updatedTime === null)).toBe(true);
     });
   });
 
@@ -1010,10 +1010,10 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date().toISOString(),
+        updatedTime: new Date().toISOString(),
       });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date(Date.now() + 1).toISOString(),
+        updatedTime: new Date(Date.now() + 1).toISOString(),
       });
 
       const result = await getUpdatedOverviewFromDb();
@@ -1027,7 +1027,7 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date().toISOString(),
+        updatedTime: new Date().toISOString(),
       });
 
       const result = await getDetailedUpdatesFromDb(novelId);
@@ -1039,11 +1039,11 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date().toISOString(),
+        updatedTime: new Date().toISOString(),
         isDownloaded: true,
       });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date(Date.now() + 1).toISOString(),
+        updatedTime: new Date(Date.now() + 1).toISOString(),
         isDownloaded: false,
       });
 

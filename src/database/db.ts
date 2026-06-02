@@ -105,13 +105,13 @@ const fetchReducer = (
   state$1: InitDbState,
   action:
     | {
-        type: 'migrating' | 'migrated';
-        payload?: boolean | undefined;
-      }
+      type: 'migrating' | 'migrated';
+      payload?: boolean | undefined;
+    }
     | {
-        type: 'error';
-        payload: Error;
-      },
+      type: 'error';
+      payload: Error;
+    },
 ) => {
   switch (action.type) {
     case 'migrating':

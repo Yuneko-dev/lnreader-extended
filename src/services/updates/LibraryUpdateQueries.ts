@@ -6,7 +6,7 @@ import { downloadFile } from '@plugins/helpers/fetch';
 import ServiceManager from '@services/ServiceManager';
 import { dbManager } from '@database/db';
 import { novelSchema, chapterSchema } from '@database/schema';
-import { eq, and, sql, inArray } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import NativeFile from '@specs/NativeFile';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
@@ -145,23 +145,19 @@ const updateNovelChapters = async (
       .where(eq(novelSchema.id, novelId))
       .get();
 
-    // If novel is not in library, don't set dateFetch
+    // If novel is not in library, don't set updatedTime
     const inLibrary = novelInfo?.inLibrary ?? false;
-
     const toInsert: Array<{
       path: string;
       name: string;
       releaseTime: string | null;
       novelId: number;
-      updatedTime: ReturnType<typeof sql>;
+      updatedTime: string | null;
       chapterNumber: number | null;
       page: string;
       position: number;
-      dateFetch: string | null;
     }> = [];
     const toUpdate = [];
-
-    const updatedTime = sql`datetime('now','localtime')`;
 
     for (let position = 0; position < chapters.length; position++) {
       const chapter = chapters[position];
@@ -183,11 +179,10 @@ const updateNovelChapters = async (
           name,
           releaseTime: releaseTime || null,
           novelId,
-          updatedTime,
+          updatedTime: null,
           chapterNumber: chapterNumber || null,
           page: chapterPage,
           position: position,
-          dateFetch: null, // Will be assigned below with offset
         });
       } else {
         // Update existing chapter if metadata changed
@@ -201,7 +196,6 @@ const updateNovelChapters = async (
             id: existing.id,
             name,
             releaseTime: releaseTime || null,
-            updatedTime,
             page: chapterPage,
             position: position,
           });
@@ -273,7 +267,7 @@ const updateNovelChapters = async (
       }
     }
 
-    // Assign dateFetch with offset for correct ordering (like Mihon: nowMillis + itemCount--)
+    // Assign updatedTime with offset for correct ordering (like Mihon: nowMillis + itemCount--)
     // Only for truly new chapters, skip on first population, if not in library, or if skipUpdateFlag is set
     if (
       !isFirstPopulation &&
@@ -284,7 +278,7 @@ const updateNovelChapters = async (
       const nowMs = Date.now();
       let itemCount = toInsert.length;
       for (const item of toInsert) {
-        item.dateFetch = new Date(nowMs + itemCount--).toISOString();
+        item.updatedTime = new Date(nowMs + itemCount--).toISOString();
       }
     }
 
@@ -326,7 +320,6 @@ const updateNovelChapters = async (
           .set({
             name: chapterData.name,
             releaseTime: chapterData.releaseTime,
-            updatedTime: chapterData.updatedTime,
             page: chapterData.page,
             position: chapterData.position,
           })

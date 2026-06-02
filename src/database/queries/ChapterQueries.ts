@@ -325,7 +325,7 @@ export const markPreviousChaptersUnread = async (
 
 export const clearUpdates = async (): Promise<void> => {
   await dbManager.write(async tx => {
-    await tx.update(chapterSchema).set({ dateFetch: null }).run();
+    await tx.update(chapterSchema).set({ updatedTime: null }).run();
   });
 };
 
@@ -717,7 +717,7 @@ export const getUpdatedOverviewFromDb = async () =>
       novelName: novelSchema.name,
       novelCover: novelSchema.cover,
       novelPath: novelSchema.path,
-      updateDate: sql<string>`DATE(${chapterSchema.dateFetch}, 'localtime')`.as(
+      updateDate: sql<string>`DATE(${chapterSchema.updatedTime}, 'localtime')`.as(
         'update_date',
       ),
       updatesPerDay: count(),
@@ -726,8 +726,8 @@ export const getUpdatedOverviewFromDb = async () =>
     .innerJoin(novelSchema, eq(chapterSchema.novelId, novelSchema.id))
     .where(
       and(
-        isNotNull(chapterSchema.dateFetch),
-        sql`${chapterSchema.dateFetch} >= datetime('now', '-3 months')`,
+        isNotNull(chapterSchema.updatedTime),
+        sql`${chapterSchema.updatedTime} >= datetime('now', '-3 months')`,
       ),
     )
     .groupBy(novelSchema.id, sql`update_date`)
@@ -756,18 +756,18 @@ export const getDetailedUpdatesFromDb = async (
         onlyDownloadableChapters
           ? eq(chapterSchema.isDownloaded, true)
           : and(
-              isNotNull(chapterSchema.dateFetch),
-              sql`${chapterSchema.dateFetch} >= datetime('now', '-3 months')`,
+              isNotNull(chapterSchema.updatedTime),
+              sql`${chapterSchema.updatedTime} >= datetime('now', '-3 months')`,
               updateDate
                 ? eq(
-                    sql`DATE(${chapterSchema.dateFetch}, 'localtime')`,
+                    sql`DATE(${chapterSchema.updatedTime}, 'localtime')`,
                     updateDate,
                   )
                 : undefined,
             ),
       ),
     )
-    .orderBy(desc(chapterSchema.dateFetch))
+    .orderBy(desc(chapterSchema.updatedTime))
     .all();
 };
 
