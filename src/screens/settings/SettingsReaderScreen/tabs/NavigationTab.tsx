@@ -62,7 +62,7 @@ const NavigationTab: React.FC = () => {
                 0.75,
               ).toString()}
               onChangeText={text => {
-                if (!isNaN(Number(text))) {
+                if (text && !isNaN(Number(text))) {
                   setChapterGeneralSettings({
                     volumeButtonsOffset: Math.round(
                       Number(text) * screenHeight,
