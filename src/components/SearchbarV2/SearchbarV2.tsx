@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View, TextInput } from 'react-native';
 
 import IconButtonV2 from '../IconButtonV2/IconButtonV2';
 import { ThemeColors } from '../../theme/types';
-import { Menu } from '@components';
+import Menu from '../Menu';
 import { MaterialDesignIconName } from '@type/icon';
 
 export interface RightIcon {
