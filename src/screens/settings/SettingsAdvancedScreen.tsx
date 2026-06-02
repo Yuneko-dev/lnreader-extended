@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 
 import { Portal, Text, TextInput } from 'react-native-paper';
 
-import { useAppSettings, useTheme, useUserAgent } from '@hooks/persisted';
+import {
+  deleteCachedNovels,
+  useAppSettings,
+  useTheme,
+  useUserAgent,
+} from '@hooks/persisted';
 import { showToast } from '@utils/showToast';
 import SettingSwitch from './components/SettingSwitch';
 import StorageUsageSection from './components/StorageUsageSection';
 
-import { deleteCachedNovels } from '@hooks/persisted/useNovel';
 import { getString } from '@strings/translations';
 import { useBoolean } from '@hooks';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';

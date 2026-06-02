@@ -25,8 +25,6 @@ import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 import DebugLogService from '@services/DebugLogService';
-import { db } from '@database/db';
-import { refreshAllNovelsStatsQuery } from '@database/queryStrings/triggers';
 
 const BTAG = '[Backup]';
 
@@ -331,11 +329,7 @@ export const restoreData = async (cacheDirPath: string) => {
         );
       }
     }
-
-    // Refresh stats for all novels in bulk
     showToast(getString('backupScreen.finishingRestore'));
-    DebugLogService.addEntry('log', `${BTAG} Refreshing all novel stats`);
-    db.executeSync(refreshAllNovelsStatsQuery);
 
     // Assign orphaned novels to default category
     DebugLogService.addEntry('log', `${BTAG} Assigning orphaned novels`);

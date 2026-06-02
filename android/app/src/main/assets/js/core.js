@@ -101,8 +101,13 @@ window.reader = new (function () {
     }
   });
 
+  let lastScrollSaveTime = 0;
+
   document.onscrollend = () => {
     if (!this.generalSettings.val.pageReader) {
+      const now = Date.now();
+      if (now - lastScrollSaveTime < 300) return;
+      lastScrollSaveTime = now;
       const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
       const maxScrollY = scrollHeight - window.innerHeight;
       const progressToSave = parseInt(

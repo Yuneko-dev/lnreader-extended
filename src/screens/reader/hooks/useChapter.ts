@@ -48,7 +48,7 @@ import { getString } from '@strings/translations';
 import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
 import NativeSPenRemote from '@specs/NativeSPenRemote';
 import NativeFile from '@specs/NativeFile';
-import { useNovelContext } from '@screens/novel/NovelContext';
+import { useNovelActions } from '@screens/novel/NovelContext';
 import { load } from 'cheerio';
 import {
   handleSPenRemoteEvent,
@@ -73,7 +73,7 @@ export default function useChapter(
     markChapterRead,
     updateChapterProgress,
     chapterTextCache,
-  } = useNovelContext();
+  } = useNovelActions();
   const [hidden, setHidden] = useState(true);
   const [chapter, setChapter] = useState(initialChapter);
   const [loading, setLoading] = useState(true);
@@ -253,7 +253,7 @@ export default function useChapter(
     async (navChapter?: ChapterInfo) => {
       try {
         const chap = navChapter ?? chapter;
-        const cachedText = await chapterTextCache.get(chap.id);
+        const cachedText = await chapterTextCache.read(chap.id);
         const text =
           cachedText && cachedText.length > 0
             ? cachedText
@@ -268,15 +268,11 @@ export default function useChapter(
 
         let nextChap = nextChapResult;
         let prevChap = prevChapResult;
+        const totalPages = novel.totalPages ?? 0;
 
         // Pre-fetch adjacent page chapters if at a page boundary
         const currentPage = Number(chap.page);
-        if (
-          !nextChap &&
-          novel.totalPages &&
-          novel.totalPages > 0 &&
-          currentPage < novel.totalPages
-        ) {
+        if (!nextChap && totalPages > 0 && currentPage < totalPages) {
           const nextPage = String(currentPage + 1);
           try {
             const count = await getChapterCount(chap.novelId, nextPage);
@@ -335,18 +331,18 @@ export default function useChapter(
         const noPrefetch =
           loadedCheerio('meta[id="no-prefetch-marker"]').length > 0;
 
-        if (!noPrefetch && nextChap && !chapterTextCache.has(nextChap.id)) {
+        if (!noPrefetch && nextChap && !chapterTextCache.read(nextChap.id)) {
           const prefetchPromise = loadChapterText(nextChap.id, nextChap.path);
           prefetchPromise.catch(() => {
-            chapterTextCache.delete(nextChap!.id);
+            chapterTextCache.remove(nextChap!.id);
           });
-          chapterTextCache.set(nextChap.id, prefetchPromise);
+          chapterTextCache.write(nextChap.id, prefetchPromise);
         }
 
         if (noCache) {
-          chapterTextCache.delete(chap.id);
+          chapterTextCache.remove(chap.id);
         } else if (!cachedText) {
-          chapterTextCache.set(chap.id, text);
+          chapterTextCache.write(chap.id, text);
         }
 
         if (isOffline) {
@@ -394,7 +390,7 @@ export default function useChapter(
             // If there's a next chapter and autoTranslate is on, pre-translate it
             if (!noPrefetch && nextChap) {
               const nextRawText =
-                chapterTextCache.get(nextChap.id) ??
+                chapterTextCache.read(nextChap.id) ??
                 loadChapterText(nextChap.id, nextChap.path);
               Promise.resolve(nextRawText)
                 .then(resolvedText => {
@@ -440,7 +436,7 @@ export default function useChapter(
                 // Pre-translate the next chapter after background completes
                 if (!noPrefetch && nextChap) {
                   const nextRawText =
-                    chapterTextCache.get(nextChap.id) ??
+                    chapterTextCache.read(nextChap.id) ??
                     loadChapterText(nextChap.id, nextChap.path);
                   Promise.resolve(nextRawText)
                     .then(resolvedText => {
@@ -696,7 +692,7 @@ export default function useChapter(
   const refetch = useCallback(() => {
     setLoading(true);
     setError('');
-    chapterTextCache.delete(chapter.id);
+    chapterTextCache.remove(chapter.id);
     getChapter();
   }, [getChapter, chapter.id, chapterTextCache]);
 
@@ -770,7 +766,7 @@ export default function useChapter(
             loadedCheerio('meta[id="no-prefetch-marker"]').length > 0;
           if (!noPrefetch) {
             const nextRawText =
-              chapterTextCache.get(nextChapter.id) ??
+              chapterTextCache.read(nextChapter.id) ??
               loadChapterText(nextChapter.id, nextChapter.path);
             Promise.resolve(nextRawText)
               .then(resolvedText => {

@@ -51,9 +51,10 @@ export const myAnimeListTracker: Tracker = {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
+        // If no clientId is set, which will only be set in production builds, this will error out.
         client_id: clientId,
         grant_type: 'authorization_code',
-        code,
+        code: code,
         code_verifier: challenge,
       }).toString(),
     });

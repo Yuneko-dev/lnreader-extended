@@ -1,12 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
+import { StyleSheet, View, Pressable, Text } from 'react-native';
 import {
-  StyleSheet,
-  View,
-  Pressable,
-  Text,
-  ListRenderItem,
-} from 'react-native';
-import { BottomSheetFlatList, BottomSheetView } from '@gorhom/bottom-sheet';
+  BottomSheetView,
+  useBottomSheetScrollableCreator,
+} from '@gorhom/bottom-sheet';
+import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
 import color from 'color';
 
 import BottomSheet from '@components/BottomSheet/BottomSheet';
@@ -30,54 +28,52 @@ export default function PageNavigationBottomSheet({
   pageIndex,
   openPage,
 }: PageNavigationBottomSheetProps) {
+  const BottomSheetLegendListScrollable = useBottomSheetScrollableCreator();
   const insets = useSafeAreaInsets();
   const { left, right } = insets;
 
-  const renderItem: ListRenderItem<string> = useCallback(
-    ({ item, index }) => {
-      const isSelected = index === pageIndex;
-      const usingVolume = isNaN(Number(item));
-      return (
-        <View
-          style={[
-            styles.pageItemContainer,
-            isSelected && {
-              backgroundColor: theme.isDark
-                ? color(theme.primary).alpha(0.2).string()
-                : color(theme.primaryContainer).alpha(0.5).string(),
-            },
-          ]}
+  const renderItem = ({ item, index }: LegendListRenderItemProps<string>) => {
+    const isSelected = index === pageIndex;
+    const usingVolume = isNaN(Number(item));
+    return (
+      <View
+        style={[
+          styles.pageItemContainer,
+          isSelected && {
+            backgroundColor: theme.isDark
+              ? color(theme.primary).alpha(0.2).string()
+              : color(theme.primaryContainer).alpha(0.5).string(),
+          },
+        ]}
+      >
+        <Pressable
+          android_ripple={{
+            color: isSelected
+              ? color(theme.primary).alpha(0.2).string()
+              : theme.rippleColor,
+          }}
+          style={styles.pageItem}
+          onPress={() => {
+            openPage(index);
+            bottomSheetRef.current?.close();
+          }}
         >
-          <Pressable
-            android_ripple={{
-              color: isSelected
-                ? color(theme.primary).alpha(0.2).string()
-                : theme.rippleColor,
-            }}
-            style={styles.pageItem}
-            onPress={() => {
-              openPage(index);
-              bottomSheetRef.current?.close();
-            }}
-          >
-            <View style={styles.pageItemContent}>
-              <Text
-                style={[
-                  styles.pageText,
-                  {
-                    color: isSelected ? theme.primary : theme.onSurfaceVariant,
-                  },
-                ]}
-              >
-                {usingVolume ? 'Volume' : 'Page'} {item}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
-      );
-    },
-    [theme, pageIndex, openPage, bottomSheetRef],
-  );
+          <View style={styles.pageItemContent}>
+            <Text
+              style={[
+                styles.pageText,
+                {
+                  color: isSelected ? theme.primary : theme.onSurfaceVariant,
+                },
+              ]}
+            >
+              {usingVolume ? 'Volume' : 'Page'} {item}
+            </Text>
+          </View>
+        </Pressable>
+      </View>
+    );
+  };
 
   return (
     <BottomSheet
@@ -96,15 +92,15 @@ export default function PageNavigationBottomSheet({
           },
         ]}
       >
-        <BottomSheetFlatList
+        <LegendList
           data={pages}
+          recycleItems
           extraData={pageIndex}
           renderItem={renderItem}
-          keyExtractor={(item: string, index: number) =>
-            `page_${index}_${item}`
-          }
+          keyExtractor={(item, index) => `page_${index}_${item}`}
+          estimatedItemSize={56}
           contentContainerStyle={styles.listContent}
-          initialNumToRender={15}
+          renderScrollComponent={BottomSheetLegendListScrollable}
         />
       </BottomSheetView>
     </BottomSheet>

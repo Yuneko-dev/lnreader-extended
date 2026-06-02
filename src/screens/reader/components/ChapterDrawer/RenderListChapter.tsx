@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import color from 'color';
 import { ChapterInfo } from '@database/types';
 import { ThemeColors } from '@theme/types';
+import dayjs from 'dayjs';
 
 type Styles = {
   chapterCtn: StyleProp<ViewStyle>;
@@ -27,6 +28,13 @@ const renderListChapter = ({
   onPress,
   chapterId,
 }: Props) => {
+  function parseTime(time?: string | Date | null) {
+    if (!time) return undefined;
+    const parsedTime = dayjs(time);
+    return parsedTime.isValid() ? parsedTime.format('LL') : (time as string);
+  }
+  const releaseTime = parseTime(item.releaseTime);
+
   return (
     <View
       style={[
@@ -50,14 +58,14 @@ const renderListChapter = ({
         >
           {item.name}
         </Text>
-        {item.releaseTime ? (
+        {releaseTime ? (
           <Text
             style={[
               styles.releaseDateCtn,
               { color: item.unread ? theme.onSurfaceVariant : theme.outline },
             ]}
           >
-            {item.releaseTime}
+            {releaseTime}
           </Text>
         ) : null}
       </Pressable>
