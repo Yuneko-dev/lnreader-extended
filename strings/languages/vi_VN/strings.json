@@ -605,7 +605,7 @@
     "textColorModal": "Chọn màu chữ",
     "title": "Trình đọc",
     "verticalSeekbarDesc": "Sử dụng thanh cuộn dọc",
-    "volumeButtonsOffset": "Khoảng cuộn nút âm lượng (px)",
+    "volumeButtonOffset": "Khoảng cuộn nút âm lượng (theo chiều dài màn hình)",
     "einkRefreshOnPageTurn": "Làm mới màn hình khi chuyển trang",
     "einkRefreshOnPageTurnDesc": "Giảm tình trạng bóng ma trên màn hình e-ink"
   },

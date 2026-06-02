@@ -606,7 +606,7 @@
     "textColorModal": "Text color",
     "title": "Reader",
     "verticalSeekbarDesc": "Use vertical seekbar",
-    "volumeButtonsOffset": "Volume scroll offset (px)",
+    "volumeButtonOffset": "Volume button scroll offset (screen heights)",
     "einkRefreshOnPageTurn": "Refresh screen on page turn",
     "einkRefreshOnPageTurnDesc": "Reduce ghosting on e-ink displays"
   },
