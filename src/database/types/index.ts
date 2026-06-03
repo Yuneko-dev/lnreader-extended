@@ -104,8 +104,13 @@ export interface LibraryStats {
   status?: Record<string, number>;
 }
 
+export interface BackupChapter extends ChapterInfo {
+  dateFetch?: string;
+  readDuration?: number;
+}
+
 export interface BackupNovel extends NovelInfo {
-  chapters: ChapterInfo[];
+  chapters: BackupChapter[];
 }
 
 export interface BackupCategory extends Category {

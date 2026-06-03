@@ -6,7 +6,7 @@ import { insertChapters } from './ChapterQueries';
 
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
-import { BackupNovel, DBNovelInfo, NovelInfo } from '../types';
+import { BackupNovel, ChapterInfo, DBNovelInfo, ExtendedChapterHistory, NovelInfo } from '../types';
 import { SourceNovel } from '@plugins/types';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { downloadFile } from '@plugins/helpers/fetch';
@@ -17,6 +17,7 @@ import {
   novelCategorySchema,
   categorySchema,
   chapterSchema,
+  extendedChapterHistorySchema,
 } from '@database/schema';
 import NativeFile from '@specs/NativeFile';
 
@@ -556,7 +557,19 @@ export const _restoreNovelAndChapters = async (backupNovel: BackupNovel) => {
       const BATCH_SIZE = 100;
       for (let i = 0; i < chapters.length; i += BATCH_SIZE) {
         const batch = chapters.slice(i, i + BATCH_SIZE);
-        await tx.insert(chapterSchema).values(batch).run();
+        // Get `readDuration` from chapters, removing it from chapter and inserting into `ExtendedChapterHistory`
+        const filteredBatch: ChapterInfo[] = [];
+        const historyInserts: { chapterId: number; readDuration: number }[] = [];
+        batch.map(chapter => {
+          const { readDuration, dateFetch, ...chapterFiltered } = chapter;
+          filteredBatch.push(chapterFiltered);
+          historyInserts.push({
+            chapterId: chapter.id,
+            readDuration: readDuration || 0,
+          });
+        });
+        await tx.insert(chapterSchema).values(filteredBatch).run();
+        await tx.insert(extendedChapterHistorySchema).values(historyInserts).run();
       }
     }
   });

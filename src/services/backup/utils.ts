@@ -25,6 +25,7 @@ import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 import DebugLogService from '@services/DebugLogService';
+import { getAllHistoryRaw, getHistoryFromDb } from '@database/queries/HistoryQueries';
 
 const BTAG = '[Backup]';
 
@@ -90,6 +91,13 @@ export const prepareBackupData = async (cacheDirPath: string) => {
 
   // novels
   DebugLogService.addEntry('log', `${BTAG} Backing up novels...`);
+  // Query all history
+  const allHistory = await getAllHistoryRaw();
+  // Convert history to a map of chapterId to history entry
+  const historyMap = new Map<number, number>();
+  allHistory.forEach(entry => {
+    historyMap.set(entry.chapterId, entry.readDuration);
+  });
   await getAllNovels().then(async novels => {
     DebugLogService.addEntry(
       'log',
@@ -106,6 +114,11 @@ export const prepareBackupData = async (cacheDirPath: string) => {
           continue;
         }
         const chapters = await getNovelChapters(novel.id);
+        // Attach readDuration to chapters
+        const backupChapters = chapters.map(chapter => ({
+          ...chapter,
+          readDuration: historyMap.get(chapter.id) || 0,
+        }));
         DebugLogService.addEntry(
           'log',
           `${BTAG} [${i_ + 1}/${novels.length}] Processing novel: ${
@@ -115,7 +128,7 @@ export const prepareBackupData = async (cacheDirPath: string) => {
         NativeFile.writeFile(
           novelDirPath + '/' + novel.id + '.json',
           JSON.stringify({
-            chapters: chapters,
+            chapters: backupChapters,
             ...novel,
             cover: novel.cover?.replace(APP_STORAGE_URI, ''),
           }),
