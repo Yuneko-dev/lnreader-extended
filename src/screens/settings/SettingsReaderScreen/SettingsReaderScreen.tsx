@@ -265,6 +265,11 @@ const SettingsReaderScreen = () => {
               <script src="${assetsUriPrefix}/js/van.js"></script>
               <script src="${assetsUriPrefix}/js/text-vibe.js"></script>
               <script src="${assetsUriPrefix}/js/core.js"></script>
+              <script src="${assetsUriPrefix}/js/debug.js"></script>
+              <script src="${assetsUriPrefix}/js/theme.js"></script>
+              <script src="${assetsUriPrefix}/js/tts.js"></script>
+              <script src="${assetsUriPrefix}/js/page-reader.js"></script>
+              <script src="${assetsUriPrefix}/js/gestures.js"></script>
               <script src="${assetsUriPrefix}/js/index.js"></script>
               <script>
                 ${readerSettings.customJS}

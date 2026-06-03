@@ -238,7 +238,7 @@ const Footer = () => {
               reader.generalSettings.val.showBatteryAndTime ? '' : 'hidden'
             }`,
         },
-        () => Math.ceil(reader.batteryLevel.val * 100) + '%',
+        () => Math.floor(reader.batteryLevel.val * 100) + '%',
       ),
       div(
         {
@@ -346,7 +346,7 @@ const TTSController = () => {
         }
       },
     },
-    button({ innerHTML: volumnIcon }),
+    button({ innerHTML: volumeIcon }),
   );
 };
 

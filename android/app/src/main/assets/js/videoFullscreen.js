@@ -3,13 +3,13 @@
     const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
     const containsVideoTag = fullscreenElement?.querySelector('video') !== null;
     if (fullscreenElement && (fullscreenElement.tagName === 'VIDEO' || containsVideoTag)) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'video-fullscreen-enter'
-      }));
+      window.reader.post({
+        type: 'video-fullscreen-enter',
+      });
     } else {
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'video-fullscreen-exit'
-      }));
+      window.reader.post({
+        type: 'video-fullscreen-exit',
+      });
     }
   }
 
