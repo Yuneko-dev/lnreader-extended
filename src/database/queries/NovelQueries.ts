@@ -561,7 +561,7 @@ export const _restoreNovelAndChapters = async (backupNovel: BackupNovel) => {
         const filteredBatch: ChapterInfo[] = [];
         const historyInserts: { chapterId: number; readDuration: number }[] = [];
         batch.map(chapter => {
-          const { readDuration, dateFetch, ...chapterFiltered } = chapter;
+          const { readDuration, ...chapterFiltered } = chapter;
           filteredBatch.push(chapterFiltered);
           historyInserts.push({
             chapterId: chapter.id,
