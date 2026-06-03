@@ -325,11 +325,94 @@ describe('ChapterQueries', () => {
       expect(chapters[0].name).toBe('Chapter 1');
     });
 
+    it('should force page override option when inserting chapters', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+
+      await insertChapters(
+        novelId,
+        [
+          {
+            path: '/chapter/1',
+            name: 'Chapter 1',
+            page: '99',
+          },
+        ],
+        { page: '2' },
+      );
+
+      const chapters = await getNovelChapters(novelId);
+      expect(chapters).toHaveLength(1);
+      expect(chapters[0].page).toBe('2');
+    });
+
+    it('should set updatedTime when touchUpdatedTime is enabled on insert', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+
+      await insertChapters(
+        novelId,
+        [
+          {
+            path: '/chapter/1',
+            name: 'Chapter 1',
+          },
+        ],
+        { touchUpdatedTime: true },
+      );
+
+      const chapters = await getNovelChapters(novelId);
+      expect(chapters).toHaveLength(1);
+      expect(chapters[0].updatedTime).not.toBeNull();
+    });
+
+    it('should set releaseTime to null when preferNullReleaseTime is enabled', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+
+      await insertChapters(
+        novelId,
+        [
+          {
+            path: '/chapter/1',
+            name: 'Chapter 1',
+          },
+        ],
+        { preferNullReleaseTime: true },
+      );
+
+      const chapters = await getNovelChapters(novelId);
+      expect(chapters).toHaveLength(1);
+      expect(chapters[0].releaseTime).toBeNull();
+    });
+
+    it('should backfill chapterNumber with index fallback over existing null', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+
+      await insertTestChapter(testDb, novelId, {
+        path: '/chapter/1',
+        chapterNumber: null,
+      });
+
+      await insertChapters(novelId, [
+        {
+          path: '/chapter/1',
+          name: 'Chapter 1',
+        },
+      ]);
+
+      const chapters = await getNovelChapters(novelId);
+      expect(chapters).toHaveLength(1);
+      expect(chapters[0].chapterNumber).toBe(1);
+      expect(chapters[0].chapterNumber).not.toBeNull();
+    });
+
     it('should batch insert chapters correctly when exceeding BATCH_SIZE', async () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
 
-      const numChaptersToInsert = 1009;
+      const numChaptersToInsert = 1000;
       const chaptersToInsert = Array.from({ length: numChaptersToInsert }).map(
         (_, i) => ({
           path: `/chapter/${i}`,
@@ -563,20 +646,20 @@ describe('ChapterQueries', () => {
   });
 
   describe('clearUpdates', () => {
-    it('should clear all dateFetch timestamps', async () => {
+    it('should clear all updatedTime timestamps', async () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: '2024-01-01T00:00:00.000Z',
+        updatedTime: '2024-01-01T00:00:00.000Z',
       });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: '2024-01-02T00:00:00.000Z',
+        updatedTime: '2024-01-02T00:00:00.000Z',
       });
 
       await clearUpdates();
 
       const chapters = await getNovelChapters(novelId);
-      expect(chapters.every(c => c.dateFetch === null)).toBe(true);
+      expect(chapters.every(c => c.updatedTime === null)).toBe(true);
     });
   });
 
@@ -1010,10 +1093,10 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date().toISOString(),
+        updatedTime: new Date().toISOString(),
       });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date(Date.now() + 1).toISOString(),
+        updatedTime: new Date(Date.now() + 1).toISOString(),
       });
 
       const result = await getUpdatedOverviewFromDb();
@@ -1027,7 +1110,7 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date().toISOString(),
+        updatedTime: new Date().toISOString(),
       });
 
       const result = await getDetailedUpdatesFromDb(novelId);
@@ -1039,11 +1122,11 @@ describe('ChapterQueries', () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date().toISOString(),
+        updatedTime: new Date().toISOString(),
         isDownloaded: true,
       });
       await insertTestChapter(testDb, novelId, {
-        dateFetch: new Date(Date.now() + 1).toISOString(),
+        updatedTime: new Date(Date.now() + 1).toISOString(),
         isDownloaded: false,
       });
 

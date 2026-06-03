@@ -64,7 +64,7 @@ export const useTrackedNovel = (novelId: number | 'NO_ID') => {
       const oldData = getMMKVObject<TrackedNovel>(oldKey);
 
       if (oldData) {
-        MMKVStorage.delete(oldKey);
+        MMKVStorage.remove(oldKey);
       }
 
       setMigrated('true');

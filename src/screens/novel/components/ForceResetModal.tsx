@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal, Switch } from 'react-native-paper';
-import { Modal, LogViewer } from '@components';
-import { BaseLogEntry } from '@components/LogViewer';
+import Modal from '@components/Modal/Modal';
+import { LogViewer, BaseLogEntry } from '@components/LogViewer';
 import { ThemeColors } from '@theme/types';
 import { getString } from '@strings/translations';
 import { NovelInfo } from '@database/types';
 import { forceResetNovel } from '@services/updates/ForceResetNovel';
-import { useNovelContext } from '../NovelContext';
+import { useNovelActions } from '../NovelContext';
 
 interface ForceResetModalProps {
   visible: boolean;
@@ -30,7 +30,7 @@ export default function ForceResetModal({
   const [isResetting, setIsResetting] = useState(false);
   const [logs, setLogs] = useState<BaseLogEntry[]>([]);
 
-  const { refreshChapters, getNovel, setPageIndex } = useNovelContext();
+  const { refreshChapters, refreshNovel, setPageIndex } = useNovelActions();
 
   const isPagePlugin = (novel.totalPages ?? 0) > 1;
 
@@ -79,7 +79,7 @@ export default function ForceResetModal({
       addLog(getString('novelScreen.forceResetModal.logSuccess'));
 
       if (reloadMetadata) {
-        await getNovel();
+        await refreshNovel();
       }
       if (reloadChapters) {
         setPageIndex(0);

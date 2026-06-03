@@ -10,8 +10,9 @@ import NativeFile from '@specs/NativeFile';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { getLocalServerUrl } from './localServerManager';
 import { Storage } from '@plugins/helpers/storage';
-import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
 import { load } from 'cheerio';
+
+export const LOCAL_PLUGIN_ID = 'local';
 
 const storage = new Storage(LOCAL_PLUGIN_ID);
 

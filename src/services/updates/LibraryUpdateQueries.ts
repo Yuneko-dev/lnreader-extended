@@ -6,7 +6,7 @@ import { downloadFile } from '@plugins/helpers/fetch';
 import ServiceManager from '@services/ServiceManager';
 import { dbManager } from '@database/db';
 import { novelSchema, chapterSchema } from '@database/schema';
-import { eq, and, sql, inArray } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import NativeFile from '@specs/NativeFile';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
@@ -87,6 +87,7 @@ const updateNovelNecessaryInfo = async (
       .run();
   });
 };
+import { insertChapters } from '@database/queries/ChapterQueries';
 
 /**
  * Update, insert, and delete chapters for a novel.
@@ -109,249 +110,85 @@ const updateNovelChapters = async (
   page?: string,
   skipUpdateFlag?: boolean,
 ) => {
-  await dbManager.write(async tx => {
-    // Query existing chapters — scoped by page when page param is provided
-    const existingChapters = await tx
-      .select({
-        id: chapterSchema.id,
-        path: chapterSchema.path,
-        name: chapterSchema.name,
-        releaseTime: chapterSchema.releaseTime,
-        page: chapterSchema.page,
-        position: chapterSchema.position,
-        unread: chapterSchema.unread,
-        bookmark: chapterSchema.bookmark,
-        isDownloaded: chapterSchema.isDownloaded,
-      })
-      .from(chapterSchema)
-      .where(
-        page
-          ? and(
-              eq(chapterSchema.novelId, novelId),
-              eq(chapterSchema.page, page),
-            )
-          : eq(chapterSchema.novelId, novelId),
-      )
-      .all();
+  if (!chapters.length) {
+    return;
+  }
 
-    const existingMap = new Map(existingChapters.map(c => [c.path, c]));
+  const incomingPaths = Array.from(new Set(chapters.map(c => c.path)));
 
-    // If no existing chapters in scope, this is the first population — don't set dateFetch
-    const isFirstPopulation = existingChapters.length === 0;
+  // 1. Fetch existing chapters in scope
+  const existingChapters = await dbManager
+    .select({
+      id: chapterSchema.id,
+      path: chapterSchema.path,
+      page: chapterSchema.page,
+      unread: chapterSchema.unread,
+      bookmark: chapterSchema.bookmark,
+      isDownloaded: chapterSchema.isDownloaded,
+    })
+    .from(chapterSchema)
+    .where(
+      page
+        ? and(eq(chapterSchema.novelId, novelId), eq(chapterSchema.page, page))
+        : eq(chapterSchema.novelId, novelId),
+    )
+    .all();
 
-    const novelInfo = await tx
-      .select({ inLibrary: novelSchema.inLibrary })
-      .from(novelSchema)
-      .where(eq(novelSchema.id, novelId))
-      .get();
+  const existingMap = new Map(existingChapters.map(c => [c.path, c]));
+  const isFirstPopulation = existingChapters.length === 0;
 
-    // If novel is not in library, don't set dateFetch
-    const inLibrary = novelInfo?.inLibrary ?? false;
+  // 2. Identify completely new chapters
+  const newPaths = incomingPaths.filter(path => !existingMap.has(path));
 
-    const toInsert: Array<{
-      path: string;
-      name: string;
-      releaseTime: string | null;
-      novelId: number;
-      updatedTime: ReturnType<typeof sql>;
-      chapterNumber: number | null;
-      page: string;
-      position: number;
-      dateFetch: string | null;
-    }> = [];
-    const toUpdate = [];
+  // 3. Delete Safety Logic
+  const toDelete: number[] = [];
+  if (!isFirstPopulation && !skipUpdateFlag && chapters.length > 0) {
+    const fetchedPaths = new Set(incomingPaths);
 
-    const updatedTime = sql`datetime('now','localtime')`;
-
-    for (let position = 0; position < chapters.length; position++) {
-      const chapter = chapters[position];
-      const {
-        name,
-        path,
-        releaseTime,
-        page: customPage,
-        chapterNumber,
-      } = chapter;
-      const chapterPage = page || customPage || '1';
-
-      const existing = existingMap.get(path);
-
-      if (!existing) {
-        // Insert new chapter
-        toInsert.push({
-          path,
-          name,
-          releaseTime: releaseTime || null,
-          novelId,
-          updatedTime,
-          chapterNumber: chapterNumber || null,
-          page: chapterPage,
-          position: position,
-          dateFetch: null, // Will be assigned below with offset
-        });
-      } else {
-        // Update existing chapter if metadata changed
+    if (page) {
+      for (const existing of existingChapters) {
         if (
-          existing.name !== name ||
-          existing.releaseTime !== releaseTime ||
-          existing.page !== chapterPage ||
-          existing.position !== position
+          !fetchedPaths.has(existing.path) &&
+          existing.unread &&
+          !existing.bookmark &&
+          !existing.isDownloaded
         ) {
-          toUpdate.push({
-            id: existing.id,
-            name,
-            releaseTime: releaseTime || null,
-            updatedTime,
-            page: chapterPage,
-            position: position,
-          });
+          toDelete.push(existing.id);
+        }
+      }
+    } else {
+      const sourcePages = new Set(chapters.map(c => c.page || '1'));
+      for (const existing of existingChapters) {
+        const existingPage = existing.page || '1';
+        if (
+          sourcePages.has(existingPage) &&
+          !fetchedPaths.has(existing.path) &&
+          existing.unread &&
+          !existing.bookmark &&
+          !existing.isDownloaded
+        ) {
+          toDelete.push(existing.id);
         }
       }
     }
+  }
 
-    console.log(
-      `[updateNovelChapters] novelId=${novelId} page=${page ?? 'ALL'}` +
-        ` existing=${existingChapters.length} insert=${toInsert.length}` +
-        ` update=${toUpdate.length} isFirstPop=${isFirstPopulation}` +
-        ` inLibrary=${inLibrary} skip=${!!skipUpdateFlag}` +
-        ` src=${chapters.length}`,
-    );
-    if (toInsert.length > 0 && existingChapters.length > 0) {
-      const srcPath = chapters[0].path;
-      const dbPath = existingChapters[0].path;
-      console.log(
-        `[updateNovelChapters] PATH MISMATCH?\n` +
-          `  DB:  "${dbPath}"\n` +
-          `  SRC: "${srcPath}"\n` +
-          `  MATCH: ${existingMap.has(srcPath)}`,
-      );
-    }
+  // 4. Perform Modern Batch Upsert
+  // We do NOT pass touchUpdatedTime: true because we want precise sub-second ordering for new chapters only.
+  await insertChapters(novelId, chapters, { page });
 
-    // ═══ DELETE LOGIC ═══
-    // Only delete if:
-    // - Not first population (we have existing data to compare against)
-    // - Not a skip-update call (first-time page fetch)
-    // - Source returned chapters (empty source = possible network error, don't delete)
-    const toDelete: number[] = [];
-    if (!isFirstPopulation && !skipUpdateFlag && chapters.length > 0) {
-      const fetchedPaths = new Set(chapters.map(c => c.path));
-
-      if (page) {
-        // Page is provided (scoped query) — safe to compare directly
-        for (const existing of existingChapters) {
-          if (!fetchedPaths.has(existing.path)) {
-            // Only delete if no user data
-            if (
-              existing.unread &&
-              !existing.bookmark &&
-              !existing.isDownloaded
-            ) {
-              toDelete.push(existing.id);
-            }
-          }
-        }
-      } else {
-        // Page is NOT provided (Base plugin, queried ALL chapters)
-        // Cross-page protection: only delete within page groups that are in the source
-        const sourcePages = new Set(chapters.map(c => c.page || '1'));
-        for (const existing of existingChapters) {
-          const existingPage = existing.page || '1';
-          if (!sourcePages.has(existingPage)) {
-            continue; // Skip chapters from pages not represented in source
-          }
-          if (!fetchedPaths.has(existing.path)) {
-            // Only delete if no user data
-            if (
-              existing.unread &&
-              !existing.bookmark &&
-              !existing.isDownloaded
-            ) {
-              toDelete.push(existing.id);
-            }
-          }
-        }
+  // 5. Execute Deletions
+  if (toDelete.length > 0) {
+    for (const chapterId of toDelete) {
+      const chapterDir = `${NOVEL_STORAGE}/${pluginId}/${novelId}/${chapterId}`;
+      if (NativeFile.exists(chapterDir)) {
+        NativeFile.unlink(chapterDir);
       }
     }
-
-    // Assign dateFetch with offset for correct ordering (like Mihon: nowMillis + itemCount--)
-    // Only for truly new chapters, skip on first population, if not in library, or if skipUpdateFlag is set
-    if (
-      !isFirstPopulation &&
-      !skipUpdateFlag &&
-      inLibrary &&
-      toInsert.length > 0
-    ) {
-      const nowMs = Date.now();
-      let itemCount = toInsert.length;
-      for (const item of toInsert) {
-        item.dateFetch = new Date(nowMs + itemCount--).toISOString();
-      }
-    }
-
-    if (toInsert.length > 0) {
-      const CHUNK_SIZE = 500;
-      for (let i = 0; i < toInsert.length; i += CHUNK_SIZE) {
-        const chunk = toInsert.slice(i, i + CHUNK_SIZE);
-        const newChapters = await tx
-          .insert(chapterSchema)
-          .values(chunk)
-          .returning();
-
-        if (downloadNewChapters) {
-          for (const newChapter of newChapters) {
-            ServiceManager.manager.addTask({
-              name: 'DOWNLOAD_CHAPTER',
-              data: {
-                chapterId: newChapter.id,
-                novelName: novelName,
-                chapterName: newChapter.name,
-              },
-            });
-          }
-        }
-      }
-      // Force UI refresh
-      if (inLibrary && !skipUpdateFlag) {
-        MMKVStorage.set(
-          NOVEL_UPDATE_RANDOM_KEY,
-          Math.random().toString(36).substring(2, 15),
-        );
-      }
-    }
-
-    if (toUpdate.length > 0) {
-      for (const chapterData of toUpdate) {
-        await tx
-          .update(chapterSchema)
-          .set({
-            name: chapterData.name,
-            releaseTime: chapterData.releaseTime,
-            updatedTime: chapterData.updatedTime,
-            page: chapterData.page,
-            position: chapterData.position,
-          })
-          .where(
-            and(
-              eq(chapterSchema.id, chapterData.id),
-              eq(chapterSchema.novelId, novelId),
-            ),
-          )
-          .run();
-      }
-    }
-
-    if (toDelete.length > 0) {
-      // Cleanup downloaded files before deleting from DB
-      for (const chapterId of toDelete) {
-        const chapterDir = `${NOVEL_STORAGE}/${pluginId}/${novelId}/${chapterId}`;
-        if (NativeFile.exists(chapterDir)) {
-          NativeFile.unlink(chapterDir);
-        }
-      }
-      // Delete from DB in chunks
-      const CHUNK_SIZE = 500;
-      for (let i = 0; i < toDelete.length; i += CHUNK_SIZE) {
-        const chunk = toDelete.slice(i, i + CHUNK_SIZE);
+    const CHUNK_SIZE = 500;
+    for (let i = 0; i < toDelete.length; i += CHUNK_SIZE) {
+      const chunk = toDelete.slice(i, i + CHUNK_SIZE);
+      await dbManager.write(async tx => {
         await tx
           .delete(chapterSchema)
           .where(
@@ -361,9 +198,83 @@ const updateNovelChapters = async (
             ),
           )
           .run();
+      });
+    }
+  }
+
+  // 6. Post-processing: Download Queue & Exact UpdatedTime Ordering
+  if (newPaths.length > 0) {
+    const insertedNewChapters = await dbManager
+      .select({
+        id: chapterSchema.id,
+        path: chapterSchema.path,
+        name: chapterSchema.name,
+      })
+      .from(chapterSchema)
+      .where(
+        and(
+          eq(chapterSchema.novelId, novelId),
+          inArray(chapterSchema.path, newPaths),
+        ),
+      )
+      .all();
+
+    const chapterNameByPath = new Map(
+      chapters.map((chapter, index) => [
+        chapter.path,
+        chapter.name || `Chapter ${index + 1}`,
+      ]),
+    );
+
+    // Queue downloads
+    if (downloadNewChapters) {
+      for (const chap of insertedNewChapters) {
+        ServiceManager.manager.addTask({
+          name: 'DOWNLOAD_CHAPTER',
+          data: {
+            chapterId: chap.id,
+            novelName,
+            chapterName: chapterNameByPath.get(chap.path) || chap.name,
+          },
+        });
       }
     }
-  });
+
+    // Apply exact ordering to updatedTime
+    const novelInfo = await dbManager
+      .select({ inLibrary: novelSchema.inLibrary })
+      .from(novelSchema)
+      .where(eq(novelSchema.id, novelId))
+      .get();
+    const inLibrary = novelInfo?.inLibrary ?? false;
+
+    if (!isFirstPopulation && !skipUpdateFlag && inLibrary) {
+      // Sort to match original fetched array
+      const pathToIndex = new Map(chapters.map((c, i) => [c.path, i]));
+      insertedNewChapters.sort(
+        (a, b) => pathToIndex.get(a.path)! - pathToIndex.get(b.path)!,
+      );
+
+      const nowMs = Date.now();
+      let itemCount = insertedNewChapters.length;
+
+      await dbManager.write(async tx => {
+        for (const chap of insertedNewChapters) {
+          await tx
+            .update(chapterSchema)
+            .set({ updatedTime: new Date(nowMs + itemCount--).toISOString() })
+            .where(eq(chapterSchema.id, chap.id))
+            .run();
+        }
+      });
+
+      // Force UI refresh
+      MMKVStorage.set(
+        NOVEL_UPDATE_RANDOM_KEY,
+        Math.random().toString(36).substring(2, 15),
+      );
+    }
+  }
 };
 
 export interface UpdateNovelOptions {

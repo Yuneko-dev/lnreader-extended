@@ -25,8 +25,12 @@ import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 import DebugLogService from '@services/DebugLogService';
-import { db } from '@database/db';
-import { refreshAllNovelsStatsQuery } from '@database/queryStrings/triggers';
+import { getAllHistoryRaw } from '@database/queries/HistoryQueries';
+import {
+  _restoreRepository,
+  getRepositoriesFromDb,
+} from '@database/queries/RepositoryQueries';
+import { RepositoryRow } from '@database/schema';
 
 const BTAG = '[Backup]';
 
@@ -92,6 +96,13 @@ export const prepareBackupData = async (cacheDirPath: string) => {
 
   // novels
   DebugLogService.addEntry('log', `${BTAG} Backing up novels...`);
+  // Query all history
+  const allHistory = await getAllHistoryRaw();
+  // Convert history to a map of chapterId to history entry
+  const historyMap = new Map<number, number>();
+  allHistory.forEach(entry => {
+    historyMap.set(entry.chapterId, entry.readDuration);
+  });
   await getAllNovels().then(async novels => {
     DebugLogService.addEntry(
       'log',
@@ -100,7 +111,19 @@ export const prepareBackupData = async (cacheDirPath: string) => {
     for (let i_ = 0; i_ < novels.length; i_++) {
       const novel = novels[i_];
       try {
+        if (!novel.inLibrary && !novel.isLocal) {
+          DebugLogService.addEntry(
+            'log',
+            `${BTAG} Skipping novel not in library and not local: ${novel.name}`,
+          );
+          continue;
+        }
         const chapters = await getNovelChapters(novel.id);
+        // Attach readDuration to chapters
+        const backupChapters = chapters.map(chapter => ({
+          ...chapter,
+          readDuration: historyMap.get(chapter.id) || 0,
+        }));
         DebugLogService.addEntry(
           'log',
           `${BTAG} [${i_ + 1}/${novels.length}] Processing novel: ${
@@ -110,7 +133,7 @@ export const prepareBackupData = async (cacheDirPath: string) => {
         NativeFile.writeFile(
           novelDirPath + '/' + novel.id + '.json',
           JSON.stringify({
-            chapters: chapters,
+            chapters: backupChapters,
             ...novel,
             cover: novel.cover?.replace(APP_STORAGE_URI, ''),
           }),
@@ -155,6 +178,21 @@ export const prepareBackupData = async (cacheDirPath: string) => {
       }),
     );
   }
+  // repositories
+  try {
+    DebugLogService.addEntry('log', `${BTAG} Backing up repositories...`);
+    const repositories = await getRepositoriesFromDb();
+    NativeFile.writeFile(
+      cacheDirPath + '/' + BackupEntryName.REPOSITORY,
+      JSON.stringify(repositories),
+    );
+  } catch (error: any) {
+    showToast(
+      getString('backupScreen.repositoryFileWriteFailed', {
+        error: error?.message || String(error),
+      }),
+    );
+  }
 
   // settings
   try {
@@ -176,9 +214,6 @@ export const restoreData = async (cacheDirPath: string) => {
   const novelDirPath = cacheDirPath + '/' + BackupEntryName.NOVEL_AND_CHAPTERS;
 
   try {
-    // 1. Disable triggers to speed up insertion
-    // dropDbTriggers(db);
-
     // version
     // nothing to do
 
@@ -307,6 +342,42 @@ export const restoreData = async (cacheDirPath: string) => {
       );
     }
 
+    // repositories
+    showToast(getString('backupScreen.restoringRepositories'));
+    const repositoryFilePath = cacheDirPath + '/' + BackupEntryName.REPOSITORY;
+
+    if (!NativeFile.exists(repositoryFilePath)) {
+      showToast(getString('backupScreen.repositoryFileNotFound'));
+    } else {
+      try {
+        const fileContent = NativeFile.readFile(repositoryFilePath);
+        const repositories: RepositoryRow[] = JSON.parse(fileContent);
+        DebugLogService.addEntry(
+          'log',
+          `${BTAG} Found ${repositories.length} repositories to restore`,
+        );
+
+        for (const repository of repositories) {
+          try {
+            await _restoreRepository(repository);
+          } catch (error: any) {
+            showToast(
+              getString('backupScreen.repositoryRestoreFailed', {
+                repositoryUrl: repository.url,
+                error: error?.message || String(error),
+              }),
+            );
+          }
+        }
+      } catch (error: any) {
+        showToast(
+          getString('backupScreen.repositoryFileReadFailed', {
+            error: error?.message || String(error),
+          }),
+        );
+      }
+    }
+
     // settings
     showToast(getString('backupScreen.restoringSettings'));
     const settingsFilePath = cacheDirPath + '/' + BackupEntryName.SETTING;
@@ -327,13 +398,9 @@ export const restoreData = async (cacheDirPath: string) => {
         );
       }
     }
-
-    // 2. Refresh stats for all novels in bulk
     showToast(getString('backupScreen.finishingRestore'));
-    DebugLogService.addEntry('log', `${BTAG} Refreshing all novel stats`);
-    db.executeSync(refreshAllNovelsStatsQuery);
 
-    // 3. Assign orphaned novels to default category
+    // Assign orphaned novels to default category
     DebugLogService.addEntry('log', `${BTAG} Assigning orphaned novels`);
     await assignOrphanedNovelsToDefaultCategory();
   } catch (e: any) {
@@ -342,7 +409,6 @@ export const restoreData = async (cacheDirPath: string) => {
       `${BTAG} Error during restoreData: ${e.message}`,
     );
   } finally {
-    // 4. Always re-enable triggers
-    // createDbTriggers(db);
+    //
   }
 };

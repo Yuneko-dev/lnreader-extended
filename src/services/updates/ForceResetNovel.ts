@@ -1,7 +1,7 @@
 import { fetchNovel, fetchPage } from '../plugin/fetch';
 import { dbManager } from '@database/db';
 import { chapterSchema, novelSchema } from '@database/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import NativeFile from '@specs/NativeFile';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { getPlugin } from '@plugins/pluginManager';
@@ -178,8 +178,6 @@ export const forceResetNovel = async (
     );
 
     // Map old state to new chapters and insert
-    log(getString('novelScreen.forceResetModal.logRestoreState'));
-    const updatedTime = sql`datetime('now','localtime')`;
     const toInsert: any[] = [];
 
     // Track position per page
@@ -210,7 +208,6 @@ export const forceResetNovel = async (
         chapterNumber: chapterNumber || null,
         page: chapterPage,
         position: currentPosition,
-        updatedTime,
         // Restore user state if it exists
         unread: oldState ? oldState.unread : true,
         bookmark: oldState ? oldState.bookmark : false,
@@ -218,9 +215,8 @@ export const forceResetNovel = async (
         isDownloaded:
           oldState && !deleteDownloads ? oldState.isDownloaded : false,
         progress: oldState ? oldState.progress : null,
-        readDuration: oldState ? oldState.readDuration : 0,
-        // dateFetch is explicitly NOT SET to avoid emitting updates
-        dateFetch: null,
+        // updatedTime is explicitly NOT SET to avoid emitting updates
+        updatedTime: null,
       });
     }
 
@@ -251,10 +247,10 @@ export const forceResetNovel = async (
         if (newLastRead) {
           MMKVStorage.set(lastReadKey, JSON.stringify(newLastRead));
         } else {
-          MMKVStorage.delete(lastReadKey);
+          MMKVStorage.remove(lastReadKey);
         }
       } catch {
-        MMKVStorage.delete(lastReadKey);
+        MMKVStorage.remove(lastReadKey);
       }
     }
   }

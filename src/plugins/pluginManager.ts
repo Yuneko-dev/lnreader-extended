@@ -41,7 +41,7 @@ import { defaultCover } from './helpers/constants';
 import { downloadFile, fetchApi, fetchProto, fetchText } from './helpers/fetch';
 import { FilterTypes } from './types/filterTypes';
 import { isUrlAbsolute } from './helpers/isAbsoluteUrl';
-import { localPlugin } from './local/LocalPlugin';
+import { localPlugin, LOCAL_PLUGIN_ID } from './local/LocalPlugin';
 import {
   solveCloudflareAPI,
   solveCloudflareTurnstileAPI,
@@ -180,7 +180,7 @@ const uninstallPlugin = async (_plugin: PluginItem) => {
   plugins[_plugin.id] = undefined;
   store.getAllKeys().forEach(key => {
     if (key.startsWith(_plugin.id)) {
-      store.delete(key);
+      store.remove(key);
     }
   });
   const pluginFilePath = `${PLUGIN_STORAGE}/${_plugin.id}/index.js`;
@@ -243,8 +243,6 @@ const getPlugin = (pluginId: string) => {
   }
   return plugins[pluginId];
 };
-
-const LOCAL_PLUGIN_ID = 'local';
 
 export {
   getPlugin,

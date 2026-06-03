@@ -105,13 +105,13 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       getMMKVObject<ChapterReaderSettings>(CHAPTER_READER_SETTINGS) ||
       initialChapterReaderSettings,
   );
-  const chapterGeneralSettings = useMemo(
-    () =>
+  const chapterGeneralSettings = useMemo(() => {
+    void chapter.id; // fix eslint warning: react-hooks/exhaustive-deps
+    return (
       getMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS) ||
-      initialChapterGeneralSettings,
-    // Intentional: re-read from MMKV when chapter changes
-    [chapter.id],
-  );
+      initialChapterGeneralSettings
+    );
+  }, [chapter.id]);
   const readerBottomInset = chapterGeneralSettings.fullScreenMode ? 0 : bottom;
 
   // Update readerSettings when chapter changes

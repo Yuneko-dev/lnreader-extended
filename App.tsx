@@ -148,26 +148,26 @@ const App = () => {
     }
   }, [state.success, state.error]);
 
-  if (state.error) {
-    return <ErrorFallback error={state.error} resetError={() => null} />;
-  }
-
   return (
     <Suspense fallback={null}>
       <GestureHandlerRootView style={styles.flex}>
         <KeyboardProvider>
           <SafeAreaProvider>
             <ThemeProvider>
-              <NativeCrashFallback>
-                <AppErrorBoundary>
-                  <PaperProvider>
-                    <BottomSheetModalProvider>
-                      <StatusBar translucent={true} backgroundColor="transparent" />
-                      <AppContent />
-                    </BottomSheetModalProvider>
-                  </PaperProvider>
-                </AppErrorBoundary>
-              </NativeCrashFallback>
+              {state.error ? (
+                <ErrorFallback error={state.error} resetError={() => null} />
+              ) : (
+                <NativeCrashFallback>
+                  <AppErrorBoundary>
+                    <PaperProvider>
+                      <BottomSheetModalProvider>
+                        <StatusBar translucent={true} backgroundColor="transparent" />
+                        <AppContent />
+                      </BottomSheetModalProvider>
+                    </PaperProvider>
+                  </AppErrorBoundary>
+                </NativeCrashFallback>
+              )}
             </ThemeProvider>
           </SafeAreaProvider>
         </KeyboardProvider>

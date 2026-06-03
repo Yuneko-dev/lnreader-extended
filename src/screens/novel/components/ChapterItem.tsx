@@ -20,6 +20,7 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import { SwipeAction } from '@hooks/persisted/useSettings';
+import dayjs from 'dayjs';
 
 /**
  * Width of the action panel that Swipeable measures as its "open" position.
@@ -407,6 +408,13 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
     marginStart: chapter.releaseTime ? 5 : 0,
   } as const;
 
+  function parseTime(time?: string | Date | null) {
+    if (!time) return undefined;
+    const parsedTime = dayjs(time);
+    return parsedTime.isValid() ? parsedTime.format('LL') : (time as string);
+  }
+  const parsedTime = parseTime(releaseTime);
+
   // ── Render ─────────────────────────────────────────────────────────────
   const chapterContent = (
     <Pressable
@@ -458,12 +466,12 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
             </Text>
           </View>
           <View style={styles.metaRow}>
-            {releaseTime && !isUpdateCard ? (
+            {parsedTime && !isUpdateCard ? (
               <Text
                 style={[{ color: releaseColor }, styles.mt4, styles.text]}
                 numberOfLines={1}
               >
-                {releaseTime}
+                {parsedTime}
               </Text>
             ) : null}
             {!isUpdateCard && progress && progress > 0 && chapter.unread ? (

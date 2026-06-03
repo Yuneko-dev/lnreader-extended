@@ -17,6 +17,7 @@ const baseModuleNameMapper = {
   '^@type/(.*)$': '<rootDir>/src/type/$1',
   '^@specs/(.*)$': '<rootDir>/specs/$1',
   '^@test-utils$': '<rootDir>/__tests-modules__/test-utils',
+  '^@env$': '<rootDir>/src/generated/build-info',
   // Mock static assets
   '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
 };
@@ -26,8 +27,7 @@ const baseTransform = {
 };
 
 const baseTransformIgnorePatterns = [
-  // 'node_modules/(?!(.pnpm/|@op-engineering|drizzle-orm|lodash-es|@babel/runtime))',
-  'node_modules/(?!(?:.pnpm/)?((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|color|@op-engineering|drizzle-orm|lodash-es))',
+  'node_modules/(?!(?:.pnpm/)?((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|color|@op-engineering|drizzle-orm|lodash-es|@noble|htmlparser2|domhandler|domutils|entities|dom-serializer|cheerio|domelementtype|@preeternal))',
 ];
 
 module.exports = {
