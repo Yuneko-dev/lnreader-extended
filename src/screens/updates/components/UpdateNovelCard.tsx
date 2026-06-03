@@ -11,7 +11,8 @@ import {
 import { List } from 'react-native-paper';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import ChapterItem from '@screens/novel/components/ChapterItem';
-import { useDownload, useTheme, useUpdates } from '@hooks/persisted';
+import { useDownload, useTheme } from '@hooks/persisted';
+import { useUpdateContext } from '@components/Context/UpdateContext';
 import { RootStackParamList } from '@navigators/types';
 import { FlatList } from 'react-native-gesture-handler';
 import { defaultCover } from '@plugins/helpers/constants';
@@ -39,7 +40,7 @@ const UpdateNovelCard: React.FC<UpdateCardProps> = ({
 }) => {
   const { navigate } = useNavigation<NavigationProp<RootStackParamList>>();
   const { downloadChapter, downloadingChapterIds } = useDownload();
-  const { getDetailedUpdates, isLoading } = useUpdates();
+  const { getDetailedUpdates, isLoading } = useUpdateContext();
   const [chapterList, setChapterList] = useState<
     Update[] | DownloadedChapter[]
   >(chapterListRaw ?? []);
