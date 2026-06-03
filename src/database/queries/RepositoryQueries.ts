@@ -48,3 +48,18 @@ export const updateRepository = async (
       .run();
   });
 };
+
+export const _restoreRepository = async (
+  repository: RepositoryRow,
+): Promise<void> => {
+  await dbManager.write(async tx => {
+    await tx
+      .insert(repositorySchema)
+      .values({
+        id: repository.id,
+        url: repository.url,
+      })
+      .onConflictDoNothing()
+      .run();
+  });
+};

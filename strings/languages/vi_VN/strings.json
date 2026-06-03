@@ -121,6 +121,11 @@
     "settingsRestoreFailed": "Khôi phục cài đặt thất bại: %{error}",
     "settingsFileWriteFailed": "Không ghi được tệp cài đặt: %{error}",
     "versionFileWriteFailed": "Không ghi được tệp phiên bản: %{error}",
+    "restoringRepositories": "Đang khôi phục nguồn lưu trữ",
+    "repositoryFileNotFound": "Không tìm thấy tệp nguồn lưu trữ trong bản sao lưu",
+    "repositoryRestoreFailed": "Khôi phục nguồn lưu trữ thất bại: %{repositoryUrl} - %{error}",
+    "repositoryFileReadFailed": "Không đọc được tệp nguồn lưu trữ: %{error}",
+    "repositoryFileWriteFailed": "Không ghi được tệp nguồn lưu trữ: %{error}",
     "drive": {
       "backup": "Sao lưu qua Drive",
       "backupInterruped": "Sao lưu qua Drive bị gián đoạn",

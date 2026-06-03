@@ -25,7 +25,11 @@ import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
 import DebugLogService from '@services/DebugLogService';
-import { getAllHistoryRaw, getHistoryFromDb } from '@database/queries/HistoryQueries';
+import { getAllHistoryRaw } from '@database/queries/HistoryQueries';
+import {
+  _restoreRepository,
+  getRepositoriesFromDb,
+} from '@database/queries/RepositoryQueries';
 
 const BTAG = '[Backup]';
 
@@ -169,6 +173,21 @@ export const prepareBackupData = async (cacheDirPath: string) => {
   } catch (error: any) {
     showToast(
       getString('backupScreen.categoryFileWriteFailed', {
+        error: error?.message || String(error),
+      }),
+    );
+  }
+  // repositories
+  try {
+    DebugLogService.addEntry('log', `${BTAG} Backing up repositories...`);
+    const repositories = await getRepositoriesFromDb();
+    NativeFile.writeFile(
+      cacheDirPath + '/' + BackupEntryName.REPOSITORY,
+      JSON.stringify(repositories),
+    );
+  } catch (error: any) {
+    showToast(
+      getString('backupScreen.repositoryFileWriteFailed', {
         error: error?.message || String(error),
       }),
     );
@@ -320,6 +339,41 @@ export const restoreData = async (cacheDirPath: string) => {
           count: categoryCount,
         }),
       );
+    }
+    // repositories
+    showToast(getString('backupScreen.restoringRepositories'));
+    const repositoryFilePath = cacheDirPath + '/' + BackupEntryName.REPOSITORY;
+
+    if (!NativeFile.exists(repositoryFilePath)) {
+      showToast(getString('backupScreen.repositoryFileNotFound'));
+    } else {
+      try {
+        const fileContent = NativeFile.readFile(repositoryFilePath);
+        const repositories: import('@database/schema').RepositoryRow[] = JSON.parse(fileContent);
+        DebugLogService.addEntry(
+          'log',
+          `${BTAG} Found ${repositories.length} repositories to restore`,
+        );
+
+        for (const repository of repositories) {
+          try {
+            await _restoreRepository(repository);
+          } catch (error: any) {
+            showToast(
+              getString('backupScreen.repositoryRestoreFailed', {
+                repositoryUrl: repository.url,
+                error: error?.message || String(error),
+              }),
+            );
+          }
+        }
+      } catch (error: any) {
+        showToast(
+          getString('backupScreen.repositoryFileReadFailed', {
+            error: error?.message || String(error),
+          }),
+        );
+      }
     }
 
     // settings

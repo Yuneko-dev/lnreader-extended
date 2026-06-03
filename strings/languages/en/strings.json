@@ -121,6 +121,11 @@
     "settingsRestoreFailed": "Failed to restore settings: %{error}",
     "settingsFileWriteFailed": "Failed to write settings file: %{error}",
     "versionFileWriteFailed": "Failed to write version file: %{error}",
+    "restoringRepositories": "Restoring Repositories",
+    "repositoryFileNotFound": "Repository backup file not found",
+    "repositoryRestoreFailed": "Failed to restore repository %{repositoryUrl}: %{error}",
+    "repositoryFileReadFailed": "Failed to read repository file: %{error}",
+    "repositoryFileWriteFailed": "Failed to write repository file: %{error}",
     "drive": {
       "backup": "Drive Backup",
       "backupInterruped": "Drive Backup Interrupted",

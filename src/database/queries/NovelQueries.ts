@@ -6,7 +6,7 @@ import { insertChapters } from './ChapterQueries';
 
 import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
-import { BackupNovel, ChapterInfo, DBNovelInfo, ExtendedChapterHistory, NovelInfo } from '../types';
+import { BackupNovel, ChapterInfo, DBNovelInfo, NovelInfo } from '../types';
 import { SourceNovel } from '@plugins/types';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { downloadFile } from '@plugins/helpers/fetch';

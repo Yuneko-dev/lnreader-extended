@@ -8,4 +8,5 @@ export enum BackupEntryName {
   CATEGORY = 'Category.json',
   SETTING = 'Setting.json',
   NOVEL_AND_CHAPTERS = 'NovelAndChapters',
+  REPOSITORY = 'Repository.json',
 }

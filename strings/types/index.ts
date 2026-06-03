@@ -114,6 +114,11 @@ export interface StringMap {
   'backupScreen.settingsRestoreFailed': 'string';
   'backupScreen.settingsFileWriteFailed': 'string';
   'backupScreen.versionFileWriteFailed': 'string';
+  'backupScreen.restoringRepositories': 'string';
+  'backupScreen.repositoryFileNotFound': 'string';
+  'backupScreen.repositoryRestoreFailed': 'string';
+  'backupScreen.repositoryFileReadFailed': 'string';
+  'backupScreen.repositoryFileWriteFailed': 'string';
   'backupScreen.drive.backup': 'string';
   'backupScreen.drive.backupInterruped': 'string';
   'backupScreen.drive.googleDriveBackup': 'string';
