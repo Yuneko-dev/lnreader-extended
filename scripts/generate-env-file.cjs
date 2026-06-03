@@ -124,9 +124,7 @@ const buildInfoPath = path.join(
 );
 
 const buildInfoContent = `// This file is generated. Do not edit manually.
-export const BUILD_TYPE: string = ${JSON.stringify(
-  buildType,
-)};
+export const BUILD_TYPE: string = ${JSON.stringify(buildType)};
 export const GIT_HASH = ${JSON.stringify(gitHash)};
 export const RELEASE_DATE = ${JSON.stringify(releaseDate)};
 export const NODE_ENV = ${JSON.stringify(nodeEnv)};
