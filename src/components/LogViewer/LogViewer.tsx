@@ -36,7 +36,8 @@ export const LogViewer = ({
   useEffect(() => {
     return () => {
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      if (autoScrollLockTimeout.current) clearTimeout(autoScrollLockTimeout.current);
+      if (autoScrollLockTimeout.current)
+        clearTimeout(autoScrollLockTimeout.current);
     };
   }, []);
 

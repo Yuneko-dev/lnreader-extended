@@ -559,7 +559,8 @@ export const _restoreNovelAndChapters = async (backupNovel: BackupNovel) => {
         const batch = chapters.slice(i, i + BATCH_SIZE);
         // Get `readDuration` from chapters, removing it from chapter and inserting into `ExtendedChapterHistory`
         const filteredBatch: ChapterInfo[] = [];
-        const historyInserts: { chapterId: number; readDuration: number }[] = [];
+        const historyInserts: { chapterId: number; readDuration: number }[] =
+          [];
         batch.map(chapter => {
           const { readDuration, ...chapterFiltered } = chapter;
           filteredBatch.push(chapterFiltered);
