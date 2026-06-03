@@ -403,7 +403,7 @@ export const getNovelChaptersSync = (
   sort?: ChapterOrderKey,
   filter?: ChapterFilterKey[],
   page?: string,
-  limit: number = 1000,
+  limit: number = 300,
 ): ChapterInfo[] => {
   const query = dbManager
     .select()
@@ -553,7 +553,6 @@ export const getPageChaptersBatched = async (
   page?: string,
   batch: number = 0,
 ) => {
-  // ! todo: 300 or 1000?
   const limit = 300;
   const offset = 300 * batch;
   const query = dbManager

@@ -160,7 +160,7 @@ export const createBootstrapService = (
 
     const batchInformation: BatchInfo = {
       batch: 0,
-      total: Math.floor(chapterCount / 1000),
+      total: Math.max(0, Math.ceil(chapterCount / 300) - 1),
       totalChapters: chapterCount,
     };
     const unread = deps.getFirstUnreadChapter(novel.id, settingsFilter, page);
@@ -368,14 +368,14 @@ export const createBootstrapService = (
         settingsSort,
         settingsFilter,
         page,
-        1000,
+        300,
       ] as const;
 
       const newChapters = deps.getNovelChaptersSync(...config);
 
       const batchInformation: BatchInfo = {
         batch: 0,
-        total: Math.floor(chapterCount / 1000),
+        total: Math.max(0, Math.ceil(chapterCount / 300) - 1),
         totalChapters: chapterCount,
       };
       const unread = deps.getFirstUnreadChapter(novel.id, settingsFilter, page);
