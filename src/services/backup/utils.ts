@@ -30,6 +30,7 @@ import {
   _restoreRepository,
   getRepositoriesFromDb,
 } from '@database/queries/RepositoryQueries';
+import { RepositoryRow } from '@database/schema';
 
 const BTAG = '[Backup]';
 
@@ -340,6 +341,7 @@ export const restoreData = async (cacheDirPath: string) => {
         }),
       );
     }
+
     // repositories
     showToast(getString('backupScreen.restoringRepositories'));
     const repositoryFilePath = cacheDirPath + '/' + BackupEntryName.REPOSITORY;
@@ -349,7 +351,7 @@ export const restoreData = async (cacheDirPath: string) => {
     } else {
       try {
         const fileContent = NativeFile.readFile(repositoryFilePath);
-        const repositories: import('@database/schema').RepositoryRow[] = JSON.parse(fileContent);
+        const repositories: RepositoryRow[] = JSON.parse(fileContent);
         DebugLogService.addEntry(
           'log',
           `${BTAG} Found ${repositories.length} repositories to restore`,
