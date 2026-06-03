@@ -568,8 +568,18 @@ export const _restoreNovelAndChapters = async (backupNovel: BackupNovel) => {
             readDuration: readDuration || 0,
           });
         });
-        await tx.insert(chapterSchema).values(filteredBatch).run();
-        await tx.insert(extendedChapterHistorySchema).values(historyInserts).run();
+        await tx
+          .insert(chapterSchema)
+          .values(filteredBatch)
+          .onConflictDoNothing({ target: chapterSchema.id })
+          .run();
+        await tx
+          .insert(extendedChapterHistorySchema)
+          .values(historyInserts)
+          .onConflictDoNothing({
+            target: extendedChapterHistorySchema.chapterId,
+          })
+          .run();
       }
     }
   });
