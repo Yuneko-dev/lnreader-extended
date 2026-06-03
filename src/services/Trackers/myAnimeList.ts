@@ -50,8 +50,8 @@ export const myAnimeListTracker: Tracker = {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      // @ts-expect-error If no clientId is set, which will only be set in production builds, this will error out.
       body: new URLSearchParams({
-        // If no clientId is set, which will only be set in production builds, this will error out.
         client_id: clientId,
         grant_type: 'authorization_code',
         code: code,
