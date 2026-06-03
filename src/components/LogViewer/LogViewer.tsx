@@ -23,6 +23,9 @@ export const LogViewer = ({
 }: LogViewerProps) => {
   const listRef = useRef<any>(null);
   const isAtBottom = useRef<boolean>(true);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+  const autoScrollLockTimeout = useRef<NodeJS.Timeout | null>(null);
+  const autoScrollLock = useRef<boolean>(false);
 
   // Truncate logs if they exceed the maximum buffer size
   const displayLogs =
@@ -31,21 +34,46 @@ export const LogViewer = ({
       : logs;
 
   useEffect(() => {
+    return () => {
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+      if (autoScrollLockTimeout.current) clearTimeout(autoScrollLockTimeout.current);
+    };
+  }, []);
+
+  useEffect(() => {
     // Only auto-scroll if the user is at or very close to the bottom
     if (isAtBottom.current && displayLogs.length > 0) {
-      // Use setTimeout to allow the list to render the new items first
-      setTimeout(() => {
+      if (scrollTimeout.current) return;
+
+      scrollTimeout.current = setTimeout(() => {
+        autoScrollLock.current = true;
         listRef.current?.scrollToEnd({ animated: true });
-      }, 50);
+
+        if (autoScrollLockTimeout.current) {
+          clearTimeout(autoScrollLockTimeout.current);
+        }
+        autoScrollLockTimeout.current = setTimeout(() => {
+          autoScrollLock.current = false;
+        }, 500);
+
+        scrollTimeout.current = null;
+      }, 100);
     }
-  }, [displayLogs.length]);
+  }, [logs]);
 
   const onScroll = useCallback((event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const paddingToBottom = 50;
-    isAtBottom.current =
+
+    const currentlyAtBottom =
       layoutMeasurement.height + contentOffset.y >=
       contentSize.height - paddingToBottom;
+
+    if (autoScrollLock.current && !currentlyAtBottom) {
+      return;
+    }
+
+    isAtBottom.current = currentlyAtBottom;
   }, []);
 
   const renderItem = useCallback(
