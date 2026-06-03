@@ -379,9 +379,9 @@ export const getNovelChapters = async (
   sort?: ChapterOrderKey,
   filter?: ChapterFilterKey[],
   page?: string,
-  limit: number = 1000,
-): Promise<ChapterInfo[]> =>
-  dbManager
+  limit: number = -1,
+): Promise<ChapterInfo[]> => {
+  const query = dbManager
     .select()
     .from(chapterSchema)
     .where(
@@ -391,9 +391,12 @@ export const getNovelChapters = async (
         chapterFilterToSQL(filter),
       ),
     )
-    .orderBy(chapterOrderToSQL(sort))
-    .limit(limit)
-    .all();
+    .orderBy(chapterOrderToSQL(sort));
+  if (limit > 0) {
+    query.limit(limit);
+  }
+  return query.all();
+};
 
 export const getNovelChaptersSync = (
   novelId: number,
@@ -401,21 +404,23 @@ export const getNovelChaptersSync = (
   filter?: ChapterFilterKey[],
   page?: string,
   limit: number = 1000,
-): ChapterInfo[] =>
-  dbManager.allSync(
-    dbManager
-      .select()
-      .from(chapterSchema)
-      .where(
-        and(
-          eq(chapterSchema.novelId, novelId),
-          !page ? sql.raw('true') : eq(chapterSchema.page, page),
-          chapterFilterToSQL(filter),
-        ),
-      )
-      .orderBy(chapterOrderToSQL(sort))
-      .limit(limit), // Adding a limit to prevent potential performance issues with large datasets
-  );
+): ChapterInfo[] => {
+  const query = dbManager
+    .select()
+    .from(chapterSchema)
+    .where(
+      and(
+        eq(chapterSchema.novelId, novelId),
+        !page ? sql.raw('true') : eq(chapterSchema.page, page),
+        chapterFilterToSQL(filter),
+      ),
+    )
+    .orderBy(chapterOrderToSQL(sort));
+  if (limit > 0) {
+    query.limit(limit); // Adding a limit to prevent potential performance issues with large datasets
+  }
+  return dbManager.allSync(query);
+};
 /**
  * @deprecated, use getNovelChapters with whereConditions instead
  */
