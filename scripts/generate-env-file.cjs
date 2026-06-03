@@ -124,7 +124,7 @@ const buildInfoPath = path.join(
 );
 
 const buildInfoContent = `// This file is generated. Do not edit manually.
-export const BUILD_TYPE: 'Debug' | 'Release' | 'Beta' | 'Beta Release' | 'Github Action' = ${JSON.stringify(
+export const BUILD_TYPE: string = ${JSON.stringify(
   buildType,
 )};
 export const GIT_HASH = ${JSON.stringify(gitHash)};

@@ -142,6 +142,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           COMMIT_COUNT: ${{ env.COMMIT_COUNT }}
           COMMIT_ID: ${{ env.COMMIT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ "${{ matrix.abi }}" == "all" ]]; then
             pnpm rock build:android --variant release --extra-params "--build-cache"
