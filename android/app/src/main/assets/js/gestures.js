@@ -266,7 +266,10 @@
         hideSpinner();
         window.isNavigating = true; // Lock gestures until new HTML is loaded
         if (pullDirection === 'prev') {
-          reader.post({ type: 'prev', initialScrollPosition: 'end' });
+          // The correct initial position would be "end" to align with infinite
+          // scroll behavior, but because the DOMtakes too long to render, we
+          // start at "start" to avoid the scroll animation.
+          reader.post({ type: 'prev', initialScrollPosition: 'start' });
         } else {
           reader.post({ type: 'next', initialScrollPosition: 'start' });
         }
