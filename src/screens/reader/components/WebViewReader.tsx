@@ -707,7 +707,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           getLocalServerUrl,
           isSettingsPreview: false,
           strings: {
-            finished: `${getString('readerScreen.finished')}: ${chapter.name.trim()}`,
+            finished: `${getString('readerScreen.finished')}: ${chapter.name?.trim()}`,
             nextChapter: getString('readerScreen.nextChapter', {
               name: nextChapter?.name,
             }),
