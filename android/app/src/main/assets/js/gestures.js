@@ -21,6 +21,7 @@
     return 'center';
   };
   document.onclick = (e) => {
+    if (window.isNavigating) return;
     const { clientX, clientY } = e;
     const { x, y } = {
       x: clientX / window.innerWidth,

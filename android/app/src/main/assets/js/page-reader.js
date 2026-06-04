@@ -6,6 +6,7 @@ class PageReader {
     this.totalPages = van.state(0);
     this.navigating = false; // Lock to prevent rapid tap chapter jumps
     this.initialized = false; // Flag to track if initial page position has been set
+    this.saveProgressTimeout = null; // Debounce timer for saving progress
 
     // Run the reactive effect for page mode changes
     this.setupPageReaderReactiveEffect();
@@ -54,13 +55,18 @@ class PageReader {
     );
 
     if (newProgress > reader.chapter.progress) {
-      reader.post({
-        type: 'save',
-        data: parseInt(
-          (this.page.val / Math.max(1, this.totalPages.val - 1)) * 100,
-          10
-        ),
-      });
+      if (this.saveProgressTimeout) {
+        clearTimeout(this.saveProgressTimeout);
+      }
+      this.saveProgressTimeout = setTimeout(() => {
+        reader.post({
+          type: 'save',
+          data: parseInt(
+            (this.page.val / Math.max(1, this.totalPages.val - 1)) * 100,
+            10
+          ),
+        });
+      }, 300);
     }
   };
 
@@ -77,10 +83,7 @@ class PageReader {
         const scrollHeight =
           document.documentElement.scrollHeight || document.body.scrollHeight;
         const maxScrollY = scrollHeight - window.innerHeight;
-        const ratio = Math.min(
-          0.99,
-          maxScrollY > 0 ? window.scrollY / maxScrollY : 1
-        );
+        const ratio = maxScrollY > 0 ? window.scrollY / maxScrollY : 1;
         document.body.classList.add('page-reader');
         setTimeout(() => {
           reader.refresh();
@@ -89,7 +92,7 @@ class PageReader {
               reader.layoutWidth,
             10
           );
-          this.movePage(this.totalPages.val * ratio);
+          this.movePage(Math.round(Math.max(1, this.totalPages.val - 1) * ratio));
         }, 100);
       } else {
         reader.chapterElement.style = '';
