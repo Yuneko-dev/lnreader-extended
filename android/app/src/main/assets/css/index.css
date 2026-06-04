@@ -28,6 +28,15 @@ body {
   font-family: var(--readerSettings-fontFamily);
 }
 
+body:not(.page-reader) .transition-chapter {
+  display: none !important;
+}
+
+.transition-chapter {
+  padding-left: var(--readerSettings-padding);
+  padding-right: var(--readerSettings-padding);
+}
+
 #LNReader-chapter {
   padding-left: var(--readerSettings-padding);
   padding-right: var(--readerSettings-padding);

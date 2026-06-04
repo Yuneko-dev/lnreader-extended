@@ -4,10 +4,6 @@ class PageReader {
   constructor() {
     this.page = van.state(0);
     this.totalPages = van.state(0);
-    this.chapterEndingVisible = van.state(
-      initialPageReaderConfig.nextChapterScreenVisible
-    );
-    this.chapterEnding = document.getElementsByClassName('transition-chapter')[0];
     this.navigating = false; // Lock to prevent rapid tap chapter jumps
     this.initialized = false; // Flag to track if initial page position has been set
 
@@ -15,69 +11,30 @@ class PageReader {
     this.setupPageReaderReactiveEffect();
   }
 
-  showChapterEnding = (bool, instant, left) => {
-    if (!this.chapterEnding) {
-      this.chapterEnding = document.getElementsByClassName('transition-chapter')[0];
-      if (!this.chapterEnding) return;
-    }
-    this.chapterEnding.style.transition = 'unset';
-    if (bool) {
-      this.chapterEnding.style.transform = `translateX(${left ? -200 : 0}vw)`;
-      requestAnimationFrame(() => {
-        if (!instant) this.chapterEnding.style.transition = '200ms';
-        this.chapterEnding.style.transform = 'translateX(-100vw)';
-      });
-      this.chapterEndingVisible.val = true;
-    } else {
-      if (!instant) this.chapterEnding.style.transition = '200ms';
-      this.chapterEnding.style.transform = `translateX(${left ? -200 : 0}vw)`;
-      this.chapterEndingVisible.val = false;
-    }
-  };
-
   movePage = (destPage) => {
+    console.log('[PageReader] movePage called with destPage:', destPage, 'totalPages:', this.totalPages.val, 'navigating:', this.navigating);
     // Prevent rapid taps from causing chapter jumps
-    if (this.navigating) return;
-
-    if (this.chapterEndingVisible.val) {
-      if (destPage < 0) {
-        this.showChapterEnding(false);
+    if (this.navigating) {
+        console.log('[PageReader] Blocked because navigating is true');
         return;
-      }
-      if (destPage < this.totalPages.val) {
-        this.showChapterEnding(false, false, true);
-        return;
-      }
-      if (destPage >= this.totalPages.val) {
-        this.navigating = true;
-        reader.post({ type: 'next' });
-        return;
-      }
     }
     destPage = parseInt(destPage, 10);
     if (destPage < 0) {
+      console.log('[PageReader] destPage < 0, triggering prev');
       if (!reader.prevChapter) return;
       this.navigating = true;
-      document.getElementsByClassName('transition-chapter')[0].innerText =
-        reader.prevChapter.name;
-      this.showChapterEnding(true, false, true);
-      setTimeout(() => {
-        reader.post({ type: 'prev' });
-      }, 250);
+      reader.post({ type: 'prev' });
       return;
     }
-    if (destPage >= this.totalPages.val) {
+    if (this.totalPages.val > 0 && destPage >= this.totalPages.val) {
+      console.log('[PageReader] destPage >= totalPages, triggering next');
       if (!reader.nextChapter) return;
       this.navigating = true;
-      document.getElementsByClassName('transition-chapter')[0].innerText =
-        reader.nextChapter.name;
-      this.showChapterEnding(true);
-      setTimeout(() => {
-        reader.post({ type: 'next' });
-      }, 250);
+      reader.post({ type: 'next' });
       return;
     }
     this.page.val = destPage;
+    console.log('[PageReader] Setting page to:', destPage);
     reader.chapterElement.style.transform =
       'translateX(-' + destPage * 100 + '%)';
 
@@ -100,7 +57,7 @@ class PageReader {
       reader.post({
         type: 'save',
         data: parseInt(
-          ((this.page.val + 1) / this.totalPages.val) * 100,
+          (this.page.val / Math.max(1, this.totalPages.val - 1)) * 100,
           10
         ),
       });
@@ -145,7 +102,7 @@ class PageReader {
           window.scrollTo({
             top:
               maxScrollY > 0
-                ? maxScrollY * ((this.page.val + 1) / this.totalPages.val)
+                ? maxScrollY * (this.page.val / Math.max(1, this.totalPages.val - 1))
                 : 0,
             behavior: 'smooth',
           });
@@ -157,12 +114,6 @@ class PageReader {
 
 window.pageReader = new PageReader();
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (pageReader.chapterEndingVisible.val) {
-    pageReader.showChapterEnding(true, true);
-  }
-});
-
 function calculatePages() {
   reader.refresh();
 
@@ -172,21 +123,26 @@ function calculatePages() {
         reader.layoutWidth,
       10
     );
+    
+    console.log('[PageReader] calculatePages. totalPages calculated as:', pageReader.totalPages.val, 'chapterWidth:', reader.chapterWidth, 'layoutWidth:', reader.layoutWidth);
 
-    if (initialPageReaderConfig.nextChapterScreenVisible) {
-      pageReader.initialized = true;
-      return;
-    }
+    if (!pageReader.initialized) {
+      if (initialPageReaderConfig.nextChapterScreenVisible) {
+        console.log('[PageReader] Initializing with nextChapterScreenVisible true. Moving to page 0');
+        pageReader.initialized = true;
+        pageReader.movePage(0);
+        return;
+      }
 
-    pageReader.movePage(
-      Math.max(
+      const calculatedProgressPage = Math.max(
         0,
-        Math.round(
-          (pageReader.totalPages.val * reader.chapter.progress) / 100
-        ) - 1
-      )
-    );
-    pageReader.initialized = true;
+        Math.round((reader.chapter.progress / 100) * Math.max(1, pageReader.totalPages.val - 1))
+      );
+      console.log('[PageReader] Initializing with progress:', reader.chapter.progress, 'Moving to page:', calculatedProgressPage);
+      
+      pageReader.movePage(calculatedProgressPage);
+      pageReader.initialized = true;
+    }
   } else {
     if (initialReaderConfig.initialScrollPosition === 'end') {
       window.forceScrollEnd = true;
@@ -207,35 +163,41 @@ function calculatePages() {
   }
 }
 
+let resizeTimeout;
 const ro = new ResizeObserver(() => {
-  if (reader.generalSettings.val.pageReader) {
-    // Recalculate total pages but preserve current page position
-    reader.refresh();
-    const newTotalPages = parseInt(
-      (reader.chapterWidth + reader.readerSettings.val.padding * 2) /
-        reader.layoutWidth,
-      10
-    );
-    pageReader.totalPages.val = newTotalPages;
-    if (pageReader.initialized) {
-      // After initial load, just clamp current page and re-apply transform
-      if (pageReader.page.val >= newTotalPages) {
-        pageReader.movePage(newTotalPages - 1);
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+  resizeTimeout = setTimeout(() => {
+    if (reader.generalSettings.val.pageReader) {
+      // Recalculate total pages but preserve current page position
+      reader.refresh();
+      const newTotalPages = parseInt(
+        (reader.chapterWidth + reader.readerSettings.val.padding * 2) /
+          reader.layoutWidth,
+        10
+      );
+      pageReader.totalPages.val = newTotalPages;
+      if (pageReader.initialized) {
+        // After initial load, just clamp current page and re-apply transform
+        if (pageReader.page.val >= newTotalPages) {
+          pageReader.movePage(newTotalPages - 1);
+        } else {
+          // Re-apply current page transform
+          reader.chapterElement.style.transform =
+            'translateX(-' + pageReader.page.val * 100 + '%)';
+        }
       } else {
-        // Re-apply current page transform
-        reader.chapterElement.style.transform =
-          'translateX(-' + pageReader.page.val * 100 + '%)';
+        calculatePages();
       }
     } else {
-      calculatePages();
+      if (window.forceScrollEnd) {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
+      } else if (pageReader.totalPages.val) {
+        calculatePages();
+      }
     }
-  } else {
-    if (window.forceScrollEnd) {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
-    } else if (pageReader.totalPages.val) {
-      calculatePages();
-    }
-  }
+  }, 100);
 });
 ro.observe(reader.chapterElement);
 

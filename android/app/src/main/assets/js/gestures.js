@@ -134,7 +134,7 @@
     }
   };
 
-  reader.chapterElement.addEventListener('touchstart', (e) => {
+  document.addEventListener('touchstart', (e) => {
     initialX = e.changedTouches[0].screenX;
     initialY = e.changedTouches[0].screenY;
     isPulling = false;
@@ -147,7 +147,7 @@
     }
   });
 
-  reader.chapterElement.addEventListener(
+  document.addEventListener(
     'touchmove',
     (e) => {
       const diffY = e.changedTouches[0].screenY - initialY;
@@ -156,12 +156,9 @@
       }
 
       if (reader.generalSettings.val.pageReader) {
-        const diffX =
-          (e.changedTouches[0].screenX - initialX) / window.innerWidth;
+        const diffX = (e.changedTouches[0].screenX - initialX) / window.innerWidth;
         reader.chapterElement.style.transition = 'unset';
-        reader.chapterElement.style.transform = `translateX(-${
-          (pageReader.page.val - diffX) * 100
-        }%)`;
+        reader.chapterElement.style.transform = `translateX(-${(pageReader.page.val - diffX) * 100}%)`;
         return;
       }
 
@@ -233,7 +230,7 @@
     { passive: false }
   );
 
-  reader.chapterElement.addEventListener('touchend', (e) => {
+  document.addEventListener('touchend', (e) => {
     const diffX = e.changedTouches[0].screenX - initialX;
     const diffY = e.changedTouches[0].screenY - initialY;
 
@@ -243,8 +240,8 @@
     }
 
     if (reader.generalSettings.val.pageReader) {
-      reader.chapterElement.style.transition = '200ms';
       const diffXPercentage = diffX / window.innerWidth;
+      reader.chapterElement.style.transition = '200ms';
       if (diffXPercentage < -0.3) {
         pageReader.movePage(pageReader.page.val + 1);
       } else if (diffXPercentage > 0.3) {
@@ -300,7 +297,7 @@
     */
   });
 
-  reader.chapterElement.addEventListener('touchcancel', () => {
+  document.addEventListener('touchcancel', () => {
     console.log('[Gestures] touchcancel triggered');
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);

@@ -172,12 +172,10 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     <style>${readerSettings.customCSS || ''}</style>
   </head>
   <body class="${chapterGeneralSettings.pageReader ? 'page-reader' : ''}">
-    <div class="transition-chapter" style="transform: ${
-      nextChapterScreenVisible ? 'translateX(-100%)' : 'translateX(0%)'
-    }; ${chapterGeneralSettings.pageReader ? '' : 'display: none'}">
-      ${chapter.name}
-    </div>
     <div id="LNReader-chapter">
+      <div class="transition-chapter">
+        ${chapter.name}
+      </div>
       ${html}  
     </div>
     <div id="reader-ui"></div>
