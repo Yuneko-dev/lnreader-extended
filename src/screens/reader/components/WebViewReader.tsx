@@ -10,10 +10,8 @@ import {
   AppState,
   NativeEventEmitter,
   NativeModules,
-  StatusBar,
 } from 'react-native';
 import WebView from 'react-native-webview';
-import color from 'color';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@hooks/persisted';
@@ -46,6 +44,7 @@ import {
 } from '@utils/ttsNotification';
 import { addReadDuration } from '@database/queries/ChapterQueries';
 import { showToast } from '@utils/showToast';
+import { generateReaderHtml } from '../utils/htmlGenerator';
 
 type WebViewPostEvent = {
   type: string;
@@ -472,6 +471,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
   const isRTL = plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew';
   const readerDir = isRTL ? 'rtl' : 'ltr';
 
+
   return (
     <WebView
       ref={webViewRef}
@@ -687,151 +687,33 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
         headers: plugin?.imageRequestInit?.headers,
         method: plugin?.imageRequestInit?.method,
         body: plugin?.imageRequestInit?.body,
-        html: ` 
-        <!DOCTYPE html>
-          <html dir="${readerDir}">
-            <head>
-              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-              ${
-                !novel.isLocal
-                  ? '<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">'
-                  : ''
-              }
-              <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
-              <link rel="stylesheet" href="${assetsUriPrefix}/css/pageReader.css">
-              <link rel="stylesheet" href="${assetsUriPrefix}/css/pullSpinner.css">
-              <link rel="stylesheet" href="${assetsUriPrefix}/css/toolWrapper.css">
-              <link rel="stylesheet" href="${assetsUriPrefix}/css/tts.css">
-              <style>
-              :root {
-                --StatusBar-currentHeight: ${StatusBar.currentHeight}px;
-                --readerSettings-theme: ${readerSettings.theme};
-                --readerSettings-padding: ${readerSettings.padding}px;
-                --readerSettings-textSize: ${readerSettings.textSize}px;
-                --readerSettings-textColor: ${readerSettings.textColor};
-                --readerSettings-textAlign: ${readerSettings.textAlign};
-                --readerSettings-lineHeight: ${readerSettings.lineHeight};
-                --readerSettings-fontFamily: ${readerSettings.fontFamily};
-                --theme-primary: ${theme.primary};
-                --theme-onPrimary: ${theme.onPrimary};
-                --theme-secondary: ${theme.secondary};
-                --theme-tertiary: ${theme.tertiary};
-                --theme-onTertiary: ${theme.onTertiary};
-                --theme-onSecondary: ${theme.onSecondary};
-                --theme-surface: ${theme.surface};
-                --theme-surface-0-9: ${color(theme.surface)
-                  .alpha(0.9)
-                  .toString()};
-                --theme-onSurface: ${theme.onSurface};
-                --theme-surfaceVariant: ${theme.surfaceVariant};
-                --theme-onSurfaceVariant: ${theme.onSurfaceVariant};
-                --theme-outline: ${theme.outline};
-                --theme-rippleColor: ${theme.rippleColor};
-                --reader-bottomInset: ${readerBottomInset}px;
-                }
-                
-                @font-face {
-                  font-family: ${readerSettings.fontFamily};
-                  src: url("file:///android_asset/fonts/${
-                    readerSettings.fontFamily
-                  }.ttf");
-                }
-                </style>
- 
-              <link rel="stylesheet" href="${pluginCustomCSS}">
-              <style>${readerSettings.customCSS}</style>
-            </head>
-            <body class="${
-              chapterGeneralSettings.pageReader ? 'page-reader' : ''
-            }">
-              <div class="transition-chapter" style="transform: ${
-                nextChapterScreenVisible.current
-                  ? 'translateX(-100%)'
-                  : 'translateX(0%)'
-              };
-              ${chapterGeneralSettings.pageReader ? '' : 'display: none'}"
-              ">${chapter.name}</div>
-              <div id="LNReader-chapter">
-                ${html}  
-              </div>
-              <div id="reader-ui"></div>
-              </body>
-              <script>
-                window.onerror = function(message, source, lineno, colno, error) {
-                  window.ReactNativeWebView.postMessage(JSON.stringify({
-                    type: 'error',
-                    msg: message + " at " + source + ":" + lineno + ":" + colno + (error ? "\\n" + error.stack : "")
-                  }));
-                  return true;
-                };
-
-                var initialPageReaderConfig = ${JSON.stringify({
-                  nextChapterScreenVisible: nextChapterScreenVisible.current,
-                })};
- 
- 
-                var initialReaderConfig = ${JSON.stringify({
-                  readerSettings,
-                  chapterGeneralSettings,
-                  novel,
-                  chapter,
-                  nextChapter,
-                  prevChapter,
-                  batteryLevel,
-                  autoSaveInterval: 2222,
-                  initialScrollPosition: pendingScrollPositionRef.current,
-                  DEBUG: __DEV__,
-                  strings: {
-                    finished:
-                      getString('readerScreen.finished') +
-                      ': ' +
-                      chapter.name.trim(),
-                    nextChapter: getString('readerScreen.nextChapter', {
-                      name: nextChapter?.name,
-                    }),
-                    noNextChapter: getString('readerScreen.noNextChapter'),
-                  },
-                })}
-              </script>
-              <script src="${assetsUriPrefix}/js/polyfill-onscrollend.js"></script>
-              <script src="${assetsUriPrefix}/js/icons.js"></script>
-              <script src="${assetsUriPrefix}/js/van.js"></script>
-              <script src="${assetsUriPrefix}/js/text-vibe.js"></script>
-              <script src="${assetsUriPrefix}/js/core.js"></script>
-              <script src="${assetsUriPrefix}/js/debug.js"></script>
-              <script src="${assetsUriPrefix}/js/theme.js"></script>
-              <script src="${assetsUriPrefix}/js/tts.js"></script>
-              <script src="${assetsUriPrefix}/js/page-reader.js"></script>
-              <script src="${assetsUriPrefix}/js/gestures.js"></script>
-              <script src="${assetsUriPrefix}/js/index.js"></script>
-              <script src="${assetsUriPrefix}/js/videoFullscreen.js"></script>
-              <script>
-                const ORIGINAL_FETCH = Symbol();
-                window[ORIGINAL_FETCH] = window.fetch;
-                window.reader.fetch = async function(url, init = {}) {
-                  const targetUrl = encodeURIComponent(url);
-                  const proxyUrl = '${getLocalServerUrl()}/proxy?url=' + targetUrl;
-
-                  let modifiedHeaders = {};
-                  if (init.headers) {
-                    const h = new Headers(init.headers);
-                    h.forEach((value, key) => {
-                      modifiedHeaders['x-ln-forward-header-' + key] = value;
-                    });
-                  }
-
-                  const modifiedInit = { ...init };
-                  modifiedInit.headers = modifiedHeaders;
-
-                  return window[ORIGINAL_FETCH](proxyUrl, modifiedInit);
-                };
-              </script>
-              <script src="${pluginCustomJS}"></script>
-              <script>
-                ${readerSettings.customJS}
-              </script>
-          </html>
-          `,
+        html: generateReaderHtml({
+          html,
+          theme,
+          readerDir,
+          readerSettings: readerSettingsRef.current,
+          chapterGeneralSettings,
+          novel,
+          chapter,
+          nextChapter,
+          prevChapter,
+          assetsUriPrefix,
+          batteryLevel,
+          readerBottomInset,
+          pluginCustomCSS,
+          pluginCustomJS,
+          nextChapterScreenVisible: nextChapterScreenVisible.current,
+          pendingScrollPosition: pendingScrollPositionRef.current,
+          getLocalServerUrl,
+          isSettingsPreview: false,
+          strings: {
+            finished: `${getString('readerScreen.finished')}: ${chapter.name.trim()}`,
+            nextChapter: getString('readerScreen.nextChapter', {
+              name: nextChapter?.name,
+            }),
+            noNextChapter: getString('readerScreen.noNextChapter'),
+          },
+        }),
       }}
     />
   );

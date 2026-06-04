@@ -1,4 +1,4 @@
-import { View, StatusBar, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useNavigation } from '@react-navigation/native';
@@ -17,9 +17,10 @@ import {
 import { getString } from '@strings/translations';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import color from 'color';
 import { useBatteryLevel } from 'react-native-device-info';
 import * as Speech from 'expo-speech';
+
+import { generateReaderHtml } from '../../reader/utils/htmlGenerator';
 
 import TabBar, { Tab } from './components/TabBar';
 import DisplayTab from './tabs/DisplayTab';
@@ -65,8 +66,8 @@ const SettingsReaderScreen = () => {
       'file:///storage/emulated/0/Android/data/com.rajarsheechatterjee.LNReader/files/Novels/lightnovelcave/16/cover.png?1717862123181',
     'genres': 'Action,Hero',
     'id': 16,
-    'inLibrary': 1,
-    'isLocal': 0,
+    'inLibrary': true,
+    'isLocal': false,
     'name': 'Preview Man (LN)',
     'path': 'novel/preview-man-16091321',
     'pluginId': 'lightnovelcave',
@@ -76,10 +77,10 @@ const SettingsReaderScreen = () => {
     'totalPages': 8,
   };
   const chapter = {
-    'bookmark': 0,
+    'bookmark': false,
     'chapterNumber': 1,
     'id': 3722,
-    'isDownloaded': 1,
+    'isDownloaded': true,
     'name': 'Chapter 1 - The rise of Preview Man',
     'novelId': 16,
     'page': '2',
@@ -88,7 +89,7 @@ const SettingsReaderScreen = () => {
     'progress': 3,
     'readTime': '2100-01-01 00:00:00',
     'releaseTime': 'January 1, 2100',
-    'unread': 1,
+    'unread': true,
     'updatedTime': null,
   };
   const [hidden, setHidden] = useState(true);
@@ -101,43 +102,6 @@ const SettingsReaderScreen = () => {
     () => (__DEV__ ? 'http://localhost:8081/assets' : 'file:///android_asset'),
     [],
   );
-  const webViewCSS = `
-  <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
-    <style>
-    :root {
-      --StatusBar-currentHeight: ${StatusBar.currentHeight};
-      --readerSettings-theme: ${readerSettings.theme};
-      --readerSettings-padding: ${readerSettings.padding}px;
-      --readerSettings-textSize: ${readerSettings.textSize}px;
-      --readerSettings-textColor: ${readerSettings.textColor};
-      --readerSettings-textAlign: ${readerSettings.textAlign};
-      --readerSettings-lineHeight: ${readerSettings.lineHeight};
-      --readerSettings-fontFamily: ${readerSettings.fontFamily};
-      --theme-primary: ${theme.primary};
-      --theme-onPrimary: ${theme.onPrimary};
-      --theme-secondary: ${theme.secondary};
-      --theme-tertiary: ${theme.tertiary};
-      --theme-onTertiary: ${theme.onTertiary};
-      --theme-onSecondary: ${theme.onSecondary};
-      --theme-surface: ${theme.surface};
-      --theme-surface-0-9: ${color(theme.surface).alpha(0.9).toString()};
-      --theme-onSurface: ${theme.onSurface};
-      --theme-surfaceVariant: ${theme.surfaceVariant};
-      --theme-onSurfaceVariant: ${theme.onSurfaceVariant};
-      --theme-outline: ${theme.outline};
-      --theme-rippleColor: ${theme.rippleColor};
-      }
-      
-      @font-face {
-        font-family: ${readerSettings.fontFamily};
-        src: url("file:///android_asset/fonts/${
-          readerSettings.fontFamily
-        }.ttf");
-      }
-    </style>
-
-    <style>${readerSettings.customCSS}</style>
-  `;
 
   const readerBackgroundColor = readerSettings.theme;
 
@@ -226,56 +190,26 @@ const SettingsReaderScreen = () => {
             }
           }}
           source={{
-            html: `
-            <html>
-              <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-                ${webViewCSS}
-              </head>
-              <body class="${
-                chapterGeneralSettings.pageReader ? 'page-reader' : ''
-              }"> 
-                <div id="LNReader-chapter">
-                ${dummyHTML}
-                </div>
-                <div id="reader-ui"></div>
-              </body>
-              <script>
-                var initialReaderConfig = ${JSON.stringify({
-                  readerSettings,
-                  chapterGeneralSettings,
-                  novel,
-                  chapter,
-                  nextChapter: chapter,
-                  batteryLevel,
-                  autoSaveInterval: 2222,
-                  DEBUG: __DEV__,
-                  strings: {
-                    finished: `${getString(
-                      'readerScreen.finished',
-                    )}: ${chapter.name.trim()}`,
-                    nextChapter: getString('readerScreen.nextChapter', {
-                      name: chapter.name,
-                    }),
-                    noNextChapter: getString('readerScreen.noNextChapter'),
-                  },
-                })}
-              </script>
-              <script src="${assetsUriPrefix}/js/icons.js"></script>
-              <script src="${assetsUriPrefix}/js/van.js"></script>
-              <script src="${assetsUriPrefix}/js/text-vibe.js"></script>
-              <script src="${assetsUriPrefix}/js/core.js"></script>
-              <script src="${assetsUriPrefix}/js/debug.js"></script>
-              <script src="${assetsUriPrefix}/js/theme.js"></script>
-              <script src="${assetsUriPrefix}/js/tts.js"></script>
-              <script src="${assetsUriPrefix}/js/page-reader.js"></script>
-              <script src="${assetsUriPrefix}/js/gestures.js"></script>
-              <script src="${assetsUriPrefix}/js/index.js"></script>
-              <script>
-                ${readerSettings.customJS}
-              </script>
-            </html>
-            `,
+            html: generateReaderHtml({
+              html: dummyHTML,
+              theme,
+              readerSettings,
+              chapterGeneralSettings,
+              novel,
+              chapter,
+              nextChapter: chapter,
+              prevChapter: chapter,
+              assetsUriPrefix,
+              batteryLevel,
+              isSettingsPreview: true,
+              strings: {
+                finished: `${getString('readerScreen.finished')}: ${chapter.name.trim()}`,
+                nextChapter: getString('readerScreen.nextChapter', {
+                  name: chapter.name,
+                }),
+                noNextChapter: getString('readerScreen.noNextChapter'),
+              },
+            }),
           }}
         />
       </View>
