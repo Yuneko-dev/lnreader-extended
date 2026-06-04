@@ -13,29 +13,24 @@ class PageReader {
   }
 
   movePage = (destPage) => {
-    console.log('[PageReader] movePage called with destPage:', destPage, 'totalPages:', this.totalPages.val, 'navigating:', this.navigating);
     // Prevent rapid taps from causing chapter jumps
     if (this.navigating) {
-        console.log('[PageReader] Blocked because navigating is true');
         return;
     }
     destPage = parseInt(destPage, 10);
     if (destPage < 0) {
-      console.log('[PageReader] destPage < 0, triggering prev');
       if (!reader.prevChapter) return;
       this.navigating = true;
       reader.post({ type: 'prev' });
       return;
     }
     if (this.totalPages.val > 0 && destPage >= this.totalPages.val) {
-      console.log('[PageReader] destPage >= totalPages, triggering next');
       if (!reader.nextChapter) return;
       this.navigating = true;
       reader.post({ type: 'next' });
       return;
     }
     this.page.val = destPage;
-    console.log('[PageReader] Setting page to:', destPage);
     reader.chapterElement.style.transform =
       'translateX(-' + destPage * 100 + '%)';
 
@@ -126,12 +121,8 @@ function calculatePages() {
         reader.layoutWidth,
       10
     );
-    
-    console.log('[PageReader] calculatePages. totalPages calculated as:', pageReader.totalPages.val, 'chapterWidth:', reader.chapterWidth, 'layoutWidth:', reader.layoutWidth);
-
     if (!pageReader.initialized) {
       if (initialPageReaderConfig.nextChapterScreenVisible) {
-        console.log('[PageReader] Initializing with nextChapterScreenVisible true. Moving to page 0');
         pageReader.initialized = true;
         pageReader.movePage(0);
         return;
@@ -141,7 +132,6 @@ function calculatePages() {
         0,
         Math.round((reader.chapter.progress / 100) * Math.max(1, pageReader.totalPages.val - 1))
       );
-      console.log('[PageReader] Initializing with progress:', reader.chapter.progress, 'Moving to page:', calculatedProgressPage);
       
       pageReader.movePage(calculatedProgressPage);
       pageReader.initialized = true;

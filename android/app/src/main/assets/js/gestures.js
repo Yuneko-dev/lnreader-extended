@@ -157,6 +157,7 @@
       }
 
       if (reader.generalSettings.val.pageReader) {
+        if (window.isNavigating || pageReader.navigating) return;
         const diffX = (e.changedTouches[0].screenX - initialX) / window.innerWidth;
         reader.chapterElement.style.transition = 'unset';
         reader.chapterElement.style.transform = `translateX(-${(pageReader.page.val - diffX) * 100}%)`;
@@ -241,6 +242,7 @@
     }
 
     if (reader.generalSettings.val.pageReader) {
+      if (window.isNavigating || pageReader.navigating) return;
       const diffXPercentage = diffX / window.innerWidth;
       reader.chapterElement.style.transition = '200ms';
       if (diffXPercentage < -0.3) {
