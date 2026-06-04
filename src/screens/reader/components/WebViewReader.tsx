@@ -53,6 +53,7 @@ type WebViewPostEvent = {
   autoStartTTS?: boolean;
   index?: number;
   total?: number;
+  initialScrollPosition?: 'start' | 'end';
 };
 
 type WebViewReaderProps = {
@@ -128,6 +129,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
   const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
   const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
   const nextChapterScreenVisible = useRef<boolean>(false);
+  const pendingScrollPositionRef = useRef<'start' | 'end' | null>(null);
   const autoStartTTSRef = useRef<boolean>(false);
   const isTTSReadingRef = useRef<boolean>(false);
   const readerSettingsRef = useRef<ChapterReaderSettings>(readerSettings);
@@ -492,6 +494,10 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           }`,
         );
 
+        if (pendingScrollPositionRef.current) {
+          pendingScrollPositionRef.current = null; // Reset after first load
+        }
+
         if (autoStartTTSRef.current) {
           autoStartTTSRef.current = false;
           setTimeout(() => {
@@ -556,12 +562,18 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
             break;
           case 'next':
             nextChapterScreenVisible.current = true;
+            if (event.initialScrollPosition) {
+              pendingScrollPositionRef.current = event.initialScrollPosition;
+            }
             if (event.autoStartTTS) {
               autoStartTTSRef.current = true;
             }
             navigateChapter('NEXT');
             break;
           case 'prev':
+            if (event.initialScrollPosition) {
+              pendingScrollPositionRef.current = event.initialScrollPosition;
+            }
             if (event.autoStartTTS) {
               autoStartTTSRef.current = true;
             }
@@ -687,6 +699,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               }
               <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/pageReader.css">
+              <link rel="stylesheet" href="${assetsUriPrefix}/css/pullSpinner.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/toolWrapper.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/tts.css">
               <style>
@@ -766,6 +779,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
                   prevChapter,
                   batteryLevel,
                   autoSaveInterval: 2222,
+                  initialScrollPosition: pendingScrollPositionRef.current,
                   DEBUG: __DEV__,
                   strings: {
                     finished:

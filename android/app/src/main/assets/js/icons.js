@@ -4,3 +4,5 @@ const pauseIcon =
   '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M564-228v-504h168v504H564Zm-336 0v-504h168v504H228Z"/></svg>';
 const resumeIcon =
   '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M240-240v-480h72v480h-72Zm144 0 384-240-384-240v480Z"/></svg>';
+const pullSpinnerIcon =
+  '<svg class="pull-spinner" viewBox="0 0 100 100"><circle class="progress-circle" cx="50" cy="50" r="40" fill="none" stroke-width="14" stroke-linecap="butt" transform="rotate(-90 50 50)"/><g class="separator-group"><line class="separator-line" x1="50" y1="3" x2="50" y2="17" stroke-width="3"/></g></svg>';

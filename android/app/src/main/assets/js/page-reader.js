@@ -188,15 +188,22 @@ function calculatePages() {
     );
     pageReader.initialized = true;
   } else {
-    const scrollHeight =
-      document.documentElement.scrollHeight || document.body.scrollHeight;
-    const maxScrollY = scrollHeight - window.innerHeight;
-    const targetTop =
-      maxScrollY > 0 ? (maxScrollY * reader.chapter.progress) / 100 : 0;
-    window.scrollTo({
-      top: targetTop,
-      behavior: 'smooth',
-    });
+    if (initialReaderConfig.initialScrollPosition === 'end') {
+      window.forceScrollEnd = true;
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
+    } else if (initialReaderConfig.initialScrollPosition === 'start') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    } else {
+      const scrollHeight =
+        document.documentElement.scrollHeight || document.body.scrollHeight;
+      const maxScrollY = scrollHeight - window.innerHeight;
+      const targetTop =
+        maxScrollY > 0 ? (maxScrollY * reader.chapter.progress) / 100 : 0;
+      window.scrollTo({
+        top: targetTop,
+        behavior: 'smooth',
+      });
+    }
   }
 }
 
@@ -222,8 +229,12 @@ const ro = new ResizeObserver(() => {
     } else {
       calculatePages();
     }
-  } else if (pageReader.totalPages.val) {
-    calculatePages();
+  } else {
+    if (window.forceScrollEnd) {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
+    } else if (pageReader.totalPages.val) {
+      calculatePages();
+    }
   }
 });
 ro.observe(reader.chapterElement);
