@@ -6,11 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  AppState,
-  NativeEventEmitter,
-  NativeModules,
-} from 'react-native';
+import { AppState, NativeEventEmitter, NativeModules } from 'react-native';
 import WebView from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -471,7 +467,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
   const isRTL = plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew';
   const readerDir = isRTL ? 'rtl' : 'ltr';
 
-
   return (
     <WebView
       ref={webViewRef}
@@ -707,7 +702,9 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           getLocalServerUrl,
           isSettingsPreview: false,
           strings: {
-            finished: `${getString('readerScreen.finished')}: ${chapter.name?.trim()}`,
+            finished: `${getString(
+              'readerScreen.finished',
+            )}: ${chapter.name?.trim()}`,
             nextChapter: getString('readerScreen.nextChapter', {
               name: nextChapter?.name,
             }),

@@ -56,7 +56,8 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     strings,
   } = options;
 
-  const readerDir = providedReaderDir || (readerSettings.textAlign === 'right' ? 'rtl' : 'ltr');
+  const readerDir =
+    providedReaderDir || (readerSettings.textAlign === 'right' ? 'rtl' : 'ltr');
 
   // Safe JSON serialization for inline scripts
   const safeJsonStringify = (data: any) =>
@@ -165,7 +166,9 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       
       @font-face {
         font-family: ${readerSettings.fontFamily};
-        src: url("file:///android_asset/fonts/${readerSettings.fontFamily}.ttf");
+        src: url("file:///android_asset/fonts/${
+          readerSettings.fontFamily
+        }.ttf");
       }
     </style>
     ${pluginCssLink}

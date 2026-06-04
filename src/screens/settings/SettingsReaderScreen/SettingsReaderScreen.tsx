@@ -203,7 +203,9 @@ const SettingsReaderScreen = () => {
               batteryLevel,
               isSettingsPreview: true,
               strings: {
-                finished: `${getString('readerScreen.finished')}: ${chapter.name?.trim()}`,
+                finished: `${getString(
+                  'readerScreen.finished',
+                )}: ${chapter.name?.trim()}`,
                 nextChapter: getString('readerScreen.nextChapter', {
                   name: chapter.name,
                 }),
