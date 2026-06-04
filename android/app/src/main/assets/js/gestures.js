@@ -74,10 +74,15 @@
   let animationFrameId = null;
   let canPull = true;
   let maxPull = 0;
-  const SWIPE_THRESHOLD = 150;
+  let hideTimeoutId = null;
+  const SWIPE_THRESHOLD = 100;
   const CIRCUMFERENCE = 2 * Math.PI * 40; // 251.327
 
   const createSpinner = (direction) => {
+    if (hideTimeoutId) {
+      clearTimeout(hideTimeoutId);
+      hideTimeoutId = null;
+    }
     if (pullSpinnerContainer) {
       pullSpinnerContainer.remove();
     }
@@ -115,13 +120,16 @@
       pullSpinnerContainer.classList.remove('visible');
       pullSpinnerContainer.classList.add('hiding');
       const containerToRemove = pullSpinnerContainer;
-      setTimeout(() => {
+      
+      if (hideTimeoutId) clearTimeout(hideTimeoutId);
+      hideTimeoutId = setTimeout(() => {
         if (containerToRemove && containerToRemove.parentNode) {
           containerToRemove.remove();
         }
         if (pullSpinnerContainer === containerToRemove) {
           pullSpinnerContainer = null;
         }
+        hideTimeoutId = null;
       }, 300);
     }
   };
@@ -131,7 +139,7 @@
     initialY = e.changedTouches[0].screenY;
     isPulling = false;
     pullDirection = null;
-    canPull = true;
+    canPull = !window.isNavigating; // Disable pull if we are already navigating
     maxPull = 0;
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
@@ -208,6 +216,7 @@
           const distance = Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull);
 
           if (distance <= 0 && maxPull > 0) {
+            console.log('[Gestures] Cancelled pull in touchmove. maxPull:', maxPull, 'currentPull:', currentPull);
             hideSpinner();
             isPulling = false;
             canPull = false;
@@ -248,16 +257,21 @@
 
     if (isPulling && pullDirection) {
       let currentPull = pullDirection === 'prev' ? diffY : -diffY;
-      let distance = Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull);
+      let distance = Math.ceil(Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull));
+
+      console.log('[Gestures] touchend. pullDirection:', pullDirection, 'distance:', distance, 'maxPull:', maxPull, 'currentPull:', currentPull);
 
       if (distance >= SWIPE_THRESHOLD) {
+        console.log('[Gestures] Triggering chapter change!', pullDirection);
         hideSpinner();
+        window.isNavigating = true; // Lock gestures until new HTML is loaded
         if (pullDirection === 'prev') {
           reader.post({ type: 'prev', initialScrollPosition: 'end' });
         } else {
           reader.post({ type: 'next', initialScrollPosition: 'start' });
         }
       } else {
+        console.log('[Gestures] Distance not enough to trigger:', distance);
         hideSpinner();
       }
       isPulling = false;
@@ -281,6 +295,20 @@
       }
     }
     */
+  });
+
+  reader.chapterElement.addEventListener('touchcancel', () => {
+    console.log('[Gestures] touchcancel triggered');
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+    if (isPulling) {
+      hideSpinner();
+      isPulling = false;
+      canPull = false;
+      pullDirection = null;
+    }
   });
 })();
 
