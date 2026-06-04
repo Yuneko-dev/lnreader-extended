@@ -10,20 +10,14 @@ body.page-reader > #LNReader-chapter {
   transition: 200ms;
 }
 .transition-chapter {
-  height: 100vh;
-  width: 100vw;
-  max-width: 100vw;
-
-  position: fixed;
-  left: 100vw;
-  top: 0;
-
-  box-sizing: border-box;
-  padding: var(--readerSettings-padding);
-  padding-top: 30vh;
-
+  height: calc(90vh);
+  break-after: column;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   font-size: 2rem;
-  z-index: 888888;
-  background-color: var(--readerSettings-theme);
+  box-sizing: border-box;
+  padding: var(--readerSettings-padding);
 }

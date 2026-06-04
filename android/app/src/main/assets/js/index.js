@@ -76,7 +76,7 @@ const Scrollbar = () => {
             id: 'scrollbar-progress',
             style: () => {
               const percentageValue = reader.generalSettings.val.pageReader
-                ? ((pageReader.page.val + 1) / pageReader.totalPages.val) * 100
+                ? (pageReader.page.val / Math.max(1, pageReader.totalPages.val - 1)) * 100
                 : percentage.val;
               return horizontal.val
                 ? `width: ${percentageValue}%; height: 100%;`
@@ -238,7 +238,7 @@ const Footer = () => {
               reader.generalSettings.val.showBatteryAndTime ? '' : 'hidden'
             }`,
         },
-        () => Math.ceil(reader.batteryLevel.val * 100) + '%',
+        () => Math.floor(reader.batteryLevel.val * 100) + '%',
       ),
       div(
         {
@@ -346,7 +346,7 @@ const TTSController = () => {
         }
       },
     },
-    button({ innerHTML: volumnIcon }),
+    button({ innerHTML: volumeIcon }),
   );
 };
 
