@@ -28,6 +28,8 @@ interface SearcbarProps {
   handleBackAction?: () => void;
   clearSearchbar: () => void;
   onLeftIconPress?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   theme: ThemeColors;
 }
 
@@ -42,6 +44,8 @@ const Searchbar: React.FC<SearcbarProps> = ({
   handleBackAction,
   clearSearchbar,
   onLeftIconPress,
+  onFocus,
+  onBlur,
   theme,
 }) => {
   const searchbarRef = useRef<any>(null);
@@ -85,7 +89,9 @@ const Searchbar: React.FC<SearcbarProps> = ({
           placeholderTextColor={theme.onSurfaceVariant}
           onChangeText={onChangeText}
           onSubmitEditing={onSubmitEditing}
-          defaultValue={searchText}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          value={searchText}
         />
         {searchText !== '' ? (
           <IconButtonV2

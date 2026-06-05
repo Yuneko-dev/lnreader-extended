@@ -17,3 +17,8 @@ export { useTrackedNovel } from './useTrackedNovel';
 export { deleteCachedNovels } from './useNovel';
 export { default as useDownload } from './useDownload';
 export { default as useUserAgent } from './useUserAgent';
+export {
+  useSearchHistory,
+  SEARCH_HISTORY_KEY,
+  ENABLE_SEARCH_HISTORY_KEY,
+} from './useSearchHistory';
