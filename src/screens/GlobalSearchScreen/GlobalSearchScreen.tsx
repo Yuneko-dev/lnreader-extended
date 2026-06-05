@@ -90,6 +90,7 @@ const GlobalSearchScreen = (props: Props) => {
             </View>
           ) : null}
           <GlobalSearchResultsList
+            searchText={searchText}
             searchResults={searchResults}
             ListEmptyComponent={
               <EmptyView

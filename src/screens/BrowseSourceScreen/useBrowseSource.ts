@@ -3,12 +3,14 @@ import { NovelItem } from '@plugins/types';
 
 import { getPlugin } from '@plugins/pluginManager';
 import { FilterToValues, Filters } from '@plugins/types/filterTypes';
+import { showToast } from '@utils/showToast';
 
 export const useBrowseSource = (
   pluginId: string,
   showLatestNovels?: boolean,
+  initialSearchText?: string,
 ) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialSearchText);
   const [novels, setNovels] = useState<NovelItem[]>([]);
   const [error, setError] = useState<string>();
 
@@ -52,6 +54,7 @@ export const useBrowseSource = (
             .catch(e => {
               if (fetchId !== fetchIdRef.current) return;
               setError(e.message);
+              showToast(e.message);
               setHasNextPage(false);
             });
           if (fetchId === fetchIdRef.current) {
@@ -60,6 +63,7 @@ export const useBrowseSource = (
         } catch (err: unknown) {
           if (fetchId === fetchIdRef.current) {
             setError(`${err}`);
+            showToast(`${err}`);
           }
         } finally {
           if (fetchId === fetchIdRef.current) {
@@ -85,8 +89,12 @@ export const useBrowseSource = (
   }, []);
 
   useEffect(() => {
+    // If initialSearchText is provided, skip fetching popularNovels on mount
+    if (initialSearchText && currentPage === 1 && fetchIdRef.current === 0) {
+      return;
+    }
     fetchNovels(currentPage, selectedFilters);
-  }, [fetchNovels, currentPage, selectedFilters]);
+  }, [fetchNovels, currentPage, selectedFilters, initialSearchText]);
 
   const refetchNovels = useCallback(() => {
     setError('');
@@ -135,13 +143,16 @@ export const useBrowseSource = (
   );
 };
 
-export const useSearchSource = (pluginId: string) => {
-  const [isSearching, setIsSearching] = useState(false);
+export const useSearchSource = (
+  pluginId: string,
+  initialSearchText?: string,
+) => {
+  const [isSearching, setIsSearching] = useState(!!initialSearchText);
   const [searchResults, setSearchResults] = useState<NovelItem[]>([]);
   const [searchError, setSearchError] = useState<string>();
   const [hasNextSearchPage, setHasNextSearchPage] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState(initialSearchText || '');
 
   const isScreenMounted = useRef(true);
   const searchIdRef = useRef(0);
@@ -174,6 +185,7 @@ export const useSearchSource = (pluginId: string) => {
         } catch (err: unknown) {
           if (searchId !== searchIdRef.current) return;
           setSearchError(`${err}`);
+          showToast(`${err}`);
           setHasNextSearchPage(false);
         } finally {
           if (searchId === searchIdRef.current) {

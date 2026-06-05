@@ -19,11 +19,13 @@ import NovelCover from '@components/NovelCover';
 interface GlobalSearchResultsListProps {
   searchResults: GlobalSearchResult[];
   ListEmptyComponent?: React.JSX.Element;
+  searchText?: string;
 }
 
 const GlobalSearchResultsList: React.FC<GlobalSearchResultsListProps> = ({
   searchResults,
   ListEmptyComponent,
+  searchText,
 }) => {
   const keyExtractor = useCallback(
     (item: GlobalSearchResult) => item.plugin.id,
@@ -35,15 +37,18 @@ const GlobalSearchResultsList: React.FC<GlobalSearchResultsListProps> = ({
       keyExtractor={keyExtractor}
       data={searchResults}
       contentContainerStyle={styles.resultList}
-      renderItem={({ item }) => <GlobalSearchSourceResults item={item} />}
+      renderItem={({ item }) => (
+        <GlobalSearchSourceResults item={item} searchText={searchText} />
+      )}
       ListEmptyComponent={ListEmptyComponent}
     />
   );
 };
 
-const GlobalSearchSourceResults: React.FC<{ item: GlobalSearchResult }> = ({
-  item,
-}) => {
+const GlobalSearchSourceResults: React.FC<{
+  item: GlobalSearchResult;
+  searchText?: string;
+}> = ({ item, searchText }) => {
   const theme = useTheme();
   const navigation = useNavigation<StackNavigationProp<any>>();
   const [inActivity, setInActivity] = useState<Record<string, boolean>>({});
@@ -80,6 +85,7 @@ const GlobalSearchSourceResults: React.FC<{ item: GlobalSearchResult }> = ({
                 pluginId: item.plugin.id,
                 pluginName: item.plugin.name,
                 site: item.plugin.site,
+                searchText,
               })
             }
           >
@@ -179,6 +185,7 @@ const GlobalSearchSourceResults: React.FC<{ item: GlobalSearchResult }> = ({
       noResultsColor,
       novelInLibrary,
       switchNovelToLibrary,
+      searchText,
       theme,
     ],
   );

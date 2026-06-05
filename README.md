@@ -15,8 +15,8 @@ This is a modified version for my personal use. It is perfectly compatible with 
 
 ### Screenshots
 
-|                             App Lock                             |                             Book Detail                              |                             Reader                              |                         Translate Setting                          |
-| :--------------------------------------------------------------: | :------------------------------------------------------------------: | :-------------------------------------------------------------: | :----------------------------------------------------------------: |
+|||||
+| :-: | :-: | :-: | :-: |
 | <img src="./.github/readme-images/v2/applock.jpg" width="220" /> | <img src="./.github/readme-images/v2/book_detail.jpg" width="220" /> | <img src="./.github/readme-images/v2/reader.jpg" width="220" /> | <img src="./.github/readme-images/v2/translate.jpg" width="220" /> |
 
 ### Key Changes from the Original LNReader
