@@ -6,6 +6,7 @@ import { useTheme } from '@hooks/persisted';
 
 import { getString } from '@strings/translations';
 import { SettingsScreenProps } from '@navigators/types';
+import { DiscordSVG } from './SettingsDiscordScreen';
 
 const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
   const theme = useTheme();
@@ -74,6 +75,16 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           onPress={() =>
             navigation.navigate('SettingsStack', {
               screen: 'SecuritySettings',
+            })
+          }
+          theme={theme}
+        />
+        <List.Item
+          title="Discord"
+          icon={DiscordSVG}
+          onPress={() =>
+            navigation.navigate('SettingsStack', {
+              screen: 'DiscordSettings',
             })
           }
           theme={theme}

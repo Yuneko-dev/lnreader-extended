@@ -1,5 +1,6 @@
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, StatusBar, Text, Share } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Animated, {
   SlideInUp,
   SlideOutUp,
@@ -33,6 +34,7 @@ import { ThemeColors } from '@theme/types';
 import { SafeAreaView } from '@components';
 import { useNovelActions, useNovelValue } from './NovelContext';
 import { LegendListRef } from '@legendapp/list';
+import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const Novel = ({ route, navigation }: NovelScreenProps) => {
   const novel = useNovelValue('novel');
@@ -60,6 +62,23 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
 
   const headerOpacity = useSharedValue(0);
   const [forceResetModal, showForceResetModal] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      const novelName = novel?.name || route.params?.name || '';
+      if (novelName) {
+        const url = novel
+          ? resolveUrl(novel.pluginId, novel.path, true)
+          : undefined;
+        discordRPC.setBrowsingNovel(
+          novelName,
+          getString('discord.browseNovel'),
+          novel?.cover,
+          url,
+        );
+      }
+    }, [route.params?.name, novel]),
+  );
 
   const downloadChs = useCallback(
     async (amount: number | 'all' | 'unread') => {

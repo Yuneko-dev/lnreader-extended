@@ -1,4 +1,5 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
 
 import ReaderAppbar from './components/ReaderAppbar';
@@ -18,6 +19,8 @@ import { useBackHandler } from '@hooks/index';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
+import { discordRPC } from '@modules/discord/DiscordRPC';
+import { resolveUrl } from '@services/plugin/fetch';
 
 const Chapter = ({ route, navigation }: ChapterScreenProps) => {
   const [open, setOpen] = useState(false);
@@ -78,6 +81,22 @@ export const ChapterContent = ({
 
   const { hidden, loading, error, webViewRef, hideHeader, refetch } =
     useChapterContext();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (novel && chapter) {
+        const url = resolveUrl(novel.pluginId, chapter.path);
+        discordRPC.setReadingChapter(
+          novel.name,
+          chapter.name,
+          getString('discord.readChapter'),
+          novel?.cover,
+          url,
+          chapter.page,
+        );
+      }
+    }, [novel, chapter]),
+  );
 
   const scrollToStart = () =>
     requestAnimationFrame(() => {

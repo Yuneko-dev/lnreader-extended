@@ -13,6 +13,8 @@ import { BottomNavigatorParamList } from './types';
 import Icon from '@react-native-vector-icons/material-design-icons';
 import { MaterialDesignIconName } from '@type/icon';
 import { BottomTabBar } from '@components';
+import { useFocusEffect } from '@react-navigation/native';
+import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const Tab = createBottomTabNavigator<BottomNavigatorParamList>();
 const TAB_ICON_SIZE = 24;
@@ -35,6 +37,12 @@ const BottomNavigator = () => {
   const pluginsWithUpdate = useMemo(
     () => filteredInstalledPlugins.filter(p => p.hasUpdate).length,
     [filteredInstalledPlugins],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      discordRPC.setAppOpen(getString('discord.openApp'));
+    }, []),
   );
 
   const renderIcon = useCallback(

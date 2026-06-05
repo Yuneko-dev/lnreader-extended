@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { FAB } from 'react-native-paper';
 import { ErrorScreenV2, SafeAreaView, SearchbarV2 } from '@components/index';
@@ -10,6 +11,7 @@ import FilterBottomSheet from './components/FilterBottomSheet';
 import { useSearch } from '@hooks';
 import { useTheme } from '@hooks/persisted';
 import { useBrowseSource, useSearchSource } from './useBrowseSource';
+import usePlugins from '@hooks/persisted/usePlugins';
 
 import { NovelItem } from '@plugins/types';
 import { getPlugin } from '@plugins/pluginManager';
@@ -20,6 +22,7 @@ import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/Source
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BrowseSourceScreenProps } from '@navigators/types';
 import { useLibraryContext } from '@components/Context/LibraryContext';
+import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   const theme = useTheme();
@@ -88,6 +91,23 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
         },
       }),
     [navigation, pluginId],
+  );
+
+  const { filteredInstalledPlugins } = usePlugins();
+  const pluginIcon = useMemo(
+    () => filteredInstalledPlugins.find(p => p.id === pluginId)?.iconUrl,
+    [filteredInstalledPlugins, pluginId],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      discordRPC.setBrowsingSource(
+        pluginName,
+        getString('discord.browseSource'),
+        site,
+        pluginIcon,
+      );
+    }, [pluginName, site, pluginIcon]),
   );
 
   const { bottom, right } = useSafeAreaInsets();

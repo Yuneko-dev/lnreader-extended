@@ -40,6 +40,9 @@ import ServiceManager from '@services/ServiceManager';
 import ReaderStack from './ReaderStack';
 import { LibraryContextProvider } from '@components/Context/LibraryContext';
 import { UpdateContextProvider } from '@components/Context/UpdateContext';
+import { discordRPC } from '@modules/discord/DiscordRPC';
+import { getString } from '@strings/translations';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const MainNavigator = () => {
@@ -67,6 +70,9 @@ const MainNavigator = () => {
     if (isOnboarded) {
       // hack this helps app has enough time to initialize database;
       refreshPlugins();
+      discordRPC.connect().then(() => {
+        discordRPC.setAppOpen(getString('discord.openApp'));
+      });
     }
   }, [isOnboarded, refreshPlugins, updateLibraryOnLaunch]);
 

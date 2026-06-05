@@ -716,5 +716,31 @@
   "swipeActionDisabled": "Vô hiệu hóa",
   "swipeActionBookmark": "Đánh dấu chương",
   "swipeActionMarkAsRead": "Đánh dấu là đã đọc",
-  "swipeActionDownload": "Tải xuống chương"
+  "swipeActionDownload": "Tải xuống chương",
+  "discord": {
+    "openApp": "Đang mở ứng dụng",
+    "browseSource": "Đang duyệt nguồn",
+    "browseNovel": "Đang duyệt truyện",
+    "readChapter": "Đang đọc",
+    "title": "Discord Rich Presence",
+    "login": "Đăng nhập với Discord",
+    "logout": "Đăng xuất",
+    "notConnected": "Chưa đăng nhập Discord",
+    "connectedAs": "Đã kết nối với: %{name}",
+    "rpcSettings": "Cài đặt RPC",
+    "enableRPC": "Bật Rich Presence",
+    "enableRPCDesc": "Hiện trạng thái trên Discord",
+    "showAppOpen": "Hiện Mở App",
+    "showAppOpenDesc": "Hiện khi mở ứng dụng hoặc lướt thư viện",
+    "showBrowsing": "Hiện Lướt Nguồn",
+    "showBrowsingDesc": "Hiện khi lướt một nguồn truyện",
+    "showReading": "Hiện Đọc Truyện",
+    "showReadingDesc": "Hiện khi đọc truyện hoặc lướt tiểu thuyết",
+    "timeout": "Đăng nhập quá thời gian chờ (Timeout)",
+    "btnReadOnApp": "Xem trên ứng dụng",
+    "btnSource": "Nguồn",
+    "btnViewNovel": "Xem truyện",
+    "btnReadChapter": "Xem chương",
+    "error": "Lỗi"
+  }
 }

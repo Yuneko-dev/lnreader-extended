@@ -16,7 +16,7 @@ import { ColorInstance } from 'color';
 interface ListItemProps {
   title: string;
   description?: string | null;
-  icon?: string;
+  icon?: any;
   onPress?: () => void;
   theme: ThemeColors;
   disabled?: boolean;

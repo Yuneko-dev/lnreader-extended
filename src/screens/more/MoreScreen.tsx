@@ -10,6 +10,7 @@ import { MoreStackScreenProps } from '@navigators/types';
 import Switch from '@components/Switch/Switch';
 import { useMMKVObject } from 'react-native-mmkv';
 import ServiceManager, { BackgroundTask } from '@services/ServiceManager';
+import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const MoreScreen = ({ navigation }: MoreStackScreenProps) => {
   const theme = useTheme();
@@ -25,8 +26,17 @@ const MoreScreen = ({ navigation }: MoreStackScreenProps) => {
   const enableDownloadedOnlyMode = () =>
     setLibrarySettings({ downloadedOnlyMode: !downloadedOnlyMode });
 
-  const enableIncognitoMode = () =>
-    setLibrarySettings({ incognitoMode: !incognitoMode });
+  const enableIncognitoMode = () => {
+    const newVal = !incognitoMode;
+    setLibrarySettings({ incognitoMode: newVal });
+    if (newVal) {
+      discordRPC.disconnect();
+    } else {
+      discordRPC.connect().then(() => {
+        discordRPC.setAppOpen(getString('discord.openApp'));
+      });
+    }
+  };
 
   useEffect(
     () =>

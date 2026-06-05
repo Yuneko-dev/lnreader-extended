@@ -11,3 +11,5 @@ export const GITHUB_REPO = 'lnreader-extended';
 export const APP_GITHUB = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}`;
 
 export const PLUGIN_GITHUB = `https://github.com/${GITHUB_USER}/lnreader-plugins`;
+
+export const APP_NAME = 'LNReader eXtended';
