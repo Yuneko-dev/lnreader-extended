@@ -606,4 +606,28 @@ export interface StringMap {
   'swipeActionBookmark': 'string';
   'swipeActionMarkAsRead': 'string';
   'swipeActionDownload': 'string';
+  'discord.openApp': 'string';
+  'discord.browseSource': 'string';
+  'discord.browseNovel': 'string';
+  'discord.readChapter': 'string';
+  'discord.title': 'string';
+  'discord.login': 'string';
+  'discord.logout': 'string';
+  'discord.notConnected': 'string';
+  'discord.connectedAs': 'string';
+  'discord.rpcSettings': 'string';
+  'discord.enableRPC': 'string';
+  'discord.enableRPCDesc': 'string';
+  'discord.showAppOpen': 'string';
+  'discord.showAppOpenDesc': 'string';
+  'discord.showBrowsing': 'string';
+  'discord.showBrowsingDesc': 'string';
+  'discord.showReading': 'string';
+  'discord.showReadingDesc': 'string';
+  'discord.timeout': 'string';
+  'discord.btnReadOnApp': 'string';
+  'discord.btnSource': 'string';
+  'discord.btnViewNovel': 'string';
+  'discord.btnReadChapter': 'string';
+  'discord.error': 'string';
 }

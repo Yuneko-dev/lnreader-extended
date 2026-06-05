@@ -24,6 +24,10 @@ export interface AppSettings {
    */
 
   incognitoMode: boolean;
+  discordRPCEnabled?: boolean;
+  discordRPCAppOpen?: boolean;
+  discordRPCBrowsing?: boolean;
+  discordRPCReading?: boolean;
   disableHapticFeedback: boolean;
   verboseLogging: boolean;
   allowCloudflareBypass: boolean;
@@ -174,6 +178,10 @@ const initialAppSettings: AppSettings = {
    */
 
   incognitoMode: false,
+  discordRPCEnabled: true,
+  discordRPCAppOpen: true,
+  discordRPCBrowsing: true,
+  discordRPCReading: true,
   disableHapticFeedback: false,
   verboseLogging: false,
   allowCloudflareBypass: false,

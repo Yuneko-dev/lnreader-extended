@@ -61,7 +61,7 @@ export const LogViewer = ({
         scrollTimeout.current = null;
       }, 100);
     }
-  }, [logs]);
+  }, [logs, displayLogs.length]);
 
   const onScroll = useCallback((event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;

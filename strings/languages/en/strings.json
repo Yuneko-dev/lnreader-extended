@@ -717,5 +717,31 @@
   "swipeActionDisabled": "Disabled",
   "swipeActionBookmark": "Bookmark chapter",
   "swipeActionMarkAsRead": "Mark as read",
-  "swipeActionDownload": "Download chapter"
+  "swipeActionDownload": "Download chapter",
+  "discord": {
+    "openApp": "Browsing App",
+    "browseSource": "Browsing Source",
+    "browseNovel": "Browsing Novel",
+    "readChapter": "Reading",
+    "title": "Discord Rich Presence",
+    "login": "Login with Discord",
+    "logout": "Logout",
+    "notConnected": "Not connected to Discord",
+    "connectedAs": "Connected as: %{name}",
+    "rpcSettings": "RPC Settings",
+    "enableRPC": "Enable Rich Presence",
+    "enableRPCDesc": "Show your activity on Discord",
+    "showAppOpen": "Show App Open",
+    "showAppOpenDesc": "Show when you open the app or browsing library",
+    "showBrowsing": "Show Browsing",
+    "showBrowsingDesc": "Show when you browse a source",
+    "showReading": "Show Reading",
+    "showReadingDesc": "Show when you read a novel or chapter",
+    "timeout": "Login timed out",
+    "btnReadOnApp": "Read on App",
+    "btnSource": "Source",
+    "btnViewNovel": "View Novel",
+    "btnReadChapter": "Read Chapter",
+    "error": "Error"
+  }
 }

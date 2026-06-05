@@ -83,6 +83,7 @@ export type SettingsStackParamList = {
   AdvancedSettings: undefined;
   LibrarySettings: undefined;
   SecuritySettings: undefined;
+  DiscordSettings: undefined;
   RespositorySettings: { url?: string } | undefined;
 };
 
