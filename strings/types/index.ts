@@ -288,6 +288,10 @@ export interface StringMap {
   'generalSettingsScreen.novelSort': 'string';
   'generalSettingsScreen.refreshMetadata': 'string';
   'generalSettingsScreen.refreshMetadataDescription': 'string';
+  'generalSettingsScreen.searchHistory': 'string';
+  'generalSettingsScreen.enableSearchHistory': 'string';
+  'generalSettingsScreen.enableSearchHistoryDesc': 'string';
+  'generalSettingsScreen.clearSearchHistory': 'string';
   'generalSettingsScreen.sortOrder': 'string';
   'generalSettingsScreen.updateLibrary': 'string';
   'generalSettingsScreen.updateLibraryDesc': 'string';

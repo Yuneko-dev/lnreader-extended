@@ -4,12 +4,14 @@ import { ScrollView, StyleSheet } from 'react-native';
 import DisplayModeModal from './modals/DisplayModeModal';
 import GridSizeModal from './modals/GridSizeModal';
 import SwipeActionModal from './modals/SwipeActionModal';
+import { showToast } from '@utils/showToast';
 
 import {
   useAppSettings,
   useLastUpdate,
   useLibrarySettings,
   useTheme,
+  useSearchHistory,
 } from '@hooks/persisted';
 import DefaultChapterSortModal from '../components/DefaultChapterSortModal';
 import {
@@ -65,6 +67,8 @@ const GenralSettings: React.FC<GenralSettingsProps> = ({ navigation }) => {
   } = useAppSettings();
 
   const { showLastUpdateTime, setShowLastUpdateTime } = useLastUpdate();
+  const { enableSearchHistory, setEnableSearchHistory, clearHistory } =
+    useSearchHistory();
 
   const generateNovelBadgesDescription = () => {
     const res = [];
@@ -216,6 +220,27 @@ const GenralSettings: React.FC<GenralSettingsProps> = ({ navigation }) => {
             label={getString('generalSettingsScreen.updateTime')}
             value={showLastUpdateTime}
             onPress={() => setShowLastUpdateTime(!showLastUpdateTime)}
+            theme={theme}
+          />
+          <List.Divider theme={theme} />
+          <List.SubHeader theme={theme}>
+            {getString('generalSettingsScreen.searchHistory')}
+          </List.SubHeader>
+          <SettingSwitch
+            label={getString('generalSettingsScreen.enableSearchHistory')}
+            description={getString(
+              'generalSettingsScreen.enableSearchHistoryDesc',
+            )}
+            value={enableSearchHistory}
+            onPress={() => setEnableSearchHistory(!enableSearchHistory)}
+            theme={theme}
+          />
+          <List.Item
+            title={getString('generalSettingsScreen.clearSearchHistory')}
+            onPress={() => {
+              clearHistory();
+              showToast(getString('historyScreen.deleted'));
+            }}
             theme={theme}
           />
           <List.Divider theme={theme} />

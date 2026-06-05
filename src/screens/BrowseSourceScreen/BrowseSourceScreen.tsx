@@ -9,9 +9,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import FilterBottomSheet from './components/FilterBottomSheet';
 
 import { useSearch } from '@hooks';
-import { useTheme } from '@hooks/persisted';
+import { useSearchHistory, useTheme } from '@hooks/persisted';
 import { useBrowseSource, useSearchSource } from './useBrowseSource';
 import usePlugins from '@hooks/persisted/usePlugins';
+import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';
 
 import { NovelItem } from '@plugins/types';
 import { getPlugin } from '@plugins/pluginManager';
@@ -61,10 +62,26 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
     (text: string) => setSearchText(text),
     [setSearchText],
   );
-  const onSubmitEditing = useCallback(
-    () => searchSource(searchText),
-    [searchSource, searchText],
+
+  const { addSearchKey } = useSearchHistory();
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const onSubmitEditing = useCallback(() => {
+    addSearchKey(searchText);
+    searchSource(searchText);
+  }, [searchSource, searchText, addSearchKey]);
+
+  const handleHistorySearch = useCallback(
+    (keyword: string) => {
+      setSearchText(keyword);
+      searchSource(keyword);
+    },
+    [setSearchText, searchSource],
   );
+
+  const onSearchFocus = useCallback(() => setIsSearchFocused(true), []);
+  const onSearchBlur = useCallback(() => setIsSearchFocused(false), []);
+
   const handleClearSearchbar = useCallback(() => {
     clearSearchbar();
     clearSearchResults();
@@ -216,12 +233,16 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
         placeholder={`${getString('common.search')} ${pluginName}`}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmitEditing}
+        onFocus={onSearchFocus}
+        onBlur={onSearchBlur}
         clearSearchbar={handleClearSearchbar}
         handleBackAction={navigation.goBack}
         rightIcons={rightIcons}
         theme={theme}
       />
-      {isLoading || isSearching ? (
+      {isSearchFocused && !searchText ? (
+        <SearchHistoryList theme={theme} onSearch={handleHistorySearch} />
+      ) : isLoading || isSearching ? (
         <SourceScreenSkeletonLoading theme={theme} />
       ) : errorMessage || novelList.length === 0 ? (
         <ErrorScreenV2

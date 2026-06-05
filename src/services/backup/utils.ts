@@ -4,6 +4,7 @@ import {
   LAST_UPDATE_TIME,
   NOVEL_UPDATE_RANDOM_KEY,
 } from '@hooks/persisted/useUpdates';
+import { SEARCH_HISTORY_KEY } from '@hooks/persisted';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { version } from '../../../package.json';
 import {
@@ -46,6 +47,7 @@ const backupMMKVData = () => {
     SELF_HOST_BACKUP,
     LAST_UPDATE_TIME,
     NOVEL_UPDATE_RANDOM_KEY,
+    SEARCH_HISTORY_KEY,
   ];
   const keys = MMKVStorage.getAllKeys().filter(
     key => !excludeKeys.includes(key),

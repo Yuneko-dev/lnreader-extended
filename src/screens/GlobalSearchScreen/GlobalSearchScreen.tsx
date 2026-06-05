@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 
@@ -9,9 +9,10 @@ import {
   SelectableChip,
 } from '@components/index';
 import GlobalSearchResultsList from './components/GlobalSearchResultsList';
+import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';
 
 import { useSearch } from '@hooks';
-import { useTheme } from '@hooks/persisted';
+import { useSearchHistory, useTheme } from '@hooks/persisted';
 
 import { getString } from '@strings/translations';
 import { useGlobalSearch } from './hooks/useGlobalSearch';
@@ -30,7 +31,10 @@ const GlobalSearchScreen = (props: Props) => {
     props?.route?.params?.searchText,
     false,
   );
-  const onChangeText = (text: string) => setSearchText(text);
+  const onChangeText = useCallback(
+    (text: string) => setSearchText(text),
+    [setSearchText],
+  );
 
   const [hasResultsOnly, setHasResultsOnly] = useState(false);
 
@@ -39,6 +43,18 @@ const GlobalSearchScreen = (props: Props) => {
     hasResultsOnly,
   });
 
+  const { addSearchKey } = useSearchHistory();
+  const onSubmitEditing = useCallback(() => {
+    addSearchKey(searchText);
+  }, [addSearchKey, searchText]);
+
+  const handleHistorySearch = useCallback(
+    (keyword: string) => {
+      setSearchText(keyword);
+    },
+    [setSearchText],
+  );
+
   return (
     <SafeAreaView>
       <SearchbarV2
@@ -46,40 +62,47 @@ const GlobalSearchScreen = (props: Props) => {
         placeholder={getString('browseScreen.globalSearch')}
         leftIcon="magnify"
         onChangeText={onChangeText}
+        onSubmitEditing={onSubmitEditing}
         clearSearchbar={clearSearchbar}
         theme={theme}
       />
-      {progress ? (
-        <ProgressBar
-          color={theme.primary}
-          progress={Math.round(1000 * progress) / 1000}
-        />
-      ) : null}
-      {progress > 0 ? (
-        <View style={styles.filterContainer}>
-          <SelectableChip
-            label="Has results"
-            selected={hasResultsOnly}
-            icon="filter-variant"
-            showCheckIcon={false}
-            theme={theme}
-            onPress={() => setHasResultsOnly(!hasResultsOnly)}
-            mode="outlined"
+      {!searchText ? (
+        <SearchHistoryList theme={theme} onSearch={handleHistorySearch} />
+      ) : (
+        <>
+          {progress ? (
+            <ProgressBar
+              color={theme.primary}
+              progress={Math.round(1000 * progress) / 1000}
+            />
+          ) : null}
+          {progress > 0 ? (
+            <View style={styles.filterContainer}>
+              <SelectableChip
+                label="Has results"
+                selected={hasResultsOnly}
+                icon="filter-variant"
+                showCheckIcon={false}
+                theme={theme}
+                onPress={() => setHasResultsOnly(!hasResultsOnly)}
+                mode="outlined"
+              />
+            </View>
+          ) : null}
+          <GlobalSearchResultsList
+            searchResults={searchResults}
+            ListEmptyComponent={
+              <EmptyView
+                icon="__φ(．．)"
+                description={`${getString('globalSearch.searchIn')} ${getString(
+                  'globalSearch.allSources',
+                )}`}
+                theme={theme}
+              />
+            }
           />
-        </View>
-      ) : null}
-      <GlobalSearchResultsList
-        searchResults={searchResults}
-        ListEmptyComponent={
-          <EmptyView
-            icon="__φ(．．)"
-            description={`${getString('globalSearch.searchIn')} ${getString(
-              'globalSearch.allSources',
-            )}`}
-            theme={theme}
-          />
-        }
-      />
+        </>
+      )}
     </SafeAreaView>
   );
 };
