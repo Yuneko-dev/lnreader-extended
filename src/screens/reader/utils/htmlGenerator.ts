@@ -176,7 +176,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
   </head>
   <body class="${chapterGeneralSettings.pageReader ? 'page-reader' : ''}">
     <div id="LNReader-chapter">
-      <div class="transition-chapter">
+      <div class="transition-chapter" id="LNReader-title-novel">
         ${chapter.name}
       </div>
       ${html}  

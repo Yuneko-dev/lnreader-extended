@@ -12,6 +12,9 @@ class TTS {
       'STRONG',
       'A',
     ];
+    this.internalElementIds = [
+      'LNReader-title-novel',
+    ];
     this.prevElement = null;
     this.currentElement = reader.chapterElement;
     this.started = false;
@@ -24,6 +27,9 @@ class TTS {
 
   readable = (element) => {
     const ele = element ?? this.currentElement;
+    if (this.internalElementIds.includes(ele.id)) {
+      return false;
+    }
     if (
       ele.nodeName !== 'SPAN' &&
       this.readableNodeNames.includes(ele.nodeName)
