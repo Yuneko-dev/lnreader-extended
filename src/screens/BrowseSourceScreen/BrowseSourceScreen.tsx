@@ -27,7 +27,13 @@ import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   const theme = useTheme();
-  const { pluginId, pluginName, site, showLatestNovels } = route.params;
+  const {
+    pluginId,
+    pluginName,
+    site,
+    showLatestNovels,
+    searchText: initialSearchText,
+  } = route.params;
   const imageRequestInit = useMemo(
     () => getPlugin(pluginId)?.imageRequestInit,
     [pluginId],
@@ -43,7 +49,7 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
     setFilters,
     clearFilters,
     refetchNovels,
-  } = useBrowseSource(pluginId, showLatestNovels);
+  } = useBrowseSource(pluginId, showLatestNovels, initialSearchText);
 
   const {
     isSearching,
@@ -53,11 +59,14 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
     hasNextSearchPage,
     clearSearchResults,
     searchError,
-  } = useSearchSource(pluginId);
+  } = useSearchSource(pluginId, initialSearchText);
   const novelList = searchResults.length > 0 ? searchResults : novels;
   const errorMessage = error || searchError;
 
-  const { searchText, setSearchText, clearSearchbar } = useSearch();
+  const { searchText, setSearchText, clearSearchbar } = useSearch(
+    initialSearchText,
+    false,
+  );
   const onChangeText = useCallback(
     (text: string) => setSearchText(text),
     [setSearchText],
@@ -85,7 +94,10 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   const handleClearSearchbar = useCallback(() => {
     clearSearchbar();
     clearSearchResults();
-  }, [clearSearchbar, clearSearchResults]);
+    if (novels.length === 0) {
+      refetchNovels();
+    }
+  }, [clearSearchbar, clearSearchResults, novels.length, refetchNovels]);
 
   const handleOpenWebView = useCallback(() => {
     navigation.navigate('WebviewScreen', {
