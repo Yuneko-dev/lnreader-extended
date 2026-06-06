@@ -1,4 +1,9 @@
-import { InteractionManager } from 'react-native';
+import {
+  InteractionManager,
+  AppState,
+  AppStateStatus,
+  NativeEventSubscription,
+} from 'react-native';
 import { GatewayClient } from './Gateway';
 import { DiscordAuth, rest } from './DiscordAuth';
 import { RichPresence } from './structures/Presence';
@@ -32,7 +37,26 @@ export class DiscordRPCManager {
   private accessToken = '';
   private readonly LOGO_APP_ID = '1512169205879934986';
 
-  private constructor() {}
+  private lastAppStateConnectTime = 0;
+
+  private constructor() {
+    AppState.addEventListener('change', this.handleAppStateChange);
+  }
+
+  private handleAppStateChange = (state: AppStateStatus) => {
+    if (state === 'active' && !this.isReady && !this.isConnecting) {
+      const now = Date.now();
+      if (now - this.lastAppStateConnectTime < 10000) return;
+
+      const settings = this.getSettings();
+      const librarySettings = this.getLibrarySettings();
+      if (settings?.discordRPCEnabled && !librarySettings?.incognitoMode) {
+        console.log("Automatically reconnect on AppState changes");
+        this.lastAppStateConnectTime = now;
+        this.connect();
+      }
+    }
+  };
 
   get token() {
     if (!this.accessToken) return '';
