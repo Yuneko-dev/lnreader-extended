@@ -207,11 +207,17 @@ const fetchPlugins = async (): Promise<PluginItem[]> => {
   const allRepositories = await getRepositoriesFromDb();
 
   const repoPluginsRes = await Promise.allSettled(
-    allRepositories.map(({ url }) =>
-      fetch(getBypassCacheUrl(url), {
+    allRepositories.map(({ url }) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 7_500);
+      return fetch(getBypassCacheUrl(url), {
         headers: { 'pragma': 'no-cache', 'cache-control': 'no-cache' },
-      }).then(res => res.json()),
-    ),
+        signal: controller.signal,
+      }).then(res => {
+        clearTimeout(timer);
+        return res.json();
+      });
+    }),
   );
 
   repoPluginsRes.forEach(repoPlugins => {
