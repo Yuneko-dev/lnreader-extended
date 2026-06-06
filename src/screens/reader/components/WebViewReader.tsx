@@ -467,6 +467,59 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
   const isRTL = plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew';
   const readerDir = isRTL ? 'rtl' : 'ltr';
 
+  const source = useMemo(
+    () => ({
+      baseUrl: novel.isLocal
+        ? `${getLocalServerUrl()}/local/${novel.id}/`
+        : !chapter.isDownloaded
+        ? plugin?.site
+        : undefined,
+      headers: plugin?.imageRequestInit?.headers,
+      method: plugin?.imageRequestInit?.method,
+      body: plugin?.imageRequestInit?.body,
+      html: generateReaderHtml({
+        html,
+        theme,
+        readerDir,
+        readerSettings: readerSettingsRef.current,
+        chapterGeneralSettings,
+        novel,
+        chapter,
+        nextChapter,
+        prevChapter,
+        assetsUriPrefix,
+        batteryLevel,
+        readerBottomInset,
+        pluginCustomCSS,
+        pluginCustomJS,
+        nextChapterScreenVisible: nextChapterScreenVisible.current,
+        pendingScrollPosition: pendingScrollPositionRef.current,
+        getLocalServerUrl,
+        isSettingsPreview: false,
+        strings: {
+          finished: `${getString(
+            'readerScreen.finished',
+          )}: ${chapter.name?.trim()}`,
+          nextChapter: getString('readerScreen.nextChapter', {
+            name: nextChapter?.name,
+          }),
+          noNextChapter: getString('readerScreen.noNextChapter'),
+        },
+      }),
+    }),
+    [
+      novel.id,
+      novel.isLocal,
+      chapter.id,
+      chapter.isDownloaded,
+      html,
+      theme,
+      readerDir,
+      plugin?.site,
+      readerBottomInset,
+    ],
+  );
+
   return (
     <WebView
       ref={webViewRef}
@@ -673,45 +726,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
           }
         }
       }}
-      source={{
-        baseUrl: novel.isLocal
-          ? `${getLocalServerUrl()}/local/${novel.id}/`
-          : !chapter.isDownloaded
-          ? plugin?.site
-          : undefined,
-        headers: plugin?.imageRequestInit?.headers,
-        method: plugin?.imageRequestInit?.method,
-        body: plugin?.imageRequestInit?.body,
-        html: generateReaderHtml({
-          html,
-          theme,
-          readerDir,
-          readerSettings: readerSettingsRef.current,
-          chapterGeneralSettings,
-          novel,
-          chapter,
-          nextChapter,
-          prevChapter,
-          assetsUriPrefix,
-          batteryLevel,
-          readerBottomInset,
-          pluginCustomCSS,
-          pluginCustomJS,
-          nextChapterScreenVisible: nextChapterScreenVisible.current,
-          pendingScrollPosition: pendingScrollPositionRef.current,
-          getLocalServerUrl,
-          isSettingsPreview: false,
-          strings: {
-            finished: `${getString(
-              'readerScreen.finished',
-            )}: ${chapter.name?.trim()}`,
-            nextChapter: getString('readerScreen.nextChapter', {
-              name: nextChapter?.name,
-            }),
-            noNextChapter: getString('readerScreen.noNextChapter'),
-          },
-        }),
-      }}
+      source={source}
     />
   );
 };
