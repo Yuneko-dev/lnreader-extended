@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Pressable, Image, View, Text, StyleSheet } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 
 import { PluginItem } from '@plugins/types';
 import { ThemeColors } from '@theme/types';
@@ -31,10 +32,17 @@ export const PluginListItem = memo(
     navigateToSource,
     setSelectedPluginId,
   }: PluginListItemProps) => {
-    const { uninstallPlugin, updatePlugin, togglePinPlugin, isPinned } =
-      usePlugins();
+    const {
+      uninstallPlugin,
+      updatePlugin,
+      togglePinPlugin,
+      isPinned,
+      availablePluginsSet,
+    } = usePlugins();
 
     const isPluginPinned = isPinned(item.id);
+    const isMissingFromRepo =
+      item.id !== LOCAL_PLUGIN_ID && !availablePluginsSet.has(item.id);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const rightActionStyle = useMemo(
@@ -187,9 +195,19 @@ export const PluginListItem = memo(
                 <Text numberOfLines={1} style={nameStyle}>
                   {item.name}
                 </Text>
-                <Text numberOfLines={1} style={additionStyle}>
-                  {`${item.lang} - ${item.version}`}
-                </Text>
+                <View style={[styles.row, styles.center]}>
+                  <Text numberOfLines={1} style={additionStyle}>
+                    {`${item.lang} - ${item.version}`}
+                  </Text>
+                  {isMissingFromRepo && (
+                    <MaterialCommunityIcons
+                      name="alert-circle-outline"
+                      size={14}
+                      color="#ffc107"
+                      style={styles.warningIcon}
+                    />
+                  )}
+                </View>
               </View>
             </View>
             <View style={styles.flex} />
@@ -273,5 +291,8 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+  },
+  warningIcon: {
+    marginStart: 4,
   },
 });

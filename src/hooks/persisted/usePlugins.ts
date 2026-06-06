@@ -36,6 +36,13 @@ export default function usePlugins() {
     useMMKVObject<PluginItem[]>(FILTERED_AVAILABLE_PLUGINS);
   const [filteredInstalledPlugins = [], setFilteredInstalledPlugins] =
     useMMKVObject<PluginItem[]>(FILTERED_INSTALLED_PLUGINS);
+  const [availablePlugins = []] =
+    useMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS);
+
+  const availablePluginsSet = useMemo(
+    () => new Set(availablePlugins.map(p => p.id)),
+    [availablePlugins],
+  );
   /**
    * @param filter
    * We cant use the languagesFilter directly because it is updated only after component's lifecycle end.
@@ -232,6 +239,7 @@ export default function usePlugins() {
     () => ({
       filteredAvailablePlugins,
       filteredInstalledPlugins,
+      availablePluginsSet,
       lastUsedPlugin,
       pinnedPlugins,
       languagesFilter,
@@ -247,6 +255,7 @@ export default function usePlugins() {
     [
       filteredAvailablePlugins,
       filteredInstalledPlugins,
+      availablePluginsSet,
       lastUsedPlugin,
       pinnedPlugins,
       languagesFilter,
