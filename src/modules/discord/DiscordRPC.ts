@@ -1,9 +1,4 @@
-import {
-  InteractionManager,
-  AppState,
-  AppStateStatus,
-  NativeEventSubscription,
-} from 'react-native';
+import { InteractionManager, AppState, AppStateStatus } from 'react-native';
 import { GatewayClient } from './Gateway';
 import { DiscordAuth, rest } from './DiscordAuth';
 import { RichPresence } from './structures/Presence';
@@ -51,7 +46,7 @@ export class DiscordRPCManager {
       const settings = this.getSettings();
       const librarySettings = this.getLibrarySettings();
       if (settings?.discordRPCEnabled && !librarySettings?.incognitoMode) {
-        console.log("Automatically reconnect on AppState changes");
+        console.log('Automatically reconnect on AppState changes');
         this.lastAppStateConnectTime = now;
         this.connect();
       }
