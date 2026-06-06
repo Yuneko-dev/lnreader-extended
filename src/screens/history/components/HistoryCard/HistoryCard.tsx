@@ -42,6 +42,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({
               name: history.novelName,
               pluginId: history.pluginId,
               isLocal: history.pluginId === LOCAL_PLUGIN_ID,
+              cover: history.novelCover,
             } as NovelInfo,
             chapter: history,
           },

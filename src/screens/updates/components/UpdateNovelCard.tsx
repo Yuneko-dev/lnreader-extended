@@ -117,6 +117,7 @@ const UpdateNovelCard: React.FC<UpdateCardProps> = ({
             pluginId: pluginId,
             name: novelName,
             isLocal: pluginId === LOCAL_PLUGIN_ID,
+            cover: chapterListInfo.novelCover,
           } as NovelInfo,
           chapter: chapter,
         },
