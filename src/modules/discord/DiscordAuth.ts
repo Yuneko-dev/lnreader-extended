@@ -175,8 +175,8 @@ export class DiscordAuth {
       if (!data) return null;
       const parsed = JSON.parse(data) as StoredTokenData;
 
-      // Check expiration with 1 minute buffer
-      if (Date.now() > parsed.expired_time - 60000) {
+      // Check expiration with 1 day buffer
+      if (Date.now() > parsed.expired_time - 1000 * 60 * 60 * 24) {
         return await this.refreshToken(parsed.refresh_token);
       }
       return parsed;
