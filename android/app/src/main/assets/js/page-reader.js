@@ -137,6 +137,9 @@ function calculatePages() {
       pageReader.initialized = true;
     }
   } else {
+    if (window.hasScrolledInitially) return;
+    window.hasScrolledInitially = true;
+
     if (initialReaderConfig.initialScrollPosition === 'end') {
       window.forceScrollEnd = true;
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
@@ -153,6 +156,8 @@ function calculatePages() {
         behavior: 'smooth',
       });
     }
+    // Clear initialScrollPosition
+    initialReaderConfig.initialScrollPosition = null;
   }
 }
 
