@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 import { useMMKVBoolean, useMMKVObject } from 'react-native-mmkv';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
+import { LIBRARY_SETTINGS, LibrarySettings } from './useSettings';
 
 export const SEARCH_HISTORY_KEY = 'SEARCH_HISTORY';
 export const ENABLE_SEARCH_HISTORY_KEY = 'ENABLE_SEARCH_HISTORY';
@@ -17,7 +19,8 @@ export const useSearchHistory = () => {
 
   const addSearchKey = useCallback(
     (keyword: string) => {
-      if (!enableSearchHistory) {
+      const librarySettings = getMMKVObject<LibrarySettings>(LIBRARY_SETTINGS);
+      if (!enableSearchHistory || librarySettings?.incognitoMode) {
         return;
       }
 

@@ -3,6 +3,7 @@ import { useSearchHistory } from '../useSearchHistory';
 
 let mockBooleanValue: boolean = true;
 let mockObjectValue: string[] | undefined = undefined;
+let mockIncognitoMode: boolean = false;
 
 jest.mock('react-native-mmkv', () => {
   return {
@@ -23,10 +24,15 @@ jest.mock('react-native-mmkv', () => {
   };
 });
 
+jest.mock('@utils/mmkv/mmkv', () => ({
+  getMMKVObject: jest.fn(() => ({ incognitoMode: mockIncognitoMode })),
+}));
+
 describe('useSearchHistory', () => {
   beforeEach(() => {
     mockBooleanValue = true;
     mockObjectValue = undefined;
+    mockIncognitoMode = false;
     jest.clearAllMocks();
   });
 
@@ -121,5 +127,18 @@ describe('useSearchHistory', () => {
 
     rerender({});
     expect(mockObjectValue).toEqual([]); // No changes because it's disabled
+  });
+
+  it('should respect incognitoMode toggle', () => {
+    mockIncognitoMode = true; // Enabled incognito
+    mockObjectValue = [];
+    const { result, rerender } = renderHook(() => useSearchHistory());
+
+    act(() => {
+      result.current.addSearchKey('naruto');
+    });
+
+    rerender({});
+    expect(mockObjectValue).toEqual([]); // No changes because of incognito
   });
 });
