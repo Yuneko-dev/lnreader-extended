@@ -3,7 +3,7 @@ import {
   ChapterGeneralSettings,
   ChapterReaderSettings,
 } from '@hooks/persisted/useSettings';
-import { State } from './van';
+import { State } from './modules/core/van';
 
 export interface Reader {
   // element
@@ -55,8 +55,33 @@ interface TTS {
   readable: (element?: HTMLElement) => void;
 }
 
+interface LNReaderPlayerAPI {
+  container: HTMLElement | null;
+  videoElement: HTMLVideoElement | null;
+  iframeElement: HTMLIFrameElement | null;
+  hlsInstance: any | null;
+  debugOverlay: HTMLElement | null;
+  loadingOverlay: HTMLElement | null;
+
+  hasSeekedInitial: boolean;
+  lastSaveTime: number;
+  isDebugMode: boolean;
+
+  init(): void;
+  log(msg: string): void;
+  showLoading(show: boolean): void;
+  destroyCurrentMedia(): void;
+  attachEventListeners(video: HTMLVideoElement): void;
+  generateHTML5Video(): HTMLVideoElement;
+  generateHTMLVideo(metaPlayerType?: string): HTMLVideoElement;
+  playDirect(url: string): void;
+  playHls(url: string, customHlsConfig?: Record<string, any>): void;
+  playIframe(url: string): void;
+}
+
 declare global {
   const reader: Reader;
   const tts: TTS;
   const pageReader: PageReader;
+  const LNReaderPlayer: LNReaderPlayerAPI | undefined;
 }

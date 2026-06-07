@@ -86,6 +86,12 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       ? '<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">'
       : '';
 
+  // <meta name="lnreader-chapter-type" content="video">
+  const isVideoChapter =
+    /<meta\s+name=["']lnreader-chapter-type["']\s+content=["']video["']/i.test(
+      html,
+    );
+
   const proxyFetchScript =
     !isSettingsPreview && getLocalServerUrl
       ? `
@@ -123,8 +129,13 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       ? `<link rel="stylesheet" href="${pluginCustomCSS}">`
       : '';
 
-  const videoFullscreenScript = !isSettingsPreview
-    ? `<script src="${assetsUriPrefix}/js/videoFullscreen.js"></script>`
+  const corePlayerScripts = isVideoChapter
+    ? `
+    <link rel="stylesheet" href="${assetsUriPrefix}/css/core-player.css">
+    <script src="${assetsUriPrefix}/js/videoFullscreen.js"></script>
+    <script src="${assetsUriPrefix}/js/modules/media/hls.min.js"></script>
+    <script src="${assetsUriPrefix}/js/core-player.js"></script>
+    `
     : '';
 
   return `
@@ -195,10 +206,10 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     var initialPageReaderConfig = ${safeJsonStringify(initialPageReaderConfig)};
     var initialReaderConfig = ${safeJsonStringify(initialReaderConfig)};
   </script>
-  <script src="${assetsUriPrefix}/js/polyfill-onscrollend.js"></script>
+  <script src="${assetsUriPrefix}/js/modules/core/polyfill-onscrollend.js"></script>
   <script src="${assetsUriPrefix}/js/icons.js"></script>
-  <script src="${assetsUriPrefix}/js/van.js"></script>
-  <script src="${assetsUriPrefix}/js/text-vibe.js"></script>
+  <script src="${assetsUriPrefix}/js/modules/core/van.js"></script>
+  <script src="${assetsUriPrefix}/js/modules/core/text-vibe.js"></script>
   <script src="${assetsUriPrefix}/js/core.js"></script>
   <script src="${assetsUriPrefix}/js/debug.js"></script>
   <script src="${assetsUriPrefix}/js/theme.js"></script>
@@ -206,8 +217,8 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
   <script src="${assetsUriPrefix}/js/page-reader.js"></script>
   <script src="${assetsUriPrefix}/js/gestures.js"></script>
   <script src="${assetsUriPrefix}/js/index.js"></script>
-  ${videoFullscreenScript}
   ${proxyFetchScript}
+  ${corePlayerScripts}
   ${pluginJsScript}
   <script>
     ${readerSettings.customJS || ''}
