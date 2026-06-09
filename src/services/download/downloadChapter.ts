@@ -19,7 +19,11 @@ import {
   TranslateSettings,
   initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
-import { AIProvider, AI_PROVIDERS_KEY, ACTIVE_AI_PROVIDER_KEY } from '@hooks/persisted/useAIProviders';
+import {
+  AIProvider,
+  AI_PROVIDERS_KEY,
+  ACTIVE_AI_PROVIDER_KEY,
+} from '@hooks/persisted/useAIProviders';
 import { showToast } from '@utils/showToast';
 import { TranslateConfig } from '@services/translate/TranslateManager';
 

@@ -24,14 +24,21 @@ import {
   useRef,
   useState,
 } from 'react';
-import { TranslateManager, TranslateConfig } from '@services/translate/TranslateManager';
+import {
+  TranslateManager,
+  TranslateConfig,
+} from '@services/translate/TranslateManager';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
 import {
   TRANSLATE_SETTINGS,
   TranslateSettings,
   initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
-import { AIProvider, AI_PROVIDERS_KEY, ACTIVE_AI_PROVIDER_KEY } from '@hooks/persisted/useAIProviders';
+import {
+  AIProvider,
+  AI_PROVIDERS_KEY,
+  ACTIVE_AI_PROVIDER_KEY,
+} from '@hooks/persisted/useAIProviders';
 import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
