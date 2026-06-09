@@ -3,6 +3,7 @@ import { useCallback, useMemo, useEffect, useState } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
 import { useTranslateSettings } from '@hooks/persisted/useSettings';
 import type { LLMProviderSupported } from '@hooks/persisted/useSettings';
+import { randomUUID } from 'react-native-quick-crypto';
 
 export const AI_PROVIDERS_KEY = 'AI_PROVIDERS';
 export const ACTIVE_AI_PROVIDER_KEY = 'ACTIVE_AI_PROVIDER';
@@ -102,7 +103,7 @@ export const useAIProviders = () => {
 
   const addProvider = useCallback(
     async (provider: Omit<AIProvider, 'id'>, apiKey: string) => {
-      const id = Date.now().toString();
+      const id = randomUUID();
       const newProvider = { ...provider, id };
       setSettings(prev => [...(prev || []), newProvider]);
       await setApiKey(id, apiKey);
