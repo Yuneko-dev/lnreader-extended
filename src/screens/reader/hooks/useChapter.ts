@@ -24,13 +24,14 @@ import {
   useRef,
   useState,
 } from 'react';
-import { TranslateManager } from '@services/translate/TranslateManager';
+import { TranslateManager, TranslateConfig } from '@services/translate/TranslateManager';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
 import {
   TRANSLATE_SETTINGS,
   TranslateSettings,
   initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
+import { AIProvider, AI_PROVIDERS_KEY, ACTIVE_AI_PROVIDER_KEY } from '@hooks/persisted/useAIProviders';
 import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
@@ -221,9 +222,18 @@ export default function useChapter(
         rawText,
       );
 
+      const providers = getMMKVObject<AIProvider[]>(AI_PROVIDERS_KEY) || [];
+      const activeProviderId = getMMKVObject<string>(ACTIVE_AI_PROVIDER_KEY);
+      const activeAIProvider = providers.find(p => p.id === activeProviderId);
+
+      const config: TranslateConfig = {
+        ...(settings as any),
+        activeAIProvider,
+      };
+
       TranslateManager.translateChapterHTML(
         sanitizedText,
-        settings as any,
+        config,
         undefined, // no progress callback for background
         abortCtrl.signal,
       )
@@ -748,9 +758,19 @@ export default function useChapter(
       const settings =
         getMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS) ||
         initialTranslateSettings;
+
+      const providers = getMMKVObject<AIProvider[]>(AI_PROVIDERS_KEY) || [];
+      const activeProviderId = getMMKVObject<string>(ACTIVE_AI_PROVIDER_KEY);
+      const activeAIProvider = providers.find(p => p.id === activeProviderId);
+
+      const config: TranslateConfig = {
+        ...(settings as any),
+        activeAIProvider,
+      };
+
       const translatedHtml = await TranslateManager.translateChapterHTML(
         chapterText,
-        settings as any,
+        config,
         progress => setTranslateProgress(progress),
         abortCtrl.signal,
       );

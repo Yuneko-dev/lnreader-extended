@@ -86,6 +86,7 @@ export type SettingsStackParamList = {
   SecuritySettings: undefined;
   DiscordSettings: undefined;
   RespositorySettings: { url?: string } | undefined;
+  AISettings: undefined;
 };
 
 export type NovelScreenProps = StackScreenProps<
@@ -176,6 +177,10 @@ export type BackupSettingsScreenProps = StackScreenProps<
 export type AdvancedSettingsScreenProps = StackScreenProps<
   SettingsStackParamList,
   'AdvancedSettings'
+>;
+export type SettingsAIScreenProps = StackScreenProps<
+  SettingsStackParamList,
+  'AISettings'
 >;
 
 export type RespositorySettingsScreenProps = CompositeScreenProps<

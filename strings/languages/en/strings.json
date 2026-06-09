@@ -576,7 +576,21 @@
         "preTranslateNextChapter": "Pre-translate next chapter",
         "downloadTranslated": "Download translated version instead of raw",
         "baseUrlReverseProxy": "Base URL (Reverse Proxy)",
-        "baseUrlPlaceholder": "Leave empty for official API"
+        "baseUrlPlaceholder": "Leave empty for official API",
+        "aiProvidersConfiguration": "AI Providers Configuration",
+        "noProvidersConfigured": "No providers configured. Please add one in App Settings.",
+        "activeProvider": "Active Provider",
+        "addProvider": "Add Provider",
+        "editProvider": "Edit Provider",
+        "removeProvider": "Remove Provider",
+        "noneSelected": "None Selected",
+        "aiProviderModal": {
+          "aliasPlaceholder": "Alias (e.g. My Gemini Proxy)",
+          "enableReasoning": "Enable Reasoning",
+          "reasoningEffort": "Reasoning Effort",
+          "cancel": "Cancel",
+          "save": "Save"
+        }
       }
     },
     "drawer": {

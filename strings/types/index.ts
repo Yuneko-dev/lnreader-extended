@@ -490,6 +490,18 @@ export interface StringMap {
   'readerScreen.bottomSheet.translateTab.downloadTranslated': 'string';
   'readerScreen.bottomSheet.translateTab.baseUrlReverseProxy': 'string';
   'readerScreen.bottomSheet.translateTab.baseUrlPlaceholder': 'string';
+  'readerScreen.bottomSheet.translateTab.aiProvidersConfiguration': 'string';
+  'readerScreen.bottomSheet.translateTab.noProvidersConfigured': 'string';
+  'readerScreen.bottomSheet.translateTab.activeProvider': 'string';
+  'readerScreen.bottomSheet.translateTab.addProvider': 'string';
+  'readerScreen.bottomSheet.translateTab.editProvider': 'string';
+  'readerScreen.bottomSheet.translateTab.removeProvider': 'string';
+  'readerScreen.bottomSheet.translateTab.noneSelected': 'string';
+  'readerScreen.bottomSheet.translateTab.aiProviderModal.aliasPlaceholder': 'string';
+  'readerScreen.bottomSheet.translateTab.aiProviderModal.enableReasoning': 'string';
+  'readerScreen.bottomSheet.translateTab.aiProviderModal.reasoningEffort': 'string';
+  'readerScreen.bottomSheet.translateTab.aiProviderModal.cancel': 'string';
+  'readerScreen.bottomSheet.translateTab.aiProviderModal.save': 'string';
   'readerScreen.drawer.scrollToBottom': 'string';
   'readerScreen.drawer.scrollToCurrentChapter': 'string';
   'readerScreen.drawer.scrollToTop': 'string';

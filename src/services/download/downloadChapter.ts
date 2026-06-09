@@ -19,7 +19,9 @@ import {
   TranslateSettings,
   initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
+import { AIProvider, AI_PROVIDERS_KEY, ACTIVE_AI_PROVIDER_KEY } from '@hooks/persisted/useAIProviders';
 import { showToast } from '@utils/showToast';
+import { TranslateConfig } from '@services/translate/TranslateManager';
 
 const createChapterFolder = async (
   path: string,
@@ -103,9 +105,18 @@ export const downloadChapter = async (
 
     if (translateSettings.downloadTranslated) {
       try {
+        const providers = getMMKVObject<AIProvider[]>(AI_PROVIDERS_KEY) || [];
+        const activeProviderId = getMMKVObject<string>(ACTIVE_AI_PROVIDER_KEY);
+        const activeAIProvider = providers.find(p => p.id === activeProviderId);
+
+        const config: TranslateConfig = {
+          ...(translateSettings as any),
+          activeAIProvider,
+        };
+
         finalHtml = await TranslateManager.translateChapterHTML(
           finalHtml,
-          translateSettings as any,
+          config,
         );
         const loadedCheerio = cheerio.load(finalHtml, null, false);
         const metaHTML = '<meta id="offline-translated-marker"/>';

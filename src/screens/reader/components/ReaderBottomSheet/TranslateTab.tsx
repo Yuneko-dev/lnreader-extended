@@ -1,53 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
-import {
-  BottomSheetScrollView,
-  BottomSheetTextInput,
-} from '@gorhom/bottom-sheet';
-import { useTheme, useTranslateSettings } from '@hooks/persisted';
-import type {
-  LLMProviderSupported,
-  TranslateSettings,
-} from '@hooks/persisted/useSettings';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useTheme } from '@hooks/persisted';
+import { useTranslateSettings } from '@hooks/persisted/useSettings';
+
 import { List, Button, SwitchItem } from '@components/index';
-import { Portal, Modal, TextInput, Menu } from 'react-native-paper';
+import { Portal, Modal } from 'react-native-paper';
 import { supportedLanguagesList } from '@services/translate/TranslateEngine';
 import { getString } from '@strings/translations';
-import { LLMTranslateEngine } from '@services/translate/LLMTranslateEngine';
-import { showToast } from '@utils/showToast';
 import { useChapterContext } from '@screens/reader/ChapterContext';
-import Slider from '@react-native-community/slider';
 import PromptManagerModal from './PromptManagerModal';
-
-const PROVIDERS: {
-  label: string;
-  value: LLMProviderSupported;
-  endpoint: string;
-}[] = [
-  { label: 'OpenAI', value: 'openai', endpoint: 'https://api.openai.com/v1' },
-  {
-    label: 'DeepSeek',
-    value: 'deepseek',
-    endpoint: 'https://api.deepseek.com/v1',
-  },
-  {
-    label: 'Google Gemini',
-    value: 'gemini',
-    endpoint: '',
-  },
-  { label: 'xAI', value: 'xai', endpoint: 'https://api.x.ai/v1' },
-  {
-    label: 'OpenRouter',
-    value: 'openrouter',
-    endpoint: 'https://openrouter.ai/api/v1',
-  },
-  { label: 'Groq', value: 'groq', endpoint: 'https://api.groq.com/openai/v1' },
-  {
-    label: 'OpenAI Compatible API (Custom)',
-    value: 'custom',
-    endpoint: 'http://localhost:1234/v1',
-  },
-];
+import { useAIProviders } from '@hooks/persisted/useAIProviders';
 
 interface LanguagePickerModalProps {
   visible: boolean;
@@ -116,7 +79,86 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
   );
 };
 
-const REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+interface ProviderPickerModalProps {
+  visible: boolean;
+  onDismiss: () => void;
+  onSelect: (providerId: string) => void;
+  currentProviderId: string | null | undefined;
+  providers: any[];
+}
+
+const ProviderPickerModal: React.FC<ProviderPickerModalProps> = ({
+  visible,
+  onDismiss,
+  onSelect,
+  currentProviderId,
+  providers,
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Portal>
+      <Modal
+        visible={visible}
+        onDismiss={onDismiss}
+        contentContainerStyle={[
+          styles.modalContent,
+          { backgroundColor: theme.surface },
+        ]}
+      >
+        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+          {getString('readerScreen.bottomSheet.translateTab.activeProvider')}
+        </Text>
+        <ScrollView style={styles.languageList}>
+          {providers.map(p => (
+            <Pressable
+              key={p.id}
+              style={[
+                styles.languageItem,
+                currentProviderId === p.id && {
+                  backgroundColor: theme.surfaceVariant,
+                },
+              ]}
+              onPress={() => {
+                onSelect(p.id);
+                onDismiss();
+              }}
+            >
+              <View>
+                <Text
+                  style={[styles.languageItemText, { color: theme.onSurface }]}
+                >
+                  {p.alias}
+                </Text>
+                <Text style={{ color: theme.onSurfaceVariant, fontSize: 12 }}>
+                  {p.provider}
+                </Text>
+              </View>
+              {currentProviderId === p.id && (
+                <Text style={[styles.checkIcon, { color: theme.primary }]}>
+                  ✓
+                </Text>
+              )}
+            </Pressable>
+          ))}
+          {providers.length === 0 && (
+            <Text style={{ color: theme.onSurfaceVariant, padding: 12 }}>
+              {getString(
+                'readerScreen.bottomSheet.translateTab.noProvidersConfigured',
+              )}
+            </Text>
+          )}
+        </ScrollView>
+        <Button
+          title="Cancel"
+          mode="outlined"
+          onPress={onDismiss}
+          style={styles.cancelButton}
+        />
+      </Modal>
+    </Portal>
+  );
+};
 
 const TranslateTab: React.FC = () => {
   const theme = useTheme();
@@ -124,20 +166,14 @@ const TranslateTab: React.FC = () => {
     engine,
     sourceLang,
     targetLang,
-    llmProvider,
-    llmEndpoint,
-    llmApiKey,
-    llmModel,
     llmSystemPrompts,
     activeSystemPromptId,
-    llmEnableReasoning,
-    llmReasoningEffort,
-    llmApiMode,
-    llmTemperature,
     autoTranslateNextChapter,
     downloadTranslated,
     setTranslateSettings: _setTranslateSettings,
   } = useTranslateSettings();
+
+  const { providers, activeProviderId, setActiveProviderId } = useAIProviders();
 
   const { revertTranslation, isTranslated } = useChapterContext();
 
@@ -156,39 +192,10 @@ const TranslateTab: React.FC = () => {
   const [sourceLangModalVisible, setSourceLangModalVisible] = useState(false);
   const [targetLangModalVisible, setTargetLangModalVisible] = useState(false);
   const [providerMenuVisible, setProviderMenuVisible] = useState(false);
-  const [modelPickerVisible, setModelPickerVisible] = useState(false);
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
-  const [isLoadingModels, setIsLoadingModels] = useState(false);
-  const [reasoningEffortMenuVisible, setReasoningEffortMenuVisible] =
-    useState(false);
-  const [apiModeMenuVisible, setApiModeMenuVisible] = useState(false);
   const [promptManagerVisible, setPromptManagerVisible] = useState(false);
 
   const getLangLabel = (code: string) => {
     return supportedLanguagesList.find(l => l.value === code)?.label || code;
-  };
-
-  const getProviderLabel = (val: string) => {
-    return PROVIDERS.find(p => p.value === val)?.label || val;
-  };
-
-  const loadModels = async () => {
-    try {
-      setIsLoadingModels(true);
-      const llm = new LLMTranslateEngine({
-        provider: llmProvider as any,
-        endpoint: llmEndpoint,
-        apiKey: llmApiKey,
-        model: '',
-      });
-      const models = await llm.fetchModels();
-      setAvailableModels(models);
-      setModelPickerVisible(true);
-    } catch (e: any) {
-      showToast('Error: ' + e.message);
-    } finally {
-      setIsLoadingModels(false);
-    }
   };
 
   return (
@@ -281,133 +288,21 @@ const TranslateTab: React.FC = () => {
                 Configuration
               </List.SubHeader>
 
-              <Menu
-                visible={providerMenuVisible}
-                onDismiss={() => setProviderMenuVisible(false)}
-                anchor={
-                  <List.Item
-                    title={getString(
-                      'readerScreen.bottomSheet.translateTab.provider',
-                    )}
-                    description={getProviderLabel(llmProvider)}
-                    onPress={() => setProviderMenuVisible(true)}
-                    theme={theme}
-                  />
-                }
-              >
-                {PROVIDERS.map(p => (
-                  <Menu.Item
-                    key={p.value}
-                    title={p.label}
-                    onPress={() => {
-                      const updates: Partial<TranslateSettings> = {
-                        llmProvider: p.value as any,
-                        llmApiKey: '', // clear apiKey on change
-                      };
-                      if (p.endpoint !== undefined) {
-                        updates.llmEndpoint = p.endpoint; // also applies empty string for custom
-                      }
-                      setTranslateSettings(updates);
-                      setProviderMenuVisible(false);
-                    }}
-                  />
-                ))}
-              </Menu>
-
-              {(llmProvider === 'custom' || llmProvider === 'gemini') && (
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    render={props => (
-                      <BottomSheetTextInput {...(props as any)} />
-                    )}
-                    label={
-                      llmProvider === 'gemini'
-                        ? getString(
-                            'readerScreen.bottomSheet.translateTab.baseUrlReverseProxy',
-                          )
-                        : getString(
-                            'readerScreen.bottomSheet.translateTab.endpointUrl',
-                          )
-                    }
-                    placeholder={
-                      llmProvider === 'gemini'
-                        ? getString(
-                            'readerScreen.bottomSheet.translateTab.baseUrlPlaceholder',
-                          )
-                        : undefined
-                    }
-                    value={llmEndpoint}
-                    onChangeText={text =>
-                      setTranslateSettings({ llmEndpoint: text })
-                    }
-                    mode="outlined"
-                    style={styles.input}
-                    theme={{
-                      colors: {
-                        primary: theme.primary,
-                        background: theme.surface,
-                        onSurface: theme.onSurface,
-                        onSurfaceVariant: theme.onSurfaceVariant,
-                      },
-                    }}
-                  />
-                </View>
-              )}
-              <View style={styles.inputContainer}>
-                <TextInput
-                  render={props => <BottomSheetTextInput {...(props as any)} />}
-                  label={getString(
-                    'readerScreen.bottomSheet.translateTab.apiKey',
-                  )}
-                  value={llmApiKey}
-                  onChangeText={text =>
-                    setTranslateSettings({ llmApiKey: text })
-                  }
-                  mode="outlined"
-                  secureTextEntry
-                  style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: theme.primary,
-                      background: theme.surface,
-                      onSurface: theme.onSurface,
-                      onSurfaceVariant: theme.onSurfaceVariant,
-                    },
-                  }}
-                />
-              </View>
-              <View style={[styles.modelRow, styles.inputContainer]}>
-                <TextInput
-                  render={props => <BottomSheetTextInput {...(props as any)} />}
-                  label={getString(
-                    'readerScreen.bottomSheet.translateTab.modelName',
-                  )}
-                  value={llmModel}
-                  onChangeText={text =>
-                    setTranslateSettings({ llmModel: text })
-                  }
-                  mode="outlined"
-                  style={[styles.input, styles.modelInput]}
-                  theme={{
-                    colors: {
-                      primary: theme.primary,
-                      background: theme.surface,
-                      onSurface: theme.onSurface,
-                      onSurfaceVariant: theme.onSurfaceVariant,
-                    },
-                  }}
-                />
-                <Button
-                  title={getString(
-                    'readerScreen.bottomSheet.translateTab.loadModels',
-                  )}
-                  mode="contained"
-                  onPress={loadModels}
-                  style={styles.loadModelsBtn}
-                  loading={isLoadingModels}
-                  disabled={isLoadingModels}
-                />
-              </View>
+              <List.Item
+                title={getString(
+                  'readerScreen.bottomSheet.translateTab.activeProvider',
+                )}
+                description={(() => {
+                  const p = providers.find(x => x.id === activeProviderId);
+                  return p
+                    ? p.alias
+                    : getString(
+                        'readerScreen.bottomSheet.translateTab.noneSelected',
+                      );
+                })()}
+                onPress={() => setProviderMenuVisible(true)}
+                theme={theme}
+              />
 
               <List.Item
                 title={getString(
@@ -420,128 +315,6 @@ const TranslateTab: React.FC = () => {
                 onPress={() => setPromptManagerVisible(true)}
                 theme={theme}
               />
-
-              {llmProvider !== 'gemini' && (
-                <>
-                  <Menu
-                    visible={apiModeMenuVisible}
-                    onDismiss={() => setApiModeMenuVisible(false)}
-                    anchor={
-                      <List.Item
-                        title={getString(
-                          'readerScreen.bottomSheet.translateTab.apiMode',
-                        )}
-                        description={
-                          llmApiMode === 'chat-completions'
-                            ? getString(
-                                'readerScreen.bottomSheet.translateTab.apiModeChatCompletions',
-                              )
-                            : getString(
-                                'readerScreen.bottomSheet.translateTab.apiModeResponses',
-                              )
-                        }
-                        onPress={() => setApiModeMenuVisible(true)}
-                        theme={theme}
-                      />
-                    }
-                  >
-                    <Menu.Item
-                      title={getString(
-                        'readerScreen.bottomSheet.translateTab.apiModeResponses',
-                      )}
-                      onPress={() => {
-                        setTranslateSettings({ llmApiMode: 'responses' });
-                        setApiModeMenuVisible(false);
-                      }}
-                    />
-                    <Menu.Item
-                      title={getString(
-                        'readerScreen.bottomSheet.translateTab.apiModeChatCompletions',
-                      )}
-                      onPress={() => {
-                        setTranslateSettings({
-                          llmApiMode: 'chat-completions',
-                        });
-                        setApiModeMenuVisible(false);
-                      }}
-                    />
-                  </Menu>
-                </>
-              )}
-
-              {llmProvider !== 'gemini' &&
-                llmApiMode === 'chat-completions' && (
-                  <View style={styles.temperatureSection}>
-                    <View style={styles.temperatureHeader}>
-                      <Text style={{ color: theme.onSurface }}>
-                        {getString(
-                          'readerScreen.bottomSheet.translateTab.temperature',
-                        )}
-                      </Text>
-                      <Text style={{ color: theme.onSurfaceVariant }}>
-                        {(llmTemperature ?? 0.6).toFixed(1)}
-                      </Text>
-                    </View>
-                    <Slider
-                      style={styles.slider}
-                      minimumValue={0}
-                      maximumValue={2}
-                      step={0.1}
-                      value={llmTemperature ?? 0.6}
-                      onSlidingComplete={val =>
-                        setTranslateSettings({
-                          llmTemperature: Math.round(val * 10) / 10,
-                        })
-                      }
-                      minimumTrackTintColor={theme.primary}
-                      maximumTrackTintColor={theme.surfaceVariant}
-                      thumbTintColor={theme.primary}
-                    />
-                  </View>
-                )}
-
-              {(llmProvider === 'gemini' || llmApiMode === 'responses') && (
-                <>
-                  <SwitchItem
-                    label="Enable Reasoning"
-                    value={llmEnableReasoning}
-                    onPress={() =>
-                      setTranslateSettings({
-                        llmEnableReasoning: !llmEnableReasoning,
-                      })
-                    }
-                    theme={theme}
-                  />
-
-                  {llmEnableReasoning && (
-                    <Menu
-                      visible={reasoningEffortMenuVisible}
-                      onDismiss={() => setReasoningEffortMenuVisible(false)}
-                      anchor={
-                        <List.Item
-                          title="Reasoning Effort"
-                          description={llmReasoningEffort || 'low'}
-                          onPress={() => setReasoningEffortMenuVisible(true)}
-                          theme={theme}
-                        />
-                      }
-                    >
-                      {REASONING_EFFORTS.map(eff => (
-                        <Menu.Item
-                          key={eff}
-                          title={eff}
-                          onPress={() => {
-                            setTranslateSettings({
-                              llmReasoningEffort: eff as any,
-                            });
-                            setReasoningEffortMenuVisible(false);
-                          }}
-                        />
-                      ))}
-                    </Menu>
-                  )}
-                </>
-              )}
             </View>
           )}
         </View>
@@ -561,52 +334,13 @@ const TranslateTab: React.FC = () => {
         currentLang={targetLang}
       />
 
-      <Portal>
-        <Modal
-          visible={modelPickerVisible}
-          onDismiss={() => setModelPickerVisible(false)}
-          contentContainerStyle={[
-            styles.modalContent,
-            { backgroundColor: theme.surface },
-          ]}
-        >
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            Select Model
-          </Text>
-          <ScrollView style={styles.languageList}>
-            {availableModels.map(m => (
-              <Pressable
-                key={m}
-                style={[
-                  styles.languageItem,
-                  llmModel === m && { backgroundColor: theme.surfaceVariant },
-                ]}
-                onPress={() => {
-                  setTranslateSettings({ llmModel: m });
-                  setModelPickerVisible(false);
-                }}
-              >
-                <Text
-                  style={[styles.languageItemText, { color: theme.onSurface }]}
-                >
-                  {m}
-                </Text>
-                {llmModel === m && (
-                  <Text style={[styles.checkIcon, { color: theme.primary }]}>
-                    ✓
-                  </Text>
-                )}
-              </Pressable>
-            ))}
-          </ScrollView>
-          <Button
-            title={getString('common.cancel')}
-            mode="outlined"
-            onPress={() => setModelPickerVisible(false)}
-            style={styles.cancelButton}
-          />
-        </Modal>
-      </Portal>
+      <ProviderPickerModal
+        visible={providerMenuVisible}
+        onDismiss={() => setProviderMenuVisible(false)}
+        onSelect={id => setActiveProviderId(id)}
+        currentProviderId={activeProviderId}
+        providers={providers}
+      />
 
       <PromptManagerModal
         visible={promptManagerVisible}
@@ -671,8 +405,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modelInput: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  providerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    gap: 8,
+  },
+  providerBtn: {
     flex: 1,
-    marginBottom: 0,
   },
   loadModelsBtn: {
     marginLeft: 8,

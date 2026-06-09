@@ -20,6 +20,7 @@ import StatsScreen from '@screens/StatsScreen/StatsScreen';
 import SecuritySettings from '@screens/settings/SettingsSecurityScreen';
 import DebugLogScreen from '@screens/more/DebugLogScreen';
 import DiscordSettings from '@screens/settings/SettingsDiscordScreen';
+import SettingsAIScreen from '@screens/settings/SettingsAIScreen';
 import { MoreStackParamList, SettingsStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<
@@ -40,6 +41,7 @@ const SettingsStack = () => (
     <Stack.Screen name="RespositorySettings" component={RespositorySettings} />
     <Stack.Screen name="SecuritySettings" component={SecuritySettings} />
     <Stack.Screen name="DiscordSettings" component={DiscordSettings} />
+    <Stack.Screen name="AISettings" component={SettingsAIScreen} />
     {/* <Stack.Screen name="LibrarySettings" component={LibrarySettings} /> */}
   </Stack.Navigator>
 );

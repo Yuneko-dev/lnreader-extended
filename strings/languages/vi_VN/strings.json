@@ -571,7 +571,21 @@
         "preTranslateNextChapter": "Dịch trước chương tiếp theo",
         "downloadTranslated": "Tải xuống bản dịch thay thế cho bản gốc",
         "baseUrlReverseProxy": "Base URL (Reverse Proxy)",
-        "baseUrlPlaceholder": "Để trống để dùng API chính thức"
+        "baseUrlPlaceholder": "Để trống để dùng API chính thức",
+        "aiProvidersConfiguration": "Cấu hình AI Provider",
+        "noProvidersConfigured": "Chưa có Provider nào. Vui lòng thêm trong Cài đặt.",
+        "activeProvider": "Nhà cung cấp hiện tại",
+        "addProvider": "Thêm nhà cung cấp",
+        "editProvider": "Chỉnh sửa",
+        "removeProvider": "Xoá",
+        "noneSelected": "Chưa chọn",
+        "aiProviderModal": {
+          "aliasPlaceholder": "Tên gợi nhớ (VD: Proxy Gemini của tôi)",
+          "enableReasoning": "Bật khả năng lập luận",
+          "reasoningEffort": "Mức độ lập luận",
+          "cancel": "Huỷ",
+          "save": "Lưu"
+        }
       },
       "useChapterDrawerSwipeNavigation": "Vuốt để mở ngăn chương",
       "verticalSeekbar": "Thanh tua dọc",
