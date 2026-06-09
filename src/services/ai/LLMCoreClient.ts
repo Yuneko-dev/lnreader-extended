@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export interface AIToolSchema {
   name: string;
   description: string;
@@ -11,7 +13,6 @@ export interface AIToolSchema {
 export interface GenerateContentOptions {
   userPrompt: string;
   systemInstruction?: string;
-  responseFormat?: 'text' | 'json';
   stream?: boolean;
   tools?: AIToolSchema[];
   signal?: AbortSignal;
@@ -19,12 +20,20 @@ export interface GenerateContentOptions {
   onStream?: (chunk: string) => void;
 }
 
+export interface GenerateTranslateContentOptions<T extends z.ZodTypeAny>
+  extends Omit<GenerateContentOptions, 'stream' | 'onStream'> {
+  schema: T;
+}
+
 export interface GenerateContentResponse {
   text: string;
   finishReason?: string;
   usage?: any;
 }
-
+export interface GenerateTranslateContentResponse<T extends z.ZodTypeAny>
+  extends Omit<GenerateContentResponse, 'text'> {
+  data: z.infer<T>;
+}
 export abstract class LLMCoreClient {
   constructor(
     public readonly endpoint: string,
@@ -36,6 +45,9 @@ export abstract class LLMCoreClient {
   abstract generateContent(
     options: GenerateContentOptions,
   ): Promise<GenerateContentResponse>;
+  abstract generateTranslateContent<T extends z.ZodTypeAny>(
+    options: GenerateTranslateContentOptions<T>,
+  ): Promise<GenerateTranslateContentResponse<T>>;
 }
 
 export class MissingAIProviderError extends Error {

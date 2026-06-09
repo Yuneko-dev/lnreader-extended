@@ -7,12 +7,16 @@ import {
   Tool,
   Type,
 } from '@google/genai';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import {
   LLMCoreClient,
   GenerateContentOptions,
   GenerateContentResponse,
   AIToolSchema,
+  GenerateTranslateContentOptions,
+  GenerateTranslateContentResponse,
 } from './LLMCoreClient';
+import z from 'zod';
 
 export interface GeminiConfig {
   endpoint?: string;
@@ -72,7 +76,6 @@ export class GeminiClient extends LLMCoreClient {
     const {
       userPrompt,
       systemInstruction,
-      responseFormat,
       stream,
       tools,
       signal,
@@ -84,10 +87,6 @@ export class GeminiClient extends LLMCoreClient {
       abortSignal: signal,
       tools: this.mapTools(tools),
     };
-
-    if (responseFormat === 'json') {
-      configOptions.responseMimeType = 'application/json';
-    }
 
     if (this.config.enableReasoning) {
       configOptions.thinkingConfig = {};
@@ -171,4 +170,90 @@ export class GeminiClient extends LLMCoreClient {
       throw new Error(`Gemini GenerateContent Error: ${e.message}`);
     }
   }
+
+  async generateTranslateContent<T extends z.ZodTypeAny>(
+      options: GenerateTranslateContentOptions<T>,
+    ): Promise<GenerateTranslateContentResponse<T>> {
+          const {
+            userPrompt,
+            systemInstruction,
+            tools,
+            signal,
+            schema,
+          } = options;
+
+          const configOptions: GenerateContentConfig = {
+            systemInstruction,
+            abortSignal: signal,
+            tools: this.mapTools(tools),
+            responseMimeType: 'application/json',
+            responseJsonSchema: zodToJsonSchema(schema),
+          };
+
+          if (this.config.enableReasoning) {
+            configOptions.thinkingConfig = {};
+            switch (this.config.reasoningEffort) {
+              case 'none':
+                configOptions.thinkingConfig.thinkingLevel =
+                  ThinkingLevel.THINKING_LEVEL_UNSPECIFIED;
+                break;
+              case 'minimal':
+                configOptions.thinkingConfig.thinkingLevel =
+                  ThinkingLevel.MINIMAL;
+                break;
+              case 'low':
+                configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.LOW;
+                break;
+              case 'medium':
+                configOptions.thinkingConfig.thinkingLevel =
+                  ThinkingLevel.MEDIUM;
+                break;
+              case 'high':
+              case 'xhigh':
+                configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.HIGH;
+                break;
+            }
+          }
+
+          configOptions.safetySettings = [
+            {
+              category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+              threshold: HarmBlockThreshold.OFF,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+              threshold: HarmBlockThreshold.OFF,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+              threshold: HarmBlockThreshold.OFF,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+              threshold: HarmBlockThreshold.OFF,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+              threshold: HarmBlockThreshold.OFF,
+            },
+          ];
+
+          try {
+            const response = await this.client.models.generateContent({
+              model: this.model,
+              contents: userPrompt,
+              config: configOptions,
+            });
+
+            return {
+              data: schema.parse(JSON.parse(response?.text || "")),
+              finishReason: response?.candidates?.[0]?.finishReason,
+              usage: response?.usageMetadata,
+            };
+          } catch (e: any) {
+            throw new Error(
+              `Gemini generateTranslateContent Error: ${e.message}`,
+            );
+          }
+    }
 }

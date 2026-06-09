@@ -1,10 +1,14 @@
 import OpenAI from 'openai';
+import { zodTextFormat } from 'openai/helpers/zod';
 import {
   LLMCoreClient,
   GenerateContentOptions,
   GenerateContentResponse,
   AIToolSchema,
+  GenerateTranslateContentOptions,
+  GenerateTranslateContentResponse,
 } from './LLMCoreClient';
+import z from 'zod';
 
 export interface OpenAIConfig {
   endpoint: string;
@@ -58,15 +62,8 @@ export class OpenAIClient extends LLMCoreClient {
   async generateContent(
     options: GenerateContentOptions,
   ): Promise<GenerateContentResponse> {
-    const {
-      userPrompt,
-      systemInstruction,
-      responseFormat,
-      stream,
-      tools,
-      signal,
-      onStream,
-    } = options;
+    const { userPrompt, systemInstruction, stream, tools, signal, onStream } =
+      options;
 
     try {
       if (this.config.apiMode === 'chat-completions') {
@@ -86,10 +83,6 @@ export class OpenAIClient extends LLMCoreClient {
             tools: this.mapTools(tools),
             store: false,
           };
-
-        if (responseFormat === 'json') {
-          requestOptions.response_format = { type: 'json_object' };
-        }
 
         if (stream) {
           const streamResponse = await this.client.chat.completions.create(
@@ -147,6 +140,71 @@ export class OpenAIClient extends LLMCoreClient {
       }
     } catch (e: any) {
       throw new Error(`OpenAI GenerateContent Error: ${e.message}`);
+    }
+  }
+
+  async generateTranslateContent<T extends z.ZodTypeAny>(
+      options: GenerateTranslateContentOptions<T>,
+    ): Promise<GenerateTranslateContentResponse<T>> {
+    const { userPrompt, systemInstruction, schema, tools, signal } = options;
+
+    try {
+      if (this.config.apiMode === 'chat-completions') {
+        const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+          [];
+        if (systemInstruction) {
+          messages.push({ role: 'system', content: systemInstruction });
+        }
+        messages.push({ role: 'user', content: userPrompt });
+
+        const response = await this.client.chat.completions.parse(
+          {
+            model: this.model,
+            messages,
+            temperature: this.config.temperature ?? 0.6,
+            stream: false,
+            tools: this.mapTools(tools),
+            store: false,
+            response_format: zodTextFormat(schema, 'data') as any,
+          },
+          { signal },
+        );
+        return {
+          data: response.choices[0].message.parsed,
+          finishReason: response.choices[0]?.finish_reason,
+          usage: response.usage,
+        };
+      } else {
+        // Responses API
+        let reasoningConfig: OpenAI.Reasoning | undefined;
+        if (this.config.enableReasoning) {
+          reasoningConfig = {
+            effort: this.config.reasoningEffort,
+          };
+        }
+
+        const response = await this.client.responses.parse(
+          {
+            model: this.model,
+            instructions: systemInstruction,
+            input: userPrompt,
+            store: false,
+            reasoning: reasoningConfig,
+            text: {
+              format: zodTextFormat(schema, 'data'),
+            },
+          },
+          { signal },
+        );
+
+        return {
+          data: response.output_parsed,
+          finishReason: (response as any).status,
+          usage: (response as any).usage,
+        };
+      }
+    } catch (e: any) {
+      throw new Error(`OpenAI GenerateTranslateContent Error: ${e.message}`);
     }
   }
 }

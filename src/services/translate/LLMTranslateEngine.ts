@@ -1,6 +1,14 @@
 import { TranslateEngine } from './TranslateEngine';
 import { LLMCoreClient, MissingAIProviderError } from '../ai/LLMCoreClient';
+import z from 'zod';
 
+      const schema = z.object({
+        paragraphs: z
+          .array(z.string())
+          .describe(
+            'Array of translated paragraphs, must match the order and count of the input array',
+          ),
+      });
 export interface LLMTranslateConfig {
   systemPrompt?: string;
 }
@@ -24,8 +32,9 @@ export class LLMTranslateEngine implements TranslateEngine {
     translatedParagraphs: string[],
     expectedCount: number,
   ): string[] {
-    if (!Array.isArray(translatedParagraphs))
+    if (!Array.isArray(translatedParagraphs)) {
       return new Array(expectedCount).fill('');
+    }
     if (translatedParagraphs.length === expectedCount) {
       return translatedParagraphs;
     }
@@ -53,10 +62,7 @@ Core Directives:
 
 Strict Technical Constraints (CRITICAL):
 - Formatting: You MUST output ONLY a valid JSON object.
-- The JSON object MUST contain exactly one key named "data", which is an array of strings.
-- The "data" array MUST contain exactly the same number of items as the input JSON array.
-- Each item in the "data" array MUST be the translated text of the corresponding item in the input array.
-- Do NOT include any explanations, intro/outro conversational filler, or markdown formatting like \`\`\`json.
+- Clean Output: Output ONLY the final processed text. Do NOT include any explanations, formatting tags (unless present in the source), intro/outro conversational filler, or internal thinking.
 
 ---
 [Custom Style Guidelines]:
@@ -84,39 +90,14 @@ Task: Translate the following text array from ${source} to ${target}.
 
       console.log('Input text count:', texts.length);
 
-      const response = await this.client.generateContent({
+      const response = await this.client.generateTranslateContent({
         userPrompt: JSON.stringify(texts),
         systemInstruction: systemPrompt,
-        responseFormat: 'json',
-        stream: false,
+        schema,
         signal,
       });
 
-      let resultText = response.text;
-
-      // Attempt to clean up markdown if the model ignored instructions
-      if (resultText.startsWith('```json')) {
-        resultText = resultText
-          .replace(/^```json/, '')
-          .replace(/```$/, '')
-          .trim();
-      }
-
-      let translatedParagraphs: string[] = [];
-      try {
-        const parsed = JSON.parse(resultText);
-        if (parsed.data && Array.isArray(parsed.data)) {
-          translatedParagraphs = parsed.data;
-        } else {
-          throw new Error('Invalid JSON structure returned from LLM');
-        }
-      } catch (e: any) {
-        throw new Error(
-          `Failed to parse JSON from LLM response: ${
-            e.message
-          }. Response: ${resultText.substring(0, 100)}...`,
-        );
-      }
+      const translatedParagraphs = response.data.paragraphs;
 
       if (onProgress) {
         onProgress(100);
