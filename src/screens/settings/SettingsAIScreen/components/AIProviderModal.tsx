@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Portal, Modal, TextInput, Menu, Text } from 'react-native-paper';
-import { ScrollView } from 'react-native';
 
 import { Button, SwitchItem } from '@components/index';
 import { useTheme } from '@hooks/persisted';
-import type { AIProvider } from '@hooks/persisted/useAIProviders';
+import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
-import { getApiKey } from '@hooks/persisted/useAIProviders';
 import { OpenAIClient } from '@services/ai/OpenAIClient';
 import { GeminiClient } from '@services/ai/GeminiClient';
 
@@ -179,15 +177,15 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
             {initialProvider
-              ? getString('readerScreen.bottomSheet.translateTab.editProvider')
-              : getString('readerScreen.bottomSheet.translateTab.addProvider')}
+              ? getString('aiSettingsScreen.editProvider')
+              : getString('aiSettingsScreen.addProvider')}
           </Text>
 
           <TextInput
             label={getString(
-              'readerScreen.bottomSheet.translateTab.aiProviderModal.aliasPlaceholder',
+              'aiSettingsScreen.aiProviderModal.aliasPlaceholder',
             )}
-            value={alias}
+            defaultValue={alias}
             onChangeText={setAlias}
             mode="outlined"
             style={styles.input}
@@ -249,10 +247,8 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           </View>
 
           <TextInput
-            label={getString(
-              'readerScreen.bottomSheet.translateTab.endpointUrl',
-            )}
-            value={endpoint}
+            label={getString('aiSettingsScreen.endpointUrl')}
+            defaultValue={endpoint}
             onChangeText={setEndpoint}
             mode="outlined"
             style={styles.input}
@@ -267,8 +263,8 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           />
 
           <TextInput
-            label={getString('readerScreen.bottomSheet.translateTab.apiKey')}
-            value={apiKey}
+            label={getString('aiSettingsScreen.apiKey')}
+            defaultValue={apiKey}
             onChangeText={setApiKey}
             mode="outlined"
             secureTextEntry
@@ -285,10 +281,8 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
 
           <View style={styles.modelRow}>
             <TextInput
-              label={getString(
-                'readerScreen.bottomSheet.translateTab.modelName',
-              )}
-              value={model}
+              label={getString('aiSettingsScreen.modelName')}
+              defaultValue={model}
               onChangeText={setModel}
               mode="outlined"
               style={[styles.input, styles.modelInput]}
@@ -302,10 +296,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
               }}
             />
             <Button
-              title={
-                getString('readerScreen.bottomSheet.translateTab.loadModels') ||
-                'Load models'
-              }
+              title={getString('aiSettingsScreen.loadModels') || 'Load models'}
               mode="contained"
               onPress={loadModels}
               style={styles.loadModelsBtn}
@@ -322,7 +313,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
                   { color: theme.onSurfaceVariant },
                 ]}
               >
-                {getString('readerScreen.bottomSheet.translateTab.apiMode')}
+                {getString('aiSettingsScreen.apiMode')}
               </Text>
               <Menu
                 visible={apiModeMenuVisible}
@@ -372,7 +363,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
 
           <SwitchItem
             label={getString(
-              'readerScreen.bottomSheet.translateTab.aiProviderModal.enableReasoning',
+              'aiSettingsScreen.aiProviderModal.enableReasoning',
             )}
             value={enableReasoning}
             onPress={() => setEnableReasoning(!enableReasoning)}
@@ -387,9 +378,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
                   { color: theme.onSurfaceVariant },
                 ]}
               >
-                {getString(
-                  'readerScreen.bottomSheet.translateTab.aiProviderModal.reasoningEffort',
-                )}
+                {getString('aiSettingsScreen.aiProviderModal.reasoningEffort')}
               </Text>
               <Menu
                 visible={reasoningMenuVisible}
@@ -432,23 +421,21 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
             </View>
           )}
         </KeyboardAwareScrollView>
-        <View style={styles.actions}>
+        <View style={styles.footer}>
           <Button
-            title={getString(
-              'readerScreen.bottomSheet.translateTab.aiProviderModal.cancel',
-            )}
+            title={getString('common.cancel')}
             mode="text"
             onPress={onDismiss}
-            style={styles.btn}
+            style={styles.flexBtn}
           />
+          <View style={styles.spacer} />
           <Button
-            title={getString(
-              'readerScreen.bottomSheet.translateTab.aiProviderModal.save',
-            )}
+            title={getString('common.save')}
             mode="contained"
             onPress={handleSave}
             loading={isSaving}
-            style={styles.btn}
+            style={styles.flexBtn}
+            disabled={!model.trim()}
           />
         </View>
       </Modal>
@@ -491,7 +478,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           ))}
         </ScrollView>
         <Button
-          title={getString('common.cancel') || 'Cancel'}
+          title={getString('common.cancel')}
           mode="outlined"
           onPress={() => setModelPickerVisible(false)}
           style={styles.cancelButton}
@@ -514,12 +501,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: 'transparent',
   },
-  actions: {
+  footer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    marginTop: 8,
   },
-  btn: {
-    marginLeft: 8,
+  flexBtn: {
+    flex: 1,
+  },
+  spacer: {
+    width: 12,
   },
   modalTitle: {
     fontSize: 20,

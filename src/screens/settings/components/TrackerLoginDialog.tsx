@@ -74,7 +74,7 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
             ]}
             placeholder={usernameLabel}
             placeholderTextColor={theme.onSurfaceVariant}
-            value={username}
+            defaultValue={username}
             onChangeText={setUsername}
             autoCapitalize="none"
             autoCorrect={false}
@@ -92,7 +92,7 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
             ]}
             placeholder="Password"
             placeholderTextColor={theme.onSurfaceVariant}
-            value={password}
+            defaultValue={password}
             onChangeText={setPassword}
             secureTextEntry
             autoCapitalize="none"

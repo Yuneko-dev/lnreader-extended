@@ -36,9 +36,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
       >
         <List.Section>
           <List.SubHeader theme={theme}>
-            {getString(
-              'readerScreen.bottomSheet.translateTab.aiProvidersConfiguration',
-            )}
+            {getString('aiSettingsScreen.aiProvidersConfiguration')}
           </List.SubHeader>
           {providers.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -84,9 +82,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
 
           <View style={styles.addBtnContainer}>
             <Button
-              title={getString(
-                'readerScreen.bottomSheet.translateTab.addProvider',
-              )}
+              title={getString('aiSettingsScreen.addProvider')}
               mode="contained"
               icon="plus"
               onPress={() => {
@@ -96,6 +92,29 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
               style={styles.addBtn}
             />
           </View>
+        </List.Section>
+
+        <List.Section>
+          <List.SubHeader theme={theme}>
+            {getString('aiSettingsScreen.systemPrompts')}
+          </List.SubHeader>
+          <PaperList.Item
+            title={getString('aiSettingsScreen.translateSystemPrompts')}
+            description={getString('aiSettingsScreen.translateSystemPromptsDesc')}
+            left={props => (
+              <PaperList.Icon
+                {...props}
+                icon="text-box-edit-outline"
+                color={theme.primary}
+              />
+            )}
+            onPress={() => {
+              navigation.navigate('AIPromptsSettings');
+            }}
+            titleStyle={{ color: theme.onSurface }}
+            descriptionStyle={{ color: theme.onSurfaceVariant }}
+            style={{ paddingVertical: 12 }}
+          />
         </List.Section>
       </ScrollView>
 

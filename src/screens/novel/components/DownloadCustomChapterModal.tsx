@@ -71,7 +71,7 @@ const DownloadCustomChapterModal = ({
               onPress={() => text > 0 && setText(prevState => prevState - 1)}
             />
             <TextInput
-              value={text.toString()}
+              defaultValue={text.toString()}
               style={[{ color: theme.onSurface }, styles.marginHorizontal]}
               keyboardType="numeric"
               onChangeText={onChangeText}

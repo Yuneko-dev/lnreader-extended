@@ -130,7 +130,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
                       {` ${filter.label} `}
                     </Text>
                   }
-                  value={label}
+                  defaultValue={label}
                   editable={false}
                   theme={{ colors: { background: 'transparent' } }}
                   outlineColor={isVisible ? theme.primary : theme.onSurface}

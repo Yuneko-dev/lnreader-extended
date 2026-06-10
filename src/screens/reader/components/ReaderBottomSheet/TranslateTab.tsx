@@ -9,7 +9,6 @@ import { Portal, Modal } from 'react-native-paper';
 import { supportedLanguagesList } from '@services/translate/TranslateEngine';
 import { getString } from '@strings/translations';
 import { useChapterContext } from '@screens/reader/ChapterContext';
-import PromptManagerModal from './PromptManagerModal';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';
 
 interface LanguagePickerModalProps {
@@ -107,7 +106,7 @@ const ProviderPickerModal: React.FC<ProviderPickerModalProps> = ({
         ]}
       >
         <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-          {getString('readerScreen.bottomSheet.translateTab.activeProvider')}
+          {getString('aiSettingsScreen.activeProvider')}
         </Text>
         <ScrollView style={styles.languageList}>
           {providers.map(p => (
@@ -143,14 +142,88 @@ const ProviderPickerModal: React.FC<ProviderPickerModalProps> = ({
           ))}
           {providers.length === 0 && (
             <Text style={{ color: theme.onSurfaceVariant, padding: 12 }}>
-              {getString(
-                'readerScreen.bottomSheet.translateTab.noProvidersConfigured',
-              )}
+              {getString('aiSettingsScreen.noProvidersConfigured')}
             </Text>
           )}
         </ScrollView>
         <Button
           title="Cancel"
+          mode="outlined"
+          onPress={onDismiss}
+          style={styles.cancelButton}
+        />
+      </Modal>
+    </Portal>
+  );
+};
+
+interface PromptPickerModalProps {
+  visible: boolean;
+  onDismiss: () => void;
+  onSelect: (promptId: string) => void;
+  currentPromptId: string | null | undefined;
+  prompts: any[];
+}
+
+const PromptPickerModal: React.FC<PromptPickerModalProps> = ({
+  visible,
+  onDismiss,
+  onSelect,
+  currentPromptId,
+  prompts,
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Portal>
+      <Modal
+        visible={visible}
+        onDismiss={onDismiss}
+        contentContainerStyle={[
+          styles.modalContent,
+          { backgroundColor: theme.surface },
+        ]}
+      >
+        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+          {getString('aiSettingsScreen.systemPrompt')}
+        </Text>
+        <ScrollView style={styles.languageList}>
+          {prompts.map(p => (
+            <Pressable
+              key={p.id}
+              style={[
+                styles.languageItem,
+                currentPromptId === p.id && {
+                  backgroundColor: theme.surfaceVariant,
+                },
+              ]}
+              onPress={() => {
+                onSelect(p.id);
+                onDismiss();
+              }}
+            >
+              <View>
+                <Text
+                  style={[styles.languageItemText, { color: theme.onSurface }]}
+                >
+                  {p.title}
+                </Text>
+              </View>
+              {currentPromptId === p.id && (
+                <Text style={[styles.checkIcon, { color: theme.primary }]}>
+                  ✓
+                </Text>
+              )}
+            </Pressable>
+          ))}
+          {prompts.length === 0 && (
+            <Text style={{ color: theme.onSurfaceVariant, padding: 12 }}>
+              No system prompts configured
+            </Text>
+          )}
+        </ScrollView>
+        <Button
+          title={getString('common.cancel')}
           mode="outlined"
           onPress={onDismiss}
           style={styles.cancelButton}
@@ -289,25 +362,19 @@ const TranslateTab: React.FC = () => {
               </List.SubHeader>
 
               <List.Item
-                title={getString(
-                  'readerScreen.bottomSheet.translateTab.activeProvider',
-                )}
+                title={getString('aiSettingsScreen.activeProvider')}
                 description={(() => {
                   const p = providers.find(x => x.id === activeProviderId);
                   return p
                     ? p.alias
-                    : getString(
-                        'readerScreen.bottomSheet.translateTab.noneSelected',
-                      );
+                    : getString('aiSettingsScreen.noneSelected');
                 })()}
                 onPress={() => setProviderMenuVisible(true)}
                 theme={theme}
               />
 
               <List.Item
-                title={getString(
-                  'readerScreen.bottomSheet.translateTab.systemPrompt',
-                )}
+                title={getString('aiSettingsScreen.systemPrompt')}
                 description={
                   llmSystemPrompts?.find(p => p.id === activeSystemPromptId)
                     ?.title || 'Default'
@@ -342,19 +409,12 @@ const TranslateTab: React.FC = () => {
         providers={providers}
       />
 
-      <PromptManagerModal
+      <PromptPickerModal
         visible={promptManagerVisible}
         onDismiss={() => setPromptManagerVisible(false)}
-        prompts={
-          llmSystemPrompts || [{ id: 'default', title: 'Default', content: '' }]
-        }
-        activePromptId={activeSystemPromptId || 'default'}
-        onUpdatePrompts={prompts =>
-          setTranslateSettings({ llmSystemPrompts: prompts })
-        }
-        onSelectPrompt={id =>
-          setTranslateSettings({ activeSystemPromptId: id })
-        }
+        prompts={llmSystemPrompts}
+        currentPromptId={activeSystemPromptId}
+        onSelect={id => setTranslateSettings({ activeSystemPromptId: id })}
       />
     </>
   );

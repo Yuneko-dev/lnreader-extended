@@ -49,7 +49,7 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
                   ),
                 );
               }}
-              value={searchText}
+              defaultValue={searchText}
               placeholder="Search voice"
             />
           }

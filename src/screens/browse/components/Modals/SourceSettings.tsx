@@ -166,7 +166,7 @@ const SourceSettingsModal: React.FC<SourceSettingsModal> = ({
                             {` ${setting.label} `}
                           </Text>
                         }
-                        value={selectedOption?.label || ''}
+                        defaultValue={selectedOption?.label || ''}
                         editable={false}
                         theme={{ colors: { background: 'transparent' } }}
                         outlineColor={

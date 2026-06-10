@@ -91,7 +91,7 @@ const Searchbar: React.FC<SearcbarProps> = ({
           onSubmitEditing={onSubmitEditing}
           onFocus={onFocus}
           onBlur={onBlur}
-          value={searchText}
+          defaultValue={searchText}
         />
         {searchText !== '' ? (
           <IconButtonV2

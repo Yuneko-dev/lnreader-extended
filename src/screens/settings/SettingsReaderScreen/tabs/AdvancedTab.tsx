@@ -201,7 +201,7 @@ if (title) {
           <TextInput
             render={props => <BottomSheetTextInput {...(props as any)} />}
             mode="flat"
-            value={activeCodeTab === 'css' ? cssValue : jsValue}
+            defaultValue={activeCodeTab === 'css' ? cssValue : jsValue}
             onChangeText={text =>
               activeCodeTab === 'css' ? setCssValue(text) : setJsValue(text)
             }
