@@ -177,10 +177,10 @@ export default function usePlugins() {
 
   const updatePlugin = useCallback(
     (plugin: PluginItem) => {
-      const availablePlugins =
+      const availableUpdatePlugins =
         getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
       const latestPlugin =
-        availablePlugins.find(p => p.id === plugin.id) || plugin;
+        availableUpdatePlugins.find(p => p.id === plugin.id) || plugin;
 
       return _update(latestPlugin).then(_plg => {
         if (plugin.version === _plg?.version && !__DEV__) {

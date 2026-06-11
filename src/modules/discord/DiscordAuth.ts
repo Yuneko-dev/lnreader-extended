@@ -26,12 +26,14 @@ export class DiscordAuth {
           .toString('base64')
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
+          // eslint-disable-next-line no-div-regex
           .replace(/=+$/g, '');
         const codeChallenge = createHash('sha256')
           .update(codeVerifier)
           .digest('base64')
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
+          // eslint-disable-next-line no-div-regex
           .replace(/=+$/g, '');
 
         const searchParams = new URLSearchParams({

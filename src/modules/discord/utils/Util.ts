@@ -141,6 +141,7 @@ export class Util {
    * @param userId - The user id to calculate the default avatar index for
    */
   static calculateUserDefaultAvatarIndex(userId: Snowflake): number {
+    // eslint-disable-next-line no-bitwise
     return Number(BigInt(userId) >> 22n) % 6;
   }
 
