@@ -102,6 +102,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
       initialChapterReaderSettings,
   );
   const chapterGeneralSettings = useMemo(() => {
+    // eslint-disable-next-line no-void
     void chapter.id; // fix eslint warning: react-hooks/exhaustive-deps
     return (
       getMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS) ||

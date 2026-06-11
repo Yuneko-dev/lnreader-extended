@@ -25,7 +25,7 @@ export const DiscordSVG = ({ color, size, ...props }: any) => (
     viewBox="0 0 16 16"
     width={size || 24}
     height={size || 24}
-    fill={color || "currentColor"}
+    fill={color || 'currentColor'}
     className="bi bi-discord"
     {...props}
   >

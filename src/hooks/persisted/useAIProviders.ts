@@ -1,8 +1,10 @@
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useMemo, useEffect, useState } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
-import { useTranslateSettings } from '@hooks/persisted/useSettings';
-import type { LLMProviderSupported } from '@hooks/persisted/useSettings';
+import {
+  useTranslateSettings,
+  type LLMProviderSupported,
+} from '@hooks/persisted/useSettings';
 import { randomUUID } from 'react-native-quick-crypto';
 
 export const AI_PROVIDERS_KEY = 'AI_PROVIDERS';

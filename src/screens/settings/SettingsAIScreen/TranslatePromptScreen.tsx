@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, List as PaperList } from 'react-native-paper';
-import { Appbar, List, SafeAreaView, Button, EmptyView } from '@components/index';
+import {
+  Appbar,
+  List,
+  SafeAreaView,
+  Button,
+  EmptyView,
+} from '@components/index';
 import { useTheme } from '@hooks/persisted';
 import { AIPromptsSettingsScreenProps } from '@navigators/types';
 import { useTranslateSettings } from '@hooks/persisted/useSettings';
@@ -9,7 +15,9 @@ import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import PromptEditModal from './components/PromptEditModal';
 
-const TranslatePromptScreen = ({ navigation }: AIPromptsSettingsScreenProps) => {
+const TranslatePromptScreen = ({
+  navigation,
+}: AIPromptsSettingsScreenProps) => {
   const theme = useTheme();
   const { llmSystemPrompts, setTranslateSettings } = useTranslateSettings();
 
@@ -27,7 +35,11 @@ const TranslatePromptScreen = ({ navigation }: AIPromptsSettingsScreenProps) => 
     setTranslateSettings({ llmSystemPrompts: newPrompts });
   };
 
-  const handleSavePrompt = (id: string | null, title: string, content: string) => {
+  const handleSavePrompt = (
+    id: string | null,
+    title: string,
+    content: string,
+  ) => {
     if (!title.trim() || !content.trim()) {
       showToast(getString('aiSettingsScreen.promptFieldsRequired'));
       return;
@@ -69,7 +81,10 @@ const TranslatePromptScreen = ({ navigation }: AIPromptsSettingsScreenProps) => 
               <PaperList.Item
                 key={p.id}
                 title={p.title}
-                description={p.content.substring(0, 60) + (p.content.length > 60 ? '...' : '')}
+                description={
+                  p.content.substring(0, 60) +
+                  (p.content.length > 60 ? '...' : '')
+                }
                 left={props => (
                   <PaperList.Icon
                     {...props}
@@ -85,7 +100,11 @@ const TranslatePromptScreen = ({ navigation }: AIPromptsSettingsScreenProps) => 
                   <IconButton
                     {...props}
                     icon="trash-can-outline"
-                    iconColor={p.id === 'default' || prompts.length <= 1 ? theme.surfaceVariant : theme.error}
+                    iconColor={
+                      p.id === 'default' || prompts.length <= 1
+                        ? theme.surfaceVariant
+                        : theme.error
+                    }
                     size={24}
                     onPress={() => handleRemovePrompt(p.id)}
                     disabled={p.id === 'default' || prompts.length <= 1}

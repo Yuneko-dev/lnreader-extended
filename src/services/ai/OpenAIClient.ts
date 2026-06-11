@@ -144,8 +144,8 @@ export class OpenAIClient extends LLMCoreClient {
   }
 
   async generateTranslateContent<T extends z.ZodTypeAny>(
-      options: GenerateTranslateContentOptions<T>,
-    ): Promise<GenerateTranslateContentResponse<T>> {
+    options: GenerateTranslateContentOptions<T>,
+  ): Promise<GenerateTranslateContentResponse<T>> {
     const { userPrompt, systemInstruction, schema, tools, signal } = options;
 
     try {

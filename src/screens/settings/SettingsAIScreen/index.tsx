@@ -100,7 +100,9 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
           </List.SubHeader>
           <PaperList.Item
             title={getString('aiSettingsScreen.translateSystemPrompts')}
-            description={getString('aiSettingsScreen.translateSystemPromptsDesc')}
+            description={getString(
+              'aiSettingsScreen.translateSystemPromptsDesc',
+            )}
             left={props => (
               <PaperList.Icon
                 {...props}

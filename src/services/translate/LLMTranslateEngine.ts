@@ -2,13 +2,13 @@ import { TranslateEngine } from './TranslateEngine';
 import { LLMCoreClient, MissingAIProviderError } from '../ai/LLMCoreClient';
 import z from 'zod';
 
-      const schema = z.object({
-        paragraphs: z
-          .array(z.string())
-          .describe(
-            'Array of translated paragraphs, must match the order and count of the input array',
-          ),
-      });
+const schema = z.object({
+  paragraphs: z
+    .array(z.string())
+    .describe(
+      'Array of translated paragraphs, must match the order and count of the input array',
+    ),
+});
 export interface LLMTranslateConfig {
   systemPrompt?: string;
 }

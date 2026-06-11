@@ -52,14 +52,14 @@ export default function usePlugins() {
     (filter: string[]) => {
       const installedPlugins =
         getMMKVObject<PluginItem[]>(INSTALLED_PLUGINS) || [];
-      const availablePlugins =
+      const availableFilterPlugins =
         getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
       setFilteredInstalledPlugins(
         installedPlugins.filter(plg => filter.includes(plg.lang)),
       );
       setFilteredAvailablePlugins(
         orderBy(
-          availablePlugins
+          availableFilterPlugins
             .filter(
               avalilablePlugin =>
                 !installedPlugins.some(

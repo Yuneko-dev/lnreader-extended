@@ -12,7 +12,10 @@ import { chapterSchema } from '@database/schema';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
 import NativeFile from '@specs/NativeFile';
 import { eq } from 'drizzle-orm';
-import { TranslateManager } from '@services/translate/TranslateManager';
+import {
+  TranslateManager,
+  TranslateConfig,
+} from '@services/translate/TranslateManager';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
 import {
   TRANSLATE_SETTINGS,
@@ -25,7 +28,6 @@ import {
   ACTIVE_AI_PROVIDER_KEY,
 } from '@hooks/persisted/useAIProviders';
 import { showToast } from '@utils/showToast';
-import { TranslateConfig } from '@services/translate/TranslateManager';
 
 const createChapterFolder = async (
   path: string,

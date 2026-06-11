@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+
 export type BitFieldResolvable =
   | number
   | string

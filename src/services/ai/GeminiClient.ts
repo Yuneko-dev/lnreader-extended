@@ -73,14 +73,8 @@ export class GeminiClient extends LLMCoreClient {
   async generateContent(
     options: GenerateContentOptions,
   ): Promise<GenerateContentResponse> {
-    const {
-      userPrompt,
-      systemInstruction,
-      stream,
-      tools,
-      signal,
-      onStream,
-    } = options;
+    const { userPrompt, systemInstruction, stream, tools, signal, onStream } =
+      options;
 
     const configOptions: GenerateContentConfig = {
       systemInstruction,
@@ -172,88 +166,78 @@ export class GeminiClient extends LLMCoreClient {
   }
 
   async generateTranslateContent<T extends z.ZodTypeAny>(
-      options: GenerateTranslateContentOptions<T>,
-    ): Promise<GenerateTranslateContentResponse<T>> {
-          const {
-            userPrompt,
-            systemInstruction,
-            tools,
-            signal,
-            schema,
-          } = options;
+    options: GenerateTranslateContentOptions<T>,
+  ): Promise<GenerateTranslateContentResponse<T>> {
+    const { userPrompt, systemInstruction, tools, signal, schema } = options;
 
-          const configOptions: GenerateContentConfig = {
-            systemInstruction,
-            abortSignal: signal,
-            tools: this.mapTools(tools),
-            responseMimeType: 'application/json',
-            responseJsonSchema: zodToJsonSchema(schema),
-          };
+    const configOptions: GenerateContentConfig = {
+      systemInstruction,
+      abortSignal: signal,
+      tools: this.mapTools(tools),
+      responseMimeType: 'application/json',
+      responseJsonSchema: zodToJsonSchema(schema),
+    };
 
-          if (this.config.enableReasoning) {
-            configOptions.thinkingConfig = {};
-            switch (this.config.reasoningEffort) {
-              case 'none':
-                configOptions.thinkingConfig.thinkingLevel =
-                  ThinkingLevel.THINKING_LEVEL_UNSPECIFIED;
-                break;
-              case 'minimal':
-                configOptions.thinkingConfig.thinkingLevel =
-                  ThinkingLevel.MINIMAL;
-                break;
-              case 'low':
-                configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.LOW;
-                break;
-              case 'medium':
-                configOptions.thinkingConfig.thinkingLevel =
-                  ThinkingLevel.MEDIUM;
-                break;
-              case 'high':
-              case 'xhigh':
-                configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.HIGH;
-                break;
-            }
-          }
-
-          configOptions.safetySettings = [
-            {
-              category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-              threshold: HarmBlockThreshold.OFF,
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-              threshold: HarmBlockThreshold.OFF,
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-              threshold: HarmBlockThreshold.OFF,
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-              threshold: HarmBlockThreshold.OFF,
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
-              threshold: HarmBlockThreshold.OFF,
-            },
-          ];
-
-          try {
-            const response = await this.client.models.generateContent({
-              model: this.model,
-              contents: userPrompt,
-              config: configOptions,
-            });
-
-            return {
-              data: schema.parse(JSON.parse(response?.text || "")),
-              finishReason: response?.candidates?.[0]?.finishReason,
-              usage: response?.usageMetadata,
-            };
-          } catch (e: any) {
-            throw new Error(
-              `Gemini generateTranslateContent Error: ${e.message}`,
-            );
-          }
+    if (this.config.enableReasoning) {
+      configOptions.thinkingConfig = {};
+      switch (this.config.reasoningEffort) {
+        case 'none':
+          configOptions.thinkingConfig.thinkingLevel =
+            ThinkingLevel.THINKING_LEVEL_UNSPECIFIED;
+          break;
+        case 'minimal':
+          configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.MINIMAL;
+          break;
+        case 'low':
+          configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.LOW;
+          break;
+        case 'medium':
+          configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.MEDIUM;
+          break;
+        case 'high':
+        case 'xhigh':
+          configOptions.thinkingConfig.thinkingLevel = ThinkingLevel.HIGH;
+          break;
+      }
     }
+
+    configOptions.safetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.OFF,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.OFF,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.OFF,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.OFF,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+        threshold: HarmBlockThreshold.OFF,
+      },
+    ];
+
+    try {
+      const response = await this.client.models.generateContent({
+        model: this.model,
+        contents: userPrompt,
+        config: configOptions,
+      });
+
+      return {
+        data: schema.parse(JSON.parse(response?.text || '')),
+        finishReason: response?.candidates?.[0]?.finishReason,
+        usage: response?.usageMetadata,
+      };
+    } catch (e: any) {
+      throw new Error(`Gemini generateTranslateContent Error: ${e.message}`);
+    }
+  }
 }
