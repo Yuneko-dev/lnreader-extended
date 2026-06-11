@@ -3,7 +3,7 @@ import {
   ChapterFilterPositiveKey,
   ChapterOrderKey,
 } from '@database/constants';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAppSettings } from './useSettings';
 import { ChapterFilterObject, FilterStates } from '@database/utils/filter';
 import {
@@ -57,28 +57,35 @@ export const useNovelSettings = () => {
     [novel, writeNovelSettings, novelSettings?.showChapterTitles, _sort],
   );
 
-  const filterManager = useRef<ChapterFilterObject>(
-    new ChapterFilterObject(_filter, setChapterFilter),
+  const filterManager = useMemo(
+    () => new ChapterFilterObject(_filter, setChapterFilter),
+    [_filter, setChapterFilter],
   );
 
-  const cycleChapterFilter = useCallback((key: ChapterFilterPositiveKey) => {
-    filterManager.current?.cycle(key);
-  }, []);
+  const cycleChapterFilter = useCallback(
+    (key: ChapterFilterPositiveKey) => {
+      filterManager?.cycle(key);
+    },
+    [filterManager],
+  );
 
   const setChapterFilterValue = useCallback(
     (key: ChapterFilterPositiveKey, value: keyof FilterStates) => {
-      filterManager.current?.set(key, value);
+      filterManager?.set(key, value);
     },
-    [],
+    [filterManager],
   );
 
-  const getChapterFilterState = useCallback((key: ChapterFilterPositiveKey) => {
-    return filterManager.current?.state(key) ?? false;
-  }, []);
+  const getChapterFilterState = useCallback(
+    (key: ChapterFilterPositiveKey) => {
+      return filterManager?.state(key) ?? false;
+    },
+    [filterManager],
+  );
 
   const getChapterFilter = useCallback(
-    (key: ChapterFilterPositiveKey) => filterManager.current?.get(key),
-    [],
+    (key: ChapterFilterPositiveKey) => filterManager?.get(key),
+    [filterManager],
   );
 
   const setShowChapterTitles = useCallback(
