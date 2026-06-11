@@ -64,27 +64,27 @@ export const useNovelSettings = () => {
 
   const cycleChapterFilter = useCallback(
     (key: ChapterFilterPositiveKey) => {
-      filterManager?.cycle(key);
+      filterManager.cycle(key);
     },
     [filterManager],
   );
 
   const setChapterFilterValue = useCallback(
     (key: ChapterFilterPositiveKey, value: keyof FilterStates) => {
-      filterManager?.set(key, value);
+      filterManager.set(key, value);
     },
     [filterManager],
   );
 
   const getChapterFilterState = useCallback(
     (key: ChapterFilterPositiveKey) => {
-      return filterManager?.state(key) ?? false;
+      return filterManager.state(key) ?? false;
     },
     [filterManager],
   );
 
   const getChapterFilter = useCallback(
-    (key: ChapterFilterPositiveKey) => filterManager?.get(key),
+    (key: ChapterFilterPositiveKey) => filterManager.get(key),
     [filterManager],
   );
 
