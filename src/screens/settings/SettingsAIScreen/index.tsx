@@ -52,6 +52,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                 key={p.id}
                 title={p.alias}
                 description={`${p.provider} • ${p.model || 'Default model'}`}
+                // eslint-disable-next-line react/no-unstable-nested-components
                 left={props => (
                   <PaperList.Icon
                     {...props}
@@ -63,6 +64,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                   setEditingProviderId(p.id);
                   setProviderModalVisible(true);
                 }}
+                // eslint-disable-next-line react/no-unstable-nested-components
                 right={props => (
                   <IconButton
                     {...props}
@@ -75,7 +77,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                 )}
                 titleStyle={{ color: theme.onSurface }}
                 descriptionStyle={{ color: theme.onSurfaceVariant }}
-                style={{ paddingVertical: 12 }}
+                style={styles.listItem}
               />
             ))
           )}
@@ -103,6 +105,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
             description={getString(
               'aiSettingsScreen.translateSystemPromptsDesc',
             )}
+            // eslint-disable-next-line react/no-unstable-nested-components
             left={props => (
               <PaperList.Icon
                 {...props}
@@ -115,7 +118,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
             }}
             titleStyle={{ color: theme.onSurface }}
             descriptionStyle={{ color: theme.onSurfaceVariant }}
-            style={{ paddingVertical: 12 }}
+            style={styles.listItem}
           />
         </List.Section>
       </ScrollView>
@@ -157,5 +160,8 @@ const styles = StyleSheet.create({
   deleteButton: {
     margin: 0,
     backgroundColor: 'transparent',
+  },
+  listItem: {
+    paddingVertical: 12,
   },
 });

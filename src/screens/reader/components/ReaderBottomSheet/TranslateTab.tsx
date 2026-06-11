@@ -129,7 +129,9 @@ const ProviderPickerModal: React.FC<ProviderPickerModalProps> = ({
                 >
                   {p.alias}
                 </Text>
-                <Text style={{ color: theme.onSurfaceVariant, fontSize: 12 }}>
+                <Text
+                  style={[styles.infoText, { color: theme.onSurfaceVariant }]}
+                >
                   {p.provider}
                 </Text>
               </View>
@@ -141,7 +143,7 @@ const ProviderPickerModal: React.FC<ProviderPickerModalProps> = ({
             </Pressable>
           ))}
           {providers.length === 0 && (
-            <Text style={{ color: theme.onSurfaceVariant, padding: 12 }}>
+            <Text style={[styles.padding, { color: theme.onSurfaceVariant }]}>
               {getString('aiSettingsScreen.noProvidersConfigured')}
             </Text>
           )}
@@ -217,7 +219,7 @@ const PromptPickerModal: React.FC<PromptPickerModalProps> = ({
             </Pressable>
           ))}
           {prompts.length === 0 && (
-            <Text style={{ color: theme.onSurfaceVariant, padding: 12 }}>
+            <Text style={[styles.padding, { color: theme.onSurfaceVariant }]}>
               No system prompts configured
             </Text>
           )}
@@ -529,5 +531,11 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
+  },
+  infoText: {
+    fontSize: 12,
+  },
+  padding: {
+    padding: 12,
   },
 });

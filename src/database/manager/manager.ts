@@ -1,3 +1,5 @@
+/* eslint-disable react-compiler/react-compiler */
+
 import { db, drizzleDb } from '@database/db';
 import type { SQLBatchTuple, Scalar } from '@op-engineering/op-sqlite';
 import { IDbManager } from './manager.d';
@@ -171,6 +173,7 @@ export function useLiveQuery<T extends ExecutableSelect>(
       },
     });
     return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sqlString, paramsKey, fireOnKey]);
 
   return data;

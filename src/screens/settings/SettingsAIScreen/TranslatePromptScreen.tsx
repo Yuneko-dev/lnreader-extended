@@ -85,6 +85,7 @@ const TranslatePromptScreen = ({
                   p.content.substring(0, 60) +
                   (p.content.length > 60 ? '...' : '')
                 }
+                // eslint-disable-next-line react/no-unstable-nested-components
                 left={props => (
                   <PaperList.Icon
                     {...props}
@@ -96,6 +97,7 @@ const TranslatePromptScreen = ({
                   setEditingPromptId(p.id);
                   setPromptModalVisible(true);
                 }}
+                // eslint-disable-next-line react/no-unstable-nested-components
                 right={props => (
                   <IconButton
                     {...props}
@@ -113,7 +115,7 @@ const TranslatePromptScreen = ({
                 )}
                 titleStyle={{ color: theme.onSurface }}
                 descriptionStyle={{ color: theme.onSurfaceVariant }}
-                style={{ paddingVertical: 12 }}
+                style={styles.listItem}
               />
             ))
           )}
@@ -163,5 +165,8 @@ const styles = StyleSheet.create({
   deleteButton: {
     margin: 0,
     backgroundColor: 'transparent',
+  },
+  listItem: {
+    paddingVertical: 12,
   },
 });

@@ -123,7 +123,7 @@ const UpdateNovelCard: React.FC<UpdateCardProps> = ({
         },
       });
     },
-    [navigate],
+    [navigate, chapterListInfo.novelCover],
   );
 
   const navigateToNovel = useCallback(() => {

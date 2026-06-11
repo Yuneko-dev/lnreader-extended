@@ -100,7 +100,7 @@ export const useAIProviders = () => {
     isReady,
     setSettings,
     setActiveProviderId,
-    oldSettings.llmApiKey,
+    oldSettings,
   ]);
 
   const addProvider = useCallback(
