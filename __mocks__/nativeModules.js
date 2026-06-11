@@ -65,6 +65,39 @@ jest.mock('expo-linking', () => ({
   openURL: jest.fn(),
 }));
 
+jest.mock('expo-notifications', () => ({
+  scheduleNotificationAsync: jest.fn(),
+  updateNotification: jest.fn(),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  removeNotificationSubscription: jest.fn(),
+}));
+
+jest.mock('react-native-background-actions', () => ({
+  start: jest.fn(),
+  stop: jest.fn(),
+  updateNotification: jest.fn(),
+  isRunning: jest.fn(() => false),
+}));
+
+jest.mock('@react-native-google-signin/google-signin', () => ({
+  GoogleSignin: {
+    configure: jest.fn(),
+    hasPlayServices: jest.fn(() => Promise.resolve(true)),
+    signIn: jest.fn(() => Promise.resolve({ user: { id: 'mock', email: 'mock@mock.com' } })),
+    signOut: jest.fn(() => Promise.resolve(true)),
+    isSignedIn: jest.fn(() => Promise.resolve(false)),
+    getTokens: jest.fn(() => Promise.resolve({ idToken: 'mockId', accessToken: 'mockAccess' })),
+  },
+}));
+
+jest.mock('@react-native-documents/picker', () => ({
+  pick: jest.fn(() => Promise.resolve([])),
+  keepLocalCopy: jest.fn(() => Promise.resolve([])),
+  saveDocuments: jest.fn(() => Promise.resolve([])),
+}));
+
 jest.mock('@specs/NativeLocalServer', () => ({
   __esModule: true,
   default: {

@@ -16,6 +16,7 @@ import {
 } from './mocks';
 
 jest.mock('@hooks/persisted/useNovel');
+jest.mock('@hooks/persisted/useNovelSettings');
 
 describe('mock contracts (zustand novel architecture)', () => {
   it('useNovel mock exports persistence constants and compatibility helpers', () => {
