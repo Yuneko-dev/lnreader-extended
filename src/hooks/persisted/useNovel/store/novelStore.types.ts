@@ -1,8 +1,9 @@
-import { StoreApi } from 'zustand/vanilla';
 import { ChapterInfo, NovelInfo } from '@database/types';
-import { ChapterActionsDependencies } from './chapterActions';
+import { StoreApi } from 'zustand/vanilla';
+
 import { createBootstrapService } from '../store-helper/bootstrapService';
 import { BatchInfo, NovelSettings } from '../types';
+import { ChapterActionsDependencies } from './chapterActions';
 
 type ChapterTextValue = string | Promise<string>;
 

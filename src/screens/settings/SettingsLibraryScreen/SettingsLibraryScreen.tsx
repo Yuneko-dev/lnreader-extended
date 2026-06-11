@@ -1,10 +1,11 @@
-import React from 'react';
 import { Appbar, List } from '@components';
-import { getString } from '@strings/translations';
 import { useBoolean } from '@hooks';
 import { useCategories, useTheme } from '@hooks/persisted';
 import { useNavigation } from '@react-navigation/native';
+import { getString } from '@strings/translations';
+import React from 'react';
 import { Portal } from 'react-native-paper';
+
 import DefaultCategoryDialog from './DefaultCategoryDialog';
 
 const SettingsLibraryScreen = () => {

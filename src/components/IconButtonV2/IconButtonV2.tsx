@@ -1,10 +1,10 @@
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { MaterialDesignIconName } from '@type/icon';
+import Color from 'color';
 import React from 'react';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import Color from 'color';
 
 import { ThemeColors } from '../../theme/types';
-import { MaterialDesignIconName } from '@type/icon';
 
 type Props = {
   name: MaterialDesignIconName;

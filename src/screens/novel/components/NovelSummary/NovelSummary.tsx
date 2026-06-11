@@ -1,9 +1,8 @@
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-
-import { ThemeColors } from '@theme/types';
 
 interface NovelSummaryProps {
   summary: string;

@@ -1,15 +1,16 @@
 import { ChapterInfo } from '@database/types';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { KeyContractInput, keyContract } from './keyContract';
+
 import {
   defaultNovelSettings,
   defaultPageIndex,
-  NovelSettings,
   LAST_READ_PREFIX,
   NOVEL_PAGE_INDEX_PREFIX,
   NOVEL_SETTINGS_PREFIX,
+  NovelSettings,
   NovelSettingsWithoutSort,
 } from '../types';
+import { keyContract, KeyContractInput } from './keyContract';
 
 export type NovelPersistenceInput = KeyContractInput;
 
@@ -181,8 +182,8 @@ export const novelPersistence = createNovelPersistenceBridge();
 export {
   defaultNovelSettings,
   defaultPageIndex,
+  keyContract,
   LAST_READ_PREFIX,
   NOVEL_PAGE_INDEX_PREFIX,
   NOVEL_SETTINGS_PREFIX,
-  keyContract,
 };

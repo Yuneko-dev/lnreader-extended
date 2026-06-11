@@ -1,9 +1,8 @@
+import { getString } from '@strings/translations';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
-import { getString } from '@strings/translations';
-
 import { Dialog, Portal } from 'react-native-paper';
+
 import { ThemeColors } from '../../theme/types';
 import Button from '../Button/Button';
 

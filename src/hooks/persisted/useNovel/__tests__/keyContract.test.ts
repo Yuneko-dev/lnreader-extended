@@ -1,8 +1,8 @@
 import { keyContract, KeyContractInput } from '../store-helper/keyContract';
 import {
+  LAST_READ_PREFIX,
   NOVEL_PAGE_INDEX_PREFIX,
   NOVEL_SETTINGS_PREFIX,
-  LAST_READ_PREFIX,
 } from '../types';
 
 describe('keyContract', () => {

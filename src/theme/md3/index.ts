@@ -1,12 +1,12 @@
+import { catppuccinTheme } from './catppuccin';
 import { defaultTheme } from './defaultTheme';
-import { midnightDusk } from './mignightDusk';
-import { tealTurquoise } from './tealTurquoise';
-import { yotsubaTheme } from './yotsuba';
 import { lavenderTheme } from './lavender';
+import { midnightDusk } from './mignightDusk';
 import { strawberryDaiquiriTheme } from './strawberry';
 import { takoTheme } from './tako';
-import { catppuccinTheme } from './catppuccin';
+import { tealTurquoise } from './tealTurquoise';
 import { yinyangTheme } from './yinyang';
+import { yotsubaTheme } from './yotsuba';
 
 export const lightThemes = [
   defaultTheme.light,

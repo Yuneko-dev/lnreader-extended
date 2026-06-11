@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useAppSettings } from '@hooks/persisted/index';
 import { ThemeColors } from '@theme/types';
 import useLoadingColors from '@utils/useLoadingColors';
-import { useAppSettings } from '@hooks/persisted/index';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 
 interface Props {
   theme: ThemeColors;

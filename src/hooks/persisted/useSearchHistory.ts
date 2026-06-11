@@ -1,6 +1,7 @@
+import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { useCallback } from 'react';
 import { useMMKVBoolean, useMMKVObject } from 'react-native-mmkv';
-import { getMMKVObject } from '@utils/mmkv/mmkv';
+
 import { LIBRARY_SETTINGS, LibrarySettings } from './useSettings';
 
 export const SEARCH_HISTORY_KEY = 'SEARCH_HISTORY';

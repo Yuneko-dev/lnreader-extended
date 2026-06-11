@@ -1,12 +1,13 @@
-import { DriveFile } from '@api/drive/types';
-import { sleep } from '@utils/sleep';
 import { exists } from '@api/drive';
-import { getString } from '@strings/translations';
-import { CACHE_DIR_PATH, prepareBackupData, restoreData } from '../utils';
 import { download, updateMetadata, uploadMedia } from '@api/drive/request';
-import { ZipBackupName } from '../types';
-import { ROOT_STORAGE } from '@utils/Storages';
+import { DriveFile } from '@api/drive/types';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { sleep } from '@utils/sleep';
+import { ROOT_STORAGE } from '@utils/Storages';
+
+import { ZipBackupName } from '../types';
+import { CACHE_DIR_PATH, prepareBackupData, restoreData } from '../utils';
 
 export const createDriveBackup = async (
   backupFolder: DriveFile,

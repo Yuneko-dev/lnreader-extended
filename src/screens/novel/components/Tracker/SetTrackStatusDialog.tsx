@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-
 import { Button, DialogTitle, Modal } from '@components';
 import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
 import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
 import { UserListStatus } from '@services/Trackers';
+import { getString } from '@strings/translations';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import { STATUS_LABELS } from './constants';
 import { TrackStatusDialogProps } from './types';
 

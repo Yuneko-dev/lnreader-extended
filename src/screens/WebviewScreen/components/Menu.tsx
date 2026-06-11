@@ -1,12 +1,11 @@
-import React, { RefObject } from 'react';
-import { Pressable, Share, View, Text, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
-import * as Linking from 'expo-linking';
-
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import { showToast } from '@utils/showToast';
+import * as Linking from 'expo-linking';
+import React, { RefObject } from 'react';
+import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
 
 interface MenuProps {
   theme: ThemeColors;

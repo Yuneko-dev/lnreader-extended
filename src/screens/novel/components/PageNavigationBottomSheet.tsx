@@ -1,17 +1,16 @@
-import React from 'react';
-import { StyleSheet, View, Pressable, Text } from 'react-native';
+import BottomSheet from '@components/BottomSheet/BottomSheet';
 import {
   BottomSheetView,
   useBottomSheetScrollableCreator,
 } from '@gorhom/bottom-sheet';
-import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
-import color from 'color';
-
-import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { ThemeColors } from '@theme/types';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
+import { ThemeColors } from '@theme/types';
+import color from 'color';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { overlay } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface PageNavigationBottomSheetProps {
   bottomSheetRef: React.RefObject<BottomSheetModalMethods | null>;

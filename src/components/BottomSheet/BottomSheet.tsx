@@ -1,16 +1,17 @@
-import React, { RefObject, useCallback, useMemo, useRef } from 'react';
 import {
   // BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetModalProps,
 } from '@gorhom/bottom-sheet';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBackHandler } from '@hooks/index';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import BottomSheetBackdrop from './BottomSheetBackdrop';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { useBackHandler } from '@hooks/index';
 import { useTheme } from '@hooks/persisted';
+import React, { RefObject, useCallback, useMemo, useRef } from 'react';
+import { StyleSheet, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import BottomSheetBackdrop from './BottomSheetBackdrop';
 
 interface BottomSheetProps
   extends Omit<BottomSheetModalProps, 'ref' | 'onChange' | 'snapPoints'> {

@@ -1,35 +1,32 @@
-import React, { useState } from 'react';
-
-import { Portal, Text, TextInput } from 'react-native-paper';
-
+import { Appbar, Button, List, Modal, SafeAreaView } from '@components';
+import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
+import {
+  clearUpdates,
+  deleteReadChaptersFromDb,
+} from '@database/queries/ChapterQueries';
+import { useBoolean } from '@hooks';
 import {
   deleteCachedNovels,
   useAppSettings,
   useTheme,
   useUserAgent,
 } from '@hooks/persisted';
-import { showToast } from '@utils/showToast';
-import SettingSwitch from './components/SettingSwitch';
-import StorageUsageSection from './components/StorageUsageSection';
-
-import { getString } from '@strings/translations';
-import { useBoolean } from '@hooks';
-import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
-import {
-  deleteReadChaptersFromDb,
-  clearUpdates,
-} from '@database/queries/ChapterQueries';
 import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
-
-import { Appbar, Button, List, Modal, SafeAreaView } from '@components';
 import { AdvancedSettingsScreenProps } from '@navigators/types';
+import { store } from '@plugins/helpers/storage';
+import CookieManager from '@preeternal/react-native-cookie-manager';
+import NativeLocalServer from '@specs/NativeLocalServer';
+import { getString } from '@strings/translations';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { showToast } from '@utils/showToast';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { getUserAgentSync } from 'react-native-device-info';
-import CookieManager from '@preeternal/react-native-cookie-manager';
-import { store } from '@plugins/helpers/storage';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import NativeLocalServer from '@specs/NativeLocalServer';
+import { Portal, Text, TextInput } from 'react-native-paper';
+
+import SettingSwitch from './components/SettingSwitch';
+import StorageUsageSection from './components/StorageUsageSection';
 
 const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   const theme = useTheme();

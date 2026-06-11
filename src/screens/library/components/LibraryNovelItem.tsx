@@ -1,8 +1,8 @@
-import React, { memo, useCallback } from 'react';
 import NovelCover from '@components/NovelCover';
 import { NovelInfo } from '@database/types';
-import { ThemeColors } from '@theme/types';
 import { ImageRequestInit } from '@plugins/types';
+import { ThemeColors } from '@theme/types';
+import React, { memo, useCallback } from 'react';
 
 interface LibraryNovelItemProps {
   item: NovelInfo;

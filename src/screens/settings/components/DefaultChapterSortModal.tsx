@@ -1,13 +1,11 @@
-import React from 'react';
-
-import { Portal } from 'react-native-paper';
+import { Modal } from '@components';
 import { SortItem } from '@components/Checkbox/Checkbox';
-
-import { ThemeColors } from '@theme/types';
+import { ChapterOrderKey } from '@database/constants';
 import { AppSettings } from '@hooks/persisted/useSettings';
 import { getString } from '@strings/translations';
-import { Modal } from '@components';
-import { ChapterOrderKey } from '@database/constants';
+import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { Portal } from 'react-native-paper';
 
 interface DefaultChapterSortModalProps {
   theme: ThemeColors;

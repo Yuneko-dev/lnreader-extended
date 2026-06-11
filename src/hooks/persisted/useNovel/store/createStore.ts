@@ -1,19 +1,20 @@
+import { ChapterOrderKey } from '@database/constants';
 import { NovelInfo } from '@database/types';
 import { NovelSettings } from '@hooks/persisted/useNovel';
-import { novelPersistence } from '@hooks/persisted/useNovel/store-helper/persistence';
 import { createNovelSlice } from '@hooks/persisted/useNovel/store/novelStore';
-import { ChapterOrderKey } from '@database/constants';
+import { novelPersistence } from '@hooks/persisted/useNovel/store-helper/persistence';
+import { createStore as createZustandStore } from 'zustand';
+
+import { createBootstrapService } from '../store-helper/bootstrapService';
+import { defaultChapterActionsDependencies } from './chapterActions';
+import { createNovelStoreActions } from './novelStore.actions';
+import { createNovelStoreChapterActions } from './novelStore.chapterActions';
+import { createInitialChapterSlice } from './novelStore.chapterState';
 import {
   NovelStoreApi,
   NovelStoreDependencies,
   NovelStoreState,
 } from './novelStore.types';
-import { createStore as createZustandStore } from 'zustand';
-import { createNovelStoreActions } from './novelStore.actions';
-import { createInitialChapterSlice } from './novelStore.chapterState';
-import { createNovelStoreChapterActions } from './novelStore.chapterActions';
-import { createBootstrapService } from '../store-helper/bootstrapService';
-import { defaultChapterActionsDependencies } from './chapterActions';
 
 interface Props {
   pluginId: string;

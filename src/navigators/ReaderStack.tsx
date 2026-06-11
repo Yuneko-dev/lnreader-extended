@@ -1,17 +1,15 @@
-import React, { useRef } from 'react';
-
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NovelContextProvider } from '@screens/novel/NovelContext';
+import React, { useRef } from 'react';
 
 // Screens
 import Novel from '../screens/novel/NovelScreen';
 import Reader from '../screens/reader/ReaderScreen';
-
 import {
   ChapterScreenProps,
   NovelScreenProps,
   ReaderStackParamList,
 } from './types';
-import { NovelContextProvider } from '@screens/novel/NovelContext';
 
 const Stack = createNativeStackNavigator<ReaderStackParamList>();
 

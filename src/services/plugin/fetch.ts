@@ -1,5 +1,5 @@
-import { getPlugin } from '@plugins/pluginManager';
 import { isUrlAbsolute } from '@plugins/helpers/isAbsoluteUrl';
+import { getPlugin } from '@plugins/pluginManager';
 
 export const fetchNovel = async (pluginId: string, novelPath: string) => {
   const plugin = getPlugin(pluginId);

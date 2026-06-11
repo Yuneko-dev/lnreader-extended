@@ -1,15 +1,13 @@
+import { Button, List, Modal, SwitchItem } from '@components';
+import { useBoolean } from '@hooks';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { TextInput, Text } from 'react-native-paper';
-import { openDocumentTree } from 'react-native-saf-x';
-
-import { Button, List, Modal, SwitchItem } from '@components';
-
-import { useBoolean } from '@hooks';
-import { getString } from '@strings/translations';
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { showToast } from '@utils/showToast';
+import { Text, TextInput } from 'react-native-paper';
+import { openDocumentTree } from 'react-native-saf-x';
 
 interface ExportEpubModalProps {
   isVisible: boolean;

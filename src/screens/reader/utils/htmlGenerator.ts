@@ -1,11 +1,11 @@
-import { StatusBar } from 'react-native';
-import color from 'color';
-import { NovelInfo, ChapterInfo } from '@database/types';
-import { ThemeColors } from '@theme/types';
+import { ChapterInfo, NovelInfo } from '@database/types';
 import {
-  ChapterReaderSettings,
   ChapterGeneralSettings,
+  ChapterReaderSettings,
 } from '@hooks/persisted/useSettings';
+import { ThemeColors } from '@theme/types';
+import color from 'color';
+import { StatusBar } from 'react-native';
 
 export interface HtmlTemplateOptions {
   html: string;

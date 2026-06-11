@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
-import { View, Dimensions, StyleSheet, DimensionValue } from 'react-native';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAppSettings } from '@hooks/persisted/index';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo } from 'react';
+import { Dimensions, DimensionValue, StyleSheet, View } from 'react-native';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 
 const SkeletonLines = ({
   width,

@@ -1,4 +1,5 @@
-import { sqliteTable, integer } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable } from 'drizzle-orm/sqlite-core';
+
 import { chapter } from './chapter';
 
 export const extendedChapterHistorySchema = sqliteTable(

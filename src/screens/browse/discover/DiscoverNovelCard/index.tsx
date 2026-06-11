@@ -1,7 +1,6 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
-
 import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface Props {
   novel: {

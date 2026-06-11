@@ -1,10 +1,11 @@
-import { sleep } from '@utils/sleep';
 import { download, upload } from '@api/remote';
-import { getString } from '@strings/translations';
-import { CACHE_DIR_PATH, prepareBackupData, restoreData } from '../utils';
-import { ZipBackupName } from '../types';
-import { ROOT_STORAGE } from '@utils/Storages';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { sleep } from '@utils/sleep';
+import { ROOT_STORAGE } from '@utils/Storages';
+
+import { ZipBackupName } from '../types';
+import { CACHE_DIR_PATH, prepareBackupData, restoreData } from '../utils';
 
 export interface SelfHostData {
   host: string;

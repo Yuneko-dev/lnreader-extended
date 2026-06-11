@@ -1,14 +1,13 @@
-import React from 'react';
-import { StyleSheet, View, FlatList, Text, FlatListProps } from 'react-native';
-
-import MigrationSourceItem from './MigrationSourceItem';
-
-import { usePlugins, useTheme } from '@hooks/persisted';
-import { useLibraryNovels } from '@screens/library/hooks/useLibrary';
 import { Appbar } from '@components';
+import { usePlugins, useTheme } from '@hooks/persisted';
 import { MigrationScreenProps } from '@navigators/types';
 import { PluginItem } from '@plugins/types';
+import { useLibraryNovels } from '@screens/library/hooks/useLibrary';
 import { getString } from '@strings/translations';
+import React from 'react';
+import { FlatList, FlatListProps, StyleSheet, Text, View } from 'react-native';
+
+import MigrationSourceItem from './MigrationSourceItem';
 
 const Migration = ({ navigation }: MigrationScreenProps) => {
   const theme = useTheme();

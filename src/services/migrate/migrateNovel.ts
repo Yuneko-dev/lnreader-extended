@@ -1,27 +1,25 @@
-import { NovelInfo, ChapterInfo } from '@database/types';
+import { dbManager } from '@database/db';
+import { getNovelChapters } from '@database/queries/ChapterQueries';
 import {
   getNovelByPath,
   insertNovelAndChapters,
 } from '@database/queries/NovelQueries';
-import { getNovelChapters } from '@database/queries/ChapterQueries';
-
-import { fetchNovel } from '@services/plugin/fetch';
-import { parseChapterNumber } from '@utils/parseChapterNumber';
-
-import {
-  novelPersistence,
-  type NovelPersistenceInput,
-} from '@hooks/persisted/useNovel/store-helper/contracts';
-import { sleep } from '@utils/sleep';
-import ServiceManager, {
-  BackgroundTaskMetadata,
-} from '@services/ServiceManager';
-import { dbManager } from '@database/db';
 import {
   chapterSchema,
   novelCategorySchema,
   novelSchema,
 } from '@database/schema';
+import { ChapterInfo, NovelInfo } from '@database/types';
+import {
+  novelPersistence,
+  type NovelPersistenceInput,
+} from '@hooks/persisted/useNovel/store-helper/contracts';
+import { fetchNovel } from '@services/plugin/fetch';
+import ServiceManager, {
+  BackgroundTaskMetadata,
+} from '@services/ServiceManager';
+import { parseChapterNumber } from '@utils/parseChapterNumber';
+import { sleep } from '@utils/sleep';
 import { eq } from 'drizzle-orm';
 
 export interface MigrateNovelData {

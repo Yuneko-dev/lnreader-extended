@@ -1,9 +1,9 @@
+import { useChapterReaderSettings } from '@hooks/persisted';
+import color from 'color';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import color from 'color';
 
 import SkeletonLines from '../components/SkeletonLines';
-import { useChapterReaderSettings } from '@hooks/persisted';
 
 interface ChapterLoadingScreenProps {
   isLoading?: boolean;

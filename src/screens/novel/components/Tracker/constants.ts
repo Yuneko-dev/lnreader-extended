@@ -1,6 +1,6 @@
+import { TrackerName, UserListStatus } from '@services/Trackers';
 import { ImageSourcePropType } from 'react-native';
 
-import { TrackerName, UserListStatus } from '@services/Trackers';
 import { ScoreFormat, ScoreFormatting } from './types';
 
 export const TRACKER_ICONS: Record<TrackerName, ImageSourcePropType> = {

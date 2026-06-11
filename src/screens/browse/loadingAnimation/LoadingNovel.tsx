@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
-import { LinearGradient } from 'expo-linear-gradient';
-import { DisplayModes } from '@screens/library/constants/constants';
 import { useAppSettings } from '@hooks/persisted/index';
+import { DisplayModes } from '@screens/library/constants/constants';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 
 interface Props {
   backgroundColor: string;

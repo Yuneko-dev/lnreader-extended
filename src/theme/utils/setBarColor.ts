@@ -1,7 +1,7 @@
-import { StatusBar } from 'react-native';
 import { ThemeColors } from '@theme/types';
-import * as NavigationBar from 'expo-navigation-bar';
 import Color, { ColorInstance } from 'color';
+import * as NavigationBar from 'expo-navigation-bar';
+import { StatusBar } from 'react-native';
 
 export const setStatusBarColor = (color: ThemeColors | ColorInstance) => {
   if (color instanceof Color) {

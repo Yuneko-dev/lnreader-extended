@@ -1,19 +1,16 @@
-import React, { useCallback, useState } from 'react';
-import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
-import color from 'color';
-
-import { TabView, SceneMap, TabBar, TabViewProps } from 'react-native-tab-view';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { getString } from '@strings/translations';
-
 import { Checkbox, SortItem } from '@components/Checkbox/Checkbox';
-
-import { overlay } from 'react-native-paper';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { ThemeColors } from '@theme/types';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNovelSettings } from '@hooks/persisted/useNovelSettings';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import color from 'color';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { overlay } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SceneMap, TabBar, TabView, TabViewProps } from 'react-native-tab-view';
 
 interface ChaptersSettingsSheetProps {
   bottomSheetRef: React.RefObject<BottomSheetModalMethods | null>;

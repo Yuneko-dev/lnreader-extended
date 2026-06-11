@@ -1,3 +1,11 @@
+import { Button, Modal } from '@components';
+import { updateNovelInfo } from '@database/queries/NovelQueries';
+import { NovelInfo } from '@database/types';
+import { NovelStatus } from '@plugins/types';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { translateNovelStatus } from '@utils/translateEnum';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -7,18 +15,8 @@ import {
   Text,
   View,
 } from 'react-native';
-
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import { Portal, TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { updateNovelInfo } from '@database/queries/NovelQueries';
-
-import { getString } from '@strings/translations';
-import { Button, Modal } from '@components';
-import { ThemeColors } from '@theme/types';
-import { NovelInfo } from '@database/types';
-import { NovelStatus } from '@plugins/types';
-import { translateNovelStatus } from '@utils/translateEnum';
+import { Portal, TextInput } from 'react-native-paper';
 
 interface EditInfoModalProps {
   theme: ThemeColors;

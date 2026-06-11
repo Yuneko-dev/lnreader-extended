@@ -1,10 +1,7 @@
+/* eslint-disable react-compiler/react-compiler */
+
 import { db, drizzleDb } from '@database/db';
-import type { SQLBatchTuple, Scalar } from '@op-engineering/op-sqlite';
-import { IDbManager } from './manager.d';
-import { DbTaskQueue } from './queue';
-import { Schema } from '../schema';
-import { useEffect, useRef, useState } from 'react';
-import { GetSelectTableName } from 'drizzle-orm/query-builders/select.types';
+import type { Scalar, SQLBatchTuple } from '@op-engineering/op-sqlite';
 import {
   AnyColumn,
   fillPlaceholders,
@@ -12,7 +9,13 @@ import {
   Query,
   sql,
 } from 'drizzle-orm';
+import { GetSelectTableName } from 'drizzle-orm/query-builders/select.types';
 import { SQLitePreparedQuery } from 'drizzle-orm/sqlite-core';
+import { useEffect, useRef, useState } from 'react';
+
+import { Schema } from '../schema';
+import { IDbManager } from './manager.d';
+import { DbTaskQueue } from './queue';
 
 type DrizzleDb = typeof drizzleDb;
 type TransactionParameter = Parameters<
@@ -171,6 +174,7 @@ export function useLiveQuery<T extends ExecutableSelect>(
       },
     });
     return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sqlString, paramsKey, fireOnKey]);
 
   return data;

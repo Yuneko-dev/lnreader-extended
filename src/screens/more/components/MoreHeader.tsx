@@ -1,9 +1,8 @@
-import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-
 import { Appbar, List } from '@components';
 import { AboutScreenProps, MoreStackScreenProps } from '@navigators/types';
 import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 
 interface MoreHeaderProps {
   title: string;

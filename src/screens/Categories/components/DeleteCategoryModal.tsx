@@ -1,14 +1,11 @@
+import { Button, Modal } from '@components/index';
+import { deleteCategoryById } from '@database/queries/CategoryQueries';
+import { Category } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
-
-import { Button, Modal } from '@components/index';
-
-import { Category } from '@database/types';
-import { deleteCategoryById } from '@database/queries/CategoryQueries';
-import { useTheme } from '@hooks/persisted';
-
-import { getString } from '@strings/translations';
 
 interface DeleteCategoryModalProps {
   category: Category;

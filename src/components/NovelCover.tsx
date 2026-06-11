@@ -1,28 +1,27 @@
-import React, { memo, useMemo } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Pressable,
-  useWindowDimensions,
-  Image,
-} from 'react-native';
-
-import { LinearGradient } from 'expo-linear-gradient';
-import ListView from './ListView';
-
-import { useDeviceOrientation } from '@hooks';
-import { coverPlaceholderColor } from '../theme/colors';
-import { DisplayModes } from '@screens/library/constants/constants';
 import { DBNovelInfo, NovelInfo } from '@database/types';
-import { NovelItem, ImageRequestInit } from '@plugins/types';
-import { ThemeColors } from '@theme/types';
+import { useDeviceOrientation } from '@hooks';
 import { useLibrarySettings } from '@hooks/persisted';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
-import { getString } from '@strings/translations';
-import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
 import { defaultCover } from '@plugins/helpers/constants';
+import { ImageRequestInit, NovelItem } from '@plugins/types';
+import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
+import { DisplayModes } from '@screens/library/constants/constants';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo, useMemo } from 'react';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+
+import { coverPlaceholderColor } from '../theme/colors';
+import ListView from './ListView';
 
 interface UnreadBadgeProps {
   showDownloadBadges: boolean;

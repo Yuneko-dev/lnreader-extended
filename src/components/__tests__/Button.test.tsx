@@ -1,7 +1,9 @@
 import './mocks';
+
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
 import { Text } from 'react-native';
+
 import Button from '../Button/Button';
 
 const mockUseTheme = jest.fn();

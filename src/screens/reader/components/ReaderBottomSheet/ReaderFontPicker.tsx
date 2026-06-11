@@ -1,11 +1,9 @@
+import { SelectableChip } from '@components/index';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
+import { Font, readerFonts } from '@utils/constants/readerConstants';
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
-import { SelectableChip } from '@components/index';
-import { getString } from '@strings/translations';
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
-
-import { Font, readerFonts } from '@utils/constants/readerConstants';
 import { FlatList } from 'react-native-gesture-handler';
 
 interface FontChipProps {

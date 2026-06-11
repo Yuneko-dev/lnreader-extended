@@ -1,6 +1,7 @@
-import { act, renderHook, waitFor } from '@testing-library/react-native';
-import useChapter from '../useChapter';
 import NativeFile from '@specs/NativeFile';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
+
+import useChapter from '../useChapter';
 
 const mockUseNovelActions = jest.fn();
 const mockUseChapterGeneralSettings = jest.fn();

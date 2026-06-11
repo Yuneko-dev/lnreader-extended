@@ -1,16 +1,17 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { WebView } from 'react-native-webview';
-import { useCloudflareStore } from './cloudflareStore';
-import { solveCloudflare, solveCloudflareTurnstile } from './cloudflareCDP';
+import { useAppSettings, useTheme } from '@hooks/persisted';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
+import React, { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
+  ActivityIndicator,
+  IconButton,
   Surface,
   Text,
-  IconButton,
-  ActivityIndicator,
 } from 'react-native-paper';
-import { useTheme, useAppSettings } from '@hooks/persisted';
+import { WebView } from 'react-native-webview';
+
+import { solveCloudflare, solveCloudflareTurnstile } from './cloudflareCDP';
+import { useCloudflareStore } from './cloudflareStore';
 
 export const CloudflareSolverOverlay = () => {
   const { tasks, completeTask } = useCloudflareStore();

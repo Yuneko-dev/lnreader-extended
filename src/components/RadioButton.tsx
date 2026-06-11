@@ -1,6 +1,6 @@
 import { ThemeColors } from '@theme/types';
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { RadioButton as MaterialRadioButton } from 'react-native-paper';
 
 interface RadioButtonGroupProps {

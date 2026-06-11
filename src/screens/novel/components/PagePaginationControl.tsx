@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { IconButton } from 'react-native-paper';
-import color from 'color';
 import { ThemeColors } from '@theme/types';
+import color from 'color';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { IconButton } from 'react-native-paper';
 
 interface PagePaginationControlProps {
   pages: string[];

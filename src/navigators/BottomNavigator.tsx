@@ -1,20 +1,19 @@
-import React, { useCallback, useMemo } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-import Library from '../screens/library/LibraryScreen';
-import Updates from '../screens/updates/UpdatesScreen';
-import History from '../screens/history/HistoryScreen';
-import Browse from '../screens/browse/BrowseScreen';
-import More from '../screens/more/MoreScreen';
-
-import { getString } from '@strings/translations';
-import { useAppSettings, usePlugins, useTheme } from '@hooks/persisted';
-import { BottomNavigatorParamList } from './types';
-import Icon from '@react-native-vector-icons/material-design-icons';
-import { MaterialDesignIconName } from '@type/icon';
 import { BottomTabBar } from '@components';
-import { useFocusEffect } from '@react-navigation/native';
+import { useAppSettings, usePlugins, useTheme } from '@hooks/persisted';
 import { discordRPC } from '@modules/discord/DiscordRPC';
+import Icon from '@react-native-vector-icons/material-design-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useFocusEffect } from '@react-navigation/native';
+import { getString } from '@strings/translations';
+import { MaterialDesignIconName } from '@type/icon';
+import React, { useCallback, useMemo } from 'react';
+
+import Browse from '../screens/browse/BrowseScreen';
+import History from '../screens/history/HistoryScreen';
+import Library from '../screens/library/LibraryScreen';
+import More from '../screens/more/MoreScreen';
+import Updates from '../screens/updates/UpdatesScreen';
+import { BottomNavigatorParamList } from './types';
 
 const Tab = createBottomTabNavigator<BottomNavigatorParamList>();
 const TAB_ICON_SIZE = 24;

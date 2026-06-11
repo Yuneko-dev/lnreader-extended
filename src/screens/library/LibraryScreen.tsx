@@ -1,3 +1,28 @@
+import { Actionbar } from '@components/Actionbar/Actionbar';
+import { Row } from '@components/Common';
+import { useLibraryContext } from '@components/Context/LibraryContext';
+import { Button, SafeAreaView, SearchbarV2 } from '@components/index';
+import {
+  markAllChaptersRead,
+  markAllChaptersUnread,
+} from '@database/queries/ChapterQueries';
+import { removeNovelsFromLibrary } from '@database/queries/NovelQueries';
+import { NovelInfo } from '@database/types';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useBackHandler, useBoolean, useSearch } from '@hooks';
+import { useAppSettings, useHistory, useTheme } from '@hooks/persisted';
+import useImport from '@hooks/persisted/useImport';
+import { LibraryScreenProps } from '@navigators/types';
+import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { useFocusEffect } from '@react-navigation/native';
+import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
+import SetCategoryModal from '@screens/novel/components/SetCategoriesModal';
+import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import Color from 'color';
+import * as DocumentPicker from 'expo-document-picker';
+import { xor } from 'lodash-es';
 import React, {
   useCallback,
   useEffect,
@@ -13,44 +38,18 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { FAB, Portal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   NavigationState,
   SceneRendererProps,
   TabBar,
   TabView,
 } from 'react-native-tab-view';
-import Color from 'color';
-import { useFocusEffect } from '@react-navigation/native';
 
-import { SearchbarV2, Button, SafeAreaView } from '@components/index';
-import { LibraryView } from './components/LibraryListView';
-import LibraryBottomSheet from './components/LibraryBottomSheet/LibraryBottomSheet';
 import { Banner } from './components/Banner';
-import { Actionbar } from '@components/Actionbar/Actionbar';
-
-import { useAppSettings, useHistory, useTheme } from '@hooks/persisted';
-import { useSearch, useBackHandler, useBoolean } from '@hooks';
-import { getString } from '@strings/translations';
-import { FAB, Portal } from 'react-native-paper';
-import {
-  markAllChaptersRead,
-  markAllChaptersUnread,
-} from '@database/queries/ChapterQueries';
-import { removeNovelsFromLibrary } from '@database/queries/NovelQueries';
-import SetCategoryModal from '@screens/novel/components/SetCategoriesModal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
-import { Row } from '@components/Common';
-import { LibraryScreenProps } from '@navigators/types';
-import { NovelInfo } from '@database/types';
-import * as DocumentPicker from 'expo-document-picker';
-import ServiceManager from '@services/ServiceManager';
-import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
-import useImport from '@hooks/persisted/useImport';
-import { ThemeColors } from '@theme/types';
-import { useLibraryContext } from '@components/Context/LibraryContext';
-import { xor } from 'lodash-es';
+import LibraryBottomSheet from './components/LibraryBottomSheet/LibraryBottomSheet';
+import { LibraryView } from './components/LibraryListView';
 import { SelectionContext } from './SelectionContext';
 
 type State = NavigationState<{

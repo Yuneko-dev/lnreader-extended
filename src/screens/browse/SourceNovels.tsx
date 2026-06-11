@@ -1,16 +1,16 @@
-import React from 'react';
-import { StyleSheet, View, FlatList, Text, FlatListProps } from 'react-native';
+import { Appbar } from '@components';
+import { useLibraryContext } from '@components/Context/LibraryContext';
+import { NovelInfo } from '@database/types';
 import { useTheme } from '@hooks/persisted';
+import { SourceNovelsScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
+import React from 'react';
+import { FlatList, FlatListProps, StyleSheet, Text, View } from 'react-native';
 
 import ListView from '../../components/ListView';
-import { Appbar } from '@components';
-import { SourceNovelsScreenProps } from '@navigators/types';
-import { NovelInfo } from '@database/types';
-import { getString } from '@strings/translations';
-import { useLibraryContext } from '@components/Context/LibraryContext';
 
 const SourceNovels = ({ navigation, route }: SourceNovelsScreenProps) => {
-  const pluginId = route.params.pluginId;
+  const { pluginId } = route.params;
   const theme = useTheme();
   const { library } = useLibraryContext();
 

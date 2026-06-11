@@ -7,25 +7,25 @@ import React, {
   useState,
 } from 'react';
 import {
-  Pressable,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
   LayoutRectangle,
+  Pressable,
   StatusBar,
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+  useWindowDimensions,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Portal } from 'react-native-paper';
 import Animated, {
+  EntryAnimationsValues,
+  ExitAnimationsValues,
   FadeIn,
   FadeOut,
-  withTiming,
-  ExitAnimationsValues,
-  EntryAnimationsValues,
   withDelay,
+  withTiming,
 } from 'react-native-reanimated';
 
 interface MenuProps {

@@ -1,25 +1,24 @@
-import * as DocumentPicker from 'expo-document-picker';
-import { eq, and, inArray, ne } from 'drizzle-orm';
-
-import { fetchNovel } from '@services/plugin/fetch';
-import { insertChapters } from './ChapterQueries';
-
-import { showToast } from '@utils/showToast';
-import { getString } from '@strings/translations';
-import { BackupNovel, ChapterInfo, DBNovelInfo, NovelInfo } from '../types';
-import { SourceNovel } from '@plugins/types';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { downloadFile } from '@plugins/helpers/fetch';
-import { getPlugin, LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
 import { dbManager } from '@database/db';
 import {
-  novelSchema,
-  novelCategorySchema,
   categorySchema,
   chapterSchema,
   extendedChapterHistorySchema,
+  novelCategorySchema,
+  novelSchema,
 } from '@database/schema';
+import { downloadFile } from '@plugins/helpers/fetch';
+import { getPlugin, LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { SourceNovel } from '@plugins/types';
+import { fetchNovel } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import { and, eq, inArray, ne } from 'drizzle-orm';
+import * as DocumentPicker from 'expo-document-picker';
+
+import { BackupNovel, ChapterInfo, DBNovelInfo, NovelInfo } from '../types';
+import { insertChapters } from './ChapterQueries';
 
 /**
  * Inserts a novel and its chapters into the database using Drizzle ORM.

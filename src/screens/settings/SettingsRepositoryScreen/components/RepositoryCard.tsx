@@ -1,16 +1,15 @@
-import React, { FC } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
-import * as Linking from 'expo-linking';
-
 import { IconButtonV2 } from '@components';
-
 import { Repository } from '@database/types';
 import { useBoolean } from '@hooks/index';
 import { useTheme } from '@hooks/persisted';
-import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import * as Clipboard from 'expo-clipboard';
+import * as Linking from 'expo-linking';
+import React, { FC } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
+
 import AddRepositoryModal from './AddRepositoryModal';
 import DeleteRepositoryModal from './DeleteRepositoryModal';
 

@@ -3,8 +3,8 @@ import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { TextInput } from 'react-native-paper';
 
 interface ConnectionModalProps {
   title: string;

@@ -1,25 +1,33 @@
-import * as cheerio from 'cheerio';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { Plugin } from '@plugins/types';
-import { downloadFile } from '@plugins/helpers/fetch';
-import { getPlugin } from '@plugins/pluginManager';
-import { getString } from '@strings/translations';
-import { getChapter } from '@database/queries/ChapterQueries';
-import { sleep } from '@utils/sleep';
-import { getNovelById } from '@database/queries/NovelQueries';
 import { dbManager } from '@database/db';
+import { getChapter } from '@database/queries/ChapterQueries';
+import { getNovelById } from '@database/queries/NovelQueries';
 import { chapterSchema } from '@database/schema';
-import { BackgroundTaskMetadata } from '@services/ServiceManager';
-import NativeFile from '@specs/NativeFile';
-import { eq } from 'drizzle-orm';
-import { TranslateManager } from '@services/translate/TranslateManager';
-import { getMMKVObject } from '@utils/mmkv/mmkv';
 import {
+  ACTIVE_AI_PROVIDER_KEY,
+  AI_PROVIDERS_KEY,
+  AIProvider,
+} from '@hooks/persisted/useAIProviders';
+import {
+  initialTranslateSettings,
   TRANSLATE_SETTINGS,
   TranslateSettings,
-  initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
+import { downloadFile } from '@plugins/helpers/fetch';
+import { getPlugin } from '@plugins/pluginManager';
+import { Plugin } from '@plugins/types';
+import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import {
+  TranslateConfig,
+  TranslateManager,
+} from '@services/translate/TranslateManager';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
+import { sleep } from '@utils/sleep';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import * as cheerio from 'cheerio';
+import { eq } from 'drizzle-orm';
 
 const createChapterFolder = async (
   path: string,
@@ -103,9 +111,18 @@ export const downloadChapter = async (
 
     if (translateSettings.downloadTranslated) {
       try {
+        const providers = getMMKVObject<AIProvider[]>(AI_PROVIDERS_KEY) || [];
+        const activeProviderId = getMMKVObject<string>(ACTIVE_AI_PROVIDER_KEY);
+        const activeAIProvider = providers.find(p => p.id === activeProviderId);
+
+        const config: TranslateConfig = {
+          ...(translateSettings as any),
+          activeAIProvider,
+        };
+
         finalHtml = await TranslateManager.translateChapterHTML(
           finalHtml,
-          translateSettings as any,
+          config,
         );
         const loadedCheerio = cheerio.load(finalHtml, null, false);
         const metaHTML = '<meta id="offline-translated-marker"/>';

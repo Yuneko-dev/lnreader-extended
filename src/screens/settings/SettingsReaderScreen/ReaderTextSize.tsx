@@ -1,9 +1,8 @@
-import { StyleSheet, Text, TextStyle, View } from 'react-native';
-import React from 'react';
-
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { IconButtonV2 } from '@components/index';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
+import React from 'react';
+import { StyleSheet, Text, TextStyle, View } from 'react-native';
 
 interface ReaderTextSizeProps {
   labelStyle?: TextStyle | TextStyle[];

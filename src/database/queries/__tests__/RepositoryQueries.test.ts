@@ -5,16 +5,16 @@
  */
 
 import './mockDb';
-import { setupTestDatabase, getTestDb, teardownTestDatabase } from './setup';
-import { insertTestRepository, clearAllTables } from './testData';
 
 import {
-  getRepositoriesFromDb,
-  isRepoUrlDuplicated,
   createRepository,
   deleteRepositoryById,
+  getRepositoriesFromDb,
+  isRepoUrlDuplicated,
   updateRepository,
 } from '../RepositoryQueries';
+import { getTestDb, setupTestDatabase, teardownTestDatabase } from './setup';
+import { clearAllTables, insertTestRepository } from './testData';
 
 describe('RepositoryQueries', () => {
   beforeEach(() => {

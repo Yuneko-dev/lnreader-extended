@@ -1,20 +1,20 @@
+import { useTheme } from '@hooks/persisted';
+import {
+  LockOnBackground,
+  useSecuritySettings,
+} from '@hooks/persisted/useSettings';
+import { getString } from '@strings/translations';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import * as LocalAuthentication from 'expo-local-authentication';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   AppState,
   AppStateStatus,
   Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication';
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import {
-  useSecuritySettings,
-  LockOnBackground,
-} from '@hooks/persisted/useSettings';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
 
 const LOCK_TIMEOUT_MS: Record<LockOnBackground, number> = {
   always: 0,

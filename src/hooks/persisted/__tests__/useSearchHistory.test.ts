@@ -1,8 +1,9 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { act, renderHook } from '@testing-library/react-native';
+
 import { useSearchHistory } from '../useSearchHistory';
 
 let mockBooleanValue: boolean = true;
-let mockObjectValue: string[] | undefined = undefined;
+let mockObjectValue: string[] | undefined;
 let mockIncognitoMode: boolean = false;
 
 jest.mock('react-native-mmkv', () => {

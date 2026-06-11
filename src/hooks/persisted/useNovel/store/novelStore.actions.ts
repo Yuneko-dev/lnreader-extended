@@ -1,4 +1,5 @@
 import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
+
 import { NovelSettings } from '../types';
 import {
   GetState,

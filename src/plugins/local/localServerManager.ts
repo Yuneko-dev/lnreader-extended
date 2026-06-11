@@ -1,6 +1,6 @@
+import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 import NativeLocalServer from '@specs/NativeLocalServer';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 
 let serverStarted = false;
 

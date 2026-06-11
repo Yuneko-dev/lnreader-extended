@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-
 import {
   Appbar,
   ErrorScreenV2,
   LoadingScreenV2,
   SafeAreaView,
 } from '@components';
-
-import { LibraryStats } from '@database/types';
+import { Row } from '@components/Common';
 import {
   getChaptersDownloadedCountFromDb,
   getChaptersReadCountFromDb,
@@ -23,9 +15,14 @@ import {
   getNovelStatusFromDb,
   getTotalReadingTimeFromDb,
 } from '@database/queries/StatsQueries';
-import { Row } from '@components/Common';
-import { overlay } from 'react-native-paper';
+import { LibraryStats } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { useNavigation } from '@react-navigation/native';
+import { getString } from '@strings/translations';
 import { translateNovelStatus } from '@utils/translateEnum';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { overlay } from 'react-native-paper';
 
 const StatsScreen = () => {
   const theme = useTheme();

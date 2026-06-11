@@ -3,15 +3,16 @@ import {
   ChapterFilterPositiveKey,
   ChapterOrderKey,
 } from '@database/constants';
-import { useCallback, useMemo, useRef } from 'react';
-import { useAppSettings } from './useSettings';
 import { ChapterFilterObject, FilterStates } from '@database/utils/filter';
+import { useNovelAction, useNovelValue } from '@screens/novel/NovelContext';
+import { useCallback, useMemo } from 'react';
+
 import {
   defaultNovelSettings,
   NOVEL_PAGE_INDEX_PREFIX,
   NOVEL_SETTINGS_PREFIX,
 } from './useNovel/types';
-import { useNovelAction, useNovelValue } from '@screens/novel/NovelContext';
+import { useAppSettings } from './useSettings';
 
 export { NOVEL_PAGE_INDEX_PREFIX, NOVEL_SETTINGS_PREFIX };
 
@@ -57,34 +58,35 @@ export const useNovelSettings = () => {
     [novel, writeNovelSettings, novelSettings?.showChapterTitles, _sort],
   );
 
-  const filterManager = useRef<ChapterFilterObject>(
-    new ChapterFilterObject(_filter, setChapterFilter),
+  const filterManager = useMemo(
+    () => new ChapterFilterObject(_filter, setChapterFilter),
+    [_filter, setChapterFilter],
   );
 
   const cycleChapterFilter = useCallback(
     (key: ChapterFilterPositiveKey) => {
-      filterManager.current?.cycle(key);
+      filterManager.cycle(key);
     },
-    [_filter],
+    [filterManager],
   );
 
   const setChapterFilterValue = useCallback(
     (key: ChapterFilterPositiveKey, value: keyof FilterStates) => {
-      filterManager.current?.set(key, value);
+      filterManager.set(key, value);
     },
-    [_filter],
+    [filterManager],
   );
 
   const getChapterFilterState = useCallback(
     (key: ChapterFilterPositiveKey) => {
-      return filterManager.current?.state(key) ?? false;
+      return filterManager.state(key) ?? false;
     },
-    [_filter],
+    [filterManager],
   );
 
   const getChapterFilter = useCallback(
-    (key: ChapterFilterPositiveKey) => filterManager.current?.get(key),
-    [_filter],
+    (key: ChapterFilterPositiveKey) => filterManager.get(key),
+    [filterManager],
   );
 
   const setShowChapterTitles = useCallback(

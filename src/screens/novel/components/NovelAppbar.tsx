@@ -1,21 +1,22 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import { getString } from '@strings/translations';
-import { Appbar } from 'react-native-paper';
 import { Menu as DefaultMenu } from '@components';
+import { NovelInfo } from '@database/types';
+import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
+import { MaterialDesignIconName } from '@type/icon';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Appbar } from 'react-native-paper';
 import Animated, {
   FadeIn,
   FadeOut,
+  interpolateColor,
   SharedValue,
   SlideInUp,
   SlideOutUp,
-  interpolateColor,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+
 import ExportNovelAsEpubButton from './ExportNovelAsEpubButton';
-import { NovelInfo } from '@database/types';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { MaterialDesignIconName } from '@type/icon';
 
 const AnimatedAppbarAction = Animated.createAnimatedComponent(Appbar.Action);
 

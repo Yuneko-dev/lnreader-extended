@@ -1,10 +1,10 @@
+import { UseBooleanReturnType } from '@hooks';
+import { BrowseScreenProps } from '@navigators/types';
+import { PluginItem } from '@plugins/types';
+import { ThemeColors } from '@theme/types';
 import React, { memo, useEffect, useState } from 'react';
 import { InteractionManager } from 'react-native';
 
-import { PluginItem } from '@plugins/types';
-import { ThemeColors } from '@theme/types';
-import { BrowseScreenProps } from '@navigators/types';
-import { UseBooleanReturnType } from '@hooks';
 import { PluginListItem } from './PluginListItem';
 import { PluginListItemSkeleton } from './PluginListItemSkeleton';
 

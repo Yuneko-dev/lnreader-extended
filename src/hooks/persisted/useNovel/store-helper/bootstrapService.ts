@@ -20,6 +20,7 @@ import {
   fetchPage as defaultFetchPage,
 } from '@services/plugin/fetch';
 import { getString as defaultGetString } from '@strings/translations';
+
 import { BatchInfo } from '../types';
 
 export interface ChapterLoadResult {

@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput } from 'react-native';
-
-import { Button, IconButton, Portal } from 'react-native-paper';
-import { ThemeColors } from '@theme/types';
+import { Modal } from '@components';
 import { ChapterInfo, NovelInfo } from '@database/types';
 import { getString } from '@strings/translations';
-import { Modal } from '@components';
+import { ThemeColors } from '@theme/types';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Button, IconButton, Portal } from 'react-native-paper';
 
 interface DownloadCustomChapterModalProps {
   theme: ThemeColors;
@@ -71,7 +70,7 @@ const DownloadCustomChapterModal = ({
               onPress={() => text > 0 && setText(prevState => prevState - 1)}
             />
             <TextInput
-              value={text.toString()}
+              defaultValue={text.toString()}
               style={[{ color: theme.onSurface }, styles.marginHorizontal]}
               keyboardType="numeric"
               onChangeText={onChangeText}

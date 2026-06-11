@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Button } from 'react-native-paper';
 
 import { ThemeColors } from '../../theme/types';
-import { Button } from 'react-native-paper';
 
 interface EmptyViewProps {
   icon?: string;

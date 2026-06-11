@@ -1,14 +1,14 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { useTheme, useChapterReaderSettings } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import { List, ColorPreferenceItem, Button } from '@components/index';
-import { useBoolean } from '@hooks';
-import { Portal } from 'react-native-paper';
 import ColorPickerModal from '@components/ColorPickerModal/ColorPickerModal';
+import { Button, ColorPreferenceItem, List } from '@components/index';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useBoolean } from '@hooks';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import ReaderThemeSelector from '@screens/reader/components/ReaderBottomSheet/ReaderThemeSelector';
+import { getString } from '@strings/translations';
 import { presetReaderThemes } from '@utils/constants/readerConstants';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 const ThemeTab: React.FC = () => {
   const theme = useTheme();

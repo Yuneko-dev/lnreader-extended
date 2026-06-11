@@ -5,27 +5,28 @@
  */
 
 import './mockDb';
-import { setupTestDatabase, getTestDb, teardownTestDatabase } from './setup';
-import {
-  insertTestCategory,
-  insertTestNovel,
-  insertTestNovelCategory,
-  clearAllTables,
-} from './testData';
+
 import { categorySchema, novelCategorySchema } from '@database/schema';
+import { showToast } from '@utils/showToast';
 import { eq, sql } from 'drizzle-orm';
 
 import {
+  createCategory,
+  deleteCategoryById,
+  getAllNovelCategories,
   getCategoriesFromDb,
   getCategoriesWithCount,
-  createCategory,
   isCategoryNameDuplicate,
   updateCategory,
-  deleteCategoryById,
   updateCategoryOrderInDb,
-  getAllNovelCategories,
 } from '../CategoryQueries';
-import { showToast } from '@utils/showToast';
+import { getTestDb, setupTestDatabase, teardownTestDatabase } from './setup';
+import {
+  clearAllTables,
+  insertTestCategory,
+  insertTestNovel,
+  insertTestNovelCategory,
+} from './testData';
 
 describe('CategoryQueries', () => {
   beforeEach(() => {

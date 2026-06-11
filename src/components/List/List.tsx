@@ -1,3 +1,5 @@
+import MaterialIcon from '@react-native-vector-icons/material-design-icons';
+import { ColorInstance } from 'color';
 import React, { ReactNode, useCallback } from 'react';
 import {
   Pressable,
@@ -7,11 +9,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import MaterialIcon from '@react-native-vector-icons/material-design-icons';
+import { Divider as PaperDivider, List as PaperList } from 'react-native-paper';
 
-import { List as PaperList, Divider as PaperDivider } from 'react-native-paper';
 import { ThemeColors } from '../../theme/types';
-import { ColorInstance } from 'color';
 
 interface ListItemProps {
   title: string;

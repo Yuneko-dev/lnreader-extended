@@ -1,32 +1,31 @@
 export {
-  category as categorySchema,
-  type CategoryRow,
   type CategoryInsert,
+  type CategoryRow,
+  category as categorySchema,
 } from './category';
-export { novel as novelSchema, type NovelRow, type NovelInsert } from './novel';
 export {
-  chapter as chapterSchema,
-  type ChapterRow,
   type ChapterInsert,
+  type ChapterRow,
+  chapter as chapterSchema,
 } from './chapter';
+export { type NovelInsert, type NovelRow, novel as novelSchema } from './novel';
 export {
-  novelCategory as novelCategorySchema,
-  type NovelCategoryRow,
   type NovelCategoryInsert,
+  type NovelCategoryRow,
+  novelCategory as novelCategorySchema,
 } from './novelCategory';
 export {
-  repository as repositorySchema,
-  type RepositoryRow,
   type RepositoryInsert,
+  type RepositoryRow,
+  repository as repositorySchema,
 } from './repository';
 
 import { category } from './category';
-import { novel } from './novel';
 import { chapter } from './chapter';
-
+import { extendedChapterHistorySchema as extendedChapterHistory } from './extendedChapterHistory';
+import { novel } from './novel';
 import { novelCategory } from './novelCategory';
 import { repository } from './repository';
-import { extendedChapterHistorySchema as extendedChapterHistory } from './extendedChapterHistory';
 
 export { extendedChapterHistorySchema } from './extendedChapterHistory';
 

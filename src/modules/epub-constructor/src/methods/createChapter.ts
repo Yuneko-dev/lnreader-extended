@@ -1,6 +1,7 @@
+import * as sanitizeHtml from 'sanitize-html';
+
 import { EpubChapter } from '../../types';
 import { createFile } from './helper';
-import * as sanitizeHtml from 'sanitize-html';
 /**
  * Creates an EPUB chapter file with the provided chapter information.
  *
@@ -20,7 +21,7 @@ export function createChapter(chapter: EpubChapter) {
         </head>
         <body onload="fnEpub()">
             ${
-              sanitizeHtml //@ts-ignore
+              sanitizeHtml // @ts-ignore
                 .default(chapter.htmlBody, {
                   allowedTags: [
                     'a',
@@ -110,10 +111,10 @@ export function createChapter(chapter: EpubChapter) {
                     'video',
                     'wbr',
                   ],
-                  allowedAttributes: false, //@ts-ignore
+                  allowedAttributes: false, // @ts-ignore
                   // disallowedTagsMode: 'completelyDiscard',
                 })
-                .replace(/<!--(.|\n)*?-->/gm, '') //? remove comments
+                .replace(/<!--(.|\n)*?-->/gm, '') // ? remove comments
             }
         </body>
     </html>

@@ -1,4 +1,5 @@
 import { Buffer } from 'react-native-quick-crypto';
+
 import { DEFAULT_SUPER_PROPERTIES, DEFAULTS } from './utils/Constants';
 
 const noop = () => {};

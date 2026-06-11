@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
 import { LegendList } from '@legendapp/list';
 import { ThemeColors } from '@theme/types';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { StyleSheet, ViewStyle } from 'react-native';
+
 import LogEntryItem, { BaseLogEntry } from './LogEntryItem';
 
 const MAX_LOG_ENTRIES = 1000;

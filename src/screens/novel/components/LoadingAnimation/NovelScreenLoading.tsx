@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
-import { LinearGradient } from 'expo-linear-gradient';
+import { WINDOW_WIDTH } from '@gorhom/bottom-sheet';
+import { useAppSettings, useTheme } from '@hooks/persisted/index';
 import { ThemeColors } from '@theme/types';
 import useLoadingColors from '@utils/useLoadingColors';
-import { useAppSettings, useTheme } from '@hooks/persisted/index';
-import { WINDOW_WIDTH } from '@gorhom/bottom-sheet';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 
 interface Props {
   theme: ThemeColors;

@@ -1,11 +1,10 @@
-import React from 'react';
-
 import { Button } from '@components';
-import { getString } from '@strings/translations';
 import { ChapterInfo } from '@database/types';
 import { useAppSettings } from '@hooks/persisted';
-import Animated, { ZoomIn } from 'react-native-reanimated';
+import { getString } from '@strings/translations';
+import React from 'react';
 import { StyleSheet } from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 
 interface ReadButtonProps {
   firstUnreadChapter?: ChapterInfo;

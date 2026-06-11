@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+
 import BitField from './BitField';
 
 export default class GatewayCapabilities extends BitField {

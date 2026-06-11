@@ -1,18 +1,19 @@
+import { useNavigation } from '@react-navigation/native';
+import {
+  changeNavigationBarColor,
+  setStatusBarColor,
+} from '@theme/utils/setBarColor';
+import Color from 'color';
+import * as NavigationBar from 'expo-navigation-bar';
 import { useCallback, useEffect } from 'react';
 import { StatusBar } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { SystemBars } from 'react-native-edge-to-edge';
+
 import {
   useChapterGeneralSettings,
   useChapterReaderSettings,
   useTheme,
 } from '../persisted';
-import Color from 'color';
-import * as NavigationBar from 'expo-navigation-bar';
-import {
-  changeNavigationBarColor,
-  setStatusBarColor,
-} from '@theme/utils/setBarColor';
-import { SystemBars } from 'react-native-edge-to-edge';
 
 const useFullscreenMode = () => {
   const { addListener } = useNavigation();

@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-
-import { Portal, TextInput, ActivityIndicator } from 'react-native-paper';
-import { RadioButton } from '@components/RadioButton/RadioButton';
-
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
-import { Voice } from 'expo-speech';
-import { LegendList } from '@legendapp/list';
 import { Modal } from '@components';
+import { RadioButton } from '@components/RadioButton/RadioButton';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
+import { LegendList } from '@legendapp/list';
+import { Voice } from 'expo-speech';
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { ActivityIndicator, Portal, TextInput } from 'react-native-paper';
 
 interface VoicePickerModalProps {
   visible: boolean;
@@ -49,7 +47,7 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
                   ),
                 );
               }}
-              value={searchText}
+              defaultValue={searchText}
               placeholder="Search voice"
             />
           }

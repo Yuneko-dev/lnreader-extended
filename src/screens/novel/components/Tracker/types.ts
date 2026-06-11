@@ -1,11 +1,10 @@
-import { ImageSourcePropType } from 'react-native';
-
+import { TrackerMetadata } from '@hooks/persisted/useTracker';
 import {
   SearchResult,
   UserListEntry,
   UserListStatus,
 } from '@services/Trackers';
-import { TrackerMetadata } from '@hooks/persisted/useTracker';
+import { ImageSourcePropType } from 'react-native';
 
 export type TrackedNovel = SearchResult & UserListEntry;
 

@@ -1,20 +1,18 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useCallback, useMemo, useState } from 'react';
-import color from 'color';
-
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/native';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-
-import { getPlugin } from '@plugins/pluginManager';
-import { getString } from '@strings/translations';
-import { useTheme } from '@hooks/persisted';
-
-import { GlobalSearchResult } from '../hooks/useGlobalSearch';
-import GlobalSearchSkeletonLoading from '@screens/browse/loadingAnimation/GlobalSearchSkeletonLoading';
-import { interpolateColor } from 'react-native-reanimated';
 import { useLibraryContext } from '@components/Context/LibraryContext';
 import NovelCover from '@components/NovelCover';
+import { useTheme } from '@hooks/persisted';
+import { getPlugin } from '@plugins/pluginManager';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import GlobalSearchSkeletonLoading from '@screens/browse/loadingAnimation/GlobalSearchSkeletonLoading';
+import { getString } from '@strings/translations';
+import color from 'color';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { interpolateColor } from 'react-native-reanimated';
+
+import { GlobalSearchResult } from '../hooks/useGlobalSearch';
 
 interface GlobalSearchResultsListProps {
   searchResults: GlobalSearchResult[];

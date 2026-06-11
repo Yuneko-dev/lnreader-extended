@@ -1,20 +1,22 @@
 import {
-  createMockNovelStore,
-  createMockNovelStoreState,
-  mockUseNovelContext,
-} from './mocks';
-import {
-  LAST_READ_PREFIX,
-  NOVEL_PAGE_INDEX_PREFIX,
-  NOVEL_SETTINGS_PREFIX,
   defaultNovelSettings as novelDefaultNovelSettings,
   defaultPageIndex,
   deleteCachedNovels,
+  LAST_READ_PREFIX,
+  NOVEL_PAGE_INDEX_PREFIX,
+  NOVEL_SETTINGS_PREFIX,
   useNovel,
 } from '@hooks/persisted/useNovel';
 import { useNovelSettings } from '@hooks/persisted/useNovelSettings';
 
+import {
+  createMockNovelStore,
+  createMockNovelStoreState,
+  mockUseNovelContext,
+} from './mocks';
+
 jest.mock('@hooks/persisted/useNovel');
+jest.mock('@hooks/persisted/useNovelSettings');
 
 describe('mock contracts (zustand novel architecture)', () => {
   it('useNovel mock exports persistence constants and compatibility helpers', () => {

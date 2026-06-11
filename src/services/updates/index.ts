@@ -1,20 +1,20 @@
-import {
-  getLibraryWithCategory,
-  getLibraryNovelsFromDb,
-} from '../../database/queries/LibraryQueries';
-
-import { showToast } from '../../utils/showToast';
-import { UpdateNovelOptions, updateNovel } from './LibraryUpdateQueries';
 import { DBNovelInfo } from '@database/types';
-import { sleep } from '@utils/sleep';
-import { MMKVStorage, getMMKVObject } from '@utils/mmkv/mmkv';
-import { LAST_UPDATE_TIME } from '@hooks/persisted/useUpdates';
-import dayjs from 'dayjs';
 import { APP_SETTINGS, AppSettings } from '@hooks/persisted/useSettings';
+import { LAST_UPDATE_TIME } from '@hooks/persisted/useUpdates';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { getMMKVObject, MMKVStorage } from '@utils/mmkv/mmkv';
+import { sleep } from '@utils/sleep';
+import dayjs from 'dayjs';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Notifications from 'expo-notifications';
-import { getString } from '@strings/translations';
+
+import {
+  getLibraryNovelsFromDb,
+  getLibraryWithCategory,
+} from '../../database/queries/LibraryQueries';
+import { showToast } from '../../utils/showToast';
+import { updateNovel, UpdateNovelOptions } from './LibraryUpdateQueries';
 
 const updateLibrary = async (
   {

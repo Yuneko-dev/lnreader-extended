@@ -31,17 +31,17 @@
  */
 
 // Export test utilities for external use
-export { setupTestDatabase, getTestDb, teardownTestDatabase } from './setup';
+export { getTestDb, setupTestDatabase, teardownTestDatabase } from './setup';
 export {
-  insertTestNovel,
-  insertTestChapter,
-  insertTestCategory,
-  insertTestRepository,
-  insertTestNovelCategory,
   clearAllTables,
+  insertTestCategory,
+  insertTestChapter,
+  insertTestNovel,
+  insertTestNovelCategory,
+  insertTestRepository,
   seedTestData,
 } from './testData';
-export { createTestDb, cleanupTestDb, getTestDbManager } from './testDb';
+export { cleanupTestDb, createTestDb, getTestDbManager } from './testDb';
 
 // Test module descriptions for documentation purposes
 export const testModules = {

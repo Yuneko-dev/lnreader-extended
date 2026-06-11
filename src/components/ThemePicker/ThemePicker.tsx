@@ -1,15 +1,15 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  GestureResponderEvent,
-} from 'react-native';
-import { overlay } from 'react-native-paper';
-import color from 'color';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { ThemeColors } from '@theme/types';
+import color from 'color';
+import React from 'react';
+import {
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { overlay } from 'react-native-paper';
 
 interface ThemePickerProps {
   theme: ThemeColors;
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     // Elevation for Android
-    //elevation: 2,
+    // elevation: 2,
   },
   flex1: {
     flex: 1,

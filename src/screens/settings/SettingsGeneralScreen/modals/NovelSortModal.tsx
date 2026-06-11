@@ -1,17 +1,15 @@
-import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-
-import { Portal } from 'react-native-paper';
-
+import { Modal } from '@components';
+import { SortItem } from '@components/Checkbox/Checkbox';
+import { useLibrarySettings } from '@hooks/persisted';
 import {
   LibrarySortOrder,
   librarySortOrderList,
 } from '@screens/library/constants/constants';
-import { ThemeColors } from '@theme/types';
-import { SortItem } from '@components/Checkbox/Checkbox';
-import { useLibrarySettings } from '@hooks/persisted';
 import { getString } from '@strings/translations';
-import { Modal } from '@components';
+import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 interface NovelSortModalProps {
   novelSortModalVisible: boolean;

@@ -1,15 +1,16 @@
+import { useDeviceOrientation } from '@hooks';
 import { useLibrarySettings } from '@hooks/persisted';
+import { NovelItem } from '@plugins/types';
 import { DisplayModes } from '@screens/library/constants/constants';
 import React, { useMemo } from 'react';
 import {
-  StyleSheet,
   FlatList,
   FlatListProps,
   ListRenderItem,
+  StyleSheet,
 } from 'react-native';
-import { NovelItem } from '@plugins/types';
+
 import { NovelInfo } from '../database/types';
-import { useDeviceOrientation } from '@hooks';
 
 export type NovelListRenderItem = ListRenderItem<NovelInfo | NovelItem>;
 

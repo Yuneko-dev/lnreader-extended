@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 export interface Tab {
   id: string;

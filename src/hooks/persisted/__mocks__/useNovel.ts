@@ -78,6 +78,6 @@ const useNovel = jest.fn(() => ({
   deleteChapters: jest.fn(),
 }));
 export const deleteCachedNovels = jest.fn();
-export { mockNovel, mockChapters };
+export { mockChapters, mockNovel };
 export { useNovel };
 export default useNovel;

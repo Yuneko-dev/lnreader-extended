@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { useWindowDimensions } from 'react-native';
-import { TabView, TabBar } from 'react-native-tab-view';
-import Color from 'color';
-
+import { EmptyView, SafeAreaView, SearchbarV2 } from '@components';
 import { useSearch } from '@hooks';
 import { usePlugins, useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-
-import { EmptyView, SafeAreaView, SearchbarV2 } from '@components';
 import { BrowseScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
+import Color from 'color';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { TabBar, TabView } from 'react-native-tab-view';
+
 import { AvailableTab } from './components/AvailableTab';
 import { InstalledTab } from './components/InstalledTab';
 

@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { RadioButton as PaperRadioButton } from 'react-native-paper';
+
 import { ThemeColors } from '../../theme/types';
 
 interface Props {

@@ -1,10 +1,9 @@
-import React from 'react';
-
 import { Button } from '@components';
-import { Dialog, overlay, Portal } from 'react-native-paper';
-import { ThemeColors } from '@theme/types';
 import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import React from 'react';
 import { StyleSheet } from 'react-native';
+import { Dialog, overlay, Portal } from 'react-native-paper';
 
 interface RemoveDownloadsDialogProps {
   dialogVisible: boolean;

@@ -1,18 +1,18 @@
-import { getLocales } from 'expo-localization';
-import { languagesMapping } from '@utils/constants/languages';
-import { orderBy } from 'lodash-es';
-import { useMMKVObject } from 'react-native-mmkv';
-import { PluginItem } from '@plugins/types';
 import {
   fetchPlugins,
   installPlugin as _install,
   uninstallPlugin as _uninstall,
   updatePlugin as _update,
 } from '@plugins/pluginManager';
-import { newer } from '@utils/compareVersion';
-import { MMKVStorage, getMMKVObject, setMMKVObject } from '@utils/mmkv/mmkv';
-import { useCallback, useMemo } from 'react';
+import { PluginItem } from '@plugins/types';
 import { getString } from '@strings/translations';
+import { newer } from '@utils/compareVersion';
+import { languagesMapping } from '@utils/constants/languages';
+import { getMMKVObject, MMKVStorage, setMMKVObject } from '@utils/mmkv/mmkv';
+import { getLocales } from 'expo-localization';
+import { orderBy } from 'lodash-es';
+import { useCallback, useMemo } from 'react';
+import { useMMKVObject } from 'react-native-mmkv';
 
 export const AVAILABLE_PLUGINS = 'AVAILABLE_PLUGINS';
 export const INSTALLED_PLUGINS = 'INSTALL_PLUGINS';
@@ -52,14 +52,14 @@ export default function usePlugins() {
     (filter: string[]) => {
       const installedPlugins =
         getMMKVObject<PluginItem[]>(INSTALLED_PLUGINS) || [];
-      const availablePlugins =
+      const availableFilterPlugins =
         getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
       setFilteredInstalledPlugins(
         installedPlugins.filter(plg => filter.includes(plg.lang)),
       );
       setFilteredAvailablePlugins(
         orderBy(
-          availablePlugins
+          availableFilterPlugins
             .filter(
               avalilablePlugin =>
                 !installedPlugins.some(
@@ -177,10 +177,10 @@ export default function usePlugins() {
 
   const updatePlugin = useCallback(
     (plugin: PluginItem) => {
-      const availablePlugins =
+      const availableUpdatePlugins =
         getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
       const latestPlugin =
-        availablePlugins.find(p => p.id === plugin.id) || plugin;
+        availableUpdatePlugins.find(p => p.id === plugin.id) || plugin;
 
       return _update(latestPlugin).then(_plg => {
         if (plugin.version === _plg?.version && !__DEV__) {

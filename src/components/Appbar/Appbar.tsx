@@ -1,7 +1,7 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
-
 import { Appbar as PaperAppbar } from 'react-native-paper';
+
 import { ThemeColors } from '../../theme/types';
 
 interface AppbarProps {

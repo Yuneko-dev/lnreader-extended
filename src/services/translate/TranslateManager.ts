@@ -1,27 +1,33 @@
+import type { AIProvider } from '@hooks/persisted/useAIProviders';
 import * as cheerio from 'cheerio';
-import { TranslateEngine } from './TranslateEngine';
+
+import { AIManager } from '../ai/AIManager';
 import { GoogleTranslateFreeEngine } from './GoogleTranslateFreeEngine';
 import { LLMTranslateEngine } from './LLMTranslateEngine';
+import { TranslateEngine } from './TranslateEngine';
 
 export interface TranslateConfig {
   engine: string;
   sourceLang: string;
   targetLang: string;
-  llmProvider?: string;
-  llmEndpoint?: string;
-  llmApiKey?: string;
-  llmModel?: string;
   llmSystemPrompts?: { id: string; title: string; content: string }[];
   activeSystemPromptId?: string;
-  llmEnableReasoning?: boolean;
-  llmReasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
-  llmApiMode?: 'responses' | 'chat-completions';
-  llmTemperature?: number;
+  activeAIProvider?: AIProvider;
 }
 
 export class TranslateManager {
-  private static getEngine(config: TranslateConfig): TranslateEngine {
+  private static async getEngine(
+    config: TranslateConfig,
+  ): Promise<TranslateEngine> {
     if (config.engine === 'llm') {
+      if (!config.activeAIProvider) {
+        throw new Error(
+          'AI Provider is not configured. Please select an AI Provider in settings.',
+        );
+      }
+
+      const coreClient = await AIManager.getClient(config.activeAIProvider);
+
       let finalSystemPrompt = '';
       if (config.llmSystemPrompts && config.activeSystemPromptId) {
         const active = config.llmSystemPrompts.find(
@@ -32,16 +38,8 @@ export class TranslateManager {
         }
       }
 
-      return new LLMTranslateEngine({
-        provider: config.llmProvider as any,
-        endpoint: config.llmEndpoint || '',
-        apiKey: config.llmApiKey || '',
-        model: config.llmModel || '',
+      return new LLMTranslateEngine(coreClient, {
         systemPrompt: finalSystemPrompt,
-        enableReasoning: config.llmEnableReasoning,
-        reasoningEffort: config.llmReasoningEffort as any,
-        apiMode: config.llmApiMode,
-        temperature: config.llmTemperature,
       });
     }
     return new GoogleTranslateFreeEngine();
@@ -55,7 +53,6 @@ export class TranslateManager {
   ): Promise<string> {
     const $ = cheerio.load(html, null, false);
     // Select elements that typically contain text we want to translate.
-    // Avoid translating attributes directly, just text nodes inside elements.
     const translatableElements = $(
       'p, div, span, h1, h2, h3, h4, h5, h6, li, td, th',
     );
@@ -85,13 +82,11 @@ export class TranslateManager {
     translatableElements.each((_, el) => {
       const $el = $(el);
 
-      // Skip if an ancestor is already marked as a full-block translation
       if ($el.parents('[data-translatable-block="true"]').length > 0) return;
 
       const hasBlockChildren = $el.children(blockSelectors).length > 0;
 
       if (!hasBlockChildren) {
-        // Safe to translate the entire inner HTML (preserves <b>, <i>, <ruby>, etc.)
         const elHtml = $el.html()?.trim();
         if (elHtml && elHtml.length > 0 && $el.text().trim().length > 0) {
           textsToTranslate.push(elHtml);
@@ -100,7 +95,6 @@ export class TranslateManager {
           $el.attr('data-translatable-block', 'true');
         }
       } else {
-        // If it possesses block children, we only translate its direct text nodes
         $el.contents().each((__, child) => {
           if (child.type === 'text') {
             const childText = $(child).text().trim();
@@ -121,7 +115,7 @@ export class TranslateManager {
       return '<h2>Error: Unable to translate text due to invalid HTML format. The plugin returned content without standard wrapping tags.</h2>';
     }
 
-    const engine = this.getEngine(config);
+    const engine = await this.getEngine(config);
     const translatedTexts = await engine.translate(
       textsToTranslate,
       config.sourceLang,

@@ -1,25 +1,25 @@
+import { SegmentedControl } from '@components';
+import type { SegmentedControlOption } from '@components/SegmentedControl';
+import Switch from '@components/Switch/Switch';
+import { ThemePicker } from '@components/ThemePicker/ThemePicker';
+import { useTheme } from '@hooks/persisted';
+import { LegendList } from '@legendapp/list';
+import { getString } from '@strings/translations';
+import { darkThemes, lightThemes } from '@theme/md3';
+import { ThemeColors } from '@theme/types';
 import React, { useMemo } from 'react';
 import {
-  View,
-  Text,
+  GestureResponderEvent,
   Pressable,
   StyleSheet,
-  GestureResponderEvent,
+  Text,
+  View,
 } from 'react-native';
 import {
   useMMKVBoolean,
   useMMKVNumber,
   useMMKVString,
 } from 'react-native-mmkv';
-import { SegmentedControl } from '@components';
-import type { SegmentedControlOption } from '@components/SegmentedControl';
-import { ThemePicker } from '@components/ThemePicker/ThemePicker';
-import { ThemeColors } from '@theme/types';
-import { useTheme } from '@hooks/persisted';
-import { darkThemes, lightThemes } from '@theme/md3';
-import { getString } from '@strings/translations';
-import { LegendList } from '@legendapp/list';
-import Switch from '@components/Switch/Switch';
 import switchTheme from 'react-native-theme-switch-animation';
 
 type ThemeMode = 'light' | 'dark' | 'system';

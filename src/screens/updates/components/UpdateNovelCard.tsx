@@ -1,6 +1,4 @@
-import { Pressable, StyleSheet, View, Image } from 'react-native';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-
+import { useUpdateContext } from '@components/Context/UpdateContext';
 import {
   ChapterInfo,
   DownloadedChapter,
@@ -8,16 +6,17 @@ import {
   Update,
   UpdateOverview,
 } from '@database/types';
-import { List } from 'react-native-paper';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import ChapterItem from '@screens/novel/components/ChapterItem';
 import { useDownload, useTheme } from '@hooks/persisted';
-import { useUpdateContext } from '@components/Context/UpdateContext';
 import { RootStackParamList } from '@navigators/types';
-import { FlatList } from 'react-native-gesture-handler';
 import { defaultCover } from '@plugins/helpers/constants';
 import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import ChapterItem from '@screens/novel/components/ChapterItem';
 import { ThemeColors } from '@theme/types';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
+import { List } from 'react-native-paper';
 
 type UpdateCardProps = {
   onlyDownloadedChapters?: boolean;
@@ -123,7 +122,7 @@ const UpdateNovelCard: React.FC<UpdateCardProps> = ({
         },
       });
     },
-    [navigate],
+    [navigate, chapterListInfo.novelCover],
   );
 
   const navigateToNovel = useCallback(() => {

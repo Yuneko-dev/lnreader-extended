@@ -8,4 +8,5 @@ module.exports = {
   arrowParens: 'avoid',
   quoteProps: 'preserve',
   endOfLine: 'auto', // stop prettier from getting mad on windows
+  semi: true,
 };

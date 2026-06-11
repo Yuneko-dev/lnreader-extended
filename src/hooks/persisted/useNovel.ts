@@ -1,26 +1,27 @@
-import NativeFile from '@specs/NativeFile';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
 import {
   deleteCachedNovels as deleteCachedNovelsFromDb,
   getCachedNovels,
 } from '@database/queries/NovelQueries';
-import { TRACKED_NOVEL_PREFIX } from './useTrackedNovel';
+import NativeFile from '@specs/NativeFile';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { NOVEL_STORAGE } from '@utils/Storages';
+
 import {
-  LAST_READ_PREFIX,
-  NOVEL_PAGE_INDEX_PREFIX,
-  NOVEL_SETTINGS_PREFIX,
   defaultNovelSettings,
   defaultPageIndex,
   keyContract,
-  type NovelPersistenceInput,
+  LAST_READ_PREFIX,
+  NOVEL_PAGE_INDEX_PREFIX,
+  NOVEL_SETTINGS_PREFIX,
   novelPersistence,
+  type NovelPersistenceInput,
 } from './useNovel/store-helper/contracts';
 import type { BatchInfo, NovelSettings } from './useNovel/types';
+import { TRACKED_NOVEL_PREFIX } from './useTrackedNovel';
 
-export { NOVEL_PAGE_INDEX_PREFIX, NOVEL_SETTINGS_PREFIX, LAST_READ_PREFIX };
+export { LAST_READ_PREFIX, NOVEL_PAGE_INDEX_PREFIX, NOVEL_SETTINGS_PREFIX };
 export { defaultNovelSettings, defaultPageIndex };
-export type { NovelSettings, BatchInfo };
+export type { BatchInfo, NovelSettings };
 
 export const useNovel = () => {
   throw new Error(

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-
-import { Portal, TextInput } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Button, Modal } from '@components';
-import { ThemeColors } from '../../theme/types';
 import { Row } from '@components/Common';
 import { getString } from '@strings/translations';
+import React, { useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Portal, TextInput } from 'react-native-paper';
+
+import { ThemeColors } from '../../theme/types';
 
 interface ColorPickerModalProps {
   visible: boolean;

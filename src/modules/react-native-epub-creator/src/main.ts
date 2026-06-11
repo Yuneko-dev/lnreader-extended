@@ -3,17 +3,17 @@ import EpubFile, {
   EpubSettings,
   File,
 } from '@modules/epub-constructor';
-import { zip } from 'react-native-zip-archive';
+import { Dirs, FileSystem } from 'react-native-file-access';
 import {
   copyFile,
   exists,
+  hasPermission,
   mkdir,
   openDocumentTree,
   unlink,
   writeFile,
-  hasPermission,
 } from 'react-native-saf-x';
-import { Dirs, FileSystem } from 'react-native-file-access';
+import { zip } from 'react-native-zip-archive';
 
 const getEpubfileName = (name: string) => {
   return name.replace(/\..*$/g, '') + '.epub';
@@ -247,10 +247,8 @@ export default class EpubBuilder {
             await FileSystem.fetch(file.content, { path });
             // await fs.downloadAsync(file.content, path);
           }
-        } else {
-          if (file.path !== 'mimetype') {
-            await writeFile(path, file.content);
-          }
+        } else if (file.path !== 'mimetype') {
+          await writeFile(path, file.content);
         }
       }
       if (this.outputPath) {

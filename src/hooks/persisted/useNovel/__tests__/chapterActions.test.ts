@@ -1,5 +1,7 @@
 import '../../../__tests__/mocks';
+
 import { ChapterInfo, NovelInfo } from '@database/types';
+
 import {
   bookmarkChaptersAction,
   ChapterActionsDependencies,

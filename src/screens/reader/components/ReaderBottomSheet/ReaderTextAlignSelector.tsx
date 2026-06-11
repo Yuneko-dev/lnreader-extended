@@ -1,10 +1,9 @@
-import { StyleSheet, Text, TextStyle, View } from 'react-native';
-import React from 'react';
-
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
-import { textAlignments } from '@utils/constants/readerConstants';
 import { ToggleButton } from '@components/Common/ToggleButton';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
+import { textAlignments } from '@utils/constants/readerConstants';
+import React from 'react';
+import { StyleSheet, Text, TextStyle, View } from 'react-native';
 
 interface ReaderTextAlignSelectorProps {
   labelStyle?: TextStyle | TextStyle[];

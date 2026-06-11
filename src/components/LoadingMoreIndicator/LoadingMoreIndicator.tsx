@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
+
 import { ThemeColors } from '../../theme/types';
 
 interface Props {

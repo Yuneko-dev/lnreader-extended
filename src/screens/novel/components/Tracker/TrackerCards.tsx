@@ -1,8 +1,8 @@
+import { useTheme } from '@hooks/persisted';
 import React, { useCallback } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 
-import { useTheme } from '@hooks/persisted';
 import {
   getAniListScoreFormatting,
   getKitsuScoreFormatting,

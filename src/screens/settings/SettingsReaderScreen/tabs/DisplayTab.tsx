@@ -1,16 +1,17 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { useTheme, useChapterReaderSettings } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import ReaderTextSize from '../ReaderTextSize';
-import ReaderValueChange from '@screens/reader/components/ReaderBottomSheet/ReaderValueChange';
-import ReaderTextAlignSelector from '@screens/reader/components/ReaderBottomSheet/ReaderTextAlignSelector';
 import { List } from '@components/index';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useBoolean } from '@hooks';
-import { Portal } from 'react-native-paper';
-import FontPickerModal from '../Modals/FontPickerModal';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
+import ReaderTextAlignSelector from '@screens/reader/components/ReaderBottomSheet/ReaderTextAlignSelector';
+import ReaderValueChange from '@screens/reader/components/ReaderBottomSheet/ReaderValueChange';
+import { getString } from '@strings/translations';
 import { readerFonts } from '@utils/constants/readerConstants';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Portal } from 'react-native-paper';
+
+import FontPickerModal from '../Modals/FontPickerModal';
+import ReaderTextSize from '../ReaderTextSize';
 
 const DisplayTab: React.FC = () => {
   const theme = useTheme();

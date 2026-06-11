@@ -1,6 +1,6 @@
 import '../../../__tests__/mocks';
+
 import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
-import { ChapterInfo, DBNovelInfo } from '@database/types';
 import {
   getChapterCount,
   getChapterCountSync,
@@ -16,7 +16,9 @@ import {
   getNovelByPath,
   insertNovelAndChapters,
 } from '@database/queries/NovelQueries';
+import { ChapterInfo, DBNovelInfo } from '@database/types';
 import { fetchNovel, fetchPage } from '@services/plugin/fetch';
+
 import { createBootstrapService } from '../store-helper/bootstrapService';
 
 const PLUGIN_ID = 'test-plugin';
@@ -102,9 +104,9 @@ const setupDbFirstSuccess = () => {
   mockGetNovelById.mockReturnValue(mockNovel);
   mockGetNovelByPath.mockReturnValue(mockNovel);
   mockGetChapterCount.mockResolvedValue(mockChapters.length);
-  mockGetChapterCountSync.mockReturnValue(mockChapters.length); //@ts-ignore
+  mockGetChapterCountSync.mockReturnValue(mockChapters.length); // @ts-ignore
   mockGetPageChaptersBatched.mockResolvedValue(mockChapters);
-  mockGetNovelChaptersSync.mockReturnValue(mockChapters); //@ts-ignore
+  mockGetNovelChaptersSync.mockReturnValue(mockChapters); // @ts-ignore
   mockGetFirstUnreadChapter.mockReturnValue(mockChapters[0]);
 };
 

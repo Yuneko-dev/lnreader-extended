@@ -1,19 +1,19 @@
-import React, { useRef, useState } from 'react';
-import WebView, { WebViewNavigation } from 'react-native-webview';
-import { ProgressBar } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { getPlugin } from '@plugins/pluginManager';
 import { useBackHandler } from '@hooks';
 import { useTheme } from '@hooks/persisted';
-import { WebviewScreenProps } from '@navigators/types';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
-import { resolveUrl } from '@services/plugin/fetch';
+import { WebviewScreenProps } from '@navigators/types';
 import {
+  store,
   WEBVIEW_LOCAL_STORAGE,
   WEBVIEW_SESSION_STORAGE,
-  store,
 } from '@plugins/helpers/storage';
+import { getPlugin } from '@plugins/pluginManager';
+import { resolveUrl } from '@services/plugin/fetch';
+import React, { useRef, useState } from 'react';
+import { ProgressBar } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import WebView, { WebViewNavigation } from 'react-native-webview';
+
 import Appbar from './components/Appbar';
 import Menu from './components/Menu';
 

@@ -1,19 +1,19 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, ToastAndroid, View } from 'react-native';
-import { Portal, overlay } from 'react-native-paper';
-
 import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { useTheme, useTracker, useTrackedNovel } from '@hooks/persisted';
-import { TrackerName, UserListStatus } from '@services/Trackers';
 import { NovelInfo } from '@database/types';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { useTheme, useTrackedNovel, useTracker } from '@hooks/persisted';
 import { TrackerMetadata } from '@hooks/persisted/useTracker';
+import { TrackerName, UserListStatus } from '@services/Trackers';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, ToastAndroid, View } from 'react-native';
+import { overlay, Portal } from 'react-native-paper';
+
 import { getStatusLabel, getTrackerIcon } from './constants';
+import SetTrackChaptersDialog from './SetTrackChaptersDialog';
+import SetTrackScoreDialog from './SetTrackScoreDialog';
+import SetTrackStatusDialog from './SetTrackStatusDialog';
 import { AddTrackingCard, TrackedItemCard } from './TrackerCards';
 import TrackSearchDialog from './TrackSearchDialog';
-import SetTrackStatusDialog from './SetTrackStatusDialog';
-import SetTrackScoreDialog from './SetTrackScoreDialog';
-import SetTrackChaptersDialog from './SetTrackChaptersDialog';
 
 interface TrackSheetProps {
   bottomSheetRef: React.RefObject<BottomSheetModalMethods | null>;

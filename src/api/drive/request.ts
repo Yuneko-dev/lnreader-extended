@@ -1,12 +1,13 @@
+import { PATH_SEPARATOR } from '@api/constants';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import NativeZipArchive from '@specs/NativeZipArchive';
+
 import {
   DriveCreateRequestData,
   DriveFile,
   DriveReponse,
   DriveRequestParams,
 } from './types';
-import { PATH_SEPARATOR } from '@api/constants';
-import NativeZipArchive from '@specs/NativeZipArchive';
 
 const BASE_URL = 'https://www.googleapis.com/drive/v3/files';
 const MEDIA_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3/files';

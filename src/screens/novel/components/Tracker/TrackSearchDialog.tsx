@@ -1,17 +1,17 @@
+import { Button, Modal } from '@components';
+import { getTracker, useTheme } from '@hooks/persisted';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { SearchResult } from '@services/Trackers';
+import { getString } from '@strings/translations';
+import { getErrorMessage } from '@utils/error';
+import { showToast } from '@utils/showToast';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { TextInput, TouchableRipple } from 'react-native-paper';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { TextInput, TouchableRipple } from 'react-native-paper';
 
-import { Button, Modal } from '@components';
-import { getTracker, useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import { SearchResult } from '@services/Trackers';
 import { TrackSearchDialogProps } from './types';
-import { showToast } from '@utils/showToast';
-import { getErrorMessage } from '@utils/error';
 
 const TrackSearchDialog: React.FC<TrackSearchDialogProps> = ({
   tracker,

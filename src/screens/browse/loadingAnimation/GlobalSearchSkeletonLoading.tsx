@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { ThemeColors } from '@theme/types';
-import LoadingNovel from './LoadingNovel';
-import useLoadingColors from '@utils/useLoadingColors';
 import { DisplayModes } from '@screens/library/constants/constants';
+import { ThemeColors } from '@theme/types';
+import useLoadingColors from '@utils/useLoadingColors';
+import React, { memo } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import LoadingNovel from './LoadingNovel';
 
 interface Props {
   theme: ThemeColors;

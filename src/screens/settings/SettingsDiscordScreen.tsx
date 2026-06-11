@@ -1,31 +1,32 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import Svg, { Path } from 'react-native-svg';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Modal,
-  ActivityIndicator,
-  Image,
-  ScrollView,
-} from 'react-native';
 import { Appbar, EmptyView } from '@components';
-import { useTheme, useAppSettings } from '@hooks/persisted';
-import { Button, List, Avatar } from 'react-native-paper';
+import { useAppSettings, useTheme } from '@hooks/persisted';
 import { DiscordAuth, StoredTokenData } from '@modules/discord/DiscordAuth';
 import { discordRPC } from '@modules/discord/DiscordRPC';
 import { Util } from '@modules/discord/utils';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { Avatar, Button, List } from 'react-native-paper';
+import Svg, { Path } from 'react-native-svg';
+
 import SettingSwitch from './components/SettingSwitch';
 
-export const DiscordSVG = (props: any) => (
+export const DiscordSVG = ({ color, size, ...props }: any) => (
   <Svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 16 16"
-    width={24}
-    height={24}
-    fill="currentColor"
+    width={size || 24}
+    height={size || 24}
+    fill={color || 'currentColor'}
     className="bi bi-discord"
     {...props}
   >

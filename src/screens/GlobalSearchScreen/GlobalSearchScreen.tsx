@@ -1,20 +1,18 @@
-import React, { useState, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
-
 import {
   EmptyView,
   SafeAreaView,
   SearchbarV2,
   SelectableChip,
 } from '@components/index';
-import GlobalSearchResultsList from './components/GlobalSearchResultsList';
 import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';
-
 import { useSearch } from '@hooks';
 import { useSearchHistory, useTheme } from '@hooks/persisted';
-
 import { getString } from '@strings/translations';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ProgressBar } from 'react-native-paper';
+
+import GlobalSearchResultsList from './components/GlobalSearchResultsList';
 import { useGlobalSearch } from './hooks/useGlobalSearch';
 
 interface Props {

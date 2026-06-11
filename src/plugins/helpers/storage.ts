@@ -117,7 +117,7 @@ class SessionStorage {
   }
 }
 
-export { Storage, LocalStorage, SessionStorage };
+export { LocalStorage, SessionStorage, Storage };
 
-//to record data from the web view
-export { WEBVIEW_LOCAL_STORAGE, WEBVIEW_SESSION_STORAGE, store };
+// to record data from the web view
+export { store, WEBVIEW_LOCAL_STORAGE, WEBVIEW_SESSION_STORAGE };

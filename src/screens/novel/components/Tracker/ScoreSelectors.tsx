@@ -1,9 +1,9 @@
+import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
+import { useTheme } from '@hooks/persisted';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
-import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
-import { useTheme } from '@hooks/persisted';
 import {
   getAniListScoreFormatting,
   getKitsuScoreFormatting,

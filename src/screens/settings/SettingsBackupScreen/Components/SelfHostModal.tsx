@@ -8,8 +8,8 @@ import { fetchTimeout } from '@utils/fetch/fetch';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { Portal, TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Portal, TextInput } from 'react-native-paper';
 
 enum BackupModal {
   SET_HOST,

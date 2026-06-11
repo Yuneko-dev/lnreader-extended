@@ -1,13 +1,14 @@
-import { eq, sql, inArray, and, ne, count } from 'drizzle-orm';
-import { BackupCategory, Category, NovelCategory, CCategory } from '../types';
-import { showToast } from '@utils/showToast';
-import { getString } from '@strings/translations';
 import { dbManager } from '@database/db';
 import {
+  type CategoryRow,
   categorySchema,
   novelCategorySchema,
-  type CategoryRow,
 } from '@database/schema';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import { and, count, eq, inArray, ne, sql } from 'drizzle-orm';
+
+import { BackupCategory, Category, CCategory, NovelCategory } from '../types';
 
 /**
  * Get all categories with their novel IDs using Drizzle ORM

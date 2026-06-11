@@ -1,8 +1,8 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image, Pressable } from 'react-native';
+import { NovelItem } from '@plugins/types';
 import { coverPlaceholderColor } from '@theme/colors';
 import { ThemeColors } from '@theme/types';
-import { NovelItem } from '@plugins/types';
+import React from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface GlobalSearchNovelCoverProps {
   novel: NovelItem;

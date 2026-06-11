@@ -5,31 +5,32 @@
  */
 
 import './mockDb';
-import { setupTestDatabase, getTestDb, teardownTestDatabase } from './setup';
-import {
-  insertTestNovel,
-  insertTestNovelCategory,
-  insertTestCategory,
-  clearAllTables,
-} from './testData';
+
 import { categorySchema, novelCategorySchema } from '@database/schema';
 import { eq, sql } from 'drizzle-orm';
 
 import {
+  deleteCachedNovels,
   getAllNovels,
+  getCachedNovels,
   getNovelById,
   getNovelByPath,
   insertNovelAndChapters,
-  switchNovelToLibraryQuery,
-  removeNovelsFromLibrary,
-  getCachedNovels,
-  deleteCachedNovels,
-  restoreLibrary,
-  updateNovelInfo,
   pickCustomNovelCover,
-  updateNovelCategoryById,
+  removeNovelsFromLibrary,
+  restoreLibrary,
+  switchNovelToLibraryQuery,
   updateNovelCategories,
+  updateNovelCategoryById,
+  updateNovelInfo,
 } from '../NovelQueries';
+import { getTestDb, setupTestDatabase, teardownTestDatabase } from './setup';
+import {
+  clearAllTables,
+  insertTestCategory,
+  insertTestNovel,
+  insertTestNovelCategory,
+} from './testData';
 
 describe('NovelQueries', () => {
   beforeEach(() => {

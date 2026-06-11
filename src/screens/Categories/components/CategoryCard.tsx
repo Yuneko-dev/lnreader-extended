@@ -1,13 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
-import { Pressable } from 'react-native-gesture-handler';
-
-import { Category } from '@database/types';
-import { useTheme } from '@hooks/persisted';
-import AddCategoryModal from './AddCategoryModal';
-import { useBoolean } from '@hooks';
-import { Badge, Portal } from 'react-native-paper';
 import IconButton from '@components/IconButtonV2/IconButtonV2';
+import { Category } from '@database/types';
+import { useBoolean } from '@hooks';
+import { useTheme } from '@hooks/persisted';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
+import { Badge, Portal } from 'react-native-paper';
+
+import AddCategoryModal from './AddCategoryModal';
 import DeleteCategoryModal from './DeleteCategoryModal';
 
 interface CategoryCardProps {
@@ -54,7 +54,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           <Pressable
             onPressIn={drag}
             style={styles.dragHandle}
-            //activeOpacity={0.6}
+            // activeOpacity={0.6}
           >
             <IconButton
               name="drag-horizontal-variant"

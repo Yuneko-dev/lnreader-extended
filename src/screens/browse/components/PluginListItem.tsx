@@ -1,18 +1,17 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Pressable, Image, View, Text, StyleSheet } from 'react-native';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-
-import { PluginItem } from '@plugins/types';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { BrowseScreenProps } from '@navigators/types';
 import { Button, IconButtonV2 } from '@components';
-import { showToast } from '@utils/showToast';
-import { UseBooleanReturnType } from '@hooks';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
-import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { UseBooleanReturnType } from '@hooks';
 import { usePlugins } from '@hooks/persisted';
+import { BrowseScreenProps } from '@navigators/types';
+import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { PluginItem } from '@plugins/types';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { showToast } from '@utils/showToast';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 interface PluginListItemProps {
   item: PluginItem;

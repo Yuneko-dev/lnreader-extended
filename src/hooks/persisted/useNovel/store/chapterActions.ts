@@ -7,8 +7,8 @@ import {
   markChapterRead as _markChapterRead,
   markChaptersRead as _markChaptersRead,
   markChaptersUnread as _markChaptersUnread,
-  markPreviousChaptersUnread as _markPreviousChaptersUnread,
   markPreviouschaptersRead as _markPreviouschaptersRead,
+  markPreviousChaptersUnread as _markPreviousChaptersUnread,
   updateChapterProgress as _updateChapterProgress,
 } from '@database/queries/ChapterQueries';
 import { ChapterInfo, NovelInfo } from '@database/types';

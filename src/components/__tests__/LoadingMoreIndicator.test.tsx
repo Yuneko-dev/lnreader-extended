@@ -1,7 +1,8 @@
-import React from 'react';
 import { render } from '@testing-library/react-native';
-import LoadingMoreIndicator from '../LoadingMoreIndicator/LoadingMoreIndicator';
+import React from 'react';
+
 import { ThemeColors } from '../../theme/types';
+import LoadingMoreIndicator from '../LoadingMoreIndicator/LoadingMoreIndicator';
 
 const mockTheme: ThemeColors = {
   id: 1,

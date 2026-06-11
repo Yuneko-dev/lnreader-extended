@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { List } from '@components/index';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
-import { List } from '@components/index';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import SettingSwitch from '../../components/SettingSwitch';
 
 const AccessibilityTab: React.FC = () => {

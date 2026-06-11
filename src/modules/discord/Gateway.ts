@@ -1,8 +1,9 @@
 import EventEmitter from 'eventemitter3';
+
 import {
-  GatewayOp,
-  DEFAULTS,
   DEFAULT_SUPER_PROPERTIES,
+  DEFAULTS,
+  GatewayOp,
 } from './utils/Constants';
 import GatewayCapabilities from './utils/GatewayCapabilities';
 import Intents from './utils/Intents';

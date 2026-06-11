@@ -1,25 +1,23 @@
+import { SafeAreaView, SearchbarV2 } from '@components';
+import { ErrorView } from '@components/ErrorView/ErrorView';
+import { useTheme, useTracker } from '@hooks/persisted';
+import { BrowseALScreenProps } from '@navigators/types';
+import { queryAniList } from '@services/Trackers/aniList';
+import { showToast } from '@utils/showToast';
+import dayjs from 'dayjs';
+import localeData from 'dayjs/plugin/localeData';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  StyleSheet,
-  View,
   ActivityIndicator,
   FlatList,
   ListRenderItem,
+  StyleSheet,
+  View,
 } from 'react-native';
 
-import * as WebBrowser from 'expo-web-browser';
-
-import { ErrorView } from '@components/ErrorView/ErrorView';
-import { SafeAreaView, SearchbarV2 } from '@components';
-
-import { showToast } from '@utils/showToast';
-import DiscoverNovelCard from './DiscoverNovelCard';
-import { useTheme, useTracker } from '@hooks/persisted';
 import TrackerLoading from '../loadingAnimation/TrackerLoading';
-import { queryAniList } from '@services/Trackers/aniList';
-import localeData from 'dayjs/plugin/localeData';
-import dayjs from 'dayjs';
-import { BrowseALScreenProps } from '@navigators/types';
+import DiscoverNovelCard from './DiscoverNovelCard';
 
 interface ALDate {
   month: number;

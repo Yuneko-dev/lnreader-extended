@@ -1,12 +1,10 @@
-import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-
-import { Portal } from 'react-native-paper';
-
 import { Checkbox, Modal } from '@components';
+import { useLibrarySettings } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
-import { useLibrarySettings } from '@hooks/persisted';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 interface NovelBadgesModalProps {
   novelBadgesModalVisible: boolean;

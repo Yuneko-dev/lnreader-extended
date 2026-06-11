@@ -1,16 +1,17 @@
+import { Storage } from '@plugins/helpers/storage';
 import {
-  Plugin,
+  ImageRequestInit,
   NovelItem,
+  Plugin,
+  PluginSettings,
   SourceNovel,
   SourcePage,
-  ImageRequestInit,
-  PluginSettings,
 } from '@plugins/types';
 import NativeFile from '@specs/NativeFile';
 import { NOVEL_STORAGE } from '@utils/Storages';
-import { getLocalServerUrl } from './localServerManager';
-import { Storage } from '@plugins/helpers/storage';
 import { load } from 'cheerio';
+
+import { getLocalServerUrl } from './localServerManager';
 
 export const LOCAL_PLUGIN_ID = 'local';
 

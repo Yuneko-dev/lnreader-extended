@@ -1,12 +1,13 @@
+import { BaseLogEntry, LogViewer } from '@components/LogViewer';
+import Modal from '@components/Modal/Modal';
+import { NovelInfo } from '@database/types';
+import { forceResetNovel } from '@services/updates/ForceResetNovel';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
 import React, { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal, Switch } from 'react-native-paper';
-import Modal from '@components/Modal/Modal';
-import { LogViewer, BaseLogEntry } from '@components/LogViewer';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { NovelInfo } from '@database/types';
-import { forceResetNovel } from '@services/updates/ForceResetNovel';
+
 import { useNovelActions } from '../NovelContext';
 
 interface ForceResetModalProps {

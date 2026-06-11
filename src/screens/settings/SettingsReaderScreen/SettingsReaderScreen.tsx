@@ -1,33 +1,29 @@
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useNavigation } from '@react-navigation/native';
-import WebView from 'react-native-webview';
-import { FAB } from 'react-native-paper';
-import { dummyHTML } from './utils';
-
-import { Appbar, SafeAreaView } from '@components/index';
 import BottomSheet from '@components/BottomSheet/BottomSheet';
-
+import { Appbar, SafeAreaView } from '@components/index';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   useChapterGeneralSettings,
   useChapterReaderSettings,
   useTheme,
 } from '@hooks/persisted';
+import { useNavigation } from '@react-navigation/native';
 import { getString } from '@strings/translations';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBatteryLevel } from 'react-native-device-info';
 import * as Speech from 'expo-speech';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useBatteryLevel } from 'react-native-device-info';
+import { FAB } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import WebView from 'react-native-webview';
 
 import { generateReaderHtml } from '../../reader/utils/htmlGenerator';
-
 import TabBar, { Tab } from './components/TabBar';
-import DisplayTab from './tabs/DisplayTab';
-import ThemeTab from './tabs/ThemeTab';
-import NavigationTab from './tabs/NavigationTab';
 import AccessibilityTab from './tabs/AccessibilityTab';
 import AdvancedTab from './tabs/AdvancedTab';
+import DisplayTab from './tabs/DisplayTab';
+import NavigationTab from './tabs/NavigationTab';
+import ThemeTab from './tabs/ThemeTab';
+import { dummyHTML } from './utils';
 
 export type TextAlignments =
   | 'left'

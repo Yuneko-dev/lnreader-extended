@@ -1,9 +1,9 @@
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { MaterialDesignIconName } from '@type/icon';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { ThemeColors } from '../../../theme/types';
-import { MaterialDesignIconName } from '@type/icon';
 
 interface Props {
   label: string;

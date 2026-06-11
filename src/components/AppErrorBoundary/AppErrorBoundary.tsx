@@ -1,13 +1,12 @@
-import React from 'react';
-import { StyleSheet, View, Text, StatusBar } from 'react-native';
-import ErrorBoundary from 'react-native-error-boundary';
-
 import { Button, List } from '@components';
 import { useTheme } from '@hooks/persisted';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import NativeFile from '@specs/NativeFile';
-import * as Clipboard from 'expo-clipboard';
 import { showToast } from '@utils/showToast';
+import * as Clipboard from 'expo-clipboard';
+import React from 'react';
+import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import ErrorBoundary from 'react-native-error-boundary';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ErrorFallbackProps {
   error: Error;

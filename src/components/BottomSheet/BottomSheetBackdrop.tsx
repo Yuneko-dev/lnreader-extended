@@ -1,8 +1,8 @@
+import { useBottomSheet } from '@gorhom/bottom-sheet';
+import { BottomSheetBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import React, { memo } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useBottomSheet } from '@gorhom/bottom-sheet';
-import { BottomSheetBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 
 const styles = StyleSheet.create({
   container: {

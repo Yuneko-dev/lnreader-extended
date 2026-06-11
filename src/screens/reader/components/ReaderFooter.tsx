@@ -1,18 +1,19 @@
+import { SCREEN_HEIGHT } from '@gorhom/bottom-sheet';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { useTheme } from '@hooks/persisted';
+import { ChapterScreenProps } from '@navigators/types';
+import { useNovelLayout } from '@screens/novel/NovelContext';
+import color from 'color';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
-import color from 'color';
 import Animated, {
   Easing,
   ReduceMotion,
   withTiming,
 } from 'react-native-reanimated';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { ChapterScreenProps } from '@navigators/types';
+
 import { useChapterContext } from '../ChapterContext';
-import { SCREEN_HEIGHT } from '@gorhom/bottom-sheet';
-import { useTheme } from '@hooks/persisted';
-import { useNovelLayout } from '@screens/novel/NovelContext';
 
 interface ChapterFooterProps {
   readerSheetRef: React.RefObject<BottomSheetModalMethods | null>;

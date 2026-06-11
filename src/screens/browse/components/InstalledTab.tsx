@@ -1,20 +1,19 @@
-import React, { useCallback, useMemo, useState, memo } from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { Portal } from 'react-native-paper';
-import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
-
-import { useBrowseSettings, usePlugins } from '@hooks/persisted';
-import { PluginItem } from '@plugins/types';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { BrowseScreenProps } from '@navigators/types';
 import { useBoolean } from '@hooks';
-import { getPlugin } from '@plugins/pluginManager';
+import { useBrowseSettings, usePlugins } from '@hooks/persisted';
+import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
+import { BrowseScreenProps } from '@navigators/types';
 import { localPlugin } from '@plugins/local/LocalPlugin';
+import { getPlugin } from '@plugins/pluginManager';
+import { PluginItem } from '@plugins/types';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 import DiscoverCard from '../discover/DiscoverCard';
-import SourceSettingsModal from './Modals/SourceSettings';
 import { DeferredPluginListItem } from './DeferredPluginListItem';
+import SourceSettingsModal from './Modals/SourceSettings';
 
 interface InstalledTabProps {
   navigation: BrowseScreenProps['navigation'];

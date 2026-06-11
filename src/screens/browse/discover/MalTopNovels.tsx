@@ -1,24 +1,22 @@
+import { SafeAreaView, SearchbarV2 } from '@components';
+import { ErrorView } from '@components/ErrorView/ErrorView';
+import { useTheme } from '@hooks/persisted';
+import { BrowseMalScreenProps } from '@navigators/types';
+import { showToast } from '@utils/showToast';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  StyleSheet,
-  View,
   ActivityIndicator,
   FlatList,
-  NativeScrollEvent,
   FlatListProps,
+  NativeScrollEvent,
+  StyleSheet,
+  View,
 } from 'react-native';
 
-import * as WebBrowser from 'expo-web-browser';
-
-import { ErrorView } from '@components/ErrorView/ErrorView';
-import { SafeAreaView, SearchbarV2 } from '@components';
-
-import { showToast } from '@utils/showToast';
-import { scrapeSearchResults, scrapeTopNovels } from './MyAnimeListScraper';
-import DiscoverNovelCard from './DiscoverNovelCard';
-import { useTheme } from '@hooks/persisted';
 import MalLoading from '../loadingAnimation/MalLoading';
-import { BrowseMalScreenProps } from '@navigators/types';
+import DiscoverNovelCard from './DiscoverNovelCard';
+import { scrapeSearchResults, scrapeTopNovels } from './MyAnimeListScraper';
 
 const BrowseMalScreen = ({ navigation }: BrowseMalScreenProps) => {
   const theme = useTheme();

@@ -1,12 +1,11 @@
-import { drizzle } from 'drizzle-orm/op-sqlite';
-
-import { schema } from './schema';
+import { open } from '@op-engineering/op-sqlite';
 import { Logger } from 'drizzle-orm';
-
+import { drizzle } from 'drizzle-orm/op-sqlite';
 import { migrate } from 'drizzle-orm/op-sqlite/migrator';
+import { useEffect, useReducer } from 'react';
+
 import migrations from '../../drizzle/migrations';
 import { createDbManager } from './manager/manager';
-import { open } from '@op-engineering/op-sqlite';
 import {
   createCategoryDefaultQuery,
   createDefaultRepositoryQuery,
@@ -21,11 +20,11 @@ import {
   dropNovelTriggerQueryInsert,
   dropNovelTriggerQueryUpdate,
 } from './queryStrings/triggers';
-import { useEffect, useReducer } from 'react';
+import { schema } from './schema';
 
 class MyLogger implements Logger {
   logQuery(_query: string, _params: unknown[]): void {
-    //console.trace('DB Query: ', { query, params });
+    // console.trace('DB Query: ', { query, params });
   }
 }
 

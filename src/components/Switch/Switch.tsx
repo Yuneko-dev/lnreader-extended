@@ -1,14 +1,14 @@
-import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { useTheme } from '@hooks/persisted';
 import React, { useEffect } from 'react';
+import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import Animated, {
   interpolateColor,
-  useSharedValue,
   useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
   withSpring,
   withTiming,
-  useDerivedValue,
 } from 'react-native-reanimated';
-import { useTheme } from '@hooks/persisted';
 
 // MD3 Switch dimensions
 const TRACK_WIDTH = 52;

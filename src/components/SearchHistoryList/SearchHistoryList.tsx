@@ -1,9 +1,9 @@
-import React, { memo, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable, Keyboard } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { useSearchHistory } from '@hooks/persisted';
-import { ThemeColors } from '@theme/types';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { FlashList } from '@shopify/flash-list';
+import { ThemeColors } from '@theme/types';
+import React, { memo, useCallback } from 'react';
+import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface SearchHistoryListProps {
   theme: ThemeColors;
