@@ -1,22 +1,22 @@
-import BackgroundService from 'react-native-background-actions';
-import * as Notifications from 'expo-notifications';
-
-import { getMMKVObject, setMMKVObject } from '@utils/mmkv/mmkv';
-import { importEpub } from './epub/import';
-import { getString } from '@strings/translations';
-import { updateLibrary } from './updates';
 import { DriveFile } from '@api/drive/types';
+import { getString } from '@strings/translations';
+import { askForPostNotificationsPermission } from '@utils/askForPostNoftificationsPermission';
+import { getMMKVObject, setMMKVObject } from '@utils/mmkv/mmkv';
+import { showToast } from '@utils/showToast';
+import * as Notifications from 'expo-notifications';
+import BackgroundService from 'react-native-background-actions';
+
 import { createDriveBackup, driveRestore } from './backup/drive';
+import { createBackup, restoreBackup } from './backup/local';
 import {
   createSelfHostBackup,
   SelfHostData,
   selfHostRestore,
 } from './backup/selfhost';
-import { createBackup, restoreBackup } from './backup/local';
-import { migrateNovel, MigrateNovelData } from './migrate/migrateNovel';
 import { downloadChapter } from './download/downloadChapter';
-import { askForPostNotificationsPermission } from '@utils/askForPostNoftificationsPermission';
-import { showToast } from '@utils/showToast';
+import { importEpub } from './epub/import';
+import { migrateNovel, MigrateNovelData } from './migrate/migrateNovel';
+import { updateLibrary } from './updates';
 
 type taskNames =
   | 'IMPORT_EPUB'
@@ -187,7 +187,7 @@ export default class ServiceManager {
     setMMKVObject(this.STORE_KEY, taskList);
   }
 
-  //gets the progress bar for download chapters notification
+  // gets the progress bar for download chapters notification
   getProgressForNotification(
     currentTask: QueuedBackgroundTask,
     startingTasks: QueuedBackgroundTask[],
@@ -243,7 +243,7 @@ export default class ServiceManager {
 
     // Create abort controller for this task
     this.currentAbortController = new AbortController();
-    const signal = this.currentAbortController.signal;
+    const { signal } = this.currentAbortController;
 
     try {
       switch (task.task.name) {
@@ -284,7 +284,7 @@ export default class ServiceManager {
 
   static async launch() {
     // retrieve class instance because this is running in different context
-    const manager = ServiceManager.manager;
+    const { manager } = ServiceManager;
     const doneTasks: Record<BackgroundTask['name'], number> = {
       'IMPORT_EPUB': 0,
       'UPDATE_LIBRARY': 0,
@@ -306,7 +306,7 @@ export default class ServiceManager {
         break;
       }
 
-      //Add any newly queued tasks to the starting tasks list
+      // Add any newly queued tasks to the starting tasks list
       const newtasks = currentTasks.filter(t => !tasksSet.has(t.id));
       startingTasks.push(...newtasks);
       newtasks.forEach(t => tasksSet.add(t.id));

@@ -1,13 +1,11 @@
-import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-
-import { Portal } from 'react-native-paper';
-
-import { RadioButton } from '@components/RadioButton/RadioButton';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { useBrowseSettings } from '@hooks/persisted/index';
 import { Modal } from '@components';
+import { RadioButton } from '@components/RadioButton/RadioButton';
+import { useBrowseSettings } from '@hooks/persisted/index';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 interface DisplayModeModalProps {
   globalSearchConcurrency: number;

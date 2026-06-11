@@ -1,11 +1,11 @@
-import { open, type DB } from '@op-engineering/op-sqlite';
+import { runDatabaseBootstrap } from '@database/db';
+import { schema } from '@database/schema';
+import { type DB, open } from '@op-engineering/op-sqlite';
 import { drizzle } from 'drizzle-orm/op-sqlite';
 import { migrate } from 'drizzle-orm/op-sqlite/migrator';
-import migrations from '../../../drizzle/migrations';
-import { schema } from '@database/schema';
-
-import { runDatabaseBootstrap } from '@database/db';
 import { platform } from 'os';
+
+import migrations from '../../../drizzle/migrations';
 
 const MIGRATION_STATEMENTS = [
   `CREATE TABLE IF NOT EXISTS Category (

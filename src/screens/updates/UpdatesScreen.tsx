@@ -1,3 +1,21 @@
+import {
+  EmptyView,
+  ErrorScreenV2,
+  SafeAreaView,
+  SearchbarV2,
+} from '@components';
+import { useUpdateContext } from '@components/Context/UpdateContext';
+import { deleteChapter } from '@database/queries/ChapterQueries';
+import { UpdateOverview } from '@database/types';
+import { useSearch } from '@hooks';
+import { useTheme } from '@hooks/persisted';
+import { UpdateScreenProps } from '@navigators/types';
+import { useFocusEffect } from '@react-navigation/native';
+import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { showToast } from '@utils/showToast';
+import dayjs from 'dayjs';
 import React, {
   memo,
   Suspense,
@@ -6,29 +24,10 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import dayjs from 'dayjs';
 import { RefreshControl, SectionList, StyleSheet, Text } from 'react-native';
 
-import {
-  EmptyView,
-  ErrorScreenV2,
-  SearchbarV2,
-  SafeAreaView,
-} from '@components';
-
-import { useSearch } from '@hooks';
-import { useFocusEffect } from '@react-navigation/native';
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import { ThemeColors } from '@theme/types';
-import UpdatesSkeletonLoading from './components/UpdatesSkeletonLoading';
 import UpdateNovelCard from './components/UpdateNovelCard';
-import { deleteChapter } from '@database/queries/ChapterQueries';
-import { showToast } from '@utils/showToast';
-import ServiceManager from '@services/ServiceManager';
-import { UpdateScreenProps } from '@navigators/types';
-import { UpdateOverview } from '@database/types';
-import { useUpdateContext } from '@components/Context/UpdateContext';
+import UpdatesSkeletonLoading from './components/UpdatesSkeletonLoading';
 
 const UpdatesScreen = ({ navigation }: UpdateScreenProps) => {
   const theme = useTheme();

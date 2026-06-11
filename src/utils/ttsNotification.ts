@@ -1,5 +1,5 @@
-import { NativeEventEmitter } from 'react-native';
 import NativeTTSMediaControl from '@specs/NativeTTSMediaControl';
+import { NativeEventEmitter } from 'react-native';
 
 export const ttsMediaEmitter = new NativeEventEmitter(NativeTTSMediaControl);
 

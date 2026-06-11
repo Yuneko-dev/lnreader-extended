@@ -1,3 +1,4 @@
+import { ChapterInfo, NovelInfo } from '@database/types';
 import React, {
   createContext,
   useContext,
@@ -5,8 +6,8 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { ChapterInfo, NovelInfo } from '@database/types';
 import WebView from 'react-native-webview';
+
 import useChapter from './hooks/useChapter';
 
 type ChapterContextType = ReturnType<typeof useChapter> & {

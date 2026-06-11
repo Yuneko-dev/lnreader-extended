@@ -1,31 +1,30 @@
-import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-
-import DisplayModeModal from './modals/DisplayModeModal';
-import GridSizeModal from './modals/GridSizeModal';
-import SwipeActionModal from './modals/SwipeActionModal';
-import { showToast } from '@utils/showToast';
-
+import { Appbar, List, SafeAreaView } from '@components';
+import { useBoolean } from '@hooks';
 import {
   useAppSettings,
   useLastUpdate,
   useLibrarySettings,
-  useTheme,
   useSearchHistory,
+  useTheme,
 } from '@hooks/persisted';
-import DefaultChapterSortModal from '../components/DefaultChapterSortModal';
+import { NavigationState } from '@react-navigation/native';
 import {
   DisplayModes,
   displayModesList,
   LibrarySortOrder,
 } from '@screens/library/constants/constants';
-import { useBoolean } from '@hooks';
-import { Appbar, List, SafeAreaView } from '@components';
-import NovelSortModal from './modals/NovelSortModal';
-import NovelBadgesModal from './modals/NovelBadgesModal';
-import { NavigationState } from '@react-navigation/native';
 import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import React from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+
+import DefaultChapterSortModal from '../components/DefaultChapterSortModal';
 import SettingSwitch from '../components/SettingSwitch';
+import DisplayModeModal from './modals/DisplayModeModal';
+import GridSizeModal from './modals/GridSizeModal';
+import NovelBadgesModal from './modals/NovelBadgesModal';
+import NovelSortModal from './modals/NovelSortModal';
+import SwipeActionModal from './modals/SwipeActionModal';
 
 interface GenralSettingsProps {
   navigation: NavigationState;

@@ -1,11 +1,11 @@
-import React, { memo, useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { useDeviceOrientation } from '@hooks';
+import { useLibrarySettings } from '@hooks/persisted';
+import LoadingNovel from '@screens/browse/loadingAnimation/LoadingNovel';
+import { DisplayModes } from '@screens/library/constants/constants';
 import { ThemeColors } from '@theme/types';
 import useLoadingColors from '@utils/useLoadingColors';
-import LoadingNovel from '@screens/browse/loadingAnimation/LoadingNovel';
-import { useLibrarySettings } from '@hooks/persisted';
-import { DisplayModes } from '@screens/library/constants/constants';
-import { useDeviceOrientation } from '@hooks';
+import React, { memo, useMemo } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 interface Props {
   theme: ThemeColors;

@@ -19,6 +19,7 @@
  */
 
 import { TrackerName } from '@services/Trackers';
+
 import { TrackerMetadata } from '../useTracker';
 
 export const TRACKER_MIGRATION_V1_KEY = 'TRACKER_MIGRATION_V1_COMPLETED';

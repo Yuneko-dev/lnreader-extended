@@ -1,15 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-
-import { History } from '@database/types';
-
 import {
   deleteAllHistory,
   deleteChapterHistory,
   getHistoryFromDb,
 } from '@database/queries/HistoryQueries';
-import dayjs from 'dayjs';
+import { History } from '@database/types';
+import { useFocusEffect } from '@react-navigation/native';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
+import dayjs from 'dayjs';
+import { useCallback, useMemo, useState } from 'react';
 
 const useHistory = () => {
   const [isLoading, setIsLoading] = useState(true);

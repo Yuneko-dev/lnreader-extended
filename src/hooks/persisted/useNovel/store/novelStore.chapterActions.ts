@@ -1,6 +1,8 @@
 import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
 import { ChapterInfo } from '@database/types';
+
 import { createBootstrapService } from '../store-helper/bootstrapService';
+import { NovelSettings } from '../types';
 import {
   bookmarkChaptersAction,
   ChapterActionsDependencies,
@@ -14,7 +16,6 @@ import {
   refreshChaptersAction,
   updateChapterProgressAction,
 } from './chapterActions';
-import { NovelSettings } from '../types';
 import {
   ChapterTextCacheApi,
   GetState,
@@ -74,7 +75,6 @@ export const createNovelStoreChapterActions = ({
         });
       },
       remove: chapterId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [chapterId]: _ignored, ...rest } = get().chapterTextCache;
         set({
           chapterTextCache: rest,

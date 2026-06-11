@@ -1,12 +1,12 @@
-import { eq, sql, isNotNull, desc, getColumns } from 'drizzle-orm';
-import { showToast } from '@utils/showToast';
-import { getString } from '@strings/translations';
 import { dbManager } from '@database/db';
 import {
   chapterSchema,
   extendedChapterHistorySchema,
   novelSchema,
 } from '@database/schema';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import { desc, eq, getColumns, isNotNull, sql } from 'drizzle-orm';
 
 /**
  * Get reading history from the database using Drizzle ORM.

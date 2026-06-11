@@ -1,12 +1,13 @@
+import { Button } from '@components';
 import { useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { useState } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image, StyleSheet, View } from 'react-native';
-import { Button } from '@components';
+
 import ThemeSelectionStep from './ThemeSelectionStep';
-import { useState } from 'react';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { getString } from '@strings/translations';
 
 enum OnboardingStep {
   PICK_THEME,

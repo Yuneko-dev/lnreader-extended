@@ -1,6 +1,6 @@
+import { ThemeColors } from '@theme/types';
 import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { ThemeColors } from '@theme/types';
 
 export type LogLevel = 'log' | 'info' | 'warn' | 'error';
 

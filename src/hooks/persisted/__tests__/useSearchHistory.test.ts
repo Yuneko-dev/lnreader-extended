@@ -1,4 +1,5 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { act, renderHook } from '@testing-library/react-native';
+
 import { useSearchHistory } from '../useSearchHistory';
 
 let mockBooleanValue: boolean = true;

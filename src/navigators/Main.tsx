@@ -1,47 +1,42 @@
-import React, { useEffect } from 'react';
-
+import { LibraryContextProvider } from '@components/Context/LibraryContext';
+import { UpdateContextProvider } from '@components/Context/UpdateContext';
+import { useGithubUpdateChecker } from '@hooks/common/useGithubUpdateChecker';
+import { useAppSettings, usePlugins, useTheme } from '@hooks/persisted';
+import { discordRPC } from '@modules/discord/DiscordRPC';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import OnboardingScreen from '@screens/onboarding/OnboardingScreen';
+import WebviewScreen from '@screens/WebviewScreen/WebviewScreen';
+import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
 import {
   changeNavigationBarColor,
   setStatusBarColor,
 } from '@theme/utils/setBarColor';
-import { useAppSettings, usePlugins, useTheme } from '@hooks/persisted';
-import { useGithubUpdateChecker } from '@hooks/common/useGithubUpdateChecker';
+import Color from 'color';
+import * as NavigationBar from 'expo-navigation-bar';
+import React, { useEffect } from 'react';
+import { useMMKVBoolean } from 'react-native-mmkv';
 
+import NewUpdateDialog from '../components/NewUpdateDialog';
+import AniListTopNovels from '../screens/browse/discover/AniListTopNovels';
+import MalTopNovels from '../screens/browse/discover/MalTopNovels';
+import Migration from '../screens/browse/migration/Migration';
+import MigrateNovel from '../screens/browse/migration/MigrationNovels';
+import BrowseSettings from '../screens/browse/settings/BrowseSettings';
+import SourceNovels from '../screens/browse/SourceNovels';
+/**
+ * Screens
+ */
+import BrowseSourceScreen from '../screens/BrowseSourceScreen/BrowseSourceScreen';
+import GlobalSearchScreen from '../screens/GlobalSearchScreen/GlobalSearchScreen';
 /**
  * Navigators
  */
 import BottomNavigator from './BottomNavigator';
 import MoreStack from './MoreStack';
-
-/**
- * Screens
- */
-
-import BrowseSourceScreen from '../screens/BrowseSourceScreen/BrowseSourceScreen';
-import GlobalSearchScreen from '../screens/GlobalSearchScreen/GlobalSearchScreen';
-import Migration from '../screens/browse/migration/Migration';
-import SourceNovels from '../screens/browse/SourceNovels';
-import MigrateNovel from '../screens/browse/migration/MigrationNovels';
-
-import MalTopNovels from '../screens/browse/discover/MalTopNovels';
-import AniListTopNovels from '../screens/browse/discover/AniListTopNovels';
-import NewUpdateDialog from '../components/NewUpdateDialog';
-import BrowseSettings from '../screens/browse/settings/BrowseSettings';
-import WebviewScreen from '@screens/WebviewScreen/WebviewScreen';
-import { RootStackParamList } from './types';
-import Color from 'color';
-import * as NavigationBar from 'expo-navigation-bar';
-import { useMMKVBoolean } from 'react-native-mmkv';
-import OnboardingScreen from '@screens/onboarding/OnboardingScreen';
-import ServiceManager from '@services/ServiceManager';
 import ReaderStack from './ReaderStack';
-import { LibraryContextProvider } from '@components/Context/LibraryContext';
-import { UpdateContextProvider } from '@components/Context/UpdateContext';
-import { discordRPC } from '@modules/discord/DiscordRPC';
-import { getString } from '@strings/translations';
+import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

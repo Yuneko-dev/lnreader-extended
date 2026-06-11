@@ -1,15 +1,13 @@
-import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-
-import { Portal } from 'react-native-paper';
-
-import { RadioButton } from '@components/RadioButton/RadioButton';
-import { ThemeColors } from '@theme/types';
-import { useAppSettings } from '@hooks/persisted';
-import { getString } from '@strings/translations';
 import { Modal } from '@components';
+import { RadioButton } from '@components/RadioButton/RadioButton';
+import { useAppSettings } from '@hooks/persisted';
 import { SwipeAction } from '@hooks/persisted/useSettings';
+import { getString } from '@strings/translations';
 import { StringMap } from '@strings/types';
+import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 interface SwipeActionModalProps {
   actionType: 'left' | 'right';

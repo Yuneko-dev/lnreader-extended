@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, View, Text, StyleSheet } from 'react-native';
-import {
-  FAB,
-  ProgressBar,
-  Appbar as MaterialAppbar,
-  overlay,
-} from 'react-native-paper';
-
-import { useTheme } from '@hooks/persisted';
-
-import { showToast } from '../../utils/showToast';
-import { getString } from '@strings/translations';
 import { Appbar, EmptyView, Menu, SafeAreaView } from '@components';
+import { useTheme } from '@hooks/persisted';
 import { TaskQueueScreenProps } from '@navigators/types';
 import ServiceManager, { QueuedBackgroundTask } from '@services/ServiceManager';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getString } from '@strings/translations';
+import React, { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useMMKVObject } from 'react-native-mmkv';
+import {
+  Appbar as MaterialAppbar,
+  FAB,
+  overlay,
+  ProgressBar,
+} from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { showToast } from '../../utils/showToast';
 
 const DownloadQueue = ({ navigation }: TaskQueueScreenProps) => {
   const theme = useTheme();
@@ -33,7 +32,7 @@ const DownloadQueue = ({ navigation }: TaskQueueScreenProps) => {
     }
   }, [taskQueue]);
 
-  //TODO: there should probably be a way to cancel a specific task from this screen
+  // TODO: there should probably be a way to cancel a specific task from this screen
 
   return (
     <SafeAreaView excludeTop>

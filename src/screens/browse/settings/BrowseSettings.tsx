@@ -1,17 +1,16 @@
-import { FlatList, StyleSheet } from 'react-native';
-import React from 'react';
 import { Appbar, List, SwitchItem } from '@components';
-
+import { useBoolean } from '@hooks';
 import {
   useBrowseSettings,
   usePlugins,
   useTheme,
 } from '@hooks/persisted/index';
+import { BrowseSettingsScreenProp } from '@navigators/types/index';
+import ConcurrentSearchesModal from '@screens/browse/settings/modals/ConcurrentSearchesModal';
 import { getString } from '@strings/translations';
 import { getLocaleLanguageName, languages } from '@utils/constants/languages';
-import { BrowseSettingsScreenProp } from '@navigators/types/index';
-import { useBoolean } from '@hooks';
-import ConcurrentSearchesModal from '@screens/browse/settings/modals/ConcurrentSearchesModal';
+import React from 'react';
+import { FlatList, StyleSheet } from 'react-native';
 
 const BrowseSettings = ({ navigation }: BrowseSettingsScreenProp) => {
   const theme = useTheme();

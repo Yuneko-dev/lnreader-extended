@@ -3,15 +3,16 @@ import {
   ChapterFilterPositiveKey,
   ChapterOrderKey,
 } from '@database/constants';
-import { useCallback, useMemo } from 'react';
-import { useAppSettings } from './useSettings';
 import { ChapterFilterObject, FilterStates } from '@database/utils/filter';
+import { useNovelAction, useNovelValue } from '@screens/novel/NovelContext';
+import { useCallback, useMemo } from 'react';
+
 import {
   defaultNovelSettings,
   NOVEL_PAGE_INDEX_PREFIX,
   NOVEL_SETTINGS_PREFIX,
 } from './useNovel/types';
-import { useNovelAction, useNovelValue } from '@screens/novel/NovelContext';
+import { useAppSettings } from './useSettings';
 
 export { NOVEL_PAGE_INDEX_PREFIX, NOVEL_SETTINGS_PREFIX };
 

@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Portal, TextInput } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-
 import { Button, Modal } from '@components/index';
-
 import { Repository } from '@database/types';
 import { useTheme } from '@hooks/persisted';
-
 import { getString } from '@strings/translations';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Portal, TextInput } from 'react-native-paper';
 
 interface AddRepositoryModalProps {
   repository?: Repository;

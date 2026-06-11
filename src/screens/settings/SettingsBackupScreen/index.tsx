@@ -1,15 +1,16 @@
-import React from 'react';
-import { useTheme } from '@hooks/persisted';
 import { Appbar, List, SafeAreaView } from '@components';
 import { useBoolean } from '@hooks';
+import { useTheme } from '@hooks/persisted';
 import { BackupSettingsScreenProps } from '@navigators/types';
+import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+
+import BackupLogModal from './Components/BackupLogModal';
 import GoogleDriveModal from './Components/GoogleDriveModal';
 import SelfHostModal from './Components/SelfHostModal';
-import BackupLogModal from './Components/BackupLogModal';
-import ServiceManager from '@services/ServiceManager';
-import { ScrollView } from 'react-native-gesture-handler';
-import { getString } from '@strings/translations';
-import { StyleSheet } from 'react-native';
 
 const BackupSettings = ({ navigation }: BackupSettingsScreenProps) => {
   const theme = useTheme();

@@ -1,6 +1,7 @@
 import '../../../__tests__/mocks';
+
 import { ChapterInfo, NovelInfo } from '@database/types';
-import { createBootstrapService } from '../store-helper/bootstrapService';
+
 import {
   bookmarkChaptersAction,
   ChapterActionsDependencies,
@@ -15,6 +16,7 @@ import {
   updateChapterProgressAction,
 } from '../store/chapterActions';
 import { createNovelStoreChapterActions } from '../store/novelStore.chapterActions';
+import { createBootstrapService } from '../store-helper/bootstrapService';
 import { BatchInfo, NovelSettingsWithoutSort } from '../types';
 
 jest.mock('../store/chapterActions', () => {
@@ -125,8 +127,8 @@ const createHarness = (overrides: Partial<TestState> = {}) => {
   );
 
   const actions = createNovelStoreChapterActions({
-    //@ts-expect-error partial state/actions for testing
-    set, //@ts-expect-error
+    // @ts-expect-error partial state/actions for testing
+    set, // @ts-expect-error
     get,
     bootstrapService,
     chapterActionsDependencies: chapterDeps,

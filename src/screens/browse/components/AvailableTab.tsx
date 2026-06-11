@@ -1,21 +1,21 @@
-import React, { useCallback, useMemo, useState, memo } from 'react';
-import { View, Text, StyleSheet, RefreshControl } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { EmptyView, IconButtonV2 } from '@components';
 import { usePlugins } from '@hooks/persisted';
+import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
+import { MoreStackScreenProps } from '@navigators/types';
 import { PluginItem } from '@plugins/types';
+import { useNavigation } from '@react-navigation/native';
+import { getString } from '@strings/translations';
 import { coverPlaceholderColor } from '@theme/colors';
 import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { MoreStackScreenProps } from '@navigators/types';
-import { EmptyView, IconButtonV2 } from '@components';
+import { getLocaleLanguageName } from '@utils/constants/languages';
 import { showToast } from '@utils/showToast';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { getLocaleLanguageName } from '@utils/constants/languages';
-import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
 interface AvailableTabProps {
   searchText: string;
   theme: ThemeColors;

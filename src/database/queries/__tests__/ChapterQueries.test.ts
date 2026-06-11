@@ -5,44 +5,44 @@
  */
 
 import './mockDb';
-import { setupTestDatabase, getTestDb, teardownTestDatabase } from './setup';
-import { insertTestNovel, insertTestChapter, clearAllTables } from './testData';
 
 import {
-  markChapterRead,
-  markChaptersRead,
-  markChapterUnread,
-  markChaptersUnread,
-  markAllChaptersRead,
-  markAllChaptersUnread,
-  getNovelChapters,
-  getUnreadNovelChapters,
-  getAllUndownloadedChapters,
-  getAllUndownloadedAndUnreadChapters,
-  getChapter,
-  getCustomPages,
-  getPageChapters,
-  getChapterCount,
-  getPageChaptersBatched,
-  getPrevChapter,
-  getNextChapter,
-  getDownloadedChapters,
-  getNovelDownloadedChapters,
-  getUpdatedOverviewFromDb,
-  getDetailedUpdatesFromDb,
-  isChapterDownloaded,
   bookmarkChapter,
-  insertChapters,
+  clearUpdates,
   deleteChapter,
   deleteChapters,
   deleteDownloads,
   deleteReadChaptersFromDb,
-  updateChapterProgress,
-  updateChapterProgressByIds,
+  getAllUndownloadedAndUnreadChapters,
+  getAllUndownloadedChapters,
+  getChapter,
+  getChapterCount,
+  getCustomPages,
+  getDetailedUpdatesFromDb,
+  getDownloadedChapters,
+  getNextChapter,
+  getNovelChapters,
+  getNovelDownloadedChapters,
+  getPageChapters,
+  getPageChaptersBatched,
+  getPrevChapter,
+  getUnreadNovelChapters,
+  getUpdatedOverviewFromDb,
+  insertChapters,
+  isChapterDownloaded,
+  markAllChaptersRead,
+  markAllChaptersUnread,
+  markChapterRead,
+  markChaptersRead,
+  markChaptersUnread,
+  markChapterUnread,
   markPreviouschaptersRead,
   markPreviousChaptersUnread,
-  clearUpdates,
+  updateChapterProgress,
+  updateChapterProgressByIds,
 } from '../ChapterQueries';
+import { getTestDb, setupTestDatabase, teardownTestDatabase } from './setup';
+import { clearAllTables, insertTestChapter, insertTestNovel } from './testData';
 
 describe('ChapterQueries', () => {
   beforeEach(() => {

@@ -1,20 +1,18 @@
+import { EmptyView } from '@components/index';
+import { useNovelCoverLayout } from '@components/NovelCover';
+import NovelList, { NovelListRenderItem } from '@components/NovelList';
+import { NovelInfo } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { LibraryScreenProps } from '@navigators/types';
+import { getPlugin } from '@plugins/pluginManager';
+import { ImageRequestInit } from '@plugins/types';
+import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
 import React, { useCallback, useMemo } from 'react';
 import { RefreshControl, StyleSheet, View } from 'react-native';
 
-import { EmptyView } from '@components/index';
-import NovelList, { NovelListRenderItem } from '@components/NovelList';
-import LibraryNovelItem from './LibraryNovelItem';
-import { useNovelCoverLayout } from '@components/NovelCover';
-
-import { NovelInfo } from '@database/types';
-
-import { getString } from '@strings/translations';
-import { useTheme } from '@hooks/persisted';
-import { LibraryScreenProps } from '@navigators/types';
-import ServiceManager from '@services/ServiceManager';
-import { getPlugin } from '@plugins/pluginManager';
 import { useSelectionContext } from '../SelectionContext';
-import { ImageRequestInit } from '@plugins/types';
+import LibraryNovelItem from './LibraryNovelItem';
 
 interface Props {
   categoryId: number;

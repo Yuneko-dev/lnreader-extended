@@ -1,14 +1,15 @@
-import React from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import { Button, List } from '@components/index';
 import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import { defaultTo } from 'lodash-es';
-import { useTheme, useChapterGeneralSettings } from '@hooks/persisted';
+import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
-import { List, Button } from '@components/index';
+import { defaultTo } from 'lodash-es';
+import React from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { TextInput } from 'react-native-paper';
+
 import SettingSwitch from '../../components/SettingSwitch';
 
 const NavigationTab: React.FC = () => {

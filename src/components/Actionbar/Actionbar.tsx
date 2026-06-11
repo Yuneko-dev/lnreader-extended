@@ -1,4 +1,6 @@
 import { useTheme } from '@hooks/persisted';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { MaterialDesignIconName } from '@type/icon';
 import React from 'react';
 import {
   Dimensions,
@@ -7,10 +9,8 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import { MaterialDesignIconName } from '@type/icon';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Action = {
   icon: MaterialDesignIconName;

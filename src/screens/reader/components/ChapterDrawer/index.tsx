@@ -1,3 +1,11 @@
+import { Button, LoadingScreenV2 } from '@components/index';
+import { useAppSettings, useTheme } from '@hooks/persisted';
+import { LegendList, LegendListRef, ViewToken } from '@legendapp/list';
+import { useNovelActions, useNovelValue } from '@screens/novel/NovelContext';
+import { useChapterContext } from '@screens/reader/ChapterContext';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { noop } from 'lodash-es';
 import React, {
   useCallback,
   useEffect,
@@ -7,16 +15,9 @@ import React, {
 } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useAppSettings, useTheme } from '@hooks/persisted';
-import { Button, LoadingScreenV2 } from '@components/index';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getString } from '@strings/translations';
-import { ThemeColors } from '@theme/types';
+
 import renderListChapter from './RenderListChapter';
-import { useChapterContext } from '@screens/reader/ChapterContext';
-import { LegendList, LegendListRef, ViewToken } from '@legendapp/list';
-import { noop } from 'lodash-es';
-import { useNovelActions, useNovelValue } from '@screens/novel/NovelContext';
 
 type ButtonProperties = {
   text: string;

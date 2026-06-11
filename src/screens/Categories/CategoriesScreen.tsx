@@ -1,24 +1,22 @@
-import { StyleSheet } from 'react-native';
-import React, { useEffect } from 'react';
-import { FAB } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import DraggableFlatList, {
-  RenderItemParams,
-} from 'react-native-draggable-flatlist';
-
+import { useLibraryContext } from '@components/Context/LibraryContext';
 import { Appbar, EmptyView, SafeAreaView } from '@components/index';
-import AddCategoryModal from './components/AddCategoryModal';
-
 import { updateCategoryOrderInDb } from '@database/queries/CategoryQueries';
 import { useBoolean } from '@hooks';
 import { useTheme } from '@hooks/persisted';
+import { useNavigation } from '@react-navigation/native';
+import { ExtendedCategory } from '@screens/library/hooks/useLibrary';
 import { getString } from '@strings/translations';
+import React, { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import DraggableFlatList, {
+  RenderItemParams,
+} from 'react-native-draggable-flatlist';
+import { FAB } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import AddCategoryModal from './components/AddCategoryModal';
 import CategoryCard from './components/CategoryCard';
 import CategorySkeletonLoading from './components/CategorySkeletonLoading';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLibraryContext } from '@components/Context/LibraryContext';
-import { ExtendedCategory } from '@screens/library/hooks/useLibrary';
 
 const CategoriesScreen = () => {
   const { categories, setCategories, refreshCategories, isLoading } =

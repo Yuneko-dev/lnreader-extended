@@ -1,18 +1,19 @@
+import {
+  Appbar,
+  Button,
+  EmptyView,
+  List,
+  SafeAreaView,
+} from '@components/index';
+import { useTheme } from '@hooks/persisted';
+import { useTranslateSettings } from '@hooks/persisted/useSettings';
+import { AIPromptsSettingsScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, List as PaperList } from 'react-native-paper';
-import {
-  Appbar,
-  List,
-  SafeAreaView,
-  Button,
-  EmptyView,
-} from '@components/index';
-import { useTheme } from '@hooks/persisted';
-import { AIPromptsSettingsScreenProps } from '@navigators/types';
-import { useTranslateSettings } from '@hooks/persisted/useSettings';
-import { getString } from '@strings/translations';
-import { showToast } from '@utils/showToast';
+
 import PromptEditModal from './components/PromptEditModal';
 
 const TranslatePromptScreen = ({

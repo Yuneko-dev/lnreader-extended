@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { debounce } from 'lodash-es';
-
-import { NovelItem, PluginItem } from '@plugins/types';
-import { getPlugin } from '@plugins/pluginManager';
 import { useBrowseSettings, usePlugins } from '@hooks/persisted';
+import { getPlugin } from '@plugins/pluginManager';
+import { NovelItem, PluginItem } from '@plugins/types';
 import { useFocusEffect } from '@react-navigation/native';
+import { debounce } from 'lodash-es';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface Props {
   defaultSearchText?: string;
@@ -22,9 +21,9 @@ export const useGlobalSearch = ({
   defaultSearchText,
   hasResultsOnly = false,
 }: Props) => {
-  const isMounted = useRef(true); //if user closes the search screen, cancel the search
-  const isFocused = useRef(true); //if the user opens a sub-screen (e.g. novel screen), pause the search
-  const lastSearch = useRef(''); //if the user changes search, cancel running searches
+  const isMounted = useRef(true); // if user closes the search screen, cancel the search
+  const isFocused = useRef(true); // if the user opens a sub-screen (e.g. novel screen), pause the search
+  const lastSearch = useRef(''); // if the user changes search, cancel running searches
   useEffect(
     () => () => {
       isMounted.current = false;
@@ -102,7 +101,7 @@ export const useGlobalSearch = ({
         }
       }
 
-      //Sort so we load the plugins results in the same order as they show on the list
+      // Sort so we load the plugins results in the same order as they show on the list
       const filteredSortedInstalledPlugins = [...filteredInstalledPlugins].sort(
         (a, b) => a.name.localeCompare(b.name),
       );

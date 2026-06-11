@@ -1,20 +1,18 @@
+import { Button, Modal } from '@components/index';
+import { useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Portal, TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Portal, TextInput } from 'react-native-paper';
 
-import { Button, Modal } from '@components/index';
-
-import { Category } from '../../../database/types';
 import {
   createCategory,
   isCategoryNameDuplicate,
   updateCategory,
 } from '../../../database/queries/CategoryQueries';
-import { useTheme } from '@hooks/persisted';
-
-import { getString } from '@strings/translations';
-import { showToast } from '@utils/showToast';
+import { Category } from '../../../database/types';
 
 interface AddCategoryModalProps {
   isEditMode?: boolean;

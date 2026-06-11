@@ -1,15 +1,15 @@
+import { Appbar, List, Modal, SafeAreaView } from '@components';
+import { useBoolean } from '@hooks';
+import { useTheme } from '@hooks/persisted';
+import { useSecuritySettings } from '@hooks/persisted/useSettings';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import * as LocalAuthentication from 'expo-local-authentication';
 import React, { useCallback } from 'react';
-import { ScrollView, StyleSheet, View, Text, Pressable } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
 
-import { Appbar, List, SafeAreaView, Modal } from '@components';
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
 import SettingSwitch from './components/SettingSwitch';
-import { useSecuritySettings } from '@hooks/persisted/useSettings';
-import { useBoolean } from '@hooks';
-import * as LocalAuthentication from 'expo-local-authentication';
-import { showToast } from '@utils/showToast';
 
 const LOCK_ON_BG_OPTIONS = [
   { label: 'securitySettingsScreen.always' as const, value: 'always' as const },

@@ -1,12 +1,11 @@
+import { NovelInfo } from '@database/types';
+import { NovelItem } from '@plugins/types';
+import { ThemeColors } from '@theme/types';
+import color from 'color';
 import React from 'react';
-import { StyleSheet, View, Text, Pressable, Image } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { coverPlaceholderColor } from '../theme/colors';
-
-import color from 'color';
-import { ThemeColors } from '@theme/types';
-import { NovelItem } from '@plugins/types';
-import { NovelInfo } from '@database/types';
 
 interface ListViewProps {
   item: NovelItem | NovelInfo;

@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { NovelItem } from '@plugins/types';
-
 import { getPlugin } from '@plugins/pluginManager';
-import { FilterToValues, Filters } from '@plugins/types/filterTypes';
+import { NovelItem } from '@plugins/types';
+import { Filters, FilterToValues } from '@plugins/types/filterTypes';
 import { showToast } from '@utils/showToast';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const useBrowseSource = (
   pluginId: string,

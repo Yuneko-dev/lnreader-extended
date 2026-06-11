@@ -1,7 +1,8 @@
+import Switch from '@components/Switch/Switch';
 import React, { Suspense } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
 import { ThemeColors } from '../../../../theme/types';
-import Switch from '@components/Switch/Switch';
 
 interface ReaderSheetPreferenceItemProps {
   label: string;

@@ -1,4 +1,4 @@
-import { FilterToValues, Filters } from './filterTypes';
+import { Filters, FilterToValues } from './filterTypes';
 
 export interface TextSetting {
   value: string;

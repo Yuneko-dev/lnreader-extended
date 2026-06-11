@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
-
-import * as Linking from 'expo-linking';
-
-import { getString } from '@strings/translations';
-import { MoreHeader } from './components/MoreHeader';
-import { useTheme } from '@hooks/persisted';
 import { List, SafeAreaView } from '@components';
-import { AboutScreenProps } from '@navigators/types';
 import Config from '@env';
-import * as Clipboard from 'expo-clipboard';
-import { version } from '../../../package.json';
+import { fetchUpdateInfo } from '@hooks/common/useGithubUpdateChecker';
+import { useTheme } from '@hooks/persisted';
+import { AboutScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
 import {
   APP_GITHUB,
   APP_WEBSITE,
   DISCORD_INVITE,
   PLUGIN_GITHUB,
 } from '@utils/constants/metadata';
-import { fetchUpdateInfo } from '@hooks/common/useGithubUpdateChecker';
 import { showToast } from '@utils/showToast';
+import * as Clipboard from 'expo-clipboard';
+import * as Linking from 'expo-linking';
+import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
+
+import { version } from '../../../package.json';
+import { MoreHeader } from './components/MoreHeader';
 
 const { GIT_HASH, RELEASE_DATE, BUILD_TYPE } = Config;
 

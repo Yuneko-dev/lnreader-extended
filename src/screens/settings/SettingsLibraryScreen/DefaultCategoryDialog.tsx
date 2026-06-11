@@ -1,13 +1,10 @@
+import { RadioButton } from '@components';
+import { Category } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
 import React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { Button, Dialog } from 'react-native-paper';
-
-import { RadioButton } from '@components';
-
-import { getString } from '@strings/translations';
-import { useTheme } from '@hooks/persisted';
-
-import { Category } from '@database/types';
 
 interface DefaultCategoryDialogProps {
   visible: boolean;

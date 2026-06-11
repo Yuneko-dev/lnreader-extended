@@ -1,17 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, FlatListProps } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
-import { usePlugins, useTheme } from '@hooks/persisted';
-
-import EmptyView from '@components/EmptyView';
-import MigrationNovelList from './MigrationNovelList';
-
-import { getPlugin } from '@plugins/pluginManager';
-import { useLibraryNovels } from '@screens/library/hooks/useLibrary';
 import { Appbar, SafeAreaView } from '@components';
-import GlobalSearchSkeletonLoading from '../loadingAnimation/GlobalSearchSkeletonLoading';
+import EmptyView from '@components/EmptyView';
+import { usePlugins, useTheme } from '@hooks/persisted';
 import { MigrateNovelScreenProps } from '@navigators/types';
+import { getPlugin } from '@plugins/pluginManager';
 import { NovelItem } from '@plugins/types';
+import { useLibraryNovels } from '@screens/library/hooks/useLibrary';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, FlatListProps, StyleSheet, Text, View } from 'react-native';
+import { ProgressBar } from 'react-native-paper';
+
+import GlobalSearchSkeletonLoading from '../loadingAnimation/GlobalSearchSkeletonLoading';
+import MigrationNovelList from './MigrationNovelList';
 
 export interface SourceSearchResult {
   id: string;

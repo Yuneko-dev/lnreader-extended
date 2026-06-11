@@ -1,16 +1,15 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View, Pressable, Text, ScrollView } from 'react-native';
-import { getString } from '@strings/translations';
-
 import { List, SafeAreaView } from '@components';
+import Switch from '@components/Switch/Switch';
+import { useLibrarySettings, useTheme } from '@hooks/persisted';
+import { discordRPC } from '@modules/discord/DiscordRPC';
+import { MoreStackScreenProps } from '@navigators/types';
+import ServiceManager, { BackgroundTask } from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import React, { useEffect } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMMKVObject } from 'react-native-mmkv';
 
 import { MoreHeader } from './components/MoreHeader';
-import { useLibrarySettings, useTheme } from '@hooks/persisted';
-import { MoreStackScreenProps } from '@navigators/types';
-import Switch from '@components/Switch/Switch';
-import { useMMKVObject } from 'react-native-mmkv';
-import ServiceManager, { BackgroundTask } from '@services/ServiceManager';
-import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const MoreScreen = ({ navigation }: MoreStackScreenProps) => {
   const theme = useTheme();

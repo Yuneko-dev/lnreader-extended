@@ -1,10 +1,11 @@
-import { Linking } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import * as SecureStore from 'expo-secure-store';
-import { discordRPC } from './DiscordRPC';
-import { createHash, randomBytes } from 'react-native-quick-crypto';
-import { API, TokenResponse } from './index';
 import { Buffer } from 'buffer';
+import * as SecureStore from 'expo-secure-store';
+import * as WebBrowser from 'expo-web-browser';
+import { Linking } from 'react-native';
+import { createHash, randomBytes } from 'react-native-quick-crypto';
+
+import { discordRPC } from './DiscordRPC';
+import { API, TokenResponse } from './index';
 import { DISCORD_CLIENT_ID } from './utils/Constants';
 
 export const DISCORD_SCOPE = ['openid', 'sdk.social_layer_presence'].join(' ');
@@ -19,6 +20,7 @@ export interface StoredTokenData extends TokenResponse {
 
 export class DiscordAuth {
   static async login(): Promise<StoredTokenData | null> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
         // Generate PKCE

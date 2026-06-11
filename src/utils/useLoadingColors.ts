@@ -1,6 +1,6 @@
+import { useAppSettings } from '@hooks/persisted';
 import { ThemeColors } from '@theme/types';
 import color from 'color';
-import { useAppSettings } from '@hooks/persisted';
 import { interpolateColor } from 'react-native-reanimated';
 
 const useLoadingColors = (theme: ThemeColors) => {
@@ -21,9 +21,9 @@ const useLoadingColors = (theme: ThemeColors) => {
   const { disableLoadingAnimations } = useAppSettings();
 
   if (disableLoadingAnimations) {
-    //If loading animations is disabled highlight color is never shown so make background color more visible to compensate
+    // If loading animations is disabled highlight color is never shown so make background color more visible to compensate
     adjustedBackgroundColor = interpolateColor(
-      0.01, //I have no idea why the interpolation amount has to be so small, I think its cus of the massive difference in alpha
+      0.01, // I have no idea why the interpolation amount has to be so small, I think its cus of the massive difference in alpha
       [0, 1],
       [adjustedBackgroundColor, highlightColor],
     );

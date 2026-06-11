@@ -7,15 +7,41 @@ import {
 } from '@database/queries/ChapterQueries';
 import { insertHistory } from '@database/queries/HistoryQueries';
 import { ChapterInfo, NovelInfo } from '@database/types';
+import { useFullscreenMode } from '@hooks';
 import {
   useChapterGeneralSettings,
   useLibrarySettings,
   useTrackedNovel,
   useTracker,
 } from '@hooks/persisted';
-import { fetchChapter, fetchPage } from '@services/plugin/fetch';
+import {
+  ACTIVE_AI_PROVIDER_KEY,
+  AI_PROVIDERS_KEY,
+  AIProvider,
+} from '@hooks/persisted/useAIProviders';
+import {
+  initialTranslateSettings,
+  TRANSLATE_SETTINGS,
+  TranslateSettings,
+} from '@hooks/persisted/useSettings';
 import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { useNovelActions } from '@screens/novel/NovelContext';
+import { fetchChapter, fetchPage } from '@services/plugin/fetch';
+import {
+  TranslateConfig,
+  TranslateManager,
+} from '@services/translate/TranslateManager';
+import NativeFile from '@specs/NativeFile';
+import NativeSPenRemote from '@specs/NativeSPenRemote';
+import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
+import { getString } from '@strings/translations';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
+import { parseChapterNumber } from '@utils/parseChapterNumber';
+import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
+import { load } from 'cheerio';
+import * as Speech from 'expo-speech';
+import { defaultTo } from 'lodash-es';
 import {
   RefObject,
   useCallback,
@@ -25,43 +51,18 @@ import {
   useState,
 } from 'react';
 import {
-  TranslateManager,
-  TranslateConfig,
-} from '@services/translate/TranslateManager';
-import { getMMKVObject } from '@utils/mmkv/mmkv';
-import {
-  TRANSLATE_SETTINGS,
-  TranslateSettings,
-  initialTranslateSettings,
-} from '@hooks/persisted/useSettings';
-import {
-  AIProvider,
-  AI_PROVIDERS_KEY,
-  ACTIVE_AI_PROVIDER_KEY,
-} from '@hooks/persisted/useAIProviders';
-import { sanitizeChapterText } from '../utils/sanitizeChapterText';
-import { parseChapterNumber } from '@utils/parseChapterNumber';
-import WebView from 'react-native-webview';
-import { useFullscreenMode } from '@hooks';
-import {
   AppState,
   Dimensions,
   NativeEventEmitter,
   NativeModules,
 } from 'react-native';
-import * as Speech from 'expo-speech';
-import { defaultTo } from 'lodash-es';
-import { showToast } from '@utils/showToast';
-import { getString } from '@strings/translations';
-import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
-import NativeSPenRemote from '@specs/NativeSPenRemote';
-import NativeFile from '@specs/NativeFile';
-import { useNovelActions } from '@screens/novel/NovelContext';
-import { load } from 'cheerio';
+import WebView from 'react-native-webview';
+
+import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import {
   handleSPenRemoteEvent,
-  SPenRemoteEventName,
   SPEN_REMOTE_EVENTS,
+  SPenRemoteEventName,
 } from '../utils/sPenRemote';
 
 const { TikTokTTS } = NativeModules;
@@ -554,8 +555,8 @@ export default function useChapter(
       };
 
       autoScrollTimeout.current = setTimeout(loop, autoScrollInterval * 1000);
-    } else {
-      if (autoScrollTimeout.current) clearTimeout(autoScrollTimeout.current);
+    } else if (autoScrollTimeout.current) {
+      clearTimeout(autoScrollTimeout.current);
     }
 
     return () => {

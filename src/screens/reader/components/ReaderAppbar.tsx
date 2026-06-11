@@ -1,18 +1,18 @@
+import { bookmarkChapter } from '@database/queries/ChapterQueries';
+import { useNovelLayout } from '@screens/novel/NovelContext';
+import { ThemeColors } from '@theme/types';
+import color from 'color';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import color from 'color';
-
 import { Text } from 'react-native-paper';
-import { IconButtonV2 } from '../../../components';
 import Animated, {
   Easing,
   ReduceMotion,
   withTiming,
 } from 'react-native-reanimated';
-import { ThemeColors } from '@theme/types';
-import { bookmarkChapter } from '@database/queries/ChapterQueries';
+
+import { IconButtonV2 } from '../../../components';
 import { useChapterContext } from '../ChapterContext';
-import { useNovelLayout } from '@screens/novel/NovelContext';
 
 interface ReaderAppbarProps {
   theme: ThemeColors;

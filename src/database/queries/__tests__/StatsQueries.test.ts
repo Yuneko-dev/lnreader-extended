@@ -5,18 +5,18 @@
  */
 
 import './mockDb';
-import { setupTestDatabase, getTestDb, teardownTestDatabase } from './setup';
-import { insertTestNovel, insertTestChapter, clearAllTables } from './testData';
 
 import {
-  getLibraryStatsFromDb,
-  getChaptersTotalCountFromDb,
-  getChaptersReadCountFromDb,
-  getChaptersUnreadCountFromDb,
   getChaptersDownloadedCountFromDb,
+  getChaptersReadCountFromDb,
+  getChaptersTotalCountFromDb,
+  getChaptersUnreadCountFromDb,
+  getLibraryStatsFromDb,
   getNovelGenresFromDb,
   getNovelStatusFromDb,
 } from '../StatsQueries';
+import { getTestDb, setupTestDatabase, teardownTestDatabase } from './setup';
+import { clearAllTables, insertTestChapter, insertTestNovel } from './testData';
 
 describe('StatsQueries', () => {
   beforeEach(() => {

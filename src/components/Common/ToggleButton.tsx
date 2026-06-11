@@ -1,9 +1,10 @@
-import React from 'react';
-import { Pressable, View, StyleSheet } from 'react-native';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import { ThemeColors } from '../../theme/types';
-import Color from 'color';
 import { MaterialDesignIconName } from '@type/icon';
+import Color from 'color';
+import React from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+
+import { ThemeColors } from '../../theme/types';
 
 // --- Dynamic style helpers ---
 
@@ -48,7 +49,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
     >
       <MaterialCommunityIcons
         name={icon}
-        color={selected ? theme.primary : color ? color : theme.onSurface}
+        color={selected ? theme.primary : color || theme.onSurface}
         size={24}
       />
     </Pressable>

@@ -1,15 +1,16 @@
-import { fetchNovel, fetchPage } from '../plugin/fetch';
 import { dbManager } from '@database/db';
 import { chapterSchema, novelSchema } from '@database/schema';
-import { eq } from 'drizzle-orm';
-import NativeFile from '@specs/NativeFile';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { getPlugin } from '@plugins/pluginManager';
-import { downloadFile } from '@plugins/helpers/fetch';
-import { getString } from '@strings/translations';
 import { LAST_READ_PREFIX } from '@hooks/persisted/useNovel';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { downloadFile } from '@plugins/helpers/fetch';
+import { getPlugin } from '@plugins/pluginManager';
 import { ChapterItem } from '@plugins/types';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import { eq } from 'drizzle-orm';
+
+import { fetchNovel, fetchPage } from '../plugin/fetch';
 
 export interface ForceResetOptions {
   reloadMetadata: boolean;
@@ -45,7 +46,7 @@ export const forceResetNovel = async (
     log(getString('novelScreen.forceResetModal.logReloadMetadata'));
     const { name, summary, author, artist, genres, status, totalPages } =
       sourceNovel;
-    let cover = sourceNovel.cover;
+    let { cover } = sourceNovel;
     const novelDir = `${NOVEL_STORAGE}/${pluginId}/${novelId}`;
 
     if (!NativeFile.exists(novelDir)) {

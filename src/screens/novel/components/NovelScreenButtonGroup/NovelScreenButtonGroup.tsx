@@ -1,18 +1,18 @@
+import { NovelInfo } from '@database/types';
+import { useBoolean } from '@hooks';
+import { useTrackedNovel, useTracker } from '@hooks/persisted';
+import { NovelScreenProps } from '@navigators/types';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { useNavigation } from '@react-navigation/native';
+import { useNovelAction } from '@screens/novel/NovelContext';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { MaterialDesignIconName } from '@type/icon';
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-
-import { NovelInfo } from '@database/types';
-import { useNavigation } from '@react-navigation/native';
-import { useBoolean } from '@hooks';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import SetCategoryModal from '../SetCategoriesModal';
-import { NovelScreenProps } from '@navigators/types';
-import { useTrackedNovel, useTracker } from '@hooks/persisted';
 import Animated, { ZoomIn, ZoomOut } from 'react-native-reanimated';
-import { MaterialDesignIconName } from '@type/icon';
-import { useNovelAction } from '@screens/novel/NovelContext';
+
+import SetCategoryModal from '../SetCategoriesModal';
 
 const NButton = ({
   onPress,

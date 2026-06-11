@@ -1,12 +1,11 @@
+import { Appbar, List, SafeAreaView } from '@components';
+import { useTheme } from '@hooks/persisted';
+import { SettingsScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { Appbar, List, SafeAreaView } from '@components';
-import { useTheme } from '@hooks/persisted';
-
-import { getString } from '@strings/translations';
-import { SettingsScreenProps } from '@navigators/types';
 import { DiscordSVG } from './SettingsDiscordScreen';
 
 export const AIIconSvg = ({ color, size, ...props }: any) => (

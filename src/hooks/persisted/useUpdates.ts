@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getDetailedUpdatesFromDb,
   getUpdatedOverviewFromDb,
 } from '@database/queries/ChapterQueries';
-
 import { Update, UpdateOverview } from '@database/types';
-import { useMMKVBoolean, useMMKVString } from 'react-native-mmkv';
-import dayjs from 'dayjs';
 import { useFocusEffect } from '@react-navigation/native';
+import dayjs from 'dayjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMMKVBoolean, useMMKVString } from 'react-native-mmkv';
 
 export const SHOW_LAST_UPDATE_TIME = 'SHOW_LAST_UPDATE_TIME';
 export const LAST_UPDATE_TIME = 'LAST_UPDATE_TIME';
@@ -84,7 +83,7 @@ export const useUpdates = () => {
   useFocusEffect(
     useCallback(() => {
       setIsLoading(true);
-      //? Push updates to the end of the stack to avoid lag
+      // ? Push updates to the end of the stack to avoid lag
       setTimeout(async () => {
         await getUpdates();
         setIsLoading(false);

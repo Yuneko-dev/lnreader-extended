@@ -1,5 +1,7 @@
-import { useCallback } from 'react';
 import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
+import { ChapterInfo, NovelInfo } from '@database/types';
+import { useCallback } from 'react';
+
 import {
   bookmarkChaptersAction,
   deleteChapterAction,
@@ -12,7 +14,6 @@ import {
   refreshChaptersAction,
   updateChapterProgressAction,
 } from './store/chapterActions';
-import { ChapterInfo, NovelInfo } from '@database/types';
 
 export interface UseChapterOperationsParams {
   novel: NovelInfo | undefined;

@@ -1,18 +1,19 @@
+import {
+  Appbar,
+  Button,
+  EmptyView,
+  List,
+  SafeAreaView,
+} from '@components/index';
+import { useTheme } from '@hooks/persisted';
+import { useAIProviders } from '@hooks/persisted/useAIProviders';
+import { SettingsAIScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, List as PaperList } from 'react-native-paper';
-import {
-  Appbar,
-  List,
-  SafeAreaView,
-  Button,
-  EmptyView,
-} from '@components/index';
-import { useTheme } from '@hooks/persisted';
-import { SettingsAIScreenProps } from '@navigators/types';
-import { useAIProviders } from '@hooks/persisted/useAIProviders';
+
 import AIProviderModal from './components/AIProviderModal';
-import { getString } from '@strings/translations';
 
 const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
   const theme = useTheme();

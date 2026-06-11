@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { StyleSheet, FlatList, Text, View, FlatListProps } from 'react-native';
-import { Portal } from 'react-native-paper';
-import GlobalSearchNovelCover from '../globalsearch/GlobalSearchNovelCover';
-
-import { showToast } from '@utils/showToast';
 import { Button, Modal } from '@components';
-import { getString } from '@strings/translations';
-import { MigrateNovelScreenProps } from '@navigators/types';
 import { NovelInfo } from '@database/types';
-import { ThemeColors } from '@theme/types';
-import { SourceSearchResult } from './MigrationNovels';
+import { MigrateNovelScreenProps } from '@navigators/types';
 import { NovelItem } from '@plugins/types';
 import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { showToast } from '@utils/showToast';
+import React, { useState } from 'react';
+import { FlatList, FlatListProps, StyleSheet, Text, View } from 'react-native';
+import { Portal } from 'react-native-paper';
+
+import GlobalSearchNovelCover from '../globalsearch/GlobalSearchNovelCover';
+import { SourceSearchResult } from './MigrationNovels';
 
 interface MigrationNovelListProps {
   data: SourceSearchResult;

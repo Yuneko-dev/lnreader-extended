@@ -1,40 +1,40 @@
-import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View, StatusBar, Text, Share } from 'react-native';
+import { SafeAreaView } from '@components';
+import {
+  getAllUndownloadedAndUnreadChapters,
+  getAllUndownloadedChapters,
+  updateChapterProgressByIds,
+} from '@database/queries/ChapterQueries';
+import { ChapterInfo } from '@database/types';
+import { useBoolean } from '@hooks';
+import { useDownload, useTheme } from '@hooks/persisted';
+import { LegendListRef } from '@legendapp/list';
+import { discordRPC } from '@modules/discord/DiscordRPC';
+import { NovelScreenProps } from '@navigators/types';
 import { useFocusEffect } from '@react-navigation/native';
+import { resolveUrl } from '@services/plugin/fetch';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { MaterialDesignIconName } from '@type/icon';
+import { isNumber } from 'lodash-es';
+import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { Share, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Appbar, Portal, Snackbar } from 'react-native-paper';
 import Animated, {
   SlideInUp,
   SlideOutUp,
   useSharedValue,
 } from 'react-native-reanimated';
 
-import { Portal, Appbar, Snackbar } from 'react-native-paper';
-import { useDownload, useTheme } from '@hooks/persisted';
-import JumpToChapterModal from './components/JumpToChapterModal';
 import { Actionbar } from '../../components/Actionbar/Actionbar';
-import EditInfoModal from './components/EditInfoModal';
 import { pickCustomNovelCover } from '../../database/queries/NovelQueries';
 import DownloadCustomChapterModal from './components/DownloadCustomChapterModal';
-import { useBoolean } from '@hooks';
-import NovelScreenLoading from './components/LoadingAnimation/NovelScreenLoading';
-import { NovelScreenProps } from '@navigators/types';
-import { ChapterInfo } from '@database/types';
-import { getString } from '@strings/translations';
-import { isNumber } from 'lodash-es';
-import NovelAppbar from './components/NovelAppbar';
+import EditInfoModal from './components/EditInfoModal';
 import ForceResetModal from './components/ForceResetModal';
-import { resolveUrl } from '@services/plugin/fetch';
-import {
-  getAllUndownloadedAndUnreadChapters,
-  getAllUndownloadedChapters,
-  updateChapterProgressByIds,
-} from '@database/queries/ChapterQueries';
-import { MaterialDesignIconName } from '@type/icon';
+import JumpToChapterModal from './components/JumpToChapterModal';
+import NovelScreenLoading from './components/LoadingAnimation/NovelScreenLoading';
+import NovelAppbar from './components/NovelAppbar';
 import NovelScreenList from './components/NovelScreenList';
-import { ThemeColors } from '@theme/types';
-import { SafeAreaView } from '@components';
 import { useNovelActions, useNovelValue } from './NovelContext';
-import { LegendListRef } from '@legendapp/list';
-import { discordRPC } from '@modules/discord/DiscordRPC';
 
 const Novel = ({ route, navigation }: NovelScreenProps) => {
   const novel = useNovelValue('novel');

@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { version } from '../../../package.json';
-import { newer } from '@utils/compareVersion';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { GITHUB_USER, GITHUB_REPO } from '@utils/constants/metadata';
 import Config from '@env';
+import { newer } from '@utils/compareVersion';
+import { GITHUB_REPO, GITHUB_USER } from '@utils/constants/metadata';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { useCallback, useEffect, useState } from 'react';
+
+import { version } from '../../../package.json';
 
 const { GIT_HASH, BUILD_TYPE } = Config;
 

@@ -1,33 +1,33 @@
-import {
-  eq,
-  getColumns,
-  sql,
-  inArray,
-  and,
-  lte,
-  isNotNull,
-  desc,
-  asc,
-  count,
-  like,
-  gt,
-  lt,
-} from 'drizzle-orm';
-import { showToast } from '@utils/showToast';
-import { ChapterInfo, DownloadedChapter, Update } from '../types';
-import { ChapterItem } from '@plugins/types';
-
-import { getString } from '@strings/translations';
-import { NOVEL_STORAGE } from '@utils/Storages';
+import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
 import { dbManager } from '@database/db';
 import {
   chapterSchema,
   extendedChapterHistorySchema,
   novelSchema,
 } from '@database/schema';
-import NativeFile from '@specs/NativeFile';
-import { ChapterFilterKey, ChapterOrderKey } from '@database/constants';
 import { chapterFilterToSQL, chapterOrderToSQL } from '@database/utils/parser';
+import { ChapterItem } from '@plugins/types';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  getColumns,
+  gt,
+  inArray,
+  isNotNull,
+  like,
+  lt,
+  lte,
+  sql,
+} from 'drizzle-orm';
+
+import { ChapterInfo, DownloadedChapter, Update } from '../types';
 
 // #region Mutations
 

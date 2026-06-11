@@ -1,27 +1,24 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, SectionList, Text } from 'react-native';
-import dayjs from 'dayjs';
-import { Portal } from 'react-native-paper';
-
 import {
   EmptyView,
   ErrorScreenV2,
   SafeAreaView,
   SearchbarV2,
 } from '@components';
-import HistoryCard from './components/HistoryCard/HistoryCard';
-
-import { useSearch, useBoolean } from '@hooks';
-import { useTheme, useHistory } from '@hooks/persisted';
-
-import { convertDateToISOString } from '@database/utils/convertDateToISOString';
-
 import { History } from '@database/types';
-import { getString } from '@strings/translations';
-import ClearHistoryDialog from './components/ClearHistoryDialog';
-import HistorySkeletonLoading from './components/HistorySkeletonLoading';
+import { convertDateToISOString } from '@database/utils/convertDateToISOString';
+import { useBoolean, useSearch } from '@hooks';
+import { useHistory, useTheme } from '@hooks/persisted';
 import { HistoryScreenProps } from '@navigators/types';
 import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { getString } from '@strings/translations';
+import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
+import { SectionList, StyleSheet, Text } from 'react-native';
+import { Portal } from 'react-native-paper';
+
+import ClearHistoryDialog from './components/ClearHistoryDialog';
+import HistoryCard from './components/HistoryCard/HistoryCard';
+import HistorySkeletonLoading from './components/HistorySkeletonLoading';
 
 const HistoryScreen = ({ navigation }: HistoryScreenProps) => {
   const theme = useTheme();

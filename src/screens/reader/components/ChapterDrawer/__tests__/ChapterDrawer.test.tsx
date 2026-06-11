@@ -1,9 +1,10 @@
 import {
+  fireEvent,
   render,
   screen,
-  fireEvent,
   waitFor,
 } from '@testing-library/react-native';
+
 import ChapterDrawer from '..';
 
 const mockUseNovelValue = jest.fn();

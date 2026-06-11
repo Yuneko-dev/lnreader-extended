@@ -1,6 +1,7 @@
-import { load, Element } from 'cheerio';
-import { EpubSettings, EpubChapter, Parameter, File } from '../../types';
-import { parseJSon, isValid, sleep } from '../methods/helper';
+import { Element, load } from 'cheerio';
+
+import { EpubChapter, EpubSettings, File, Parameter } from '../../types';
+import { isValid, parseJSon, sleep } from '../methods/helper';
 
 export async function EpubSettingsLoader(
   file: File[],

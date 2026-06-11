@@ -1,3 +1,19 @@
+import BottomSheet from '@components/BottomSheet/BottomSheet';
+import { Checkbox, SortItem } from '@components/Checkbox/Checkbox';
+import { RadioButton } from '@components/RadioButton/RadioButton';
+import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { useLibrarySettings, useTheme } from '@hooks/persisted';
+import {
+  DisplayModes,
+  displayModesList,
+  LibraryFilter,
+  libraryFilterList,
+  LibrarySortOrder,
+  librarySortOrderList,
+} from '@screens/library/constants/constants';
+import { getString } from '@strings/translations';
+import color from 'color';
 import React, { RefObject, useCallback, useMemo, useState } from 'react';
 import {
   StyleProp,
@@ -7,30 +23,13 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { overlay } from 'react-native-paper';
 import {
   SceneMap,
   TabBar,
   TabDescriptor,
   TabView,
 } from 'react-native-tab-view';
-import color from 'color';
-
-import { useLibrarySettings, useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import { Checkbox, SortItem } from '@components/Checkbox/Checkbox';
-import {
-  DisplayModes,
-  displayModesList,
-  LibraryFilter,
-  libraryFilterList,
-  LibrarySortOrder,
-  librarySortOrderList,
-} from '@screens/library/constants/constants';
-import { RadioButton } from '@components/RadioButton/RadioButton';
-import { overlay } from 'react-native-paper';
-import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
-import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 
 interface LibraryBottomSheetProps {
   bottomSheetRef: RefObject<BottomSheetModalMethods | null>;

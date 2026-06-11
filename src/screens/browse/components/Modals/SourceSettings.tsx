@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { Button, Checkbox, Menu, Modal, SwitchItem } from '@components/index';
+import { useTheme } from '@hooks/persisted';
+import { Storage } from '@plugins/helpers/storage';
+import { PluginSettings } from '@plugins/types';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { getString } from '@strings/translations';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
 } from 'react-native';
-import { TextInput, overlay } from 'react-native-paper';
-import { Button, Modal, SwitchItem, Checkbox, Menu } from '@components/index';
-import { useTheme } from '@hooks/persisted';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { getString } from '@strings/translations';
-import { Storage } from '@plugins/helpers/storage';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import { PluginSettings } from '@plugins/types';
+import { overlay, TextInput } from 'react-native-paper';
 
 interface SourceSettingsModal {
   visible: boolean;

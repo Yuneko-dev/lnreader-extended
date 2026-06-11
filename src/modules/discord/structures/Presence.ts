@@ -1,5 +1,6 @@
 import { randomBytes } from 'react-native-quick-crypto';
-import { Util, EmojiIdentifierResolvable, ActivityTypes } from '../utils';
+
+import { ActivityTypes, EmojiIdentifierResolvable, Util } from '../utils';
 
 function parseImage(image: any): string | null {
   if (typeof image !== 'string') {

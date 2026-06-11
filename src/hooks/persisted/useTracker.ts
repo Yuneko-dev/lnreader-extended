@@ -1,10 +1,11 @@
 import { AuthenticationResult, Tracker, TrackerName } from '@services/Trackers';
 import { aniListTracker } from '@services/Trackers/aniList';
-import { myAnimeListTracker } from '@services/Trackers/myAnimeList';
-import { mangaUpdatesTracker } from '@services/Trackers/mangaUpdates';
 import { kitsuTracker } from '@services/Trackers/kitsu';
-import { useMMKVObject, useMMKVString } from 'react-native-mmkv';
+import { mangaUpdatesTracker } from '@services/Trackers/mangaUpdates';
+import { myAnimeListTracker } from '@services/Trackers/myAnimeList';
 import { useEffect } from 'react';
+import { useMMKVObject, useMMKVString } from 'react-native-mmkv';
+
 import {
   migrateTrackerAuth,
   OLD_TRACKER_KEY,

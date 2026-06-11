@@ -1,12 +1,13 @@
-import { countBy } from 'lodash-es';
-import { eq, count, and, sql } from 'drizzle-orm';
-import { LibraryStats } from '../types';
 import { dbManager } from '@database/db';
 import {
-  novelSchema,
   chapterSchema,
   extendedChapterHistorySchema,
+  novelSchema,
 } from '@database/schema';
+import { and, count, eq, sql } from 'drizzle-orm';
+import { countBy } from 'lodash-es';
+
+import { LibraryStats } from '../types';
 
 /**
  * Get library statistics (novel count and distinct sources) using Drizzle ORM

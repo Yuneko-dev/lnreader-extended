@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-
 import { Button, DialogTitle, Modal } from '@components';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { TextInput } from 'react-native-paper';
+
 import { TrackChaptersDialogProps } from './types';
 
 const SetTrackChaptersDialog: React.FC<TrackChaptersDialogProps> = ({
@@ -30,7 +30,7 @@ const SetTrackChaptersDialog: React.FC<TrackChaptersDialogProps> = ({
   };
 
   const handleChangeText = (text: string) => {
-    setChapters(text ? text : '');
+    setChapters(text || '');
   };
 
   return (

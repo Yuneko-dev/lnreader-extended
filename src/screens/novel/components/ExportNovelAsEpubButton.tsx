@@ -1,16 +1,15 @@
-import React, { useMemo } from 'react';
-import { Portal } from 'react-native-paper';
-import { StatusBar, StyleProp, ViewStyle } from 'react-native';
-
 import { NovelInfo } from '@database/types';
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { useBoolean } from '@hooks/index';
-import { showToast } from '@utils/showToast';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
-
-import ExportEpubModal from './ExportEpubModal';
-import ExportEpubLogsModal from './ExportEpubLogsModal';
 import { MaterialDesignIconName } from '@type/icon';
+import { showToast } from '@utils/showToast';
+import React, { useMemo } from 'react';
+import { StatusBar, StyleProp, ViewStyle } from 'react-native';
+import { Portal } from 'react-native-paper';
+
+import ExportEpubLogsModal from './ExportEpubLogsModal';
+import ExportEpubModal from './ExportEpubModal';
 
 interface ExportNovelAsEpubButtonProps {
   novel?: NovelInfo;

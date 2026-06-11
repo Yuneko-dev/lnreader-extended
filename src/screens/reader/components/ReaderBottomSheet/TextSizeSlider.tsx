@@ -1,9 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
-
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import Slider from '@react-native-community/slider';
 import { getString } from '@strings/translations';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 const TRACK_TINT_COLOR = '#000000';
 

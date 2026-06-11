@@ -4,9 +4,6 @@
  * Uses op-sqlite Node runtime for Jest testing environment
  */
 
-import { open } from '@op-engineering/op-sqlite';
-import { drizzle } from 'drizzle-orm/op-sqlite';
-import { schema } from '@database/schema';
 import {
   __resetDbManagerForTests,
   createDbManager,
@@ -17,6 +14,9 @@ import {
   createNovelTriggerQueryInsert,
   createNovelTriggerQueryUpdate,
 } from '@database/queryStrings/triggers';
+import { schema } from '@database/schema';
+import { open } from '@op-engineering/op-sqlite';
+import { drizzle } from 'drizzle-orm/op-sqlite';
 import { platform } from 'os';
 
 // SQL migration from drizzle/0000_past_mandrill.sql

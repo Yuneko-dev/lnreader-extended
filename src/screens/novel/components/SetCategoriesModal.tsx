@@ -1,19 +1,16 @@
+import { Checkbox } from '@components/Checkbox/Checkbox';
+import { Button, Modal } from '@components/index';
+import { getCategoriesWithCount } from '@database/queries/CategoryQueries';
+import { updateNovelCategories } from '@database/queries/NovelQueries';
+import { Category, CCategory } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { RootStackParamList } from '@navigators/types';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { getString } from '@strings/translations';
+import { xor } from 'lodash-es';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
 import { Divider, Portal } from 'react-native-paper';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-
-import { Button, Modal } from '@components/index';
-
-import { useTheme } from '@hooks/persisted';
-
-import { getString } from '@strings/translations';
-import { getCategoriesWithCount } from '@database/queries/CategoryQueries';
-import { updateNovelCategories } from '@database/queries/NovelQueries';
-import { CCategory, Category } from '@database/types';
-import { Checkbox } from '@components/Checkbox/Checkbox';
-import { xor } from 'lodash-es';
-import { RootStackParamList } from '@navigators/types';
 
 interface SetCategoryModalProps {
   novelIds: number[];

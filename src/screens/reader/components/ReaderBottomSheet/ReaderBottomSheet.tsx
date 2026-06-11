@@ -1,3 +1,17 @@
+import BottomSheet from '@components/BottomSheet/BottomSheet';
+import { BottomSheetFlashList, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
+import { StringMap } from '@strings/types';
+import Color from 'color';
+import React, {
+  RefObject,
+  Suspense,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -6,33 +20,18 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import React, {
-  RefObject,
-  useMemo,
-  useState,
-  useCallback,
-  Suspense,
-} from 'react';
-import Color from 'color';
-
-import { BottomSheetFlashList, BottomSheetView } from '@gorhom/bottom-sheet';
-import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
-import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
-import { getString } from '@strings/translations';
-
-import ReaderSheetPreferenceItem from './ReaderSheetPreferenceItem';
-import TextSizeSlider from './TextSizeSlider';
-import ReaderThemeSelector from './ReaderThemeSelector';
-import ReaderTextAlignSelector from './ReaderTextAlignSelector';
-import ReaderValueChange from './ReaderValueChange';
-import ReaderFontPicker from './ReaderFontPicker';
-import TTSTab from './TTSTab';
-import TranslateTab from './TranslateTab';
 import { overlay } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { StringMap } from '@strings/types';
+import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
+
+import ReaderFontPicker from './ReaderFontPicker';
+import ReaderSheetPreferenceItem from './ReaderSheetPreferenceItem';
+import ReaderTextAlignSelector from './ReaderTextAlignSelector';
+import ReaderThemeSelector from './ReaderThemeSelector';
+import ReaderValueChange from './ReaderValueChange';
+import TextSizeSlider from './TextSizeSlider';
+import TranslateTab from './TranslateTab';
+import TTSTab from './TTSTab';
 
 type TabViewLabelProps = {
   route: {

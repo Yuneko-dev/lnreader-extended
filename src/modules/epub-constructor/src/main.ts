@@ -1,14 +1,12 @@
-import { File, EpubSettings, InternalEpubChapter } from '../types';
+import sanitizeFileName from 'sanitize-filename';
+
+import { EpubSettings, File, InternalEpubChapter } from '../types';
 import {
-  createFile,
-  sleep,
-  getImageType,
-  removeFileExtension,
-  setChapterFileNames,
-} from './methods/helper';
-import { createStyle } from './methods/createStyle';
-import { createMetadata } from './constructors/metadataConstructor';
-import { createChapter } from './methods/createChapter';
+  defaultContainer,
+  defaultEpub,
+  defaultHtmlToc,
+  defaultNcxToc,
+} from './constructors/defaultsConstructor';
 import {
   manifestChapter,
   manifestCover,
@@ -17,13 +15,16 @@ import {
   manifestStyle,
   manifestToc,
 } from './constructors/manifestConstructor';
+import { createMetadata } from './constructors/metadataConstructor';
+import { createChapter } from './methods/createChapter';
+import { createStyle } from './methods/createStyle';
 import {
-  defaultContainer,
-  defaultEpub,
-  defaultHtmlToc,
-  defaultNcxToc,
-} from './constructors/defaultsConstructor';
-import sanitizeFileName from 'sanitize-filename';
+  createFile,
+  getImageType,
+  removeFileExtension,
+  setChapterFileNames,
+  sleep,
+} from './methods/helper';
 
 export default class EpubFile {
   epubSettings: EpubSettings;

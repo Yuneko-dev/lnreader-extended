@@ -1,7 +1,6 @@
+import { useTheme } from '@hooks/persisted';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-
-import { useTheme } from '@hooks/persisted';
 
 interface DialogTitleProps {
   title: string;

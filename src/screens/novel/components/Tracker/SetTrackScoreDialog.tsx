@@ -1,9 +1,9 @@
+import { Button, DialogTitle, Modal } from '@components';
+import { getString } from '@strings/translations';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-
-import { Button, DialogTitle, Modal } from '@components';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { getString } from '@strings/translations';
+
 import {
   AniListScoreSelector,
   KitsuScoreSelector,

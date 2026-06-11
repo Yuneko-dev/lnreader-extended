@@ -1,20 +1,19 @@
+import { IconButtonV2 } from '@components';
+import { PluginItem } from '@plugins/types';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
 import React, { memo, useCallback, useMemo } from 'react';
 import {
-  Pressable,
   Image,
-  View,
-  Text,
-  StyleSheet,
+  Pressable,
   StyleProp,
-  ViewStyle,
+  StyleSheet,
+  Text,
   TextStyle,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { Text as PaperText } from 'react-native-paper';
-
-import { PluginItem } from '@plugins/types';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { IconButtonV2 } from '@components';
 
 interface PluginListItemSkeletonProps {
   item: PluginItem;

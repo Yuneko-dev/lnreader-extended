@@ -1,13 +1,13 @@
 import {
+  Filters,
   FilterToValues,
   FilterTypes,
-  Filters,
   isCheckboxValue,
   isPickerValue,
   isSwitchValue,
   isTextValue,
-  ValueOfFilter,
   isXCheckboxValue,
+  ValueOfFilter,
 } from '@plugins/types/filterTypes';
 
 export const getValueFor = <T extends FilterTypes>(

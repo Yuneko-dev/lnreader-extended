@@ -1,26 +1,25 @@
-import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
-
-import ReaderAppbar from './components/ReaderAppbar';
-import ReaderFooter from './components/ReaderFooter';
-
-import WebViewReader from './components/WebViewReader';
-import ReaderBottomSheetV2 from './components/ReaderBottomSheet/ReaderBottomSheet';
-import ChapterDrawer from './components/ChapterDrawer';
-import ChapterLoadingScreen from './ChapterLoadingScreen/ChapterLoadingScreen';
 import { ErrorScreenV2 } from '@components';
-import { ChapterScreenProps } from '@navigators/types';
-import { getString } from '@strings/translations';
-import KeepScreenAwake from './components/KeepScreenAwake';
-import { ChapterContextProvider, useChapterContext } from './ChapterContext';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useBackHandler } from '@hooks/index';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
+import { discordRPC } from '@modules/discord/DiscordRPC';
+import { ChapterScreenProps } from '@navigators/types';
+import { useFocusEffect } from '@react-navigation/native';
+import { resolveUrl } from '@services/plugin/fetch';
+import { getString } from '@strings/translations';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
-import { discordRPC } from '@modules/discord/DiscordRPC';
-import { resolveUrl } from '@services/plugin/fetch';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { ChapterContextProvider, useChapterContext } from './ChapterContext';
+import ChapterLoadingScreen from './ChapterLoadingScreen/ChapterLoadingScreen';
+import ChapterDrawer from './components/ChapterDrawer';
+import KeepScreenAwake from './components/KeepScreenAwake';
+import ReaderAppbar from './components/ReaderAppbar';
+import ReaderBottomSheetV2 from './components/ReaderBottomSheet/ReaderBottomSheet';
+import ReaderFooter from './components/ReaderFooter';
+import WebViewReader from './components/WebViewReader';
 
 const Chapter = ({ route, navigation }: ChapterScreenProps) => {
   const [open, setOpen] = useState(false);

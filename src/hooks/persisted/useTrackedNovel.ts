@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import { useMMKVString, useMMKVObject } from 'react-native-mmkv';
 import { SearchResult, TrackerName, UserListEntry } from '@services/Trackers';
-import { TrackerMetadata, getTracker } from './useTracker';
 import { getErrorMessage } from '@utils/error';
 import { getMMKVObject, MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useMMKVObject, useMMKVString } from 'react-native-mmkv';
+
+import { getTracker, TrackerMetadata } from './useTracker';
 
 export const TRACKED_NOVEL_PREFIX = 'TRACKED_NOVEL_PREFIX';
 const TRACKED_NOVEL_MIGRATION = 'TRACKED_NOVEL_MIGRATION_V1';

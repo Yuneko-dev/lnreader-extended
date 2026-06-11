@@ -1,8 +1,13 @@
-import { InteractionManager, AppState, AppStateStatus } from 'react-native';
-import { GatewayClient } from './Gateway';
-import { DiscordAuth, rest } from './DiscordAuth';
-import { RichPresence } from './structures/Presence';
+import { APP_SETTINGS, AppSettings } from '@hooks/persisted/useSettings';
+import { getString } from '@strings/translations';
+import { APP_GITHUB, APP_NAME } from '@utils/constants/metadata';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
 import * as FileSystem from 'expo-file-system/legacy';
+import { AppState, AppStateStatus, InteractionManager } from 'react-native';
+
+import { DiscordAuth, rest } from './DiscordAuth';
+import { GatewayClient } from './Gateway';
+import { RichPresence } from './structures/Presence';
 import { Util } from './utils';
 import {
   DEFAULTS,
@@ -10,10 +15,6 @@ import {
   GatewayOp,
   NON_RESUMABLE_CLOSE_CODES,
 } from './utils/Constants';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { AppSettings, APP_SETTINGS } from '@hooks/persisted/useSettings';
-import { APP_GITHUB, APP_NAME } from '@utils/constants/metadata';
-import { getString } from '@strings/translations';
 
 export class DiscordRPCManager {
   private static instance: DiscordRPCManager;

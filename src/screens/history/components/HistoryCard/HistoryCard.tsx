@@ -1,20 +1,15 @@
+import { IconButtonV2 } from '@components';
+import { History, NovelInfo } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { HistoryScreenProps } from '@navigators/types';
+import { defaultCover } from '@plugins/helpers/constants';
+import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { useNavigation } from '@react-navigation/native';
+import { getString } from '@strings/translations';
+import { coverPlaceholderColor } from '@theme/colors';
+import dayjs from 'dayjs';
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-
-import { useNavigation } from '@react-navigation/native';
-import dayjs from 'dayjs';
-
-import { IconButtonV2 } from '@components';
-
-import { defaultCover } from '@plugins/helpers/constants';
-import { getString } from '@strings/translations';
-import { useTheme } from '@hooks/persisted';
-
-import { History, NovelInfo } from '@database/types';
-import { HistoryScreenProps } from '@navigators/types';
-import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
-
-import { coverPlaceholderColor } from '@theme/colors';
 
 interface HistoryCardProps {
   history: History;

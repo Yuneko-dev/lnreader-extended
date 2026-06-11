@@ -1,9 +1,10 @@
+import type { AIProvider } from '@hooks/persisted/useAIProviders';
 import * as cheerio from 'cheerio';
-import { TranslateEngine } from './TranslateEngine';
+
+import { AIManager } from '../ai/AIManager';
 import { GoogleTranslateFreeEngine } from './GoogleTranslateFreeEngine';
 import { LLMTranslateEngine } from './LLMTranslateEngine';
-import { AIManager } from '../ai/AIManager';
-import type { AIProvider } from '@hooks/persisted/useAIProviders';
+import { TranslateEngine } from './TranslateEngine';
 
 export interface TranslateConfig {
   engine: string;

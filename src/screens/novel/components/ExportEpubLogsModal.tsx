@@ -1,16 +1,16 @@
+import { LogViewer, Modal } from '@components';
+import { BaseLogEntry } from '@components/LogViewer';
+import { getNovelDownloadedChapters } from '@database/queries/ChapterQueries';
+import { NovelInfo } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import EpubBuilder from '@modules/react-native-epub-creator';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import { NOVEL_STORAGE } from '@utils/Storages';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
-import { Modal, LogViewer } from '@components';
-import { BaseLogEntry } from '@components/LogViewer';
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import { NovelInfo } from '@database/types';
-import EpubBuilder from '@modules/react-native-epub-creator';
-import NativeFile from '@specs/NativeFile';
-import { getNovelDownloadedChapters } from '@database/queries/ChapterQueries';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { showToast } from '@utils/showToast';
 
 interface ExportEpubLogsModalProps {
   visible: boolean;

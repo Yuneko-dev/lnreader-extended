@@ -1,4 +1,5 @@
 import { sleep } from '@utils/sleep';
+
 import { QueueOptions } from './types';
 
 type TaskRunner<TResult> = () => Promise<TResult>;

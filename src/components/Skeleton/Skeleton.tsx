@@ -1,6 +1,7 @@
 import { useAppSettings, useTheme } from '@hooks/persisted';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
-import { StyleProp, ViewStyle, StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -8,8 +9,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+
 import useLoadingColors from './useLoadingColors';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const duration = 1000;
 

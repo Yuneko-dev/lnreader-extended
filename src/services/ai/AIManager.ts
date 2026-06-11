@@ -1,7 +1,8 @@
-import { getApiKey, type AIProvider } from '@hooks/persisted/useAIProviders';
+import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
+
 import { GeminiClient } from './GeminiClient';
-import { OpenAIClient } from './OpenAIClient';
 import { LLMCoreClient, MissingAIProviderError } from './LLMCoreClient';
+import { OpenAIClient } from './OpenAIClient';
 
 export class AIManager {
   static async getClient(provider: AIProvider): Promise<LLMCoreClient> {

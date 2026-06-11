@@ -1,22 +1,23 @@
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import color from 'color';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
+  Image,
+  ImageBackground,
+  ImageURISource,
+  Pressable,
   StyleSheet,
   Text,
   View,
-  Pressable,
-  ImageBackground,
-  Image,
-  ImageURISource,
 } from 'react-native';
-import color from 'color';
 import { IconButton, Portal } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Chip } from '../../../../components';
 import { coverPlaceholderColor } from '../../../../theme/colors';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CoverImageProps {
   children: React.ReactNode;
@@ -264,14 +265,14 @@ const NovelGenres = memo(
 );
 
 export {
-  NovelInfoContainer,
   CoverImage,
+  FollowButton,
+  NovelGenres,
+  NovelInfo,
+  NovelInfoContainer,
   NovelThumbnail,
   NovelTitle,
-  NovelInfo,
-  FollowButton,
   TrackerButton,
-  NovelGenres,
 };
 
 const styles = StyleSheet.create({

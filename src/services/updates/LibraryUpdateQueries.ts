@@ -1,15 +1,16 @@
-import { fetchNovel, fetchPage } from '../plugin/fetch';
-import { ChapterItem, SourceNovel } from '@plugins/types';
-import { getPlugin, LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { downloadFile } from '@plugins/helpers/fetch';
-import ServiceManager from '@services/ServiceManager';
 import { dbManager } from '@database/db';
-import { novelSchema, chapterSchema } from '@database/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { chapterSchema, novelSchema } from '@database/schema';
+import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
+import { downloadFile } from '@plugins/helpers/fetch';
+import { getPlugin, LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
+import { ChapterItem, SourceNovel } from '@plugins/types';
+import ServiceManager from '@services/ServiceManager';
 import NativeFile from '@specs/NativeFile';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import { and, eq, inArray } from 'drizzle-orm';
+
+import { fetchNovel, fetchPage } from '../plugin/fetch';
 
 /**
  * Update novel metadata in the database including cover image.
@@ -20,7 +21,7 @@ const updateNovelMetadata = async (
   novel: SourceNovel,
 ) => {
   const { name, summary, author, artist, genres, status, totalPages } = novel;
-  let cover = novel.cover;
+  let { cover } = novel;
   const novelDir = `${NOVEL_STORAGE}/${pluginId}/${novelId}`;
 
   if (!NativeFile.exists(novelDir)) {

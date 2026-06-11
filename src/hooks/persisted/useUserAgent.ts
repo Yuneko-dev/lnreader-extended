@@ -1,6 +1,6 @@
 import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { useMMKVString } from 'react-native-mmkv';
 import { getUserAgentSync } from 'react-native-device-info';
+import { useMMKVString } from 'react-native-mmkv';
 
 export const USER_AGENT = 'USER_AGENT';
 

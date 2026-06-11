@@ -1,21 +1,21 @@
+import { Appbar, List, Modal, SafeAreaView } from '@components';
+import { getTracker, useTheme, useTracker } from '@hooks/persisted';
+import { TrackerSettingsScreenProps } from '@navigators/types';
+import { authenticateWithCredentials as kitsuAuth } from '@services/Trackers/kitsu';
+import { authenticateWithCredentials as mangaUpdatesAuth } from '@services/Trackers/mangaUpdates';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import {
-  Portal,
-  Text,
   Button,
-  Provider,
   List as PaperList,
+  Portal,
+  Provider,
+  Text,
 } from 'react-native-paper';
 
-import { getTracker, useTheme, useTracker } from '@hooks/persisted';
-import { Appbar, List, Modal, SafeAreaView } from '@components';
-import { TrackerSettingsScreenProps } from '@navigators/types';
-import { getString } from '@strings/translations';
 import TrackerLoginDialog from './components/TrackerLoginDialog';
-import { authenticateWithCredentials as mangaUpdatesAuth } from '@services/Trackers/mangaUpdates';
-import { authenticateWithCredentials as kitsuAuth } from '@services/Trackers/kitsu';
-import { showToast } from '@utils/showToast';
 
 interface TrackerCheckIconProps {
   theme: any;

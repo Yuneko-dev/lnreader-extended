@@ -1,30 +1,28 @@
-import React, { useCallback, useEffect } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
-import { FAB, Portal } from 'react-native-paper';
-
 import { Appbar, EmptyView, SafeAreaView } from '@components';
-
+import { dbManager } from '@database/db';
+import { useLiveQuery } from '@database/manager/manager';
 import {
   createRepository,
   isRepoUrlDuplicated,
   updateRepository,
 } from '@database/queries/RepositoryQueries';
+import { repositorySchema } from '@database/schema';
 import { Repository } from '@database/types';
 import { useBackHandler, useBoolean } from '@hooks/index';
 import { usePlugins, useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-
-import AddRepositoryModal from './components/AddRepositoryModal';
-import RepositoryCard from './components/RepositoryCard';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   RespositorySettingsScreenProps,
   RootStackParamList,
 } from '@navigators/types';
+import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
-import { useLiveQuery } from '@database/manager/manager';
-import { repositorySchema } from '@database/schema';
-import { dbManager } from '@database/db';
+import React, { useCallback, useEffect } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
+import { FAB, Portal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import AddRepositoryModal from './components/AddRepositoryModal';
+import RepositoryCard from './components/RepositoryCard';
 
 const SettingsBrowseScreen = ({
   route: { params },

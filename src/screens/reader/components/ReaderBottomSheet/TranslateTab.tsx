@@ -1,15 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
+import { Button, List, SwitchItem } from '@components/index';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@hooks/persisted';
+import { useAIProviders } from '@hooks/persisted/useAIProviders';
 import { useTranslateSettings } from '@hooks/persisted/useSettings';
-
-import { List, Button, SwitchItem } from '@components/index';
-import { Portal, Modal } from 'react-native-paper';
+import { useChapterContext } from '@screens/reader/ChapterContext';
 import { supportedLanguagesList } from '@services/translate/TranslateEngine';
 import { getString } from '@strings/translations';
-import { useChapterContext } from '@screens/reader/ChapterContext';
-import { useAIProviders } from '@hooks/persisted/useAIProviders';
+import React, { useCallback, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Portal } from 'react-native-paper';
 
 interface LanguagePickerModalProps {
   visible: boolean;

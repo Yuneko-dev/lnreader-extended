@@ -1,14 +1,11 @@
+import { Button, Modal } from '@components/index';
+import { deleteRepositoryById } from '@database/queries/RepositoryQueries';
+import { Repository } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
-
-import { Button, Modal } from '@components/index';
-
-import { Repository } from '@database/types';
-import { deleteRepositoryById } from '@database/queries/RepositoryQueries';
-import { useTheme } from '@hooks/persisted';
-
-import { getString } from '@strings/translations';
 
 interface DeleteRepositoryModalProps {
   repository: Repository;

@@ -1,12 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useCallback, useMemo } from 'react';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Pressable, StyleSheet, ViewStyle, View } from 'react-native';
-import { Text } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemeColors } from '@theme/types';
-import Animated from 'react-native-reanimated';
 import Color from 'color';
+import React, { useCallback, useMemo } from 'react';
+import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import { Text } from 'react-native-paper';
+import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TAB_BAR_CONTENT_HEIGHT = 68;
 const TAB_ICON_CONTAINER_HEIGHT = 32;

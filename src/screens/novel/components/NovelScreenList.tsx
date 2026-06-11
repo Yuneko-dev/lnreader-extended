@@ -1,40 +1,41 @@
-import * as React from 'react';
-import ChapterItem from './ChapterItem';
-import NovelInfoHeader from './Info/NovelInfoHeader';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChapterListSkeleton } from '@components/Skeleton/Skeleton';
 import { pickCustomNovelCover } from '@database/queries/NovelQueries';
 import { ChapterInfo, NovelInfo } from '@database/types';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { UseBooleanReturnType } from '@hooks/index';
 import { useAppSettings, useDownload, useTheme } from '@hooks/persisted';
+import { LegendList, LegendListRef } from '@legendapp/list';
+import { downloadFile } from '@plugins/helpers/fetch';
 import {
   updateNovel,
   updateNovelPage,
 } from '@services/updates/LibraryUpdateQueries';
+import FileManager from '@specs/NativeFile';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
+import { StorageAccessFramework } from 'expo-file-system/legacy';
+import * as Haptics from 'expo-haptics';
+import * as React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dimensions,
-  NativeSyntheticEvent,
   NativeScrollEvent,
+  NativeSyntheticEvent,
   RefreshControl,
   StyleSheet,
   View,
 } from 'react-native';
+import { AnimatedFAB } from 'react-native-paper';
 import { SharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import TrackSheet from './Tracker/TrackSheet';
+
+import { useNovelActions, useNovelValue } from '../NovelContext';
+import ChapterItem from './ChapterItem';
+import NovelInfoHeader from './Info/NovelInfoHeader';
 import NovelBottomSheet from './NovelBottomSheet';
 import PageNavigationBottomSheet from './PageNavigationBottomSheet';
-import * as Haptics from 'expo-haptics';
-import { AnimatedFAB } from 'react-native-paper';
-import { ChapterListSkeleton } from '@components/Skeleton/Skeleton';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { LegendList, LegendListRef } from '@legendapp/list';
-import FileManager from '@specs/NativeFile';
-import { downloadFile } from '@plugins/helpers/fetch';
-import { StorageAccessFramework } from 'expo-file-system/legacy';
 import PagePaginationControl from './PagePaginationControl';
-import { useNovelActions, useNovelValue } from '../NovelContext';
-import { UseBooleanReturnType } from '@hooks/index';
+import TrackSheet from './Tracker/TrackSheet';
 
 type NovelScreenListProps = {
   headerOpacity: SharedValue<number>;
@@ -154,7 +155,7 @@ const NovelScreenList = ({
 
   const onPageScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const y = event.nativeEvent.contentOffset.y;
+      const { y } = event.nativeEvent.contentOffset;
 
       headerOpacity.set(y < 50 ? 0 : (y - 50) / 150);
       const currentScrollPosition = Math.floor(y) ?? 0;
@@ -368,7 +369,7 @@ const NovelScreenList = ({
       showToast(getString('novelScreen.coverNotSaved'));
       return;
     }
-    const cover = novel.cover;
+    const { cover } = novel;
     let tempCoverUri: string | null = null;
     try {
       let imageExtension = cover.split('.').pop() || 'png';

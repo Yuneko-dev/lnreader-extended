@@ -1,3 +1,30 @@
+import { addReadDuration } from '@database/queries/ChapterQueries';
+import { useTheme } from '@hooks/persisted';
+import {
+  CHAPTER_GENERAL_SETTINGS,
+  CHAPTER_READER_SETTINGS,
+  ChapterGeneralSettings,
+  ChapterReaderSettings,
+  initialChapterGeneralSettings,
+  initialChapterReaderSettings,
+} from '@hooks/persisted/useSettings';
+import { getUserAgent } from '@hooks/persisted/useUserAgent';
+import { getLocalServerUrl } from '@plugins/local/localServerManager';
+import { getPlugin } from '@plugins/pluginManager';
+import { getString } from '@strings/translations';
+import { getMMKVObject, MMKVStorage } from '@utils/mmkv/mmkv';
+import { showToast } from '@utils/showToast';
+import { PLUGIN_STORAGE } from '@utils/Storages';
+import {
+  dismissTTSNotification,
+  showTTSNotification,
+  ttsMediaEmitter,
+  updateTTSNotification,
+  updateTTSPlaybackState,
+  updateTTSProgress,
+} from '@utils/ttsNotification';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import * as Speech from 'expo-speech';
 import React, {
   memo,
   useCallback,
@@ -7,39 +34,11 @@ import React, {
   useState,
 } from 'react';
 import { AppState, NativeEventEmitter, NativeModules } from 'react-native';
-import WebView from 'react-native-webview';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-
-import { getPlugin } from '@plugins/pluginManager';
-import { getLocalServerUrl } from '@plugins/local/localServerManager';
-import { MMKVStorage, getMMKVObject } from '@utils/mmkv/mmkv';
-import { getUserAgent } from '@hooks/persisted/useUserAgent';
-import {
-  CHAPTER_GENERAL_SETTINGS,
-  CHAPTER_READER_SETTINGS,
-  ChapterGeneralSettings,
-  ChapterReaderSettings,
-  initialChapterGeneralSettings,
-  initialChapterReaderSettings,
-} from '@hooks/persisted/useSettings';
 import { getBatteryLevelSync } from 'react-native-device-info';
-import * as Speech from 'expo-speech';
-import * as ScreenOrientation from 'expo-screen-orientation';
-import { PLUGIN_STORAGE } from '@utils/Storages';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import WebView from 'react-native-webview';
+
 import { useChapterContext } from '../ChapterContext';
-import {
-  showTTSNotification,
-  updateTTSNotification,
-  updateTTSPlaybackState,
-  updateTTSProgress,
-  dismissTTSNotification,
-  ttsMediaEmitter,
-} from '@utils/ttsNotification';
-import { addReadDuration } from '@database/queries/ChapterQueries';
-import { showToast } from '@utils/showToast';
 import { generateReaderHtml } from '../utils/htmlGenerator';
 
 type WebViewPostEvent = {
@@ -229,7 +228,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
     const seekToListener = ttsMediaEmitter.addListener(
       'TTSSeekTo',
       (event: { position: number }) => {
-        const position = event.position;
+        const { position } = event;
         webViewRef.current?.injectJavaScript(`
           if (window.tts && tts.started) { tts.seekTo(${position}); }
         `);

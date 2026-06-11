@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
 import { dbManager } from '@database/db';
-import { repositorySchema, type RepositoryRow } from '@database/schema';
+import { type RepositoryRow, repositorySchema } from '@database/schema';
+import { eq } from 'drizzle-orm';
 
 export const getRepositoriesFromDb = async (): Promise<RepositoryRow[]> => {
   return dbManager.select().from(repositorySchema).all();

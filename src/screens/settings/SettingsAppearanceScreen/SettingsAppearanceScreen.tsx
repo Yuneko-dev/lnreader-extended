@@ -1,31 +1,30 @@
+import { Appbar, List, SafeAreaView, SegmentedControl } from '@components';
+import ColorPickerModal from '@components/ColorPickerModal/ColorPickerModal';
+import type { SegmentedControlOption } from '@components/SegmentedControl';
+import { ThemePicker } from '@components/ThemePicker/ThemePicker';
+import { useAppSettings, useTheme } from '@hooks/persisted';
+import { AppearanceSettingsScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
+import { darkThemes, lightThemes } from '@theme/md3';
+import { ThemeColors } from '@theme/types';
+import Color from 'color';
 import React, { useMemo, useState } from 'react';
 import {
+  Appearance,
+  GestureResponderEvent,
   ScrollView,
   StyleSheet,
   View,
-  Appearance,
-  GestureResponderEvent,
 } from 'react-native';
-
-import { ThemePicker } from '@components/ThemePicker/ThemePicker';
-import type { SegmentedControlOption } from '@components/SegmentedControl';
-import SettingSwitch from '../components/SettingSwitch';
-import ColorPickerModal from '@components/ColorPickerModal/ColorPickerModal';
-import LanguagePickerModal from './LanguagePickerModal';
-
-import { useAppSettings, useTheme } from '@hooks/persisted';
 import {
   useMMKVBoolean,
   useMMKVNumber,
   useMMKVString,
 } from 'react-native-mmkv';
-import { Appbar, List, SafeAreaView, SegmentedControl } from '@components';
-import { AppearanceSettingsScreenProps } from '@navigators/types';
-import { getString } from '@strings/translations';
-import { darkThemes, lightThemes } from '@theme/md3';
-import { ThemeColors } from '@theme/types';
 import switchTheme from 'react-native-theme-switch-animation';
-import Color from 'color';
+
+import SettingSwitch from '../components/SettingSwitch';
+import LanguagePickerModal from './LanguagePickerModal';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -220,7 +219,7 @@ const AppearanceSettings = ({ navigation }: AppearanceSettingsScreenProps) => {
           </View>
 
           {/* Light Themes */}
-          {/*<Text style={[{ color: theme.onSurface }, styles.themeSectionText]}>
+          {/* <Text style={[{ color: theme.onSurface }, styles.themeSectionText]}>
             {getString('appearanceScreen.lightTheme')}
           </Text>*/}
           <View style={styles.scrollViewContainer}>
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
   },
   themePickerRow: {
     borderRadius: 24,
-    //marginHorizontal: 8,
+    // marginHorizontal: 8,
     paddingHorizontal: 4,
     paddingTop: 8,
     paddingBottom: 2,

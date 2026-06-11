@@ -1,17 +1,18 @@
 import './mockDb';
-import {
-  clearAllTables,
-  insertTestNovel,
-  insertTestChapter,
-  insertTestNovelCategory,
-  insertTestCategory,
-} from './testData';
+
 import {
   getLibraryNovelsFromDb,
   getLibraryWithCategory,
 } from '../LibraryQueries';
-import { TestDb } from './testDb';
 import { setupTestDatabase, teardownTestDatabase } from './setup';
+import {
+  clearAllTables,
+  insertTestCategory,
+  insertTestChapter,
+  insertTestNovel,
+  insertTestNovelCategory,
+} from './testData';
+import { TestDb } from './testDb';
 
 describe('LibraryQueries', () => {
   let testDb: TestDb;

@@ -71,4 +71,4 @@ const scrapeSearchResults = async (searchTerm: string) => {
   return novels;
 };
 
-export { scrapeTopNovels, scrapeSearchResults };
+export { scrapeSearchResults, scrapeTopNovels };

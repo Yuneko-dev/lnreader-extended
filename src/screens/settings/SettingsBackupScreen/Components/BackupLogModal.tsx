@@ -1,17 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Portal, Button } from 'react-native-paper';
-import * as Clipboard from 'expo-clipboard';
-
-import { Modal, LogViewer } from '@components';
-import { ThemeColors } from '@theme/types';
-import { getString } from '@strings/translations';
-import { showToast } from '@utils/showToast';
+import { LogViewer, Modal } from '@components';
 import DebugLogService, { LogEntry } from '@services/DebugLogService';
 import ServiceManager, {
   type QueuedBackgroundTask,
 } from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { showToast } from '@utils/showToast';
+import * as Clipboard from 'expo-clipboard';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useMMKVObject } from 'react-native-mmkv';
+import { Button, Portal } from 'react-native-paper';
 
 /**
  * Tag used to filter backup-related log entries.

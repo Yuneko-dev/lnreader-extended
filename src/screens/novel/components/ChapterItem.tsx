@@ -1,26 +1,27 @@
-import React, { memo, useCallback, useMemo, ReactNode, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { ChapterInfo } from '@database/types';
+import { SwipeAction } from '@hooks/persisted/useSettings';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { MaterialDesignIconName } from '@type/icon';
+import dayjs from 'dayjs';
+import * as Haptics from 'expo-haptics';
+import React, { memo, ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  SharedValue,
+  useAnimatedReaction,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+
 import {
   ChapterBookmarkButton,
   DownloadButton,
 } from './Chapter/ChapterDownloadButtons';
-import { ThemeColors } from '@theme/types';
-import { ChapterInfo } from '@database/types';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import { MaterialDesignIconName } from '@type/icon';
-import { getString } from '@strings/translations';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import * as Haptics from 'expo-haptics';
-import Animated, {
-  SharedValue,
-  useAnimatedStyle,
-  useAnimatedReaction,
-  runOnJS,
-  interpolate,
-  Extrapolation,
-} from 'react-native-reanimated';
-import { SwipeAction } from '@hooks/persisted/useSettings';
-import dayjs from 'dayjs';
 
 /**
  * Width of the action panel that Swipeable measures as its "open" position.

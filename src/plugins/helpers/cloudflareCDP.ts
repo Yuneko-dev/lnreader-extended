@@ -146,7 +146,7 @@ async function getIframeRectViaCDP(client: CDPClient) {
       const { model } = await client.sendCommand('DOM.getBoxModel', {
         nodeId: targetNodeId,
       });
-      const content = model.content;
+      const { content } = model;
       return {
         x: Math.round(content[0]),
         y: Math.round(content[1]),
@@ -326,11 +326,9 @@ export async function solveCloudflare(
                 );
                 isNavigatingOrSolved = true;
               }
-            } else {
-              if (!indicators.hasScript) {
-                console.log(`${logPrefix} Interstitial challenge passed.`);
-                isNavigatingOrSolved = true;
-              }
+            } else if (!indicators.hasScript) {
+              console.log(`${logPrefix} Interstitial challenge passed.`);
+              isNavigatingOrSolved = true;
             }
           } else {
             console.log(

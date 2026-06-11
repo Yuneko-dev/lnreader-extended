@@ -1,12 +1,9 @@
-import React from 'react';
-
-import { Portal } from 'react-native-paper';
-import { RadioButton } from '@components/RadioButton/RadioButton';
-
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
-
-import { readerFonts } from '@utils/constants/readerConstants';
 import { Modal } from '@components';
+import { RadioButton } from '@components/RadioButton/RadioButton';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
+import { readerFonts } from '@utils/constants/readerConstants';
+import React from 'react';
+import { Portal } from 'react-native-paper';
 
 interface FontPickerModalProps {
   visible: boolean;

@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-
 import { getCategoriesFromDb } from '@database/queries/CategoryQueries';
 import { Category } from '@database/types';
+import { useEffect, useState } from 'react';
 
 const useCategories = () => {
   const [isLoading, setIsLoading] = useState(true);

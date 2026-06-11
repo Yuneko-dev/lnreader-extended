@@ -1,13 +1,11 @@
-import React from 'react';
-
-import { Dialog, Portal } from 'react-native-paper';
-import { StyleSheet, Text } from 'react-native';
-
-import { useTheme } from '@hooks/persisted';
 import { Modal, RadioButton } from '@components';
+import { useTheme } from '@hooks/persisted';
 import { getString, setLocale } from '@strings/translations';
-import { useMMKVString } from 'react-native-mmkv';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+import { useMMKVString } from 'react-native-mmkv';
+import { Dialog, Portal } from 'react-native-paper';
 
 interface LanguagePickerModalProps {
   visible: boolean;

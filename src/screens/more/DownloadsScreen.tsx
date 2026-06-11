@@ -1,27 +1,24 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
-
-import { Appbar as MaterialAppbar } from 'react-native-paper';
-
-import EmptyView from '@components/EmptyView';
 import { Appbar, List, SafeAreaView } from '@components';
+import EmptyView from '@components/EmptyView';
 import {
   deleteChapter,
   deleteDownloads,
   getDownloadedChapters,
 } from '@database/queries/ChapterQueries';
-
-import { useTheme } from '@hooks/persisted';
-
-import RemoveDownloadsDialog from './components/RemoveDownloadsDialog';
-import UpdatesSkeletonLoading from '@screens/updates/components/UpdatesSkeletonLoading';
-import UpdateNovelCard from '@screens/updates/components/UpdateNovelCard';
-import { getString } from '@strings/translations';
-import { DownloadsScreenProps } from '@navigators/types';
 import { DownloadedChapter } from '@database/types';
+import { useTheme } from '@hooks/persisted';
+import { DownloadsScreenProps } from '@navigators/types';
+import UpdateNovelCard from '@screens/updates/components/UpdateNovelCard';
+import UpdatesSkeletonLoading from '@screens/updates/components/UpdatesSkeletonLoading';
+import { getString } from '@strings/translations';
+import { parseChapterNumber } from '@utils/parseChapterNumber';
 import { showToast } from '@utils/showToast';
 import dayjs from 'dayjs';
-import { parseChapterNumber } from '@utils/parseChapterNumber';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
+import { Appbar as MaterialAppbar } from 'react-native-paper';
+
+import RemoveDownloadsDialog from './components/RemoveDownloadsDialog';
 
 type DownloadGroup = Record<number, DownloadedChapter[]>;
 
@@ -33,7 +30,7 @@ const Downloads = ({ navigation }: DownloadsScreenProps) => {
     localChapters: DownloadedChapter[],
   ): DownloadedChapter[][] => {
     const dateGroups = localChapters.reduce((groups, item) => {
-      const novelId = item.novelId;
+      const { novelId } = item;
       if (!groups[novelId]) {
         groups[novelId] = [];
       }

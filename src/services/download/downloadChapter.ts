@@ -1,33 +1,33 @@
-import * as cheerio from 'cheerio';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { Plugin } from '@plugins/types';
-import { downloadFile } from '@plugins/helpers/fetch';
-import { getPlugin } from '@plugins/pluginManager';
-import { getString } from '@strings/translations';
-import { getChapter } from '@database/queries/ChapterQueries';
-import { sleep } from '@utils/sleep';
-import { getNovelById } from '@database/queries/NovelQueries';
 import { dbManager } from '@database/db';
+import { getChapter } from '@database/queries/ChapterQueries';
+import { getNovelById } from '@database/queries/NovelQueries';
 import { chapterSchema } from '@database/schema';
-import { BackgroundTaskMetadata } from '@services/ServiceManager';
-import NativeFile from '@specs/NativeFile';
-import { eq } from 'drizzle-orm';
 import {
-  TranslateManager,
-  TranslateConfig,
-} from '@services/translate/TranslateManager';
-import { getMMKVObject } from '@utils/mmkv/mmkv';
+  ACTIVE_AI_PROVIDER_KEY,
+  AI_PROVIDERS_KEY,
+  AIProvider,
+} from '@hooks/persisted/useAIProviders';
 import {
+  initialTranslateSettings,
   TRANSLATE_SETTINGS,
   TranslateSettings,
-  initialTranslateSettings,
 } from '@hooks/persisted/useSettings';
+import { downloadFile } from '@plugins/helpers/fetch';
+import { getPlugin } from '@plugins/pluginManager';
+import { Plugin } from '@plugins/types';
+import { BackgroundTaskMetadata } from '@services/ServiceManager';
 import {
-  AIProvider,
-  AI_PROVIDERS_KEY,
-  ACTIVE_AI_PROVIDER_KEY,
-} from '@hooks/persisted/useAIProviders';
+  TranslateConfig,
+  TranslateManager,
+} from '@services/translate/TranslateManager';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
+import { sleep } from '@utils/sleep';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import * as cheerio from 'cheerio';
+import { eq } from 'drizzle-orm';
 
 const createChapterFolder = async (
   path: string,

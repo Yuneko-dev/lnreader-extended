@@ -1,8 +1,8 @@
 // db-manager.types.ts
 import type {
+  Placeholder,
   SQLiteTransaction,
   TablesRelationalConfig,
-  Placeholder,
 } from 'drizzle-orm';
 import { SQLitePreparedQuery } from 'drizzle-orm/sqlite-core';
 

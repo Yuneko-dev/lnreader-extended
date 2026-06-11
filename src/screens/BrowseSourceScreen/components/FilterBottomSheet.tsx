@@ -1,35 +1,34 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-
 import BottomSheet from '@components/BottomSheet/BottomSheet';
+import { Checkbox } from '@components/Checkbox/Checkbox';
+import { Button, Menu } from '@components/index';
+import Switch from '@components/Switch/Switch';
 import {
   BottomSheetFlatList,
   BottomSheetModal,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-
+import { useBoolean } from '@hooks';
 import { useTheme } from '@hooks/persisted';
 import {
-  FilterTypes,
-  FilterToValues,
   Filters,
+  FilterToValues,
+  FilterTypes,
 } from '@plugins/types/filterTypes';
-import { Button, Menu } from '@components/index';
-import { Checkbox } from '@components/Checkbox/Checkbox';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import { useBoolean } from '@hooks';
-import { TextInput, overlay } from 'react-native-paper';
-import { getValueFor } from './filterUtils';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { overlay, TextInput } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Switch from '@components/Switch/Switch';
+
+import { getValueFor } from './filterUtils';
 
 const insertOrRemoveIntoArray = (array: string[], val: string): string[] =>
   array.indexOf(val) > -1 ? array.filter(ele => ele !== val) : [...array, val];
@@ -395,7 +394,7 @@ const FilterBottomSheet: React.FC<BottomSheetProps> = ({
         </View>
       }
     >
-      {/*<BottomSheetFlatList
+      {/* <BottomSheetFlatList
          data={filters && Object.entries(filters)}
         keyExtractor={(item: [string, unknown]) => 'filter' + item[0]}
         renderItem={({ item }: { item: [string, Filters[string]] }) => (

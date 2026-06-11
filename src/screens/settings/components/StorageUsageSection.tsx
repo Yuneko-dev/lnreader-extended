@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, InteractionManager } from 'react-native';
-import { Text } from 'react-native-paper';
-import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
-import NativeFile from '@specs/NativeFile';
 import { List } from '@components';
+import { useTheme } from '@hooks/persisted';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { InteractionManager, StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
 
 export default function StorageUsageSection() {
   const theme = useTheme();

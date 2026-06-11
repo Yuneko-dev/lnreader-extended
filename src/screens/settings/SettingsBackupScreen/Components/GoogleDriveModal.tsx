@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ThemeColors } from '@theme/types';
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { Portal, TextInput } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { GoogleSignin, User } from '@react-native-google-signin/google-signin';
-import { Button, EmptyView, Modal } from '@components';
-import { FlatList, Pressable } from 'react-native-gesture-handler';
-import * as Clipboard from 'expo-clipboard';
-import { showToast } from '@utils/showToast';
-import { getString } from '@strings/translations';
 import { exists, getBackups, makeDir } from '@api/drive';
 import { DriveFile } from '@api/drive/types';
-import dayjs from 'dayjs';
+import { Button, EmptyView, Modal } from '@components';
+import { GoogleSignin, User } from '@react-native-google-signin/google-signin';
 import ServiceManager from '@services/ServiceManager';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import { showToast } from '@utils/showToast';
+import dayjs from 'dayjs';
+import * as Clipboard from 'expo-clipboard';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Portal, TextInput } from 'react-native-paper';
 
 enum BackupModal {
   UNAUTHORIZED,

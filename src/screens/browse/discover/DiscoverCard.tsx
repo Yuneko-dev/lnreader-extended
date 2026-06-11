@@ -1,16 +1,15 @@
+import { Button } from '@components';
+import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
 import React from 'react';
 import {
+  Image,
+  ImageSourcePropType,
+  Pressable,
   StyleSheet,
   Text,
   View,
-  Image,
-  Pressable,
-  ImageSourcePropType,
 } from 'react-native';
-import { getString } from '@strings/translations';
-import { Button } from '@components';
-
-import { ThemeColors } from '@theme/types';
 
 interface Props {
   trackerName: string;

@@ -1,37 +1,38 @@
-import { SELF_HOST_BACKUP } from '@hooks/persisted/useSelfHost';
-import { OLD_TRACKED_NOVEL_PREFIX } from '@hooks/persisted/migrations/trackerMigration';
-import {
-  LAST_UPDATE_TIME,
-  NOVEL_UPDATE_RANDOM_KEY,
-} from '@hooks/persisted/useUpdates';
-import { SEARCH_HISTORY_KEY } from '@hooks/persisted';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
-import { version } from '../../../package.json';
-import {
-  _restoreNovelAndChapters,
-  getAllNovels,
-} from '@database/queries/NovelQueries';
-import { getNovelChapters } from '@database/queries/ChapterQueries';
 import {
   _restoreCategory,
   assignOrphanedNovelsToDefaultCategory,
   getAllNovelCategories,
   getCategoriesFromDb,
 } from '@database/queries/CategoryQueries';
-import { BackupCategory, BackupNovel } from '@database/types';
-import { BackupEntryName } from './types';
-import { ROOT_STORAGE } from '@utils/Storages';
-import ServiceManager from '@services/ServiceManager';
-import NativeFile from '@specs/NativeFile';
-import { showToast } from '@utils/showToast';
-import { getString } from '@strings/translations';
-import DebugLogService from '@services/DebugLogService';
+import { getNovelChapters } from '@database/queries/ChapterQueries';
 import { getAllHistoryRaw } from '@database/queries/HistoryQueries';
+import {
+  _restoreNovelAndChapters,
+  getAllNovels,
+} from '@database/queries/NovelQueries';
 import {
   _restoreRepository,
   getRepositoriesFromDb,
 } from '@database/queries/RepositoryQueries';
 import { RepositoryRow } from '@database/schema';
+import { BackupCategory, BackupNovel } from '@database/types';
+import { SEARCH_HISTORY_KEY } from '@hooks/persisted';
+import { OLD_TRACKED_NOVEL_PREFIX } from '@hooks/persisted/migrations/trackerMigration';
+import { SELF_HOST_BACKUP } from '@hooks/persisted/useSelfHost';
+import {
+  LAST_UPDATE_TIME,
+  NOVEL_UPDATE_RANDOM_KEY,
+} from '@hooks/persisted/useUpdates';
+import DebugLogService from '@services/DebugLogService';
+import ServiceManager from '@services/ServiceManager';
+import NativeFile from '@specs/NativeFile';
+import { getString } from '@strings/translations';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { showToast } from '@utils/showToast';
+import { ROOT_STORAGE } from '@utils/Storages';
+
+import { version } from '../../../package.json';
+import { BackupEntryName } from './types';
 
 const BTAG = '[Backup]';
 

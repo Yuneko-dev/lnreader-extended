@@ -1,11 +1,14 @@
+import { darkThemes, lightThemes } from '@theme/md3';
+import { ThemeColors } from '@theme/types';
+import Color from 'color';
 import {
-  createElement,
   createContext,
+  createElement,
+  PropsWithChildren,
   useContext,
   useEffect,
   useMemo,
   useState,
-  PropsWithChildren,
 } from 'react';
 import { Appearance, ColorSchemeName } from 'react-native';
 import {
@@ -14,10 +17,6 @@ import {
   useMMKVString,
 } from 'react-native-mmkv';
 import { overlay } from 'react-native-paper';
-import Color from 'color';
-
-import { ThemeColors } from '@theme/types';
-import { darkThemes, lightThemes } from '@theme/md3';
 
 const getElevationColor = (colors: ThemeColors, elevation: number): string => {
   return Color(colors.surface)

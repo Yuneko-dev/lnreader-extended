@@ -2,19 +2,20 @@
  * Test data utilities for inserting test data into database
  */
 
-import type { TestDb } from './testDb';
 import {
-  novelSchema,
-  chapterSchema,
+  type CategoryInsert,
   categorySchema,
-  repositorySchema,
+  type ChapterInsert,
+  chapterSchema,
+  type NovelCategoryInsert,
   novelCategorySchema,
   type NovelInsert,
-  type ChapterInsert,
-  type CategoryInsert,
+  novelSchema,
   type RepositoryInsert,
-  type NovelCategoryInsert,
+  repositorySchema,
 } from '@database/schema';
+
+import type { TestDb } from './testDb';
 
 /**
  * Clears all tables in the test database

@@ -1,10 +1,9 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Dialog, Portal } from 'react-native-paper';
-
 import { Button } from '@components';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { Dialog, Portal } from 'react-native-paper';
 
 interface ClearHistoryDialogProps {
   visible: boolean;

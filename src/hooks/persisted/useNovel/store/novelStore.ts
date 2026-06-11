@@ -1,5 +1,6 @@
 import { ChapterOrderKey } from '@database/constants';
 import { ChapterInfo, NovelInfo } from '@database/types';
+
 import { NovelSettings } from '../types';
 
 export interface CreateNovelStoreParams {

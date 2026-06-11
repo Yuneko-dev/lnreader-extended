@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { APP_SETTINGS } from '@hooks/persisted/useSettings';
+import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
+import { create } from 'zustand';
 
 interface Task {
   id: number;
@@ -87,7 +87,7 @@ export const solveCloudflareAPI = async (
   }
 
   try {
-    const hostname = new URL(url).hostname;
+    const { hostname } = new URL(url);
     showToast(`Bypassing Cloudflare: ${hostname}`);
   } catch {
     showToast(`Bypassing Cloudflare...`);

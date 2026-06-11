@@ -1,10 +1,10 @@
-import React, { memo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View, TextInput } from 'react-native';
-
-import IconButtonV2 from '../IconButtonV2/IconButtonV2';
-import { ThemeColors } from '../../theme/types';
-import Menu from '../Menu';
 import { MaterialDesignIconName } from '@type/icon';
+import React, { memo, useRef, useState } from 'react';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+
+import { ThemeColors } from '../../theme/types';
+import IconButtonV2 from '../IconButtonV2/IconButtonV2';
+import Menu from '../Menu';
 
 export interface RightIcon {
   iconName: MaterialDesignIconName;

@@ -1,4 +1,5 @@
 import { decode } from 'html-entities';
+
 import { TranslateEngine } from './TranslateEngine';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
-import { Portal } from 'react-native-paper';
-import * as Linking from 'expo-linking';
-import { ScrollView } from 'react-native-gesture-handler';
-import Button from './Button/Button';
-import { getString } from '@strings/translations';
-
-import { useTheme } from '@hooks/persisted';
 import { Modal } from '@components';
-
 import { GithubUpdateRelease } from '@hooks/common/useGithubUpdateChecker';
+import { useTheme } from '@hooks/persisted';
+import { getString } from '@strings/translations';
+import * as Linking from 'expo-linking';
+import React, { useState } from 'react';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Portal } from 'react-native-paper';
+
+import Button from './Button/Button';
 
 interface NewUpdateDialogProps {
   newVersion: GithubUpdateRelease;

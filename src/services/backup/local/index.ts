@@ -1,20 +1,21 @@
-import { showToast } from '@utils/showToast';
-import dayjs from 'dayjs';
 import {
-  saveDocuments,
-  pick,
-  types,
   keepLocalCopy,
+  pick,
+  saveDocuments,
+  types,
 } from '@react-native-documents/picker';
-import { CACHE_DIR_PATH, prepareBackupData, restoreData } from '../utils';
-import NativeZipArchive from '@specs/NativeZipArchive';
-import { ROOT_STORAGE } from '@utils/Storages';
-import { ZipBackupName } from '../types';
-import NativeFile from '@specs/NativeFile';
-import { getString } from '@strings/translations';
-import { BackgroundTaskMetadata } from '@services/ServiceManager';
-import { sleep } from '@utils/sleep';
 import DebugLogService from '@services/DebugLogService';
+import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import NativeFile from '@specs/NativeFile';
+import NativeZipArchive from '@specs/NativeZipArchive';
+import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import { sleep } from '@utils/sleep';
+import { ROOT_STORAGE } from '@utils/Storages';
+import dayjs from 'dayjs';
+
+import { ZipBackupName } from '../types';
+import { CACHE_DIR_PATH, prepareBackupData, restoreData } from '../utils';
 
 const BTAG = '[Backup]';
 

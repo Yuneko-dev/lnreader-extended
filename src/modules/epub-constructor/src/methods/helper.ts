@@ -1,5 +1,6 @@
-import { EpubChapter, File, InternalEpubChapter } from '../../types';
 import sanitizeFileName from 'sanitize-filename';
+
+import { EpubChapter, File, InternalEpubChapter } from '../../types';
 
 /**
  * Creates a file object with the specified path, content, and optional isImage flag.

@@ -1,19 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-
 import { getCategoriesFromDb } from '@database/queries/CategoryQueries';
 import { getLibraryNovelsFromDb } from '@database/queries/LibraryQueries';
-
-import { Category, NovelInfo } from '@database/types';
-
-import { useLibrarySettings } from '@hooks/persisted';
-import { LibrarySortOrder } from '../constants/constants';
 import { switchNovelToLibraryQuery } from '@database/queries/NovelQueries';
+import { Category, NovelInfo } from '@database/types';
+import { useLibrarySettings } from '@hooks/persisted';
+import { useFocusEffect } from '@react-navigation/native';
 import ServiceManager, {
   BackgroundTask,
   QueuedBackgroundTask,
 } from '@services/ServiceManager';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
+
+import { LibrarySortOrder } from '../constants/constants';
 
 // type Library = Category & { novels: LibraryNovelInfo[] };
 export type ExtendedCategory = Category & { novelIds: number[] };

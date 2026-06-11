@@ -1,29 +1,27 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-
-import { FAB } from 'react-native-paper';
+import { useLibraryContext } from '@components/Context/LibraryContext';
 import { ErrorScreenV2, SafeAreaView, SearchbarV2 } from '@components/index';
-import NovelList from '@components/NovelList';
 import NovelCover from '@components/NovelCover';
+import NovelList from '@components/NovelList';
+import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';
+import { NovelInfo } from '@database/types';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import FilterBottomSheet from './components/FilterBottomSheet';
-
 import { useSearch } from '@hooks';
 import { useSearchHistory, useTheme } from '@hooks/persisted';
-import { useBrowseSource, useSearchSource } from './useBrowseSource';
 import usePlugins from '@hooks/persisted/usePlugins';
-import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';
-
-import { NovelItem } from '@plugins/types';
-import { getPlugin } from '@plugins/pluginManager';
-import { getString } from '@strings/translations';
-import { StyleSheet } from 'react-native';
-import { NovelInfo } from '@database/types';
-import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BrowseSourceScreenProps } from '@navigators/types';
-import { useLibraryContext } from '@components/Context/LibraryContext';
 import { discordRPC } from '@modules/discord/DiscordRPC';
+import { BrowseSourceScreenProps } from '@navigators/types';
+import { getPlugin } from '@plugins/pluginManager';
+import { NovelItem } from '@plugins/types';
+import { useFocusEffect } from '@react-navigation/native';
+import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
+import { getString } from '@strings/translations';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { FAB } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import FilterBottomSheet from './components/FilterBottomSheet';
+import { useBrowseSource, useSearchSource } from './useBrowseSource';
 
 const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   const theme = useTheme();

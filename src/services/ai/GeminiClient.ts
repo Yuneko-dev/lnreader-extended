@@ -7,16 +7,17 @@ import {
   Tool,
   Type,
 } from '@google/genai';
+import z from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+
 import {
-  LLMCoreClient,
+  AIToolSchema,
   GenerateContentOptions,
   GenerateContentResponse,
-  AIToolSchema,
   GenerateTranslateContentOptions,
   GenerateTranslateContentResponse,
+  LLMCoreClient,
 } from './LLMCoreClient';
-import z from 'zod';
 
 export interface GeminiConfig {
   endpoint?: string;
@@ -138,7 +139,7 @@ export class GeminiClient extends LLMCoreClient {
 
         let fullText = '';
         for await (const chunk of responseStream) {
-          const text = chunk.text;
+          const { text } = chunk;
           if (text) {
             fullText += text;
             if (onStream) {

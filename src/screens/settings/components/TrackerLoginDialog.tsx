@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
-import { Text, Button } from 'react-native-paper';
 import { Modal } from '@components';
 import { useTheme } from '@hooks/persisted';
+import React, { useState } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Button, Text } from 'react-native-paper';
 
 interface TrackerLoginDialogProps {
   visible: boolean;

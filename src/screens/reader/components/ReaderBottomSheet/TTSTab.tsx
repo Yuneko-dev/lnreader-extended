@@ -1,17 +1,18 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, Text, ScrollView, Pressable } from 'react-native';
+import { Button, List } from '@components/index';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import Slider from '@react-native-community/slider';
-import { getAvailableVoicesAsync, Voice } from 'expo-speech';
-import { getLocales } from 'expo-localization';
 import {
-  useTheme,
   useChapterGeneralSettings,
   useChapterReaderSettings,
+  useTheme,
 } from '@hooks/persisted';
+import Slider from '@react-native-community/slider';
 import { getString } from '@strings/translations';
-import { List, Button } from '@components/index';
-import { Portal, Modal, Chip, IconButton } from 'react-native-paper';
+import { getLocales } from 'expo-localization';
+import { getAvailableVoicesAsync, Voice } from 'expo-speech';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Chip, IconButton, Modal, Portal } from 'react-native-paper';
+
 import ReaderSheetPreferenceItem from './ReaderSheetPreferenceItem';
 
 const TIKTOK_VOICES = [

@@ -1,14 +1,15 @@
 import React from 'react';
 import {
   Pressable,
-  StyleSheet,
-  View,
-  Text,
-  ViewStyle,
   StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
 } from 'react-native';
-import Switch from './Switch';
+
 import { ThemeColors } from '../../theme/types';
+import Switch from './Switch';
 
 interface SwitchItemProps {
   value: boolean;

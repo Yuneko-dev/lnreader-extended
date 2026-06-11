@@ -1,17 +1,17 @@
-import dayjs from 'dayjs';
+import { dbManager } from '@database/db';
 import {
   updateNovelCategoryById,
   updateNovelInfo,
 } from '@database/queries/NovelQueries';
+import { chapterSchema, novelSchema } from '@database/schema';
 import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
-import { getString } from '@strings/translations';
-import { NOVEL_STORAGE } from '@utils/Storages';
-import { dbManager } from '@database/db';
-import { novelSchema, chapterSchema } from '@database/schema';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
+import NativeEpub from '@specs/NativeEpub';
 import NativeFile from '@specs/NativeFile';
 import NativeZipArchive from '@specs/NativeZipArchive';
-import NativeEpub from '@specs/NativeEpub';
+import { getString } from '@strings/translations';
+import { NOVEL_STORAGE } from '@utils/Storages';
+import dayjs from 'dayjs';
 
 const decodePath = (path: string) => {
   try {

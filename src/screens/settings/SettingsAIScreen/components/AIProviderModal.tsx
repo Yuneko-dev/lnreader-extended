@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, Modal, TextInput, Menu, Text } from 'react-native-paper';
-
 import { Button, SwitchItem } from '@components/index';
 import { useTheme } from '@hooks/persisted';
 import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
+import { GeminiClient } from '@services/ai/GeminiClient';
+import { OpenAIClient } from '@services/ai/OpenAIClient';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
-import { OpenAIClient } from '@services/ai/OpenAIClient';
-import { GeminiClient } from '@services/ai/GeminiClient';
+import React, { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Menu, Modal, Portal, Text, TextInput } from 'react-native-paper';
 
 export interface AIProviderModalProps {
   visible: boolean;

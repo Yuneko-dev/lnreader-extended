@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
-import { Appbar as PaperAppbar, Chip } from 'react-native-paper';
-
-import { Appbar, SafeAreaView, LogViewer } from '@components';
+import { Appbar, LogViewer, SafeAreaView } from '@components';
 import { useTheme } from '@hooks/persisted';
 import DebugLogService, { LogEntry, LogLevel } from '@services/DebugLogService';
-import { showToast } from '@utils/showToast';
 import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import * as Clipboard from 'expo-clipboard';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Appbar as PaperAppbar, Chip } from 'react-native-paper';
 
 type FilterLevel = 'all' | LogLevel;
 

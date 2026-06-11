@@ -1,42 +1,28 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-
-import * as Clipboard from 'expo-clipboard';
-
-import { IconButton } from 'react-native-paper';
-import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-
-import { showToast } from '@utils/showToast';
-
-import {
-  CoverImage,
-  NovelInfo,
-  NovelInfoContainer,
-  NovelThumbnail,
-  NovelTitle,
-  NovelGenres,
-} from './NovelInfoComponents';
 import { Row } from '@components/Common';
-import ReadButton from './ReadButton';
-import NovelSummary from '../NovelSummary/NovelSummary';
-import NovelScreenButtonGroup from '../NovelScreenButtonGroup/NovelScreenButtonGroup';
-import { getString } from '@strings/translations';
-import { filterColor } from '@theme/colors';
-import { ChapterInfo, NovelInfo as NovelData } from '@database/types';
-import { ThemeColors } from '@theme/types';
-import { GlobalSearchScreenProps } from '@navigators/types';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { UseBooleanReturnType } from '@hooks';
-import { useAppSettings } from '@hooks/persisted';
-import { NovelStatus, PluginItem } from '@plugins/types';
-import { translateNovelStatus } from '@utils/translateEnum';
-import { getMMKVObject } from '@utils/mmkv/mmkv';
-import { AVAILABLE_PLUGINS } from '@hooks/persisted/usePlugins';
-
 import {
   NovelMetaSkeleton,
   VerticalBarSkeleton,
 } from '@components/Skeleton/Skeleton';
+import useLoadingColors from '@components/Skeleton/useLoadingColors';
+import { ChapterInfo, NovelInfo as NovelData } from '@database/types';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { UseBooleanReturnType } from '@hooks';
+import { useAppSettings } from '@hooks/persisted';
+import { AVAILABLE_PLUGINS } from '@hooks/persisted/usePlugins';
+import { GlobalSearchScreenProps } from '@navigators/types';
+import { NovelStatus, PluginItem } from '@plugins/types';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { getString } from '@strings/translations';
+import { filterColor } from '@theme/colors';
+import { ThemeColors } from '@theme/types';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
+import { showToast } from '@utils/showToast';
+import { translateNovelStatus } from '@utils/translateEnum';
+import * as Clipboard from 'expo-clipboard';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo, useCallback, useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { IconButton } from 'react-native-paper';
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -44,8 +30,18 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import useLoadingColors from '@components/Skeleton/useLoadingColors';
+
+import NovelScreenButtonGroup from '../NovelScreenButtonGroup/NovelScreenButtonGroup';
+import NovelSummary from '../NovelSummary/NovelSummary';
+import {
+  CoverImage,
+  NovelGenres,
+  NovelInfo,
+  NovelInfoContainer,
+  NovelThumbnail,
+  NovelTitle,
+} from './NovelInfoComponents';
+import ReadButton from './ReadButton';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 import { ChapterFilterKey } from '@database/constants';

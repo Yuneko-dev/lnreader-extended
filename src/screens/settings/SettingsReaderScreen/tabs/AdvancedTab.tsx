@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable } from 'react-native';
+import { Button, ConfirmationDialog } from '@components/index';
 import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import { TextInput, Portal } from 'react-native-paper';
+import { useBoolean } from '@hooks';
+import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
-import * as DocumentPicker from 'expo-document-picker';
 import NativeFile from '@specs/NativeFile';
-import { useTheme, useChapterReaderSettings } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
-import { Button, ConfirmationDialog } from '@components/index';
 import { showToast } from '@utils/showToast';
-import { useBoolean } from '@hooks';
+import * as DocumentPicker from 'expo-document-picker';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Portal, TextInput } from 'react-native-paper';
 
 type CodeTab = 'css' | 'js';
 

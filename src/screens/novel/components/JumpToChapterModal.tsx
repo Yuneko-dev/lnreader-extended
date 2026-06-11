@@ -1,27 +1,27 @@
-import React, { useRef, useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Pressable,
-  TextInput as RNTextInput,
-} from 'react-native';
-import { getString } from '@strings/translations';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Button, Modal, SwitchItem } from '@components';
-
-import { Portal, Text } from 'react-native-paper';
-import { useTheme } from '@hooks/persisted';
-import { ChapterInfo, NovelInfo } from '@database/types';
-import { NovelScreenProps } from '@navigators/types';
 import {
-  getNovelChaptersByNumber,
   getNovelChaptersByName,
+  getNovelChaptersByNumber,
 } from '@database/queries/ChapterQueries';
+import { ChapterInfo, NovelInfo } from '@database/types';
+import { useTheme } from '@hooks/persisted';
 import {
   LegendList,
   LegendListRef,
   LegendListRenderItemProps,
 } from '@legendapp/list';
+import { NovelScreenProps } from '@navigators/types';
+import { getString } from '@strings/translations';
+import React, { useRef, useState } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  TextInput as RNTextInput,
+  View,
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Portal, Text } from 'react-native-paper';
+
 import { useNovelAction, useNovelValue } from '../NovelContext';
 
 interface JumpToChapterModalProps {

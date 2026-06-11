@@ -1,5 +1,7 @@
 import '../../../__tests__/mocks';
+
 import { ChapterInfo } from '@database/types';
+
 import {
   createNovelPersistenceBridge,
   defaultNovelSettings,
