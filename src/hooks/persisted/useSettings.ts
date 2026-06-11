@@ -68,6 +68,11 @@ export interface AppSettings {
   defaultChapterSort: ChapterOrderKey;
   swipeActionLeft: SwipeAction;
   swipeActionRight: SwipeAction;
+
+  /**
+   * AI settings
+   */
+  backupApiKeys: boolean;
 }
 
 export interface BrowseSettings {
@@ -222,6 +227,11 @@ const initialAppSettings: AppSettings = {
   defaultChapterSort: 'positionAsc',
   swipeActionLeft: 'disabled',
   swipeActionRight: 'disabled',
+
+  /**
+   * AI settings
+   */
+  backupApiKeys: false,
 };
 
 const initialBrowseSettings: BrowseSettings = {

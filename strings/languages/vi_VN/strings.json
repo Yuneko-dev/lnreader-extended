@@ -83,7 +83,9 @@
     "promptTitle": "Tên Prompt (Alias)",
     "promptContent": "Nội dung Prompt",
     "promptFieldsRequired": "Tên và nội dung là bắt buộc",
-    "cannotDeleteDefaultPrompt": "Không thể xoá prompt mặc định/duy nhất"
+    "cannotDeleteDefaultPrompt": "Không thể xoá prompt mặc định/duy nhất",
+    "backupApiKeys": "Sao lưu API keys",
+    "backupApiKeysDesc": "Bao gồm API keys vào bản sao lưu ứng dụng. Việc này kém an toàn hơn do các mã khoá sẽ được lưu dưới dạng văn bản thuần tuý trong file sao lưu."
   },
   "appearance": "Giao diện",
   "appearanceScreen": {
@@ -153,7 +155,10 @@
     "settingsFileNotFound": "Không tìm thấy tệp cài đặt trong bản sao lưu",
     "settingsRestoreFailed": "Khôi phục cài đặt thất bại: %{error}",
     "settingsFileWriteFailed": "Không ghi được tệp cài đặt: %{error}",
+    "apiKeysFileWriteFailed": "Không ghi được tệp API keys: %{error}",
     "versionFileWriteFailed": "Không ghi được tệp phiên bản: %{error}",
+    "restoringApiKeys": "Đang khôi phục API keys...",
+    "apiKeysRestoreFailed": "Khôi phục API keys thất bại: %{error}",
     "restoringRepositories": "Đang khôi phục nguồn lưu trữ",
     "repositoryFileNotFound": "Không tìm thấy tệp nguồn lưu trữ trong bản sao lưu",
     "repositoryRestoreFailed": "Khôi phục nguồn lưu trữ thất bại: %{repositoryUrl} - %{error}",

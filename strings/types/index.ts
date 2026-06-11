@@ -82,6 +82,8 @@ export interface StringMap {
   'aiSettingsScreen.promptContent': 'string';
   'aiSettingsScreen.promptFieldsRequired': 'string';
   'aiSettingsScreen.cannotDeleteDefaultPrompt': 'string';
+  'aiSettingsScreen.backupApiKeys': 'string';
+  'aiSettingsScreen.backupApiKeysDesc': 'string';
   'appearance': 'string';
   'appearanceScreen.accentColor': 'string';
   'appearanceScreen.alwaysShowNavLabels': 'string';
@@ -144,6 +146,9 @@ export interface StringMap {
   'backupScreen.settingsRestoreFailed': 'string';
   'backupScreen.settingsFileWriteFailed': 'string';
   'backupScreen.versionFileWriteFailed': 'string';
+  'backupScreen.apiKeysFileWriteFailed': 'string';
+  'backupScreen.restoringApiKeys': 'string';
+  'backupScreen.apiKeysRestoreFailed': 'string';
   'backupScreen.restoringRepositories': 'string';
   'backupScreen.repositoryFileNotFound': 'string';
   'backupScreen.repositoryRestoreFailed': 'string';

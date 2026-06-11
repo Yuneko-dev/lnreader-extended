@@ -18,7 +18,13 @@ import { RepositoryRow } from '@database/schema';
 import { BackupCategory, BackupNovel } from '@database/types';
 import { SEARCH_HISTORY_KEY } from '@hooks/persisted';
 import { OLD_TRACKED_NOVEL_PREFIX } from '@hooks/persisted/migrations/trackerMigration';
+import {
+  AI_PROVIDERS_KEY,
+  getApiKey,
+  setApiKey,
+} from '@hooks/persisted/useAIProviders';
 import { SELF_HOST_BACKUP } from '@hooks/persisted/useSelfHost';
+import { APP_SETTINGS, AppSettings } from '@hooks/persisted/useSettings';
 import {
   LAST_UPDATE_TIME,
   NOVEL_UPDATE_RANDOM_KEY,
@@ -207,6 +213,49 @@ export const prepareBackupData = async (cacheDirPath: string) => {
   } catch (error: any) {
     showToast(
       getString('backupScreen.settingsFileWriteFailed', {
+        error: error?.message || String(error),
+      }),
+    );
+  }
+
+  // API Keys
+  try {
+    DebugLogService.addEntry(
+      'log',
+      `${BTAG} Checking API keys backup preference...`,
+    );
+    const appSettingsString = MMKVStorage.getString(APP_SETTINGS);
+    const appSettings: AppSettings | undefined = appSettingsString
+      ? JSON.parse(appSettingsString)
+      : undefined;
+
+    if (appSettings?.backupApiKeys) {
+      DebugLogService.addEntry('log', `${BTAG} Backing up API keys...`);
+      const aiProvidersString = MMKVStorage.getString(AI_PROVIDERS_KEY);
+      if (aiProvidersString) {
+        const providers = JSON.parse(aiProvidersString);
+        const apiKeysBackup: Record<string, string> = {};
+
+        for (const provider of providers) {
+          if (provider.id) {
+            const key = await getApiKey(provider.id);
+            if (key) {
+              apiKeysBackup[provider.id] = key;
+            }
+          }
+        }
+
+        if (Object.keys(apiKeysBackup).length > 0) {
+          NativeFile.writeFile(
+            cacheDirPath + '/' + BackupEntryName.API_KEYS,
+            JSON.stringify(apiKeysBackup),
+          );
+        }
+      }
+    }
+  } catch (error: any) {
+    showToast(
+      getString('backupScreen.apiKeysFileWriteFailed', {
         error: error?.message || String(error),
       }),
     );
@@ -402,6 +451,36 @@ export const restoreData = async (cacheDirPath: string) => {
       }
     }
     showToast(getString('backupScreen.finishingRestore'));
+
+    // API Keys
+    const apiKeysFilePath = cacheDirPath + '/' + BackupEntryName.API_KEYS;
+    if (NativeFile.exists(apiKeysFilePath)) {
+      showToast(getString('backupScreen.restoringApiKeys'));
+      try {
+        const fileContent = NativeFile.readFile(apiKeysFilePath);
+        const apiKeysData: Record<string, string> = JSON.parse(fileContent);
+
+        // Only restore API keys for existing providers
+        const aiProvidersString = MMKVStorage.getString(AI_PROVIDERS_KEY);
+        const providers = aiProvidersString
+          ? JSON.parse(aiProvidersString)
+          : [];
+        const providerIds = new Set(providers.map((p: any) => p.id));
+
+        for (const [id, key] of Object.entries(apiKeysData)) {
+          if (providerIds.has(id)) {
+            await setApiKey(id, key);
+          }
+        }
+        DebugLogService.addEntry('log', `${BTAG} API keys restored`);
+      } catch (error: any) {
+        showToast(
+          getString('backupScreen.apiKeysRestoreFailed', {
+            error: error?.message || String(error),
+          }),
+        );
+      }
+    }
 
     // Assign orphaned novels to default category
     DebugLogService.addEntry('log', `${BTAG} Assigning orphaned novels`);

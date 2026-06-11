@@ -4,9 +4,11 @@ import {
   EmptyView,
   List,
   SafeAreaView,
+  SwitchItem,
 } from '@components/index';
 import { useTheme } from '@hooks/persisted';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';
+import { useAppSettings } from '@hooks/persisted/useSettings';
 import { SettingsAIScreenProps } from '@navigators/types';
 import { getString } from '@strings/translations';
 import React, { useState } from 'react';
@@ -19,6 +21,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
   const theme = useTheme();
   const { providers, addProvider, updateProvider, removeProvider } =
     useAIProviders();
+  const { backupApiKeys, setAppSettings } = useAppSettings();
 
   const [providerModalVisible, setProviderModalVisible] = useState(false);
   const [editingProviderId, setEditingProviderId] = useState<string | null>(
@@ -120,6 +123,21 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
             titleStyle={{ color: theme.onSurface }}
             descriptionStyle={{ color: theme.onSurfaceVariant }}
             style={styles.listItem}
+          />
+        </List.Section>
+
+        <List.Section>
+          <List.SubHeader theme={theme}>
+            {getString('common.backup')}
+          </List.SubHeader>
+          <SwitchItem
+            label={getString('aiSettingsScreen.backupApiKeys')}
+            description={getString('aiSettingsScreen.backupApiKeysDesc')}
+            value={backupApiKeys}
+            onPress={() => {
+              setAppSettings({ backupApiKeys: !backupApiKeys });
+            }}
+            theme={theme}
           />
         </List.Section>
       </ScrollView>
