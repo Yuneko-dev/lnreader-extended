@@ -242,6 +242,11 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
               <Button
                 onPress={() => {
                   setUserAgent(userAgentInput);
+                  showToast(
+                    getString(
+                      'advancedSettingsScreen.userAgentRestartRequiredToast',
+                    ),
+                  );
                   hideUserAgentModal();
                 }}
                 style={styles.button}
@@ -252,6 +257,11 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
                 style={styles.button}
                 onPress={() => {
                   setUserAgent(getUserAgentSync());
+                  showToast(
+                    getString(
+                      'advancedSettingsScreen.userAgentRestartRequiredToast',
+                    ),
+                  );
                   hideUserAgentModal();
                 }}
                 title={getString('common.reset')}

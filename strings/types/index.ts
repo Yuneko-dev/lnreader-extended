@@ -25,6 +25,7 @@ export interface StringMap {
   'advancedSettingsScreen.clearupdatesTabDesc': 'string';
   'advancedSettingsScreen.dataManagement': 'string';
   'advancedSettingsScreen.deleteReadChapters': 'string';
+  'advancedSettingsScreen.userAgentRestartRequiredToast': 'string';
   'advancedSettingsScreen.deleteReadChaptersDialogTitle': 'string';
   'advancedSettingsScreen.storageUsage': 'string';
   'advancedSettingsScreen.storagePath': 'string';

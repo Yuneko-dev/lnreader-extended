@@ -30,6 +30,7 @@ import {
   LAST_UPDATE_TIME,
   NOVEL_UPDATE_RANDOM_KEY,
 } from '@hooks/persisted/useUpdates';
+import { CUSTOM_USER_AGENT } from '@hooks/persisted/useUserAgent';
 import DebugLogService from '@services/DebugLogService';
 import ServiceManager from '@services/ServiceManager';
 import NativeFile from '@specs/NativeFile';
@@ -57,6 +58,7 @@ const backupMMKVData = () => {
     NOVEL_UPDATE_RANDOM_KEY,
     SEARCH_HISTORY_KEY,
     DISABLED_REPOSITORIES,
+    CUSTOM_USER_AGENT,
   ];
   const keys = MMKVStorage.getAllKeys().filter(
     key => !excludeKeys.includes(key),

@@ -24,6 +24,7 @@
     "clearupdatesTabDesc": "Dọn dẹp các chương truyện ở trong mục cập nhật",
     "dataManagement": "Quản lý dữ liệu",
     "deleteReadChapters": "Xóa chương đã đọc",
+    "userAgentRestartRequiredToast": "User-Agent đã thay đổi. Vui lòng khởi động lại ứng dụng để áp dụng.",
     "deleteReadChaptersDialogTitle": "Tất cả các chương được đánh dấu là đã đọc sẽ bị xóa.",
     "storageUsage": "Kho chứa chiếm dụng",
     "storagePath": "Đường dẫn lưu trữ",

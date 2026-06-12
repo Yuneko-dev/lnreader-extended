@@ -1,4 +1,4 @@
-export const USER_AGENT = 'USER_AGENT';
+export const CUSTOM_USER_AGENT = 'CUSTOM_USER_AGENT';
 
 export const getUserAgent = jest.fn(() => 'MockUserAgent/1.0');
 
