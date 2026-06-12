@@ -98,14 +98,25 @@ if (title) {
 
   const handleImport = async () => {
     try {
-      const mimeType =
-        activeCodeTab === 'css' ? 'text/css' : 'application/javascript';
+      // Android can be very picky with MIME types, especially for JS/CSS files
+      // created on Windows. Using */* allows selecting any file.
       const file = await DocumentPicker.getDocumentAsync({
         copyToCacheDirectory: false,
-        type: mimeType,
+        type: '*/*',
       });
 
-      if (file.assets) {
+      if (file.assets && file.assets.length > 0) {
+        const fileName = file.assets[0].name.toLowerCase();
+
+        // Filter by extension manually because Android intent only filters by MIME type natively
+        if (activeCodeTab === 'css' && !fileName.endsWith('.css')) {
+          showToast('Please select a valid CSS file.');
+          return;
+        } else if (activeCodeTab === 'js' && !fileName.endsWith('.js')) {
+          showToast('Please select a valid JS file.');
+          return;
+        }
+
         const tempPath =
           NativeFile.getConstants().ExternalCachesDirectoryPath +
           '/imported_custom.' +
