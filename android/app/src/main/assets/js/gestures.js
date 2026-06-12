@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // gestures.js
 
 // click handler
@@ -20,7 +22,7 @@
     }
     return 'center';
   };
-  document.onclick = (e) => {
+  document.onclick = e => {
     if (window.isNavigating) return;
     const { clientX, clientY } = e;
     const { x, y } = {
@@ -79,7 +81,7 @@
   const SWIPE_THRESHOLD = 100;
   const CIRCUMFERENCE = 2 * Math.PI * 40; // 251.327
 
-  const createSpinner = (direction) => {
+  const createSpinner = direction => {
     if (hideTimeoutId) {
       clearTimeout(hideTimeoutId);
       hideTimeoutId = null;
@@ -103,7 +105,7 @@
     }
   };
 
-  const updateSpinnerUI = (distance) => {
+  const updateSpinnerUI = distance => {
     if (!pullSpinnerContainer || !progressCircle || !separatorGroup) return;
     const percent = Math.min(
       100,
@@ -121,7 +123,7 @@
       pullSpinnerContainer.classList.remove('visible');
       pullSpinnerContainer.classList.add('hiding');
       const containerToRemove = pullSpinnerContainer;
-      
+
       if (hideTimeoutId) clearTimeout(hideTimeoutId);
       hideTimeoutId = setTimeout(() => {
         if (containerToRemove && containerToRemove.parentNode) {
@@ -135,7 +137,7 @@
     }
   };
 
-  document.addEventListener('touchstart', (e) => {
+  document.addEventListener('touchstart', e => {
     initialX = e.changedTouches[0].screenX;
     initialY = e.changedTouches[0].screenY;
     isPulling = false;
@@ -150,7 +152,7 @@
 
   document.addEventListener(
     'touchmove',
-    (e) => {
+    e => {
       const diffY = e.changedTouches[0].screenY - initialY;
       if (Math.abs(diffY) > 10 && window.forceScrollEnd) {
         window.forceScrollEnd = false;
@@ -158,9 +160,12 @@
 
       if (reader.generalSettings.val.pageReader) {
         if (window.isNavigating || pageReader.navigating) return;
-        const diffX = (e.changedTouches[0].screenX - initialX) / window.innerWidth;
+        const diffX =
+          (e.changedTouches[0].screenX - initialX) / window.innerWidth;
         reader.chapterElement.style.transition = 'unset';
-        reader.chapterElement.style.transform = `translateX(-${(pageReader.page.val - diffX) * 100}%)`;
+        reader.chapterElement.style.transform = `translateX(-${
+          (pageReader.page.val - diffX) * 100
+        }%)`;
         return;
       }
 
@@ -212,10 +217,16 @@
           if (currentPull > maxPull) {
             maxPull = currentPull;
           }
-          const distance = Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull);
+          const distance =
+            Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull);
 
           if (distance <= 0 && maxPull > 0) {
-            console.log('[Gestures] Cancelled pull in touchmove. maxPull:', maxPull, 'currentPull:', currentPull);
+            console.log(
+              '[Gestures] Cancelled pull in touchmove. maxPull:',
+              maxPull,
+              'currentPull:',
+              currentPull,
+            );
             hideSpinner();
             isPulling = false;
             canPull = false;
@@ -229,10 +240,10 @@
         }
       }
     },
-    { passive: false }
+    { passive: false },
   );
 
-  document.addEventListener('touchend', (e) => {
+  document.addEventListener('touchend', e => {
     const diffX = e.changedTouches[0].screenX - initialX;
     const diffY = e.changedTouches[0].screenY - initialY;
 
@@ -257,9 +268,20 @@
 
     if (isPulling && pullDirection) {
       let currentPull = pullDirection === 'prev' ? diffY : -diffY;
-      let distance = Math.ceil(Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull));
+      let distance = Math.ceil(
+        Math.min(maxPull, SWIPE_THRESHOLD) - (maxPull - currentPull),
+      );
 
-      console.log('[Gestures] touchend. pullDirection:', pullDirection, 'distance:', distance, 'maxPull:', maxPull, 'currentPull:', currentPull);
+      console.log(
+        '[Gestures] touchend. pullDirection:',
+        pullDirection,
+        'distance:',
+        distance,
+        'maxPull:',
+        maxPull,
+        'currentPull:',
+        currentPull,
+      );
 
       if (distance >= SWIPE_THRESHOLD) {
         console.log('[Gestures] Triggering chapter change!', pullDirection);
@@ -320,7 +342,7 @@
   const interact = () => {
     reader.post({ type: 'user-interaction' });
   };
-  ['touchstart', 'touchend', 'mousedown', 'mouseup', 'wheel'].forEach((evt) => {
+  ['touchstart', 'touchend', 'mousedown', 'mouseup', 'wheel'].forEach(evt => {
     window.addEventListener(evt, interact, { passive: true });
   });
 })();

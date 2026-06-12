@@ -1,8 +1,14 @@
-(function() {
+/* eslint-disable */
+
+(function () {
   function handleFullscreenChange() {
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    const fullscreenElement =
+      document.fullscreenElement || document.webkitFullscreenElement;
     const containsVideoTag = fullscreenElement?.querySelector('video') !== null;
-    if (fullscreenElement && (fullscreenElement.tagName === 'VIDEO' || containsVideoTag)) {
+    if (
+      fullscreenElement &&
+      (fullscreenElement.tagName === 'VIDEO' || containsVideoTag)
+    ) {
       window.reader.post({
         type: 'video-fullscreen-enter',
       });

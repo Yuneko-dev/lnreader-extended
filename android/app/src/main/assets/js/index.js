@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const { div, p, img, button } = van.tags;
 
 const ChapterEnding = () => {
@@ -27,7 +29,8 @@ const Scrollbar = () => {
   let lock = false;
   const percentage = van.state(0);
   const update = ratio => {
-    const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+    const scrollHeight =
+      document.documentElement.scrollHeight || document.body.scrollHeight;
     const maxScrollY = scrollHeight - window.innerHeight;
     if (ratio === undefined) {
       ratio = maxScrollY > 0 ? window.scrollY / maxScrollY : 1;
@@ -76,7 +79,9 @@ const Scrollbar = () => {
             id: 'scrollbar-progress',
             style: () => {
               const percentageValue = reader.generalSettings.val.pageReader
-                ? (pageReader.page.val / Math.max(1, pageReader.totalPages.val - 1)) * 100
+                ? (pageReader.page.val /
+                    Math.max(1, pageReader.totalPages.val - 1)) *
+                  100
                 : percentage.val;
               return horizontal.val
                 ? `width: ${percentageValue}%; height: 100%;`
@@ -200,7 +205,8 @@ const Footer = () => {
     }),
   );
   window.addEventListener('scroll', () => {
-    const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+    const scrollHeight =
+      document.documentElement.scrollHeight || document.body.scrollHeight;
     const maxScrollY = scrollHeight - window.innerHeight;
     let ratio = maxScrollY > 0 ? window.scrollY / maxScrollY : 1;
     if (ratio > 1) {

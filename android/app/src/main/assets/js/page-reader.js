@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // page-reader.js
 
 class PageReader {
@@ -12,10 +14,10 @@ class PageReader {
     this.setupPageReaderReactiveEffect();
   }
 
-  movePage = (destPage) => {
+  movePage = destPage => {
     // Prevent rapid taps from causing chapter jumps
     if (this.navigating) {
-        return;
+      return;
     }
     destPage = parseInt(destPage, 10);
     if (destPage < 0) {
@@ -46,7 +48,7 @@ class PageReader {
 
     const newProgress = parseInt(
       ((this.page.val + 1) / this.totalPages.val) * 100,
-      10
+      10,
     );
 
     if (newProgress > reader.chapter.progress) {
@@ -58,7 +60,7 @@ class PageReader {
           type: 'save',
           data: parseInt(
             (this.page.val / Math.max(1, this.totalPages.val - 1)) * 100,
-            10
+            10,
           ),
         });
       }, 300);
@@ -85,9 +87,11 @@ class PageReader {
           this.totalPages.val = parseInt(
             (reader.chapterWidth + reader.readerSettings.val.padding * 2) /
               reader.layoutWidth,
-            10
+            10,
           );
-          this.movePage(Math.round(Math.max(1, this.totalPages.val - 1) * ratio));
+          this.movePage(
+            Math.round(Math.max(1, this.totalPages.val - 1) * ratio),
+          );
         }, 100);
       } else {
         reader.chapterElement.style = '';
@@ -100,7 +104,8 @@ class PageReader {
           window.scrollTo({
             top:
               maxScrollY > 0
-                ? maxScrollY * (this.page.val / Math.max(1, this.totalPages.val - 1))
+                ? maxScrollY *
+                  (this.page.val / Math.max(1, this.totalPages.val - 1))
                 : 0,
             behavior: 'smooth',
           });
@@ -119,7 +124,7 @@ function calculatePages() {
     pageReader.totalPages.val = parseInt(
       (reader.chapterWidth + reader.readerSettings.val.padding * 2) /
         reader.layoutWidth,
-      10
+      10,
     );
     if (!pageReader.initialized) {
       if (initialPageReaderConfig.nextChapterScreenVisible) {
@@ -130,9 +135,12 @@ function calculatePages() {
 
       const calculatedProgressPage = Math.max(
         0,
-        Math.round((reader.chapter.progress / 100) * Math.max(1, pageReader.totalPages.val - 1))
+        Math.round(
+          (reader.chapter.progress / 100) *
+            Math.max(1, pageReader.totalPages.val - 1),
+        ),
       );
-      
+
       pageReader.movePage(calculatedProgressPage);
       pageReader.initialized = true;
     }
@@ -173,7 +181,7 @@ const ro = new ResizeObserver(() => {
       const newTotalPages = parseInt(
         (reader.chapterWidth + reader.readerSettings.val.padding * 2) /
           reader.layoutWidth,
-        10
+        10,
       );
       pageReader.totalPages.val = newTotalPages;
       if (pageReader.initialized) {
@@ -190,7 +198,10 @@ const ro = new ResizeObserver(() => {
       }
     } else {
       if (window.forceScrollEnd) {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'instant',
+        });
       } else if (pageReader.totalPages.val) {
         calculatePages();
       }

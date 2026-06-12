@@ -2,32 +2,31 @@ import { enableFreeze } from 'react-native-screens';
 
 enableFreeze(true);
 
-import React, { Suspense, useEffect } from 'react';
-import { NativeModules, StatusBar, StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LottieSplashScreen from 'react-native-lottie-splash-screen';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Provider as PaperProvider } from 'react-native-paper';
-import * as Notifications from 'expo-notifications';
-import { KeyboardProvider } from 'react-native-keyboard-controller';
-
 import AppErrorBoundary, {
   ErrorFallback,
   NativeCrashFallback,
 } from '@components/AppErrorBoundary/AppErrorBoundary';
-
-import Main from './src/navigators/Main';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useInitDatabase } from '@database/db';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { useLibrarySettings,useSecuritySettings } from '@hooks/persisted/useSettings';
 import { ThemeProvider } from '@hooks/persisted/useTheme';
-import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
 import { CloudflareSolverOverlay } from '@plugins/helpers/CloudflareSolverOverlay';
-import { useSecuritySettings, useLibrarySettings } from '@hooks/persisted/useSettings';
 import { initLocalServer } from '@plugins/local/localServerManager';
-import FileViewer from 'react-native-file-viewer';
-import { showToast } from '@utils/showToast';
+import AppLockOverlay, { useAppLock } from '@screens/more/AppLockScreen';
 import ServiceManager from '@services/ServiceManager';
 import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
+import * as Notifications from 'expo-notifications';
+import React, { Suspense, useEffect } from 'react';
+import { NativeModules, StatusBar, StyleSheet } from 'react-native';
+import FileViewer from 'react-native-file-viewer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import LottieSplashScreen from 'react-native-lottie-splash-screen';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import Main from './src/navigators/Main';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -49,7 +48,7 @@ const useScreenProtection = () => {
 
   useEffect(() => {
     try {
-      const FlagSecure = NativeModules.FlagSecure;
+      const {FlagSecure} = NativeModules;
       if (!FlagSecure) {
         return;
       }
@@ -104,7 +103,7 @@ const AppContent = () => {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
       async response => {
-        const data = response.notification.request.content.data;
+        const {data} = response.notification.request.content;
         if (data?.action === 'open_update_error_log' && data?.filePath) {
           try {
             const cleanPath = (data.filePath as string).replace('file://', '');

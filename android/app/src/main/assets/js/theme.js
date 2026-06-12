@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // theme.js
 (() => {
   van.derive(() => {
@@ -36,12 +38,12 @@
         `url("file:///android_asset/fonts/${settings.fontFamily}.ttf")`,
       )
         .load()
-        .then((loadedFont) => {
+        .then(loadedFont => {
           document.fonts.add(loadedFont);
         });
     } else {
       // have no affect with a font declared in head
-      document.fonts.forEach((fontFace) => document.fonts.delete(fontFace));
+      document.fonts.forEach(fontFace => document.fonts.delete(fontFace));
     }
   });
 })();
@@ -60,13 +62,14 @@
         .replace(/<br>\s*<br>\s*(?:<br>\s*)+/g, '<br><br>') //force max 2 consecutive <br>, chaining regex
         .replace(
           /<br>\s*<br>[^]+/,
-          (_) =>
-            `${/\/p>/.test(_)
-              ? _.replace(
-                /<br>\s*<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p\b[^>]*><br>\s*<br>))\s*/g,
-                '',
-              )
-              : _
+          _ =>
+            `${
+              /\/p>/.test(_)
+                ? _.replace(
+                    /<br>\s*<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p\b[^>]*><br>\s*<br>))\s*/g,
+                    '',
+                  )
+                : _
             }`,
         ) //if p found, delete all double br near p
         .replace(/<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p>\s*<br>))\s*/g, '');

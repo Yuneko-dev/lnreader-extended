@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // tts.js
 
 class TTS {
@@ -12,9 +14,7 @@ class TTS {
       'STRONG',
       'A',
     ];
-    this.internalElementIds = [
-      'LNReader-title-novel',
-    ];
+    this.internalElementIds = ['LNReader-title-novel'];
     this.prevElement = null;
     this.currentElement = reader.chapterElement;
     this.started = false;
@@ -25,7 +25,7 @@ class TTS {
     this.textQueue = []; // Flat list of normalized text for native fallback
   }
 
-  readable = (element) => {
+  readable = element => {
     const ele = element ?? this.currentElement;
     if (this.internalElementIds.includes(ele.id)) {
       return false;
@@ -47,7 +47,7 @@ class TTS {
     return true;
   };
 
-  normalizeText = (text) => {
+  normalizeText = text => {
     if (!text) return '';
     return text
       .replace(/\s+/g, ' ')
@@ -165,7 +165,7 @@ class TTS {
     }
   };
 
-  start = (element) => {
+  start = element => {
     this.stop();
     this.started = true;
     const startElement = element ?? reader.chapterElement;
@@ -173,12 +173,12 @@ class TTS {
 
     // Get all readable elements from the chapter
     this.allReadableElements = this.getAllReadableElements(
-      reader.chapterElement
+      reader.chapterElement,
     );
     this.totalElements = this.allReadableElements.length;
     this.textQueue = this.allReadableElements
-      .map((el) => this.normalizeText(el.innerText))
-      .filter((text) => !!text);
+      .map(el => this.normalizeText(el.innerText))
+      .filter(text => !!text);
     reader.post({
       type: 'tts-queue',
       data: {
@@ -199,9 +199,9 @@ class TTS {
   };
 
   // Get all readable elements in order
-  getAllReadableElements = (element) => {
+  getAllReadableElements = element => {
     const elements = [];
-    const traverse = (el) => {
+    const traverse = el => {
       if (!el) return;
       if (this.readable(el)) {
         elements.push(el);
@@ -241,7 +241,7 @@ class TTS {
     this.speak();
   };
 
-  seekTo = (index) => {
+  seekTo = index => {
     if (!this.started || !this.allReadableElements.length) return;
     const targetIndex = Math.max(0, Math.min(index, this.totalElements - 1));
     reader.post({ type: 'pause-speak' });
@@ -272,7 +272,7 @@ class TTS {
     }
   };
 
-  isElementInViewport = (element) => {
+  isElementInViewport = element => {
     if (!element) return false;
     const rect = element.getBoundingClientRect();
     const windowHeight =
@@ -290,7 +290,7 @@ class TTS {
 
   // UPDATED: Scroll to top or center based on settings with padding for notch/camera
   // In page reader mode, navigate to the correct page instead of scrolling
-  scrollToElement = (element) => {
+  scrollToElement = element => {
     if (!element) return;
 
     // Page reader mode: navigate to the page containing this element
@@ -365,7 +365,7 @@ class TTS {
     }
   };
 
-  setLoading = (loading) => {
+  setLoading = loading => {
     const controller = document.getElementById('TTS-Controller');
     if (controller) {
       if (loading) {

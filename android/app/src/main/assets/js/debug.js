@@ -1,6 +1,8 @@
+/* eslint-disable */
+
 // debug.js
 (() => {
-  const formatValueToString = (value) => {
+  const formatValueToString = value => {
     const type = typeof value;
 
     if (type === 'number' || type === 'boolean' || value == null) {
@@ -24,13 +26,14 @@
     }
 
     if (Array.isArray(value)) {
-      const arrayElements = value.map((element) => formatValueToString(element));
+      const arrayElements = value.map(element => formatValueToString(element));
       return `[${arrayElements.join(', ')}]`;
     }
 
     const rawObjectType = Object.prototype.toString.call(value);
     const regexMatch = /\[object ([^\]]+)\]/.exec(rawObjectType);
-    const objectType = regexMatch && regexMatch.length > 1 ? regexMatch[1] : rawObjectType;
+    const objectType =
+      regexMatch && regexMatch.length > 1 ? regexMatch[1] : rawObjectType;
 
     if (objectType === 'Object') {
       try {
@@ -48,11 +51,11 @@
   };
 
   const methods = ['log', 'debug', 'info', 'warn', 'error'];
-  methods.forEach((method) => {
+  methods.forEach(method => {
     const originalMethod = console[method];
     console[method] = (...args) => {
       originalMethod.apply(console, args);
-      const safeArgs = args.map((arg) => formatValueToString(arg));
+      const safeArgs = args.map(arg => formatValueToString(arg));
       reader.post({
         type: 'console',
         method: method,
@@ -62,12 +65,14 @@
   });
 
   window.onerror = (message, source, lineno, colno, error) => {
-    const msg = `${message} at ${source}:${lineno}:${colno}${error ? `\n${error.stack}` : ''}`;
+    const msg = `${message} at ${source}:${lineno}:${colno}${
+      error ? `\n${error.stack}` : ''
+    }`;
     reader.post({ type: 'error', msg });
     return true;
   };
 
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener('unhandledrejection', event => {
     const msg = `Unhandled Rejection: ${event.reason}`;
     reader.post({ type: 'error', msg });
   });

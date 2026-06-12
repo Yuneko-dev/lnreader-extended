@@ -1,8 +1,11 @@
+/* eslint-disable */
+
 import { ChapterInfo, NovelInfo } from '@database/types';
 import {
   ChapterGeneralSettings,
   ChapterReaderSettings,
 } from '@hooks/persisted/useSettings';
+
 import { State } from './modules/core/van';
 
 export interface Reader {
@@ -28,7 +31,7 @@ export interface Reader {
     noNextChapter: string;
   };
 
-  //layout props
+  // layout props
   paddingTop: number;
   layoutHeight: number;
   layoutWidth: number;

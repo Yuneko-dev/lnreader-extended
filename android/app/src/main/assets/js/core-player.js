@@ -1,6 +1,8 @@
+/* eslint-disable */
+
 // core-player.js
 
-(function() {
+(function () {
   class LNReaderPlayer {
     constructor() {
       this.container = null;
@@ -17,7 +19,9 @@
     init() {
       if (this.container) return; // Prevent double initialization
       // Check debug mode
-      const debugMeta = document.querySelector('meta[name="lnreader-debug-mode"]');
+      const debugMeta = document.querySelector(
+        'meta[name="lnreader-debug-mode"]',
+      );
       if (debugMeta && debugMeta.content === 'true') {
         this.isDebugMode = true;
       }
@@ -45,17 +49,23 @@
       this.log('LNReaderPlayer initialized');
 
       // Check auto-play direct mode
-      const modeMeta = document.querySelector('meta[name="lnreader-video-mode"]');
+      const modeMeta = document.querySelector(
+        'meta[name="lnreader-video-mode"]',
+      );
       if (modeMeta && modeMeta.content === 'direct') {
         this.log('Direct mode detected');
-        const urlMeta = document.querySelector('meta[name="lnreader-video-url"]');
-        const typeMeta = document.querySelector('meta[name="lnreader-video-type"]');
-        
+        const urlMeta = document.querySelector(
+          'meta[name="lnreader-video-url"]',
+        );
+        const typeMeta = document.querySelector(
+          'meta[name="lnreader-video-type"]',
+        );
+
         if (urlMeta && typeMeta) {
           const url = urlMeta.content;
           const type = typeMeta.content;
           this.log(`Auto-playing direct: type=${type}, url=${url}`);
-          
+
           if (type === 'm3u8') {
             this.playHls(url);
           } else if (type === 'video-file') {
@@ -109,7 +119,7 @@
 
     attachEventListeners(video) {
       const self = this;
-      
+
       video.addEventListener('loadedmetadata', function () {
         self.log('Video loadedmetadata');
         try {
@@ -143,7 +153,9 @@
             var currentTime = video.currentTime;
             if (Math.abs(currentTime - self.lastSaveTime) >= 5) {
               self.lastSaveTime = currentTime;
-              var progressInt = Math.floor((currentTime / video.duration) * 100);
+              var progressInt = Math.floor(
+                (currentTime / video.duration) * 100,
+              );
               window.reader.post({
                 type: 'save',
                 data: progressInt,
@@ -175,8 +187,10 @@
         }
       });
 
-      video.addEventListener('error', (e) => {
-        self.log(`Video error: ${video.error ? video.error.message : 'Unknown'}`);
+      video.addEventListener('error', e => {
+        self.log(
+          `Video error: ${video.error ? video.error.message : 'Unknown'}`,
+        );
       });
     }
 
@@ -198,15 +212,19 @@
       this.log(`playDirect called with ${url}`);
       this.destroyCurrentMedia();
 
-      const playerTypeMeta = document.querySelector('meta[name="lnreader-player-type"]');
+      const playerTypeMeta = document.querySelector(
+        'meta[name="lnreader-player-type"]',
+      );
       const playerType = playerTypeMeta ? playerTypeMeta.content : 'html5';
-      
+
       this.videoElement = this.generateHTMLVideo(playerType);
       this.videoElement.src = url;
       this.attachEventListeners(this.videoElement);
       this.container.appendChild(this.videoElement);
-      
-      this.videoElement.play().catch(e => this.log(`Auto-play prevented: ${e.message}`));
+
+      this.videoElement
+        .play()
+        .catch(e => this.log(`Auto-play prevented: ${e.message}`));
     }
 
     playHls(url, customHlsConfig = {}) {
@@ -214,28 +232,35 @@
       this.log(`playHls called with ${url}`);
       this.destroyCurrentMedia();
 
-      const playerTypeMeta = document.querySelector('meta[name="lnreader-player-type"]');
+      const playerTypeMeta = document.querySelector(
+        'meta[name="lnreader-player-type"]',
+      );
       const playerType = playerTypeMeta ? playerTypeMeta.content : 'html5';
-      
+
       this.videoElement = this.generateHTMLVideo(playerType);
       this.attachEventListeners(this.videoElement);
       this.container.appendChild(this.videoElement);
 
       if (window.Hls && Hls.isSupported()) {
         this.log('Hls.js is supported');
-        const config = Object.assign({
-          debug: this.isDebugMode,
-        }, customHlsConfig);
-        
+        const config = Object.assign(
+          {
+            debug: this.isDebugMode,
+          },
+          customHlsConfig,
+        );
+
         this.hlsInstance = new Hls(config);
         this.hlsInstance.loadSource(url);
         this.hlsInstance.attachMedia(this.videoElement);
-        
+
         this.hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
           this.log('HLS manifest parsed, playing...');
-          this.videoElement.play().catch(e => this.log(`Auto-play prevented: ${e.message}`));
+          this.videoElement
+            .play()
+            .catch(e => this.log(`Auto-play prevented: ${e.message}`));
         });
-        
+
         this.hlsInstance.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             this.log(`Fatal HLS error: ${data.type} - ${data.details}`);
@@ -256,11 +281,15 @@
             this.log(`HLS error: ${data.details}`);
           }
         });
-      } else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (
+        this.videoElement.canPlayType('application/vnd.apple.mpegurl')
+      ) {
         this.log('Native HLS playback supported (Safari/iOS)');
         this.videoElement.src = url;
         this.videoElement.addEventListener('loadedmetadata', () => {
-          this.videoElement.play().catch(e => this.log(`Auto-play prevented: ${e.message}`));
+          this.videoElement
+            .play()
+            .catch(e => this.log(`Auto-play prevented: ${e.message}`));
         });
       } else {
         this.log('HLS not supported on this platform');
@@ -271,19 +300,20 @@
       this.ensureInit();
       this.log(`playIframe called with ${url}`);
       this.destroyCurrentMedia();
-      
+
       this.iframeElement = document.createElement('iframe');
       this.iframeElement.src = url;
-      // Using sandbox without allow-popups and allow-popups-to-escape-sandbox 
+      // Using sandbox without allow-popups and allow-popups-to-escape-sandbox
       // will effectively block window.open and target="_blank"
-      this.iframeElement.sandbox = 'allow-scripts allow-same-origin allow-presentation';
-      
+      this.iframeElement.sandbox =
+        'allow-scripts allow-same-origin allow-presentation';
+
       // Additional attributes requested
       this.iframeElement.allowFullscreen = true;
       this.iframeElement.setAttribute('webkitallowfullscreen', 'true');
       this.iframeElement.setAttribute('mozallowfullscreen', 'true');
       this.iframeElement.setAttribute('allowfullscreen', 'true');
-      
+
       this.iframeElement.onload = () => {
         this.log('Iframe loaded');
       };
@@ -291,7 +321,7 @@
       this.iframeElement.onerror = () => {
         this.log('Iframe failed to load');
       };
-      
+
       this.container.appendChild(this.iframeElement);
     }
   }
@@ -301,7 +331,9 @@
 
   // Auto-init when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => window.LNReaderPlayer.init());
+    document.addEventListener('DOMContentLoaded', () =>
+      window.LNReaderPlayer.init(),
+    );
   } else {
     window.LNReaderPlayer.init();
   }

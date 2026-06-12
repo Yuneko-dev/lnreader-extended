@@ -1,5 +1,5 @@
-import { getMMKVObject } from './src/utils/mmkv/mmkv';
 import DebugLogService from './src/services/DebugLogService';
+import { getMMKVObject } from './src/utils/mmkv/mmkv';
 
 const appSettings = getMMKVObject('APP_SETTINGS');
 if (appSettings?.verboseLogging) {
@@ -7,8 +7,10 @@ if (appSettings?.verboseLogging) {
 }
 
 import 'react-native-gesture-handler';
+
 import { registerRootComponent } from 'expo';
 import { I18nManager } from 'react-native';
+
 import { i18n } from './strings/translations';
 
 const isRTL = i18n.locale.startsWith('ar') || i18n.locale.startsWith('he');
