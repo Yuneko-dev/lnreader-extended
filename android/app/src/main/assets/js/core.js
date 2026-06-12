@@ -87,3 +87,32 @@ class Reader {
 }
 
 window.reader = new Reader();
+
+// Support legacy JavaScript variables from LNReader v1
+/**
+ * @param {string} globalName
+ * @param {function} getParent
+ * @param {string} key
+ * @deprecated
+ */
+function defineSafeProp(globalName, getParent, key) {
+  Object.defineProperty(window, globalName, {
+    get() {
+      return getParent()?.[key];
+    },
+    set(value) {
+      const parent = getParent();
+      if (parent) {
+        parent[key] = value;
+      }
+    },
+    configurable: true,
+  });
+}
+
+defineSafeProp('novelName',   () => window.reader?.novel,   'name');
+defineSafeProp('chapterName', () => window.reader?.chapter, 'name');
+defineSafeProp('sourceId',    () => window.reader?.novel,   'pluginId');
+defineSafeProp('chapterId',   () => window.reader?.chapter, 'id');
+defineSafeProp('novelId',     () => window.reader?.novel,   'id');
+defineSafeProp('html',        () => window.chapterElement,  'innerHTML');
