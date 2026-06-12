@@ -1,8 +1,12 @@
 import { EmptyView, SafeAreaView, SearchbarV2 } from '@components';
 import { useSearch } from '@hooks';
 import { usePlugins, useTheme } from '@hooks/persisted';
+import { DISABLED_REPOSITORIES } from '@hooks/persisted/useDisabledRepositories';
 import { BrowseScreenProps } from '@navigators/types';
+import { useFocusEffect } from '@react-navigation/native';
 import { getString } from '@strings/translations';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
+import { showToast } from '@utils/showToast';
 import Color from 'color';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
@@ -21,6 +25,25 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
   const { searchText, setSearchText, clearSearchbar } = useSearch();
   const { languagesFilter } = usePlugins();
   const layout = useWindowDimensions();
+
+  const prevDisabledReposRef = React.useRef<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const currentDisabledRepos =
+        getMMKVObject<number[]>(DISABLED_REPOSITORIES) || [];
+      const currentHash = currentDisabledRepos.join(',');
+
+      if (
+        prevDisabledReposRef.current !== null &&
+        prevDisabledReposRef.current !== currentHash
+      ) {
+        showToast(getString('browseScreen.repositoryChanged'));
+      }
+
+      prevDisabledReposRef.current = currentHash;
+    }, []),
+  );
 
   const searchbarActions = useMemo(
     () =>

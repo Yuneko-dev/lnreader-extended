@@ -1,4 +1,5 @@
 import { getRepositoriesFromDb } from '@database/queries/RepositoryQueries';
+import { DISABLED_REPOSITORIES } from '@hooks/persisted/useDisabledRepositories';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
 import {
   aeskw,
@@ -16,6 +17,7 @@ import { bytesToUtf8, utf8ToBytes } from '@noble/ciphers/utils.js';
 import CookieManager from '@preeternal/react-native-cookie-manager';
 import NativeFile from '@specs/NativeFile';
 import { newer } from '@utils/compareVersion';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
 import { PLUGIN_STORAGE } from '@utils/Storages';
 import { load } from 'cheerio';
@@ -205,8 +207,17 @@ const fetchPlugins = async (): Promise<PluginItem[]> => {
   const allPlugins: PluginItem[] = [];
   const allRepositories = await getRepositoriesFromDb();
 
+  const disabledRepos = getMMKVObject<number[]>(DISABLED_REPOSITORIES) || [];
+  const enabledRepositories = allRepositories.filter(
+    repo => !disabledRepos.includes(repo.id),
+  );
+
+  if (enabledRepositories.length === 0) {
+    return [];
+  }
+
   const repoPluginsRes = await Promise.allSettled(
-    allRepositories.map(({ url }) => {
+    enabledRepositories.map(({ url }) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 7_500);
       return fetch(getBypassCacheUrl(url), {

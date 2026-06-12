@@ -1,4 +1,5 @@
 export { default as useCategories } from './useCategories';
+export { default as useDisabledRepositories } from './useDisabledRepositories';
 export { default as useDownload } from './useDownload';
 export { default as useHistory } from './useHistory';
 export { deleteCachedNovels } from './useNovel';

@@ -1,7 +1,7 @@
 import { IconButtonV2 } from '@components';
 import { Repository } from '@database/types';
 import { useBoolean } from '@hooks/index';
-import { useTheme } from '@hooks/persisted';
+import { useDisabledRepositories, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import * as Clipboard from 'expo-clipboard';
@@ -25,6 +25,10 @@ const RepositoryCard: FC<RepositoryCardProps> = ({
   upsertRepository,
 }) => {
   const theme = useTheme();
+  const { disabledRepositories, toggleDisabledRepository } =
+    useDisabledRepositories();
+
+  const isEnabled = !disabledRepositories.includes(repository.id);
 
   const {
     value: repositoryModalVisible,
@@ -44,6 +48,7 @@ const RepositoryCard: FC<RepositoryCardProps> = ({
         styles.cardCtn,
         {
           backgroundColor: theme.secondaryContainer,
+          opacity: isEnabled ? 1 : 0.5,
         },
       ]}
     >
@@ -65,8 +70,15 @@ const RepositoryCard: FC<RepositoryCardProps> = ({
       </View>
       <View style={styles.buttonsCtn}>
         <IconButtonV2
+          name={isEnabled ? 'eye-outline' : 'eye-off-outline'}
+          color={theme.onSurface}
+          onPress={() => toggleDisabledRepository(repository.id)}
+          theme={theme}
+        />
+        <IconButtonV2
           name="open-in-new"
           color={theme.onSurface}
+          style={styles.manageBtn}
           onPress={() => Linking.openURL(repository.url)}
           theme={theme}
         />

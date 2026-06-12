@@ -220,6 +220,7 @@
     "pinnedPlugins": "Pinned plugins",
     "removeFromLibrary": "Removed from Library",
     "searchbar": "Search sources",
+    "repositoryChanged": "Repository settings have changed. Pull down to refresh the extension list.",
     "searchResults": "Search results",
     "selectNovel": "Select Novel",
     "uninstalledPlugin": "Uninstalled %{name}",

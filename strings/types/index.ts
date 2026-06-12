@@ -145,8 +145,8 @@ export interface StringMap {
   'backupScreen.settingsFileNotFound': 'string';
   'backupScreen.settingsRestoreFailed': 'string';
   'backupScreen.settingsFileWriteFailed': 'string';
-  'backupScreen.versionFileWriteFailed': 'string';
   'backupScreen.apiKeysFileWriteFailed': 'string';
+  'backupScreen.versionFileWriteFailed': 'string';
   'backupScreen.restoringApiKeys': 'string';
   'backupScreen.apiKeysRestoreFailed': 'string';
   'backupScreen.restoringRepositories': 'string';
@@ -201,6 +201,7 @@ export interface StringMap {
   'browseScreen.pinnedPlugins': 'string';
   'browseScreen.removeFromLibrary': 'string';
   'browseScreen.searchbar': 'string';
+  'browseScreen.repositoryChanged': 'string';
   'browseScreen.searchResults': 'string';
   'browseScreen.selectNovel': 'string';
   'browseScreen.uninstalledPlugin': 'string';

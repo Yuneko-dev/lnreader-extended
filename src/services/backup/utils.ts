@@ -23,6 +23,7 @@ import {
   getApiKey,
   setApiKey,
 } from '@hooks/persisted/useAIProviders';
+import { DISABLED_REPOSITORIES } from '@hooks/persisted/useDisabledRepositories';
 import { SELF_HOST_BACKUP } from '@hooks/persisted/useSelfHost';
 import { APP_SETTINGS, AppSettings } from '@hooks/persisted/useSettings';
 import {
@@ -55,6 +56,7 @@ const backupMMKVData = () => {
     LAST_UPDATE_TIME,
     NOVEL_UPDATE_RANDOM_KEY,
     SEARCH_HISTORY_KEY,
+    DISABLED_REPOSITORIES,
   ];
   const keys = MMKVStorage.getAllKeys().filter(
     key => !excludeKeys.includes(key),

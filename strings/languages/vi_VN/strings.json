@@ -219,6 +219,7 @@
     "pinnedPlugins": "Các nguồn đã ghim",
     "removeFromLibrary": "Đã xoá khỏi thư viện",
     "searchbar": "Tìm nguồn truyện",
+    "repositoryChanged": "Cài đặt nguồn đã thay đổi. Kéo xuống để làm mới danh sách tiện ích.",
     "searchResults": "Kết quả tìm kiếm",
     "selectNovel": "Chọn truyện",
     "uninstalledPlugin": "Gỡ cài đặt %{name}",
