@@ -4,7 +4,7 @@ import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import * as Clipboard from 'expo-clipboard';
 import React from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import ErrorBoundary from 'react-native-error-boundary';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -33,18 +33,19 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           screenshot this message and then share it in our support channel on
           Discord.
         </Text>
-        <Text
-          style={[
-            styles.errorCtn,
-            {
-              backgroundColor: theme.surfaceVariant,
-              color: theme.onSurfaceVariant,
-            },
-          ]}
-          numberOfLines={20}
-        >
-          {`${error.message}\n\n${error.stack}`}
-        </Text>
+        <ScrollView style={{ flex: 1 }}>
+          <Text
+            style={[
+              styles.errorCtn,
+              {
+                backgroundColor: theme.surfaceVariant,
+                color: theme.onSurfaceVariant,
+              },
+            ]}
+          >
+            {`${error.message}\n\n${error.stack}`}
+          </Text>
+        </ScrollView>
       </View>
       <List.Divider theme={theme} />
       <Button
@@ -125,18 +126,19 @@ export const NativeCrashFallback: React.FC<{ children: React.ReactNode }> = ({
             The application ran into a fatal native error during the last
             session. Please copy the crash log and report it in our Discord.
           </Text>
-          <Text
-            style={[
-              styles.errorCtn,
-              {
-                backgroundColor: theme.surfaceVariant,
-                color: theme.onSurfaceVariant,
-              },
-            ]}
-            numberOfLines={20}
-          >
-            {crashLog}
-          </Text>
+          <ScrollView style={{ flex: 1 }}>
+            <Text
+              style={[
+                styles.errorCtn,
+                {
+                  backgroundColor: theme.surfaceVariant,
+                  color: theme.onSurfaceVariant,
+                },
+              ]}
+            >
+              {crashLog}
+            </Text>
+          </ScrollView>
         </View>
         <List.Divider theme={theme} />
         <Button
