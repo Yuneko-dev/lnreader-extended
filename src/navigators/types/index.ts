@@ -71,6 +71,8 @@ export type MoreStackParamList = {
   Downloads: undefined;
   Categories: undefined;
   Statistics: undefined;
+  ReadingTimeStats: undefined;
+  NovelReadingTimeStats: { novelId: number; novelName: string };
   DebugLog: undefined;
 };
 

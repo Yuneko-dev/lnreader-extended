@@ -48,8 +48,8 @@ const RepositoryCard: FC<RepositoryCardProps> = ({
         styles.cardCtn,
         {
           backgroundColor: theme.secondaryContainer,
-          opacity: isEnabled ? 1 : 0.5,
         },
+        !isEnabled && styles.disabledCtn,
       ]}
     >
       <View style={styles.nameCtn}>
@@ -137,6 +137,9 @@ const styles = StyleSheet.create({
   },
   manageBtn: {
     marginLeft: 8,
+  },
+  disabledCtn: {
+    opacity: 0.5,
   },
   name: {
     fontSize: 16,

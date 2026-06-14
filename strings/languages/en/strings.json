@@ -664,6 +664,20 @@
     "unreadChapters": "Unread chapters",
     "totalReadingTime": "Total reading time"
   },
+  "readingTimeStatsScreen": {
+    "title": "Reading Time",
+    "novelReadingTime": "Reading Time: %{name}",
+    "sortNameAsc": "Name (A-Z)",
+    "sortNameDesc": "Name (Z-A)",
+    "sortTimeAsc": "Time (Lowest to Highest)",
+    "sortTimeDesc": "Time (Highest to Lowest)",
+    "emptyView": "No reading time data found",
+    "totalTime": "Total: %{time}",
+    "chapterList": "Chapter List",
+    "sortChapterAsc": "Chapter (Ascending)",
+    "sortChapterDesc": "Chapter (Descending)",
+    "noChapterReadingTime": "No chapter reading time data found"
+  },
   "securitySettings": "Security",
   "securitySettingsScreen": {
     "appLockSection": "App Lock",

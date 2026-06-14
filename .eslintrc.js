@@ -89,6 +89,7 @@ module.exports = {
         'no-inline-comments': 'warn',
         'no-console': 'warn',
         'react-hooks/exhaustive-deps': 'warn',
+        'react-native/no-inline-styles': 'error',
       },
     },
   ],

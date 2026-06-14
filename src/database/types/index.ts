@@ -121,3 +121,17 @@ export interface Repository {
   id: number;
   url: string;
 }
+
+export interface NovelReadingTimeStat {
+  novelId: number;
+  novelName: string;
+  coverUrl: string | null;
+  readDuration: number;
+}
+
+export interface ChapterReadingTimeStat {
+  chapterId: number;
+  chapterName: string;
+  chapterNumber: number | null;
+  readDuration: number;
+}

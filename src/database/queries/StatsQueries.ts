@@ -7,7 +7,11 @@ import {
 import { and, count, eq, sql } from 'drizzle-orm';
 import { countBy } from 'lodash-es';
 
-import { LibraryStats } from '../types';
+import {
+  ChapterReadingTimeStat,
+  LibraryStats,
+  NovelReadingTimeStat,
+} from '../types';
 
 /**
  * Get library statistics (novel count and distinct sources) using Drizzle ORM
@@ -151,4 +155,60 @@ export const getTotalReadingTimeFromDb = async (): Promise<LibraryStats> => {
     .get();
 
   return result ?? { totalReadingTime: 0 };
+};
+
+/**
+ * Get reading time statistics grouped by novel
+ */
+export const getNovelReadingTimeStatsFromDb = async (): Promise<
+  NovelReadingTimeStat[]
+> => {
+  const result = await dbManager
+    .select({
+      novelId: novelSchema.id,
+      novelName: novelSchema.name,
+      coverUrl: novelSchema.cover,
+      readDuration: sql<number>`COALESCE(SUM(${extendedChapterHistorySchema.readDuration}), 0)`,
+    })
+    .from(novelSchema)
+    .innerJoin(chapterSchema, eq(chapterSchema.novelId, novelSchema.id))
+    .innerJoin(
+      extendedChapterHistorySchema,
+      eq(extendedChapterHistorySchema.chapterId, chapterSchema.id),
+    )
+    .where(eq(novelSchema.inLibrary, true))
+    .groupBy(novelSchema.id)
+    .having(sql`SUM(${extendedChapterHistorySchema.readDuration}) > 0`)
+    .all();
+
+  return result;
+};
+
+/**
+ * Get reading time statistics for chapters of a specific novel
+ */
+export const getChapterReadingTimeStatsFromDb = async (
+  novelId: number,
+): Promise<ChapterReadingTimeStat[]> => {
+  const result = await dbManager
+    .select({
+      chapterId: chapterSchema.id,
+      chapterName: chapterSchema.name,
+      chapterNumber: chapterSchema.chapterNumber,
+      readDuration: extendedChapterHistorySchema.readDuration,
+    })
+    .from(chapterSchema)
+    .innerJoin(
+      extendedChapterHistorySchema,
+      eq(extendedChapterHistorySchema.chapterId, chapterSchema.id),
+    )
+    .where(
+      and(
+        eq(chapterSchema.novelId, novelId),
+        sql`${extendedChapterHistorySchema.readDuration} > 0`,
+      ),
+    )
+    .all();
+
+  return result;
 };
