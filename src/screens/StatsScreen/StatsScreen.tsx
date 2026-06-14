@@ -18,19 +18,24 @@ import {
 import { LibraryStats } from '@database/types';
 import { useTheme } from '@hooks/persisted';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getString } from '@strings/translations';
 import { translateNovelStatus } from '@utils/translateEnum';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { overlay } from 'react-native-paper';
+
+import { MoreStackParamList } from '../../navigators/types';
 
 const StatsScreen = () => {
   const theme = useTheme();
-  const { goBack } = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MoreStackParamList>>();
+  const { goBack } = navigation;
 
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<LibraryStats>({});
-  const [error, setError] = useState<any>();
+  const [error, setError] = useState<string | Error | null>(null);
 
   const getStats = async () => {
     try {
@@ -46,7 +51,7 @@ const StatsScreen = () => {
       ]);
       setStats(Object.assign(...res));
     } catch (err) {
-      setError(err);
+      setError(err as Error);
     } finally {
       setIsLoading(false);
     }
@@ -124,6 +129,7 @@ const StatsScreen = () => {
             label={getString('statsScreen.totalReadingTime')}
             value={stats.totalReadingTime}
             formatValue={formatReadingTime}
+            onPress={() => navigation.navigate('ReadingTimeStats')}
           />
         </Row>
         <Text style={[styles.header, { color: theme.onSurfaceVariant }]}>
@@ -172,7 +178,8 @@ export const StatsCard: React.FC<{
   label: string;
   value?: number;
   formatValue?: (v: number) => string;
-}> = ({ label, value = 0, formatValue }) => {
+  onPress?: () => void;
+}> = ({ label, value = 0, formatValue, onPress }) => {
   const theme = useTheme();
 
   if (!label) {
@@ -181,8 +188,11 @@ export const StatsCard: React.FC<{
 
   const displayValue = formatValue ? formatValue(value) : String(value);
 
+  const Component = onPress ? Pressable : View;
+
   return (
-    <View
+    <Component
+      onPress={onPress}
       style={[
         styles.statsCardCtn,
         {
@@ -196,7 +206,7 @@ export const StatsCard: React.FC<{
         {displayValue}
       </Text>
       <Text style={{ color: theme.onSurface }}> {label}</Text>
-    </View>
+    </Component>
   );
 };
 

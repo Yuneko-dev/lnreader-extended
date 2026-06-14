@@ -6,6 +6,8 @@ import TranslatePromptScreen from '@screens/settings/SettingsAIScreen/TranslateP
 import DiscordSettings from '@screens/settings/SettingsDiscordScreen';
 import RespositorySettings from '@screens/settings/SettingsRepositoryScreen/SettingsRepositoryScreen';
 import SecuritySettings from '@screens/settings/SettingsSecurityScreen';
+import NovelReadingTimeStatsScreen from '@screens/StatsScreen/NovelReadingTimeStatsScreen';
+import ReadingTimeStatsScreen from '@screens/StatsScreen/ReadingTimeStatsScreen';
 // import LibrarySettings from '@screens/settings/SettingsLibraryScreen/SettingsLibraryScreen';
 import StatsScreen from '@screens/StatsScreen/StatsScreen';
 import React from 'react';
@@ -55,6 +57,11 @@ const MoreStack = () => (
     <Stack.Screen name="Downloads" component={Downloads} />
     <Stack.Screen name="Categories" component={CategoriesScreen} />
     <Stack.Screen name="Statistics" component={StatsScreen} />
+    <Stack.Screen name="ReadingTimeStats" component={ReadingTimeStatsScreen} />
+    <Stack.Screen
+      name="NovelReadingTimeStats"
+      component={NovelReadingTimeStatsScreen}
+    />
     <Stack.Screen name="DebugLog" component={DebugLogScreen} />
   </Stack.Navigator>
 );

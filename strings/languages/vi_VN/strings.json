@@ -663,6 +663,20 @@
     "unreadChapters": "Chương chưa đọc",
     "totalReadingTime": "Tổng thời gian đọc"
   },
+  "readingTimeStatsScreen": {
+    "title": "Thời gian đọc",
+    "novelReadingTime": "Thời gian đọc: %{name}",
+    "sortNameAsc": "Tên (A-Z)",
+    "sortNameDesc": "Tên (Z-A)",
+    "sortTimeAsc": "Thời gian (Thấp đến Cao)",
+    "sortTimeDesc": "Thời gian (Cao đến Thấp)",
+    "emptyView": "Không có dữ liệu thời gian đọc",
+    "totalTime": "Tổng cộng: %{time}",
+    "chapterList": "Danh sách chương",
+    "sortChapterAsc": "Chương (Tăng dần)",
+    "sortChapterDesc": "Chương (Giảm dần)",
+    "noChapterReadingTime": "Không có dữ liệu thời gian đọc cho chương"
+  },
   "securitySettings": "Bảo mật",
   "securitySettingsScreen": {
     "appLockSection": "Khóa ứng dụng",

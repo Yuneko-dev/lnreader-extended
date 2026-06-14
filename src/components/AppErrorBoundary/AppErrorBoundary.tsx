@@ -33,7 +33,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           screenshot this message and then share it in our support channel on
           Discord.
         </Text>
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView style={styles.scrollView}>
           <Text
             style={[
               styles.errorCtn,
@@ -126,7 +126,7 @@ export const NativeCrashFallback: React.FC<{ children: React.ReactNode }> = ({
             The application ran into a fatal native error during the last
             session. Please copy the crash log and report it in our Discord.
           </Text>
-          <ScrollView style={{ flex: 1 }}>
+          <ScrollView style={styles.scrollView}>
             <Text
               style={[
                 styles.errorCtn,
@@ -183,6 +183,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mainCtn: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
 });
