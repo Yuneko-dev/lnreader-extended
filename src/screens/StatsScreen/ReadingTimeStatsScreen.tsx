@@ -21,7 +21,6 @@ import { formatReadingTime } from './utils';
 
 type Props = NativeStackScreenProps<MoreStackParamList, 'ReadingTimeStats'>;
 
-
 const ReadingTimeStatsScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
 
@@ -163,7 +162,9 @@ const ReadingTimeStatsScreen: React.FC<Props> = ({ navigation }) => {
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortNameAsc')}
-            titleStyle={sortOrder === 'name_asc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'name_asc' ? styles.selectedSort : undefined
+            }
           />
           <Menu.Item
             onPress={() => {
@@ -171,7 +172,9 @@ const ReadingTimeStatsScreen: React.FC<Props> = ({ navigation }) => {
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortNameDesc')}
-            titleStyle={sortOrder === 'name_desc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'name_desc' ? styles.selectedSort : undefined
+            }
           />
           <Menu.Item
             onPress={() => {
@@ -179,7 +182,9 @@ const ReadingTimeStatsScreen: React.FC<Props> = ({ navigation }) => {
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortTimeAsc')}
-            titleStyle={sortOrder === 'time_asc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'time_asc' ? styles.selectedSort : undefined
+            }
           />
           <Menu.Item
             onPress={() => {
@@ -187,7 +192,9 @@ const ReadingTimeStatsScreen: React.FC<Props> = ({ navigation }) => {
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortTimeDesc')}
-            titleStyle={sortOrder === 'time_desc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'time_desc' ? styles.selectedSort : undefined
+            }
           />
         </Menu>
       </Appbar>

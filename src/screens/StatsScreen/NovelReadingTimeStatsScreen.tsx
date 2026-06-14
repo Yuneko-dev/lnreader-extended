@@ -24,7 +24,6 @@ type Props = NativeStackScreenProps<
   'NovelReadingTimeStats'
 >;
 
-
 const NovelReadingTimeStatsScreen: React.FC<Props> = ({
   navigation,
   route,
@@ -166,7 +165,9 @@ const NovelReadingTimeStatsScreen: React.FC<Props> = ({
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortChapterAsc')}
-            titleStyle={sortOrder === 'chapter_asc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'chapter_asc' ? styles.selectedSort : undefined
+            }
           />
           <Menu.Item
             onPress={() => {
@@ -174,7 +175,9 @@ const NovelReadingTimeStatsScreen: React.FC<Props> = ({
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortChapterDesc')}
-            titleStyle={sortOrder === 'chapter_desc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'chapter_desc' ? styles.selectedSort : undefined
+            }
           />
           <Menu.Item
             onPress={() => {
@@ -182,7 +185,9 @@ const NovelReadingTimeStatsScreen: React.FC<Props> = ({
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortTimeAsc')}
-            titleStyle={sortOrder === 'time_asc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'time_asc' ? styles.selectedSort : undefined
+            }
           />
           <Menu.Item
             onPress={() => {
@@ -190,7 +195,9 @@ const NovelReadingTimeStatsScreen: React.FC<Props> = ({
               setMenuVisible(false);
             }}
             title={getString('readingTimeStatsScreen.sortTimeDesc')}
-            titleStyle={sortOrder === 'time_desc' ? styles.selectedSort : undefined}
+            titleStyle={
+              sortOrder === 'time_desc' ? styles.selectedSort : undefined
+            }
           />
         </Menu>
       </Appbar>
