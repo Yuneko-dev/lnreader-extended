@@ -287,7 +287,8 @@ export const createBootstrapService = (
     const bootstrapPromise = (async () => {
       let resolvedNovel: NovelInfo | undefined = novel;
       try {
-        resolvedNovel = resolvedNovel ?? (await resolveNovel(novelPath, pluginId));
+        resolvedNovel =
+          resolvedNovel ?? (await resolveNovel(novelPath, pluginId));
         if (!resolvedNovel) {
           return {
             ok: false,
@@ -392,7 +393,9 @@ export const createBootstrapService = (
         firstUnreadChapter: unread ?? undefined,
       } satisfies BootstrapSuccessResult;
     } catch (error) {
-      const dbNovel = !_novel?.id ? deps.getNovelByPath(novelPath, pluginId) : deps.getNovelById(_novel.id);
+      const dbNovel = !_novel?.id
+        ? deps.getNovelByPath(novelPath, pluginId)
+        : deps.getNovelById(_novel.id);
       return {
         ok: false,
         reason: 'error',

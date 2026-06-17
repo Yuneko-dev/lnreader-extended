@@ -117,14 +117,12 @@ export const forceResetNovel = async (
     const oldHistoryRecords =
       oldChapterIds.length > 0
         ? await dbManager
-          .select()
-          .from(extendedChapterHistorySchema)
-          .where(
-            inArray(extendedChapterHistorySchema.chapterId, oldChapterIds),
-          )
+            .select()
+            .from(extendedChapterHistorySchema)
+            .where(
+              inArray(extendedChapterHistorySchema.chapterId, oldChapterIds),
+            )
         : [];
-
-
 
     let allFetchedChapters: ChapterItem[] = [...(sourceNovel.chapters || [])];
 
@@ -257,7 +255,9 @@ export const forceResetNovel = async (
           await tx.insert(chapterSchema).values(chunk).run();
         }
 
-        log(getString('novelScreen.forceResetModal.logRestoreNovelReadingTime'));
+        log(
+          getString('novelScreen.forceResetModal.logRestoreNovelReadingTime'),
+        );
         const historyToInsert = oldHistoryRecords.filter(h =>
           validIds.has(h.chapterId),
         );

@@ -153,7 +153,13 @@ export type LLMProviderSupported =
   | 'groq'
   | 'custom';
 
-export type LLMReasoningEffortType = 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+export type LLMReasoningEffortType =
+  | 'none'
+  | 'minimal'
+  | 'low'
+  | 'medium'
+  | 'high'
+  | 'xhigh';
 
 export interface SystemPrompt {
   id: string;

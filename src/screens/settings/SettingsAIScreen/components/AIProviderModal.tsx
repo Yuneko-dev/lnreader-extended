@@ -1,7 +1,10 @@
 import { Button, SwitchItem } from '@components/index';
 import { useTheme } from '@hooks/persisted';
 import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
-import type { LLMProviderSupported, LLMReasoningEffortType } from '@hooks/persisted/useSettings';
+import type {
+  LLMProviderSupported,
+  LLMReasoningEffortType,
+} from '@hooks/persisted/useSettings';
 import { GeminiClient } from '@services/ai/GeminiClient';
 import { OpenAIClient } from '@services/ai/OpenAIClient';
 import { getString } from '@strings/translations';
@@ -18,7 +21,11 @@ export interface AIProviderModalProps {
   initialProvider?: AIProvider;
 }
 
-const PROVIDERS: { label: string, value: LLMProviderSupported, endpoint: string }[] = [
+const PROVIDERS: {
+  label: string;
+  value: LLMProviderSupported;
+  endpoint: string;
+}[] = [
   { label: 'OpenAI', value: 'openai', endpoint: 'https://api.openai.com/v1' },
   {
     label: 'DeepSeek',
@@ -33,10 +40,21 @@ const PROVIDERS: { label: string, value: LLMProviderSupported, endpoint: string 
     endpoint: 'https://openrouter.ai/api/v1',
   },
   { label: 'Groq', value: 'groq', endpoint: 'https://api.groq.com/openai/v1' },
-  { label: 'OpenAI Compatible (Custom)', value: 'custom', endpoint: 'http://localhost:1234/v1' },
+  {
+    label: 'OpenAI Compatible (Custom)',
+    value: 'custom',
+    endpoint: 'http://localhost:1234/v1',
+  },
 ];
 
-const REASONING_EFFORTS: LLMReasoningEffortType[] = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+const REASONING_EFFORTS: LLMReasoningEffortType[] = [
+  'none',
+  'minimal',
+  'low',
+  'medium',
+  'high',
+  'xhigh',
+];
 
 const AIProviderModal: React.FC<AIProviderModalProps> = ({
   visible,
@@ -56,7 +74,8 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
     'responses',
   );
   const [enableReasoning, setEnableReasoning] = useState(false);
-  const [reasoningEffort, setReasoningEffort] = useState<LLMReasoningEffortType>('low');
+  const [reasoningEffort, setReasoningEffort] =
+    useState<LLMReasoningEffortType>('low');
 
   const [providerMenuVisible, setProviderMenuVisible] = useState(false);
   const [apiModeMenuVisible, setApiModeMenuVisible] = useState(false);
