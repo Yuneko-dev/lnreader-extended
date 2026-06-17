@@ -325,7 +325,7 @@ export class TranslateManager {
     return chunks;
   }
 
-  private static readonly FIBONACCI_DELAYS = [1000, 2000, 3000, 5000, 8000];
+  private static readonly FIBONACCI_DELAYS = [1_000, 2_000, 3_000, 5_000, 8_000];
 
   /**
    * Translates with automatic retry using Fibonacci backoff delays.
@@ -373,16 +373,15 @@ export class TranslateManager {
             this.FIBONACCI_DELAYS[this.FIBONACCI_DELAYS.length - 1];
 
           await new Promise<void>((resolve, reject) => {
-            const timer = setTimeout(resolve, delay);
-            // If aborted during wait, reject immediately
-            signal?.addEventListener(
-              'abort',
-              () => {
-                clearTimeout(timer);
-                reject(createAbortError());
-              },
-              { once: true },
-            );
+            const onAbort = () => {
+              clearTimeout(timer);
+              reject(createAbortError());
+            };
+            const timer = setTimeout(() => {
+              signal?.removeEventListener('abort', onAbort);
+              resolve();
+            }, delay);
+            signal?.addEventListener('abort', onAbort, { once: true });
           });
         }
       }
