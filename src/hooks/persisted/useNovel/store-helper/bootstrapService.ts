@@ -39,6 +39,7 @@ export interface BootstrapFailureResult {
   ok: false;
   reason: 'missing-novel' | 'missing-chapters' | 'error';
   error?: unknown;
+  novel?: NovelInfo;
 }
 
 export type BootstrapResult = BootstrapSuccessResult | BootstrapFailureResult;
@@ -284,9 +285,9 @@ export const createBootstrapService = (
     }
 
     const bootstrapPromise = (async () => {
+      let resolvedNovel: NovelInfo | undefined = novel;
       try {
-        const resolvedNovel =
-          novel ?? (await resolveNovel(novelPath, pluginId));
+        resolvedNovel = resolvedNovel ?? (await resolveNovel(novelPath, pluginId));
         if (!resolvedNovel) {
           return {
             ok: false,
@@ -316,6 +317,7 @@ export const createBootstrapService = (
           ok: false,
           reason: 'error',
           error,
+          novel: resolvedNovel,
         } satisfies BootstrapFailureResult;
       } finally {
         inflightBootstraps.delete(key);
@@ -390,10 +392,12 @@ export const createBootstrapService = (
         firstUnreadChapter: unread ?? undefined,
       } satisfies BootstrapSuccessResult;
     } catch (error) {
+      const dbNovel = !_novel?.id ? deps.getNovelByPath(novelPath, pluginId) : deps.getNovelById(_novel.id);
       return {
         ok: false,
         reason: 'error',
         error,
+        novel: dbNovel,
       } satisfies BootstrapFailureResult;
     }
   };

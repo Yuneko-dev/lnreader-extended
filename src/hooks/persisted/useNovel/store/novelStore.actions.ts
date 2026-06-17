@@ -52,6 +52,7 @@ export const createNovelStoreActions = ({
           set({
             loading: false,
             fetching: false,
+            ...(result.novel ? { novel: result.novel } : {}),
           });
           return false;
         }
@@ -85,6 +86,9 @@ export const createNovelStoreActions = ({
       });
 
       if (!result.ok) {
+        if (result.novel) {
+          set({ novel: result.novel });
+        }
         return false;
       }
 
