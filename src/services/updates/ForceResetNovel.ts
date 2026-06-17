@@ -119,15 +119,6 @@ export const forceResetNovel = async (
       log(getString('novelScreen.forceResetModal.logDeleteDownloadsSuccess'));
     }
 
-    // Delete all existing chapters from DB
-    log(getString('novelScreen.forceResetModal.logCleanDB'));
-    await dbManager.write(async tx => {
-      await tx
-        .delete(chapterSchema)
-        .where(eq(chapterSchema.novelId, novelId))
-        .run();
-    });
-
     let allFetchedChapters: ChapterItem[] = [...(sourceNovel.chapters || [])];
 
     // Fetch all pages if requested and applicable
@@ -215,15 +206,22 @@ export const forceResetNovel = async (
       });
     }
 
-    if (toInsert.length > 0) {
-      await dbManager.write(async tx => {
+    await dbManager.write(async tx => {
+      // Delete all existing chapters from DB
+      log(getString('novelScreen.forceResetModal.logCleanDB'));
+      await tx
+        .delete(chapterSchema)
+        .where(eq(chapterSchema.novelId, novelId))
+        .run();
+
+      if (toInsert.length > 0) {
         const CHUNK_SIZE = 500;
         for (let i = 0; i < toInsert.length; i += CHUNK_SIZE) {
           const chunk = toInsert.slice(i, i + CHUNK_SIZE);
           await tx.insert(chapterSchema).values(chunk).run();
         }
-      });
-    }
+      }
+    });
 
     // Fix lastRead in MMKV if it exists
     const lastReadKey = `${LAST_READ_PREFIX}_${pluginId}_${novelPath}`;
