@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { zodTextFormat } from 'openai/helpers/zod';
+import { zodResponseFormat, zodTextFormat } from 'openai/helpers/zod';
 import z from 'zod';
 
 import {
@@ -166,7 +166,7 @@ export class OpenAIClient extends LLMCoreClient {
             stream: false,
             tools: this.mapTools(tools),
             store: false,
-            response_format: zodTextFormat(schema, 'data') as any,
+            response_format: zodResponseFormat(schema, 'data'),
           },
           { signal },
         );
