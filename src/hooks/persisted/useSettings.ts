@@ -183,6 +183,12 @@ export interface TranslateSettings {
   llmTemperature: number;
   autoTranslateNextChapter: boolean;
   downloadTranslated: boolean;
+  /** Chunking: split large chapters into word-count-limited chunks */
+  llmChunkingEnabled: boolean;
+  llmChunkWordLimit: number;
+  /** Auto-retry: retry failed translations with Fibonacci backoff */
+  llmRetryEnabled: boolean;
+  llmRetryMaxAttempts: number;
 }
 
 const initialAppSettings: AppSettings = {
@@ -315,6 +321,10 @@ export const initialTranslateSettings: TranslateSettings = {
   llmTemperature: 0.6,
   autoTranslateNextChapter: false,
   downloadTranslated: false,
+  llmChunkingEnabled: false,
+  llmChunkWordLimit: 4000,
+  llmRetryEnabled: false,
+  llmRetryMaxAttempts: 3,
 };
 
 export const useAppSettings = () => {

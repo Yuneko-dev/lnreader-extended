@@ -256,6 +256,9 @@ importers:
       sanitize-html:
         specifier: ^2.17.2
         version: 2.17.2
+      unicode-segmenter:
+        specifier: ^0.16.0
+        version: 0.16.0
       urlencode:
         specifier: ^2.0.0
         version: 2.0.0
@@ -6285,6 +6288,9 @@ packages:
   unicode-property-aliases-ecmascript@2.2.0:
     resolution: {integrity: sha512-hpbDzxUY9BFwX+UeBnxv3Sh1q7HFxj48DTmXchNgRa46lO8uj3/1iEn3MiNUYTg1g9ctIqXCCERn8gYZhHC5lQ==}
     engines: {node: '>=4'}
+
+  unicode-segmenter@0.16.0:
+    resolution: {integrity: sha512-gHTg5qi3VkamZwI1cMuHTRdYu/snV+AIQuusf6zgKS7o53WnT9eCpW63GjIWyBLN7C9+LL/sEoF7ji8OjaBDMw==}
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -14005,6 +14011,8 @@ snapshots:
   unicode-match-property-value-ecmascript@2.2.1: {}
 
   unicode-property-aliases-ecmascript@2.2.0: {}
+
+  unicode-segmenter@0.16.0: {}
 
   unicorn-magic@0.1.0: {}
 

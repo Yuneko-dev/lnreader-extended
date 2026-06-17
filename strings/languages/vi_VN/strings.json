@@ -86,7 +86,16 @@
     "promptFieldsRequired": "Tên và nội dung là bắt buộc",
     "cannotDeleteDefaultPrompt": "Không thể xoá prompt mặc định/duy nhất",
     "backupApiKeys": "Sao lưu API keys",
-    "backupApiKeysDesc": "Bao gồm API keys vào bản sao lưu ứng dụng. Việc này kém an toàn hơn do các mã khoá sẽ được lưu dưới dạng văn bản thuần tuý trong file sao lưu."
+    "backupApiKeysDesc": "Bao gồm API keys vào bản sao lưu ứng dụng. Việc này kém an toàn hơn do các mã khoá sẽ được lưu dưới dạng văn bản thuần tuý trong file sao lưu.",
+    "llmTranslationStability": "Độ ổn định dịch thuật LLM",
+    "chunkingEnabled": "Chia nhỏ chương lớn",
+    "chunkingEnabledDesc": "Chia nội dung chương thành các phần nhỏ hơn trước khi dịch để cải thiện độ ổn định LLM",
+    "chunkWordLimit": "Số từ mỗi phần (%{min}-%{max})",
+    "retryEnabled": "Tự động thử lại khi lỗi",
+    "retryEnabledDesc": "Tự động thử lại bản dịch thất bại với thời gian chờ tăng dần",
+    "retryMaxAttempts": "Số lần thử tối đa (%{min}-%{max})",
+    "invalidChunkWordLimit": "Số từ mỗi phần phải từ %{min} đến %{max}",
+    "invalidRetryMaxAttempts": "Số lần thử lại phải từ %{min} đến %{max}"
   },
   "appearance": "Giao diện",
   "appearanceScreen": {

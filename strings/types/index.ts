@@ -85,6 +85,15 @@ export interface StringMap {
   'aiSettingsScreen.cannotDeleteDefaultPrompt': 'string';
   'aiSettingsScreen.backupApiKeys': 'string';
   'aiSettingsScreen.backupApiKeysDesc': 'string';
+  'aiSettingsScreen.llmTranslationStability': 'string';
+  'aiSettingsScreen.chunkingEnabled': 'string';
+  'aiSettingsScreen.chunkingEnabledDesc': 'string';
+  'aiSettingsScreen.chunkWordLimit': 'string';
+  'aiSettingsScreen.retryEnabled': 'string';
+  'aiSettingsScreen.retryEnabledDesc': 'string';
+  'aiSettingsScreen.retryMaxAttempts': 'string';
+  'aiSettingsScreen.invalidChunkWordLimit': 'string';
+  'aiSettingsScreen.invalidRetryMaxAttempts': 'string';
   'appearance': 'string';
   'appearanceScreen.accentColor': 'string';
   'appearanceScreen.alwaysShowNavLabels': 'string';

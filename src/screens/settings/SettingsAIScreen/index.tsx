@@ -8,20 +8,49 @@ import {
 } from '@components/index';
 import { useTheme } from '@hooks/persisted';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';
-import { useAppSettings } from '@hooks/persisted/useSettings';
+import {
+  useAppSettings,
+  useTranslateSettings,
+} from '@hooks/persisted/useSettings';
 import { SettingsAIScreenProps } from '@navigators/types';
 import { getString } from '@strings/translations';
+import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { IconButton, List as PaperList } from 'react-native-paper';
 
 import AIProviderModal from './components/AIProviderModal';
+
+// Constants
+const retryMaxAttemptsConfig = {
+  min: 1,
+  max: 5,
+};
+const chunkWordLimitConfig = {
+  min: 300,
+  max: 10000,
+};
 
 const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
   const theme = useTheme();
   const { providers, addProvider, updateProvider, removeProvider } =
     useAIProviders();
   const { backupApiKeys, setAppSettings } = useAppSettings();
+  const {
+    llmChunkingEnabled,
+    llmChunkWordLimit,
+    llmRetryEnabled,
+    llmRetryMaxAttempts,
+    setTranslateSettings,
+  } = useTranslateSettings();
+
+  const [chunkWordLimitText, setChunkWordLimitText] = useState(
+    String(llmChunkWordLimit),
+  );
+  const [retryAttemptsText, setRetryAttemptsText] = useState(
+    String(llmRetryMaxAttempts),
+  );
 
   const [providerModalVisible, setProviderModalVisible] = useState(false);
   const [editingProviderId, setEditingProviderId] = useState<string | null>(
@@ -35,8 +64,9 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
         handleGoBack={navigation.goBack}
         theme={theme}
       />
-      <ScrollView
+      <KeyboardAwareScrollView
         style={[styles.container, { backgroundColor: theme.background }]}
+        keyboardShouldPersistTaps="handled"
       >
         <List.Section>
           <List.SubHeader theme={theme}>
@@ -140,7 +170,127 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
             theme={theme}
           />
         </List.Section>
-      </ScrollView>
+
+        <List.Section>
+          <List.SubHeader theme={theme}>
+            {getString('aiSettingsScreen.llmTranslationStability')}
+          </List.SubHeader>
+
+          <SwitchItem
+            label={getString('aiSettingsScreen.chunkingEnabled')}
+            description={getString('aiSettingsScreen.chunkingEnabledDesc')}
+            value={llmChunkingEnabled}
+            onPress={() =>
+              setTranslateSettings({
+                llmChunkingEnabled: !llmChunkingEnabled,
+              })
+            }
+            theme={theme}
+          />
+
+          {llmChunkingEnabled && (
+            <View style={styles.inputRow}>
+              <Text style={[styles.inputLabel, { color: theme.onSurface }]}>
+                {getString(
+                  'aiSettingsScreen.chunkWordLimit',
+                  chunkWordLimitConfig,
+                )}
+              </Text>
+              <TextInput
+                style={[
+                  styles.numberInput,
+                  {
+                    color: theme.onSurface,
+                    borderColor: theme.outline,
+                    backgroundColor: theme.surfaceVariant,
+                  },
+                ]}
+                defaultValue={chunkWordLimitText}
+                onChangeText={setChunkWordLimitText}
+                onBlur={() => {
+                  const num = parseInt(chunkWordLimitText, 10);
+                  if (
+                    !isNaN(num) &&
+                    num >= chunkWordLimitConfig.min &&
+                    num <= chunkWordLimitConfig.max
+                  ) {
+                    setTranslateSettings({ llmChunkWordLimit: num });
+                  } else {
+                    setChunkWordLimitText(String(llmChunkWordLimit));
+                    showToast(
+                      getString(
+                        'aiSettingsScreen.invalidChunkWordLimit',
+                        chunkWordLimitConfig,
+                      ),
+                    );
+                  }
+                }}
+                keyboardType="number-pad"
+                maxLength={5}
+                placeholder="4000"
+                placeholderTextColor={theme.onSurfaceVariant}
+              />
+            </View>
+          )}
+
+          <SwitchItem
+            label={getString('aiSettingsScreen.retryEnabled')}
+            description={getString('aiSettingsScreen.retryEnabledDesc')}
+            value={llmRetryEnabled}
+            onPress={() =>
+              setTranslateSettings({
+                llmRetryEnabled: !llmRetryEnabled,
+              })
+            }
+            theme={theme}
+          />
+
+          {llmRetryEnabled && (
+            <View style={styles.inputRow}>
+              <Text style={[styles.inputLabel, { color: theme.onSurface }]}>
+                {getString(
+                  'aiSettingsScreen.retryMaxAttempts',
+                  retryMaxAttemptsConfig,
+                )}
+              </Text>
+              <TextInput
+                style={[
+                  styles.numberInput,
+                  {
+                    color: theme.onSurface,
+                    borderColor: theme.outline,
+                    backgroundColor: theme.surfaceVariant,
+                  },
+                ]}
+                defaultValue={retryAttemptsText}
+                onChangeText={setRetryAttemptsText}
+                onBlur={() => {
+                  const num = parseInt(retryAttemptsText, 10);
+                  if (
+                    !isNaN(num) &&
+                    num >= retryMaxAttemptsConfig.min &&
+                    num <= retryMaxAttemptsConfig.max
+                  ) {
+                    setTranslateSettings({ llmRetryMaxAttempts: num });
+                  } else {
+                    setRetryAttemptsText(String(llmRetryMaxAttempts));
+                    showToast(
+                      getString(
+                        'aiSettingsScreen.invalidRetryMaxAttempts',
+                        retryMaxAttemptsConfig,
+                      ),
+                    );
+                  }
+                }}
+                keyboardType="number-pad"
+                maxLength={1}
+                placeholder="3"
+                placeholderTextColor={theme.onSurfaceVariant}
+              />
+            </View>
+          )}
+        </List.Section>
+      </KeyboardAwareScrollView>
 
       <AIProviderModal
         visible={providerModalVisible}
@@ -182,5 +332,24 @@ const styles = StyleSheet.create({
   },
   listItem: {
     paddingVertical: 12,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  inputLabel: {
+    fontSize: 14,
+    flex: 1,
+  },
+  numberInput: {
+    width: 80,
+    height: 44,
+    borderWidth: 1,
+    borderRadius: 12,
+    textAlign: 'center',
+    fontSize: 16,
   },
 });

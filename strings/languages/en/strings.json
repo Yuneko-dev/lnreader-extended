@@ -87,7 +87,16 @@
     "promptFieldsRequired": "Title and Content are required",
     "cannotDeleteDefaultPrompt": "Cannot delete the default/only prompt",
     "backupApiKeys": "Backup API keys",
-    "backupApiKeysDesc": "Include API keys in the application backup. This is less secure as keys will be stored in plain text in the backup file."
+    "backupApiKeysDesc": "Include API keys in the application backup. This is less secure as keys will be stored in plain text in the backup file.",
+    "llmTranslationStability": "LLM Translation Stability",
+    "chunkingEnabled": "Split large chapters",
+    "chunkingEnabledDesc": "Split chapter text into smaller chunks before translating to improve LLM stability",
+    "chunkWordLimit": "Words per chunk (%{min}-%{max})",
+    "retryEnabled": "Auto-retry on error",
+    "retryEnabledDesc": "Automatically retry failed translations with increasing delay",
+    "retryMaxAttempts": "Max retry attempts (%{min}-%{max})",
+    "invalidChunkWordLimit": "Words per chunk must be between %{min} and %{max}",
+    "invalidRetryMaxAttempts": "Retry attempts must be between %{min} and %{max}"
   },
   "appearance": "Appearance",
   "appearanceScreen": {
