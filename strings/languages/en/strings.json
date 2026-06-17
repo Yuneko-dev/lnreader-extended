@@ -549,6 +549,8 @@
       "logFetchAllPages": "Fetching all %{totalPages} chapter pages...",
       "logFetchPage": "Fetching page %{page}/%{totalPages}...",
       "logFetchPageError": "Error fetching page %{page}: %{error}",
+      "logBackupNovelReadingTime": "Backing up novel reading time...",
+      "logRestoreNovelReadingTime": "Restoring novel reading time...",
       "logSkipPages": "Only loading page 1 (Skipping remaining %{remaining} pages to load later).",
       "logFetchedTotal": "Fetched a total of %{count} chapters from source.",
       "logRestoreState": "Restoring state and saving to Database...",

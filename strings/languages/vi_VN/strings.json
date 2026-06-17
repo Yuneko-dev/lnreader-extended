@@ -548,6 +548,8 @@
       "logFetchAllPages": "Đang tải toàn bộ %{totalPages} trang chương...",
       "logFetchPage": "Đang tải trang %{page}/%{totalPages}...",
       "logFetchPageError": "Lỗi khi tải trang %{page}: %{error}",
+      "logBackupNovelReadingDurationHistory": "Đang sao lưu thời gian đọc truyện...",
+      "logRestoreNovelReadingDurationHistory": "Đang khôi phục thời gian đọc truyện...",
       "logSkipPages": "Chỉ tải trang 1 (Bỏ qua %{remaining} trang còn lại để tải sau).",
       "logFetchedTotal": "Đã tải tổng cộng %{count} chương từ nguồn.",
       "logRestoreState": "Đang phục hồi trạng thái và lưu vào Database...",

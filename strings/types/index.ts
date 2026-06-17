@@ -465,6 +465,8 @@ export interface StringMap {
   'novelScreen.forceResetModal.logFetchAllPages': 'string';
   'novelScreen.forceResetModal.logFetchPage': 'string';
   'novelScreen.forceResetModal.logFetchPageError': 'string';
+  'novelScreen.forceResetModal.logBackupNovelReadingTime': 'string';
+  'novelScreen.forceResetModal.logRestoreNovelReadingTime': 'string';
   'novelScreen.forceResetModal.logSkipPages': 'string';
   'novelScreen.forceResetModal.logFetchedTotal': 'string';
   'novelScreen.forceResetModal.logRestoreState': 'string';
@@ -566,16 +568,13 @@ export interface StringMap {
   'readingTimeStatsScreen.novelReadingTime': 'string';
   'readingTimeStatsScreen.sortNameAsc': 'string';
   'readingTimeStatsScreen.sortNameDesc': 'string';
-  'readingTimeStatsScreen.sortName': 'string';
   'readingTimeStatsScreen.sortTimeAsc': 'string';
   'readingTimeStatsScreen.sortTimeDesc': 'string';
-  'readingTimeStatsScreen.sortTime': 'string';
   'readingTimeStatsScreen.emptyView': 'string';
   'readingTimeStatsScreen.totalTime': 'string';
   'readingTimeStatsScreen.chapterList': 'string';
   'readingTimeStatsScreen.sortChapterAsc': 'string';
   'readingTimeStatsScreen.sortChapterDesc': 'string';
-  'readingTimeStatsScreen.sortChapter': 'string';
   'readingTimeStatsScreen.noChapterReadingTime': 'string';
   'securitySettings': 'string';
   'securitySettingsScreen.appLockSection': 'string';
