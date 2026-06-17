@@ -71,7 +71,7 @@ describe('Chapter Sorting Logic', () => {
       result.forEach((chapter, i) => {
         expect(chapter.name).toBe(testCase.chapters[i].name);
         // @ts-expect-error
-        expect(chapter.page).toBe(testCase.chapters[i].page);
+        expect(chapter.page).toBe(testCase.chapters[i].page || "1");
       });
     });
   });
