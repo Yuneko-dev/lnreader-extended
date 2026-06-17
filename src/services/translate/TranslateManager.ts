@@ -325,7 +325,9 @@ export class TranslateManager {
     return chunks;
   }
 
-  private static readonly FIBONACCI_DELAYS = [1_000, 2_000, 3_000, 5_000, 8_000];
+  private static readonly FIBONACCI_DELAYS = [
+    1_000, 2_000, 3_000, 5_000, 8_000,
+  ];
 
   /**
    * Translates with automatic retry using Fibonacci backoff delays.
