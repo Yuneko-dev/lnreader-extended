@@ -181,9 +181,6 @@ export const forceResetNovel = async (
     // Map old state to new chapters and insert
     const toInsert: any[] = [];
 
-    // Track position per page
-    const pagePositions = new Map<string, number>();
-
     for (let i = 0; i < allFetchedChapters.length; i++) {
       const chapter = allFetchedChapters[i];
       const {
@@ -195,9 +192,6 @@ export const forceResetNovel = async (
       } = chapter;
       const chapterPage = customPage || '1';
 
-      const currentPosition = pagePositions.get(chapterPage) || 0;
-      pagePositions.set(chapterPage, currentPosition + 1);
-
       const oldState = oldStateMap.get(path);
 
       toInsert.push({
@@ -208,7 +202,7 @@ export const forceResetNovel = async (
         releaseTime: releaseTime || null,
         chapterNumber: chapterNumber || null,
         page: chapterPage,
-        position: currentPosition,
+        position: i,
         // Restore user state if it exists
         unread: oldState ? oldState.unread : true,
         bookmark: oldState ? oldState.bookmark : false,
