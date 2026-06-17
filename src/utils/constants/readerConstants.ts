@@ -41,10 +41,23 @@ export const readerFonts: Font[] = [
   { fontFamily: 'lato', name: 'Lato' },
   { fontFamily: 'pt-serif', name: 'PT Serif' },
   { fontFamily: 'OpenDyslexic3-Regular', name: 'OpenDyslexic' },
-  // Add more fonts
+  // Add more fonts (#1)
   { fontFamily: 'Bookerly-Regular', name: 'Bookerly' },
   { fontFamily: 'georgia', name: 'Georgia' },
   { fontFamily: 'Literata', name: 'Literata' },
   { fontFamily: 'Palatino_Linotype', name: 'Palatino' },
   { fontFamily: 'Times_New_Roman', name: 'Times New Roman' },
+  // Add more fonts (#2)
+  { fontFamily: 'BeVietnamPro-Regular', name: 'Be Vietnam Pro' },
+  { fontFamily: 'Nunito-VariableFont_wght', name: 'Nunito' },
+  // #region https://github.com/nicoverbruggen/ebook-fonts
+  { fontFamily: 'NV_Cardo-Regular', name: 'NV Cardo' },
+  { fontFamily: 'NV_Cooper-Regular', name: 'NV Cooper' },
+  { fontFamily: 'NV_Garamond-Regular', name: 'NV Garamond' },
+  { fontFamily: 'NV_Legible_Next-Regular', name: 'NV Legible' },
+  { fontFamily: 'NV_Libertinus-Regular', name: 'NV Libertinus' },
+  { fontFamily: 'NV_NinePoint-Regular', name: 'NV NinePoint' },
+  { fontFamily: 'NV_Technical-Regular', name: 'NV Technical' },
+  { fontFamily: 'Readerly-Regular', name: 'Readerly' },
+  // #endregion
 ];
