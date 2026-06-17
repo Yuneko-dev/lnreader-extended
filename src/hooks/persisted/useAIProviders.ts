@@ -1,5 +1,6 @@
 import {
   type LLMProviderSupported,
+  type LLMReasoningEffortType,
   useTranslateSettings,
 } from '@hooks/persisted/useSettings';
 import * as SecureStore from 'expo-secure-store';
@@ -19,7 +20,7 @@ export interface AIProvider {
   temperature?: number;
   apiMode?: 'responses' | 'chat-completions';
   enableReasoning?: boolean;
-  reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+  reasoningEffort?: LLMReasoningEffortType;
 }
 
 export const setApiKey = async (id: string, key: string) => {

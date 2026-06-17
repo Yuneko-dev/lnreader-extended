@@ -153,6 +153,8 @@ export type LLMProviderSupported =
   | 'groq'
   | 'custom';
 
+export type LLMReasoningEffortType = 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+
 export interface SystemPrompt {
   id: string;
   title: string;
@@ -170,7 +172,7 @@ export interface TranslateSettings {
   llmSystemPrompts: SystemPrompt[];
   activeSystemPromptId: string;
   llmEnableReasoning: boolean;
-  llmReasoningEffort: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+  llmReasoningEffort: LLMReasoningEffortType;
   llmApiMode: 'responses' | 'chat-completions';
   llmTemperature: number;
   autoTranslateNextChapter: boolean;

@@ -1,6 +1,7 @@
 import { Button, SwitchItem } from '@components/index';
 import { useTheme } from '@hooks/persisted';
 import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
+import type { LLMProviderSupported, LLMReasoningEffortType } from '@hooks/persisted/useSettings';
 import { GeminiClient } from '@services/ai/GeminiClient';
 import { OpenAIClient } from '@services/ai/OpenAIClient';
 import { getString } from '@strings/translations';
@@ -17,7 +18,7 @@ export interface AIProviderModalProps {
   initialProvider?: AIProvider;
 }
 
-const PROVIDERS = [
+const PROVIDERS: { label: string, value: LLMProviderSupported, endpoint: string }[] = [
   { label: 'OpenAI', value: 'openai', endpoint: 'https://api.openai.com/v1' },
   {
     label: 'DeepSeek',
@@ -32,10 +33,10 @@ const PROVIDERS = [
     endpoint: 'https://openrouter.ai/api/v1',
   },
   { label: 'Groq', value: 'groq', endpoint: 'https://api.groq.com/openai/v1' },
-  { label: 'Custom', value: 'custom', endpoint: 'http://localhost:1234/v1' },
+  { label: 'OpenAI Compatible (Custom)', value: 'custom', endpoint: 'http://localhost:1234/v1' },
 ];
 
-const REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+const REASONING_EFFORTS: LLMReasoningEffortType[] = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
 
 const AIProviderModal: React.FC<AIProviderModalProps> = ({
   visible,
@@ -46,7 +47,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
   const theme = useTheme();
 
   const [alias, setAlias] = useState('');
-  const [provider, setProvider] = useState<any>('openai');
+  const [provider, setProvider] = useState<LLMProviderSupported>('openai');
   const [endpoint, setEndpoint] = useState('https://api.openai.com/v1');
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('');
@@ -55,12 +56,13 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
     'responses',
   );
   const [enableReasoning, setEnableReasoning] = useState(false);
-  const [reasoningEffort, setReasoningEffort] = useState<any>('low');
+  const [reasoningEffort, setReasoningEffort] = useState<LLMReasoningEffortType>('low');
 
   const [providerMenuVisible, setProviderMenuVisible] = useState(false);
   const [apiModeMenuVisible, setApiModeMenuVisible] = useState(false);
   const [reasoningMenuVisible, setReasoningMenuVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [inputKey, setInputKey] = useState(0);
 
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelPickerVisible, setModelPickerVisible] = useState(false);
@@ -81,6 +83,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
       getApiKey(initialProvider.id).then(key => {
         if (mounted && key) {
           setApiKey(key);
+          setInputKey(k => k + 1);
         }
       });
     } else if (visible && !initialProvider) {
@@ -93,6 +96,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
       setApiMode('chat-completions');
       setEnableReasoning(false);
       setReasoningEffort('none');
+      setInputKey(k => k + 1);
     }
 
     return () => {
@@ -181,6 +185,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           </Text>
 
           <TextInput
+            key={`alias-${inputKey}`}
             label={getString(
               'aiSettingsScreen.aiProviderModal.aliasPlaceholder',
             )}
@@ -239,6 +244,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
                     setProvider(p.value);
                     setEndpoint(p.endpoint);
                     setProviderMenuVisible(false);
+                    setInputKey(k => k + 1);
                   }}
                 />
               ))}
@@ -246,10 +252,12 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           </View>
 
           <TextInput
+            key={`endpoint-${inputKey}`}
             label={getString('aiSettingsScreen.endpointUrl')}
             defaultValue={endpoint}
             onChangeText={setEndpoint}
             mode="outlined"
+            readOnly={!['custom', 'gemini'].includes(provider)}
             style={styles.input}
             textColor={theme.onSurface}
             theme={{
@@ -262,6 +270,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           />
 
           <TextInput
+            key={`apiKey-${inputKey}`}
             label={getString('aiSettingsScreen.apiKey')}
             defaultValue={apiKey}
             onChangeText={setApiKey}
@@ -280,6 +289,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
 
           <View style={styles.modelRow}>
             <TextInput
+              key={`model-${inputKey}`}
               label={getString('aiSettingsScreen.modelName')}
               defaultValue={model}
               onChangeText={setModel}
@@ -461,6 +471,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
               onPress={() => {
                 setModel(m);
                 setModelPickerVisible(false);
+                setInputKey(k => k + 1);
               }}
             >
               <Text
