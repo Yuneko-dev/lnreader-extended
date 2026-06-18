@@ -79,6 +79,7 @@
   let maxPull = 0;
   let hideTimeoutId = null;
   const SWIPE_THRESHOLD = 100;
+  const DELTA_SWIPE_THRESHOLD = 2;
   const CIRCUMFERENCE = 2 * Math.PI * 40; // 251.327
 
   const createSpinner = direction => {
@@ -283,7 +284,8 @@
         currentPull,
       );
 
-      if (distance >= SWIPE_THRESHOLD) {
+      console.log('[Gestures] Real distance:', distance);
+      if (distance + DELTA_SWIPE_THRESHOLD >= SWIPE_THRESHOLD) {
         console.log('[Gestures] Triggering chapter change!', pullDirection);
         hideSpinner();
         window.isNavigating = true; // Lock gestures until new HTML is loaded
