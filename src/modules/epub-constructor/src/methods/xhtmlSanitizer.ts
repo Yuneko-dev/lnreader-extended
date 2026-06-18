@@ -1,23 +1,6 @@
 import { load } from 'cheerio';
 import { decode } from 'html-entities';
-
-// HTML5 void elements that must be self-closing in XHTML
-const VOID_ELEMENTS = new Set([
-  'area',
-  'base',
-  'br',
-  'col',
-  'embed',
-  'hr',
-  'img',
-  'input',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track',
-  'wbr',
-]);
+import { randomUUID } from 'react-native-quick-crypto';
 
 /**
  * Convert potentially malformed HTML content into well-formed XHTML.
@@ -53,7 +36,7 @@ export function htmlToXhtml(html: string): string {
   $('img').each(function () {
     const el = $(this);
     if (!el.attr('alt')) {
-      el.attr('alt', '');
+      el.attr('alt', randomUUID());
     }
   });
 
@@ -68,16 +51,5 @@ export function htmlToXhtml(html: string): string {
     xmlMode: true,
   });
 
-  let xhtml = $xml.xml();
-
-  // Step 7: Clean up any xml declaration cheerio might add
-  xhtml = xhtml.replace(/^\s*<\?xml[^?]*\?>\s*/i, '');
-
-  // Step 8: Fix void elements — ensure self-closing format <br/> instead of <br></br>
-  for (const tag of VOID_ELEMENTS) {
-    const pattern = new RegExp(`<${tag}([^>]*?)>\\s*</${tag}>`, 'gi');
-    xhtml = xhtml.replace(pattern, `<${tag}$1/>`);
-  }
-
-  return xhtml.trim();
+  return $xml.xml().trim();
 }
