@@ -127,8 +127,14 @@ export default function ExportEpubLogsModal({
 
       await epub.prepare();
 
+      const yieldToMain = () => new Promise(requestAnimationFrame);
+
       let addedChapters = 0;
       for (let i = 0; i < chapters.length; i++) {
+        if (i % 10 === 0) {
+          await yieldToMain();
+        }
+
         if (isCancelledRef.current) {
           addLog(getString('novelScreen.exportEpubLogsModal.logCancelled'));
           await epub.discardChanges();
@@ -197,6 +203,9 @@ export default function ExportEpubLogsModal({
         setIsExporting(false);
         return;
       }
+
+      addLog(getString('novelScreen.exportEpubLogsModal.logZipping'));
+      await yieldToMain();
 
       const outputFile = await epub.save();
 

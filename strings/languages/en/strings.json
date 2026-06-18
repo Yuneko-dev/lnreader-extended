@@ -495,6 +495,7 @@
       "logSuccess": "Successfully exported %{count} chapters.",
       "logFailed": "Export failed: %{error}",
       "logFilePath": "File saved to: %{path}",
+      "logZipping": "Compressing files...",
       "notificationTitle": "EPUB Export Complete",
       "notificationBody": "Successfully exported \"%{name}\"."
     },

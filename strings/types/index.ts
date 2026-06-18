@@ -423,6 +423,7 @@ export interface StringMap {
   'novelScreen.exportEpubLogsModal.logSuccess': 'string';
   'novelScreen.exportEpubLogsModal.logFailed': 'string';
   'novelScreen.exportEpubLogsModal.logFilePath': 'string';
+  'novelScreen.exportEpubLogsModal.logZipping': 'string';
   'novelScreen.exportEpubLogsModal.notificationTitle': 'string';
   'novelScreen.exportEpubLogsModal.notificationBody': 'string';
   'novelScreen.epub.exportFailed': 'string';

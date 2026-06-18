@@ -494,6 +494,7 @@
       "logSuccess": "Xuất thành công %{count} chương.",
       "logFailed": "Lỗi khi xuất: %{error}",
       "logFilePath": "File đã lưu tại: %{path}",
+      "logZipping": "Đang nén tệp...",
       "notificationTitle": "Xuất EPUB hoàn tất",
       "notificationBody": "Đã xuất thành công \"%{name}\"."
     },
