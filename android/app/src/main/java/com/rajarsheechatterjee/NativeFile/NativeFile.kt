@@ -32,6 +32,14 @@ import java.io.OutputStream
 import java.io.PushbackInputStream
 import java.util.zip.GZIPInputStream
 
+/**
+ * Extension to check if a ByteArray starts with the given magic bytes at an optional offset.
+ * Usage: bytes.startsWith(0xFF, 0xD8, 0xFF) or bytes.startsWith(0x61, 0x76, 0x69, 0x66, offset = 8)
+ */
+private fun ByteArray.startsWith(vararg expected: Int, offset: Int = 0): Boolean {
+    if (offset + expected.size > this.size) return false
+    return expected.indices.all { this[offset + it] == expected[it].toByte() }
+}
 
 class NativeFile(context: ReactApplicationContext) :
     NativeFileSpec(context) {
@@ -265,6 +273,46 @@ class NativeFile(context: ReactApplicationContext) :
             }
         }
         return 0.0
+    }
+
+    override fun detectImageMimeType(filePath: String): String {
+        val file = File(filePath)
+        if (!file.exists() || file.length() < 4) return "application/octet-stream"
+
+        val bytes = ByteArray(12)
+        val bytesRead = file.inputStream().use { it.readNBytes(bytes, 0, bytes.size) }
+        if (bytesRead < 4) return "application/octet-stream"
+
+        return when {
+            // PNG: 89 50 4E 47
+            bytes.startsWith(0x89, 0x50, 0x4E, 0x47) -> "image/png"
+            // JPEG/JPG: FF D8 FF (3-byte signature covers all JPEG variants)
+            bytes.startsWith(0xFF, 0xD8, 0xFF) -> "image/jpeg"
+            // GIF: 47 49 46 38 ("GIF8")
+            bytes.startsWith(0x47, 0x49, 0x46, 0x38) -> "image/gif"
+            // WebP: RIFF....WEBP
+            bytes.startsWith(0x52, 0x49, 0x46, 0x46)
+                && bytes.startsWith(0x57, 0x45, 0x42, 0x50, offset = 8) -> "image/webp"
+            // BMP: 42 4D ("BM")
+            bytes.startsWith(0x42, 0x4D) -> "image/bmp"
+            // ISOBMFF-based formats: bytes 4-7 = "ftyp"
+            bytes.startsWith(0x66, 0x74, 0x79, 0x70, offset = 4) -> when {
+                // AVIF: ftyp + "avif" or "avis"
+                bytes.startsWith(0x61, 0x76, 0x69, 0x66, offset = 8) -> "image/avif"
+                bytes.startsWith(0x61, 0x76, 0x69, 0x73, offset = 8) -> "image/avif"
+                // HEIC: ftyp + "heic", "heix", or "heim"
+                bytes.startsWith(0x68, 0x65, 0x69, 0x63, offset = 8) -> "image/heic"
+                bytes.startsWith(0x68, 0x65, 0x69, 0x78, offset = 8) -> "image/heic"
+                bytes.startsWith(0x68, 0x65, 0x69, 0x6D, offset = 8) -> "image/heic"
+                // HEIF: ftyp + "mif1" or "heif"
+                bytes.startsWith(0x6D, 0x69, 0x66, 0x31, offset = 8) -> "image/heif"
+                bytes.startsWith(0x68, 0x65, 0x69, 0x66, offset = 8) -> "image/heif"
+                else -> "application/octet-stream"
+            }
+            // SVG: starts with '<' (XML text)
+            bytes.startsWith(0x3C) -> "image/svg+xml"
+            else -> "application/octet-stream"
+        }
     }
 
     override fun getTypedExportedConstants(): MutableMap<String, Any> {

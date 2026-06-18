@@ -36,4 +36,14 @@ export interface EpubSettings {
   rights?: string;
   cover?: string;
   js?: string;
+  /** Array of genre/subject strings, e.g. ["Fantasy", "Romance"] */
+  genres?: string[];
+  /** Publisher or plugin name */
+  publisher?: string;
+  /** Generator string, e.g. "LNReader eXtended v2.0.3" */
+  generator?: string;
+  /** URL to the novel source page */
+  novelUrl?: string;
+  /** Novel publication status, e.g. "Ongoing" */
+  novelStatus?: string;
 }

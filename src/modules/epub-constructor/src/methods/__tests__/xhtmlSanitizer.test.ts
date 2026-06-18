@@ -26,7 +26,8 @@ describe('htmlToXhtml', () => {
 
   it('should ensure <img> has alt attribute', () => {
     const result = htmlToXhtml('<img src="test.jpg">');
-    expect(result).toContain('alt=""');
+    // xhtmlSanitizer adds a UUID-based alt text if missing
+    expect(result).toMatch(/alt="[^"]+"/);
   });
 
   it('should convert named HTML entities to numeric or unicode', () => {

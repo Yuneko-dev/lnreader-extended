@@ -492,7 +492,10 @@
       "logNoChapters": "Không tìm thấy chương đã tải xuống.",
       "logCancelled": "Đã huỷ xuất bởi người dùng.",
       "logSuccess": "Xuất thành công %{count} chương.",
-      "logFailed": "Lỗi khi xuất: %{error}"
+      "logFailed": "Lỗi khi xuất: %{error}",
+      "logFilePath": "File đã lưu tại: %{path}",
+      "notificationTitle": "Xuất EPUB hoàn tất",
+      "notificationBody": "Đã xuất thành công \"%{name}\"."
     },
     "epub": {
       "exportFailed": "Không thể xuất EPUB: %{error}",

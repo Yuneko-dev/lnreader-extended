@@ -493,7 +493,10 @@
       "logNoChapters": "No downloaded chapters found.",
       "logCancelled": "Export cancelled by user.",
       "logSuccess": "Successfully exported %{count} chapters.",
-      "logFailed": "Export failed: %{error}"
+      "logFailed": "Export failed: %{error}",
+      "logFilePath": "File saved to: %{path}",
+      "notificationTitle": "EPUB Export Complete",
+      "notificationBody": "Successfully exported \"%{name}\"."
     },
     "epub": {
       "exportFailed": "Failed to export EPUB: %{error}",

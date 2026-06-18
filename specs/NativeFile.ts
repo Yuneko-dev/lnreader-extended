@@ -23,6 +23,12 @@ export interface Spec extends TurboModule {
   readDir: (dirPath: string) => ReadDirResult[];
   getFileSize: (path: string) => number;
   getFreeSpace: () => number;
+  /**
+   * Detect actual image MIME type by reading magic bytes.
+   * Returns standard MIME type string (e.g. "image/jpeg", "image/png").
+   * Returns "application/octet-stream" if unknown.
+   */
+  detectImageMimeType: (filePath: string) => string;
   downloadFile: (
     url: string,
     destPath: string,
