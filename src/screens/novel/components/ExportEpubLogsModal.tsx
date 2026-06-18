@@ -186,7 +186,7 @@ export default function ExportEpubLogsModal({
             }
           }
 
-          await epub.addChapter({
+          epub.addChapter({
             title:
               chapter.name?.trim() || `Chapter ${chapter.chapterNumber || i}`,
             fileName: `Chapter${i}`,

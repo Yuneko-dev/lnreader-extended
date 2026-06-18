@@ -144,7 +144,7 @@ export default class EpubBuilder {
   /*
         add a new Chapter
     */
-  public async addChapter(epubChapter: EpubChapter) {
+  public addChapter(epubChapter: EpubChapter) {
     if (!this.prepared || !this.epub.epubSettings.chapters) {
       throw new Error('Please run the prepare method first');
     }
