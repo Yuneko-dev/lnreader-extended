@@ -1,6 +1,5 @@
 import { load } from 'cheerio';
 import { decode } from 'html-entities';
-import { randomUUID } from 'react-native-quick-crypto';
 
 /**
  * Convert potentially malformed HTML content into well-formed XHTML.
@@ -36,7 +35,7 @@ export function htmlToXhtml(html: string): string {
   $('img').each(function () {
     const el = $(this);
     if (!el.attr('alt')) {
-      el.attr('alt', randomUUID());
+      el.attr('alt', "");
     }
   });
 
