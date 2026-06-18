@@ -146,11 +146,11 @@ android {
             path "src/main/jni/CMakeLists.txt"
         }
     }
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = true
-        }
-    }
+    // packagingOptions {
+    //     jniLibs {
+    //         useLegacyPackaging = true
+    //     }
+    // }
 }
 
 dependencies {
