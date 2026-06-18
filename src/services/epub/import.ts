@@ -46,9 +46,10 @@ const insertLocalNovel = async (
     await updateNovelCategoryById(insertId, [2]);
     const novelDir = NOVEL_STORAGE + '/local/' + insertId;
     NativeFile.mkdir(novelDir);
-    const newCoverPath = `file://${novelDir}/${cover?.split(/[/\\]/).pop()}`;
+    let newCoverPath = '';
 
     if (cover) {
+      newCoverPath = `file://${novelDir}/${cover.split(/[/\\]/).pop()}`;
       const decodedPath = decodePath(cover);
       if (NativeFile.exists(decodedPath)) {
         NativeFile.moveFile(decodedPath, newCoverPath);
@@ -72,45 +73,44 @@ const insertLocalNovel = async (
   throw new Error(getString('advancedSettingsScreen.novelInsertFailed'));
 };
 
-const insertLocalChapter = async (
+/**
+ * Phase 1: Batch insert all chapters in a single transaction.
+ * Returns an array of { insertId, fakeId, sourcePath } for Phase 2 file I/O.
+ */
+const batchInsertChapters = async (
   novelId: number,
-  fakeId: number,
-  name: string,
-  path: string,
+  chapters: { name: string; path: string }[],
   releaseTime: string,
-) => {
-  const { insertId } = await dbManager.write(async tx => {
-    return tx
-      .insert(chapterSchema)
-      .values({
-        novelId,
-        name,
-        path: NOVEL_STORAGE + '/local/' + novelId + '/' + fakeId,
-        releaseTime,
-        position: fakeId,
-        isDownloaded: true,
-      })
-      .run();
-  });
+): Promise<{ insertId: number; fakeId: number; sourcePath: string }[]> => {
+  return await dbManager.write(async tx => {
+    const results: { insertId: number; fakeId: number; sourcePath: string }[] =
+      [];
 
-  if (insertId !== undefined && insertId >= 0) {
-    let chapterText: string = '';
-    chapterText = NativeFile.readFile(decodePath(path));
-    if (!chapterText) {
-      return [];
+    for (let i = 0; i < chapters.length; i++) {
+      const chapter = chapters[i];
+      const { insertId } = await tx
+        .insert(chapterSchema)
+        .values({
+          novelId,
+          name: chapter.name,
+          path: NOVEL_STORAGE + '/local/' + novelId + '/' + i,
+          releaseTime,
+          position: i,
+          isDownloaded: true,
+        })
+        .run();
+
+      if (insertId !== undefined && insertId >= 0) {
+        results.push({
+          insertId,
+          fakeId: i,
+          sourcePath: chapter.path,
+        });
+      }
     }
-    const novelDir = `${NOVEL_STORAGE}/local/${novelId}`;
-    chapterText = chapterText.replace(
-      /[=](?<= href=| src=)(["'])([^]*?)\1/g,
-      (_, __, $2: string) => {
-        return `="file://${novelDir}/${$2.split(/[/\\]/).pop()}"`;
-      },
-    );
-    NativeFile.mkdir(novelDir + '/' + insertId);
-    NativeFile.writeFile(`${novelDir}/${insertId}/index.html`, chapterText);
-    return;
-  }
-  throw new Error(getString('advancedSettingsScreen.chapterInsertFailed'));
+
+    return results;
+  });
 };
 
 export const importEpub = async (
@@ -148,7 +148,6 @@ export const importEpub = async (
   NativeFile.mkdir(epubDirPath);
   await NativeZipArchive.unzip(epubFilePath, epubDirPath);
   const novel = await NativeEpub.parseNovelAndChapters(epubDirPath);
-  console.log(novel);
   if (!novel.name) {
     novel.name = filename.replace('.epub', '') || 'Untitled';
   }
@@ -162,23 +161,51 @@ export const importEpub = async (
   );
   const now = dayjs().toISOString();
   if (novel.chapters) {
-    for (let i = 0; i < novel.chapters?.length; i++) {
-      const chapter = novel.chapters[i];
+    // Normalize chapter names before insert
+    for (const chapter of novel.chapters) {
       if (!chapter.name) {
         chapter.name = chapter.path.split(/[/\\]/).pop() || 'unknown';
       }
+    }
+
+    setMeta(meta => ({
+      ...meta,
+      progressText: getString('common.preparing'),
+    }));
+
+    // Phase 1: Single transaction — batch insert all chapters
+    const chapterResults = await batchInsertChapters(
+      novelId,
+      novel.chapters,
+      now,
+    );
+
+    // Phase 2: File I/O outside the transaction
+    const novelDir = `${NOVEL_STORAGE}/local/${novelId}`;
+    for (let i = 0; i < chapterResults.length; i++) {
+      const result = chapterResults[i];
 
       setMeta(meta => ({
         ...meta,
-        progressText: chapter.name,
+        progressText: novel.chapters[result.fakeId]?.name ?? `Chapter ${i}`,
+        progress: i / chapterResults.length,
       }));
 
-      await insertLocalChapter(novelId, i, chapter.name, chapter.path, now);
+      let chapterText = NativeFile.readFile(decodePath(result.sourcePath));
+      if (!chapterText) continue;
 
-      setMeta(meta => ({
-        ...meta,
-        progress: i / novel.chapters.length,
-      }));
+      chapterText = chapterText.replace(
+        /[=](?<= href=| src=)(["'])([^]*?)\1/g,
+        (_, __, $2: string) => {
+          return `="file://${novelDir}/${$2.split(/[/\\]/).pop()}"`;
+        },
+      );
+
+      NativeFile.mkdir(novelDir + '/' + result.insertId);
+      NativeFile.writeFile(
+        `${novelDir}/${result.insertId}/index.html`,
+        chapterText,
+      );
     }
   }
   const novelDir = NOVEL_STORAGE + '/local/' + novelId;

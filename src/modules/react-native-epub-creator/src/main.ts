@@ -3,6 +3,8 @@ import EpubFile, {
   EpubSettings,
   File,
 } from '@modules/epub-constructor';
+import NativeFile from '@specs/NativeFile';
+import NativeZipArchive from '@specs/NativeZipArchive';
 import { Dirs, FileSystem } from 'react-native-file-access';
 import {
   copyFile,
@@ -13,7 +15,6 @@ import {
   unlink,
   writeFile,
 } from 'react-native-saf-x';
-import { zip } from 'react-native-zip-archive';
 
 const getEpubfileName = (name: string) => {
   return name.replace(/\..*$/g, '') + '.epub';
@@ -40,6 +41,8 @@ const checkFile = (path: string) => {
     '.opf',
     '.ncx',
     '.css',
+    '.xhtml',
+    '.js',
     'mimetype',
     '.epub',
   ];
@@ -150,7 +153,6 @@ export default class EpubBuilder {
 
   /*
     destinationFolderPath: destination to the folder, You could use react-native-fs RNFS.DownloadDirectoryPath
-    RNFS: file reader settings best use with react-native-fs eg import * as RNFS from 'react-native-fs', or you could use your own filereder
     removeTempFile(default true) set to false if there will be other changes to the epub file so it wont have to recreate the temp folder
     */
   public async save(removeTempFile?: boolean) {
@@ -163,11 +165,19 @@ export default class EpubBuilder {
     const outputFile = `${this.outputPath}/${epubFileName}`;
 
     await this.populate();
+
+    // Correct manifest MIME types based on actual file magic bytes
+    if (this.tempPath) {
+      await this.correctManifestMimeTypes();
+    }
+
     await removeDir(this.tempOutputPath);
 
     if (this.tempPath) {
       await validateDir(this.tempOutputPath);
-      await zip(this.tempPath, tempOutputFile);
+      // Use NativeZipArchive.zipEpub for EPUB-compliant zip:
+      // mimetype is written FIRST as STORED (uncompressed) entry
+      await NativeZipArchive.zipEpub(this.tempPath, tempOutputFile);
 
       await copyFile('file://' + tempOutputFile, outputFile, {
         replaceIfDestinationExists: true,
@@ -209,8 +219,56 @@ export default class EpubBuilder {
     }
   }
 
+  /**
+   * Scans all image files in EPUB/images/, detects actual MIME type
+   * via magic bytes (NativeFile.detectImageMimeType), and patches
+   * the OPF manifest to reflect the correct media-type.
+   *
+   * This ensures 100% EPUBCheck compliance for image MIME types,
+   * regardless of the original URL extension.
+   */
+  private async correctManifestMimeTypes() {
+    if (!this.tempPath) return;
+
+    const imagesDir = this.tempPath + '/EPUB/images';
+    const opfPath = this.tempPath + '/EPUB/package.opf';
+
+    if (!NativeFile.exists(opfPath) || !NativeFile.exists(imagesDir)) return;
+
+    const imageFiles = NativeFile.readDir(imagesDir);
+    if (imageFiles.length === 0) return;
+
+    let opfContent = NativeFile.readFile(opfPath);
+    let modified = false;
+
+    for (const imageFile of imageFiles) {
+      if (imageFile.isDirectory) continue;
+
+      const detectedMime = NativeFile.detectImageMimeType(imageFile.path);
+      if (detectedMime === 'application/octet-stream') continue;
+
+      // Find the manifest entry for this image by href
+      // href is relative to OPF: "images/filename.ext"
+      const href = `images/${imageFile.name}`;
+      const escapedHref = href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const manifestRegex = new RegExp(
+        `(<item[^>]+href="${escapedHref}"[^>]+media-type=")([^"]+)(")`,
+      );
+
+      const match = opfContent.match(manifestRegex);
+      if (match && match[2] !== detectedMime) {
+        opfContent = opfContent.replace(manifestRegex, `$1${detectedMime}$3`);
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      NativeFile.writeFile(opfPath, opfContent);
+    }
+  }
+
   public async populate() {
-    const overrideFiles = ['toc.ncx', 'toc.html', '.opf', '.json'];
+    const overrideFiles = ['toc.ncx', 'toc.xhtml', '.opf', '.json'];
     const epubFileName = getEpubfileName(this.fileName);
     const epub = new EpubFile(this.epub.epubSettings);
 
@@ -240,14 +298,21 @@ export default class EpubBuilder {
       }
       if (!(await exists(path))) {
         if (file.isImage) {
-          await validateDir(this.tempPath + '/OEBPS/images');
-          if (isInternalStorage(file.content)) {
-            await copyFile(file.content, path);
-          } else {
-            await FileSystem.fetch(file.content, { path });
-            // await fs.downloadAsync(file.content, path);
+          // Images are now under EPUB/images/ (unified directory)
+          await validateDir(this.tempPath + '/EPUB/images');
+          try {
+            if (isInternalStorage(file.content)) {
+              await copyFile(file.content, path);
+            } else {
+              await FileSystem.fetch(file.content, { path });
+            }
+          } catch (e: any) {
+            console.error(`[EpubBuilder] [Error] ${e.message}`);
+            // Silently skip images that fail to copy (e.g. file not found)
+            continue;
           }
-        } else if (file.path !== 'mimetype') {
+        } else {
+          // Write ALL text files including mimetype
           await writeFile(path, file.content);
         }
       }
@@ -259,16 +324,4 @@ export default class EpubBuilder {
       }
     }
   }
-
-  /*
-    epubPath: path to the epub file
-    RNFS: file reader settings best use with react-native-fs eg import * as RNFS from 'react-native-fs', or you could use your own filereder
-    */
-  //   static async loadEpub(
-  //     epubPath: string,
-  //     RNFS: FsSettings,
-  //     localOnProgress?: (progress: number, file: string) => void
-  //   ) {
-  //     return await EpubLoader(epubPath, RNFS, localOnProgress);
-  //   }
 }

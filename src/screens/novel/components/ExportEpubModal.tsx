@@ -100,7 +100,8 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
           </Text>
           <TextInput
             onChangeText={setUri}
-            defaultValue={uri}
+            value={uri}
+            readOnly={true}
             placeholder={getString('novelScreen.exportEpubModal.selectFolder')}
             onSubmitEditing={onSubmit}
             mode="outlined"

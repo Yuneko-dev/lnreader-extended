@@ -109,9 +109,20 @@ object EpubParser {
         val idToHref = mutableMapOf<String, String>()
         val manifest = opfDoc.selectFirst("package > manifest")
         if (manifest != null) {
+            // EPUB 3: look for manifest item with properties="cover-image" if EPUB 2 meta is missing
+            if (coverId.isEmpty()) {
+                for (item in manifest.select("item")) {
+                    val props = item.attr("properties")
+                    if (props.contains("cover-image")) {
+                        coverId = item.attr("id")
+                        break
+                    }
+                }
+            }
+
             for (item in manifest.select("item")) {
                 val id = item.attr("id")
-                val href = item.attr("href")
+                val href = java.net.URLDecoder.decode(item.attr("href"), "UTF-8")
                 val mediaType = item.attr("media-type")
 
                 idToHref[id] = href
@@ -123,7 +134,7 @@ object EpubParser {
                 when {
                     resolvedType == "text/css" ->
                         metaOut.cssPaths.add(joinPath(opfDir, href))
-                    resolvedType.startsWith("image/") ->
+                    resolvedType.startsWith("image/") && id != coverId ->
                         metaOut.imagePaths.add(joinPath(opfDir, href))
                 }
             }
@@ -181,8 +192,9 @@ object EpubParser {
         for (item in manifest.select("item")) {
             val mediaType = item.attr("media-type")
             val id = item.attr("id")
-            if (mediaType == "application/x-dtbncx+xml" || id == "ncx" || id == "nav") {
-                return item.attr("href")
+            val properties = item.attr("properties")
+            if (mediaType == "application/x-dtbncx+xml" || id == "ncx" || id == "nav" || properties.contains("nav")) {
+                return java.net.URLDecoder.decode(item.attr("href"), "UTF-8")
             }
         }
         return ""

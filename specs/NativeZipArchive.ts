@@ -13,6 +13,7 @@ export interface Spec extends TurboModule {
     url: string,
     headers: { [key: string]: string },
   ) => Promise<string>; // return response as text
+  zipEpub: (sourceDirPath: string, destFilePath: string) => Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('NativeZipArchive');

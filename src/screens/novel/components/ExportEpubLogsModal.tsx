@@ -4,13 +4,18 @@ import { getNovelDownloadedChapters } from '@database/queries/ChapterQueries';
 import { NovelInfo } from '@database/types';
 import { useTheme } from '@hooks/persisted';
 import EpubBuilder from '@modules/react-native-epub-creator';
+import { resolveUrl } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import { getString } from '@strings/translations';
+import { APP_NAME } from '@utils/constants/metadata';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
+import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
+
+import { version as appVersion } from '../../../../package.json';
 
 interface ExportEpubLogsModalProps {
   visible: boolean;
@@ -104,6 +109,18 @@ export default function ExportEpubLogsModal({
           bookId: novel.pluginId.toString(),
           stylesheet: epubStylesheet || undefined,
           js: epubUseCustomJS ? epubJavaScript : undefined,
+          genres: novel.genres
+            ? novel.genres
+                .split(',')
+                .map(g => g.trim())
+                .filter(Boolean)
+            : undefined,
+          publisher: novel.pluginId,
+          generator: `${APP_NAME} v${appVersion}`,
+          novelUrl: novel.pluginId
+            ? resolveUrl(novel.pluginId, novel.path, true)
+            : '',
+          novelStatus: novel.status ?? undefined,
         },
         destinationUri,
       );
@@ -167,7 +184,7 @@ export default function ExportEpubLogsModal({
             title:
               chapter.name?.trim() || `Chapter ${chapter.chapterNumber || i}`,
             fileName: `Chapter${i}`,
-            htmlBody: `<chapter data-novel-id='${novel.pluginId}' data-chapter-id='${chapter.id}'>${chapterContent}</chapter>`,
+            htmlBody: `<section epub:type="chapter" data-epub-chapter data-novel-id="${novel.pluginId}" data-chapter-id="${chapter.id}">${chapterContent}</section>`,
           });
 
           addedChapters++;
@@ -181,7 +198,7 @@ export default function ExportEpubLogsModal({
         return;
       }
 
-      await epub.save();
+      const outputFile = await epub.save();
 
       const successLog = getString(
         'novelScreen.exportEpubLogsModal.logSuccess',
@@ -190,7 +207,30 @@ export default function ExportEpubLogsModal({
         },
       );
       addLog(successLog);
+      addLog(
+        getString('novelScreen.exportEpubLogsModal.logFilePath', {
+          path: outputFile,
+        }),
+      );
       showToast(successLog);
+
+      // Send push notification
+      try {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: getString(
+              'novelScreen.exportEpubLogsModal.notificationTitle',
+            ),
+            body: getString(
+              'novelScreen.exportEpubLogsModal.notificationBody',
+              { name: novel.name },
+            ),
+          },
+          trigger: null,
+        });
+      } catch {
+        // Notification permission denied or unavailable — non-critical
+      }
     } catch (error: any) {
       const errorMsg = error?.message || error;
       const failedLog = getString('novelScreen.exportEpubLogsModal.logFailed', {
