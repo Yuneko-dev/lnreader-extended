@@ -15,6 +15,7 @@ import { escapeXml } from '../methods/xmlEscape';
  * @returns The generated metadata string.
  */
 export function createMetadata(epubSettings: EpubSettings) {
+  const now = new Date();
   const lines: string[] = [
     `<dc:title>${escapeXml(epubSettings.title ?? 'Unnamed')}</dc:title>`,
     `<dc:creator>${escapeXml(epubSettings.author ?? 'Unnamed')}</dc:creator>`,
@@ -23,8 +24,8 @@ export function createMetadata(epubSettings: EpubSettings) {
     `<dc:identifier id="BookId">${escapeXml(epubSettings.bookId ?? '')}</dc:identifier>`,
     `<dc:rights>${escapeXml(epubSettings.rights ?? 'None')}</dc:rights>`,
     `<dc:source>${escapeXml(epubSettings.source ?? 'None')}</dc:source>`,
-    `<dc:date>${new Date().toISOString()}</dc:date>`,
-    `<meta property="dcterms:modified">${new Date().toISOString().split('.')[0] + 'Z'}</meta>`,
+    `<dc:date>${now.toISOString()}</dc:date>`,
+    `<meta property="dcterms:modified">${now.toISOString().split('.')[0] + 'Z'}</meta>`,
   ];
 
   // Genre/Subject tags (one per genre)
