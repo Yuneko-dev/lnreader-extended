@@ -2,14 +2,13 @@ import { escapeXml, sanitizeXmlId } from '../xmlEscape';
 
 // Mock react-native-quick-crypto
 jest.mock('react-native-quick-crypto', () => ({
-  randomUUID: jest.fn(() => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-    /[xy]/g,
-    c => {
+  randomUUID: jest.fn(() =>
+    'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       const r = (Math.random() * 16) | 0;
       const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
-    },
-  )),
+    }),
+  ),
 }));
 
 describe('escapeXml', () => {

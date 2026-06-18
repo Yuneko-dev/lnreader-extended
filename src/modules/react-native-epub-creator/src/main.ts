@@ -252,7 +252,7 @@ export default class EpubBuilder {
       const href = `images/${imageFile.name}`;
       const escapedHref = href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const manifestRegex = new RegExp(
-        `(<item[^>]+href="${escapedHref}"[^>]+media-type=")([^"]+)(")`
+        `(<item[^>]+href="${escapedHref}"[^>]+media-type=")([^"]+)(")`,
       );
 
       const match = opfContent.match(manifestRegex);
@@ -325,4 +325,3 @@ export default class EpubBuilder {
     }
   }
 }
-

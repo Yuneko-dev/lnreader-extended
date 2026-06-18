@@ -43,8 +43,7 @@ describe('htmlToXhtml', () => {
     // &mdash; decoded to — then may be encoded as &#x2014; by cheerio
     expect(result).not.toContain('&mdash;');
     // Should contain either the unicode char or hex entity
-    const hasMdash =
-      result.includes('—') || result.includes('&#x2014;');
+    const hasMdash = result.includes('—') || result.includes('&#x2014;');
     expect(hasMdash).toBe(true);
   });
 
@@ -72,9 +71,7 @@ describe('htmlToXhtml', () => {
   });
 
   it('should remove style tags', () => {
-    const result = htmlToXhtml(
-      '<style>body{color:red}</style><p>Text</p>',
-    );
+    const result = htmlToXhtml('<style>body{color:red}</style><p>Text</p>');
     expect(result).not.toContain('style');
     expect(result).not.toContain('color:red');
     expect(result).toContain('Text');
@@ -108,9 +105,7 @@ describe('htmlToXhtml', () => {
   });
 
   it('should convert multiple named entities to non-named form', () => {
-    const result = htmlToXhtml(
-      '<p>&ldquo;Hello&rdquo; &amp; goodbye</p>',
-    );
+    const result = htmlToXhtml('<p>&ldquo;Hello&rdquo; &amp; goodbye</p>');
     // Named entities should be decoded
     expect(result).not.toContain('&ldquo;');
     expect(result).not.toContain('&rdquo;');

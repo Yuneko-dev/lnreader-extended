@@ -28,7 +28,7 @@ import {
 } from './methods/helper';
 import { escapeXml, sanitizeXmlId } from './methods/xmlEscape';
 
-const OPF_FILE_NAME = "package";
+const OPF_FILE_NAME = 'package';
 
 export default class EpubFile {
   epubSettings: EpubSettings;
@@ -89,10 +89,7 @@ export default class EpubFile {
     }
 
     files.push(
-      createFile(
-        'META-INF/container.xml',
-        defaultContainer(OPF_FILE_NAME),
-      ),
+      createFile('META-INF/container.xml', defaultContainer(OPF_FILE_NAME)),
       createFile('EPUB/styles.css', createStyle(this.epubSettings.stylesheet)),
     );
 
@@ -134,8 +131,9 @@ export default class EpubFile {
       // Process inline images: extract URIs, create image files, update paths
       // Images are stored under EPUB/images/, chapters are at EPUB/content/
       // So relative path from chapter to image: ../images/
-      chapter.htmlBody = chapter.htmlBody
-        .replace(/(?<=<img[^>]+src=(?:"|')).+?(?="|')/gi, (uri: string) => {
+      chapter.htmlBody = chapter.htmlBody.replace(
+        /(?<=<img[^>]+src=(?:"|')).+?(?="|')/gi,
+        (uri: string) => {
           imageIndex++;
           const imageIdRef = `${idRef}_img_${imageIndex}`;
           const fileType = getImageType(uri);
@@ -145,13 +143,16 @@ export default class EpubFile {
             manifestImage(`images/${imageIdRef}.${fileType}`, fileType),
           );
           return `../images/${imageIdRef}.${fileType}`;
-        });
+        },
+      );
 
       manifest.push(manifestChapter(idRef, chapter.fileName, hasScript));
       files.push(createChapter(chapter));
       spine.push(`<itemref idref="${idRef}"/>`);
       ol.push(
-        `<li><a href="${chapter.fileName}">${escapeXml(chapter.title)}</a></li>`,
+        `<li><a href="${chapter.fileName}">${escapeXml(
+          chapter.title,
+        )}</a></li>`,
       );
       navMap.push(
         `<navPoint id="${idRef}" playOrder="${index + 1}">

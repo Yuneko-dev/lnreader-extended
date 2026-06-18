@@ -2,8 +2,8 @@ import sanitizeHtml from 'sanitize-html';
 
 import { EpubChapter } from '../../types';
 import { createFile } from './helper';
-import { escapeXml } from './xmlEscape';
 import { htmlToXhtml } from './xhtmlSanitizer';
+import { escapeXml } from './xmlEscape';
 
 /**
  * Allowed tags per EPUB 3.3 Content Documents spec.

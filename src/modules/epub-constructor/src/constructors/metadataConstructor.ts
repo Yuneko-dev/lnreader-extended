@@ -19,13 +19,19 @@ export function createMetadata(epubSettings: EpubSettings) {
   const lines: string[] = [
     `<dc:title>${escapeXml(epubSettings.title ?? 'Unnamed')}</dc:title>`,
     `<dc:creator>${escapeXml(epubSettings.author ?? 'Unnamed')}</dc:creator>`,
-    `<dc:description>${escapeXml(epubSettings.description ?? 'None')}</dc:description>`,
+    `<dc:description>${escapeXml(
+      epubSettings.description ?? 'None',
+    )}</dc:description>`,
     `<dc:language>${escapeXml(epubSettings.language ?? 'en')}</dc:language>`,
-    `<dc:identifier id="BookId">${escapeXml(epubSettings.bookId ?? '')}</dc:identifier>`,
+    `<dc:identifier id="BookId">${escapeXml(
+      epubSettings.bookId ?? '',
+    )}</dc:identifier>`,
     `<dc:rights>${escapeXml(epubSettings.rights ?? 'None')}</dc:rights>`,
     `<dc:source>${escapeXml(epubSettings.source ?? 'None')}</dc:source>`,
     `<dc:date>${now.toISOString()}</dc:date>`,
-    `<meta property="dcterms:modified">${now.toISOString().split('.')[0] + 'Z'}</meta>`,
+    `<meta property="dcterms:modified">${
+      now.toISOString().split('.')[0] + 'Z'
+    }</meta>`,
   ];
 
   // Genre/Subject tags (one per genre)
@@ -62,7 +68,9 @@ export function createMetadata(epubSettings: EpubSettings) {
   // Novel Status (custom metadata)
   if (epubSettings.novelStatus) {
     lines.push(
-      `<meta property="novel:status">${escapeXml(epubSettings.novelStatus)}</meta>`,
+      `<meta property="novel:status">${escapeXml(
+        epubSettings.novelStatus,
+      )}</meta>`,
     );
   }
 

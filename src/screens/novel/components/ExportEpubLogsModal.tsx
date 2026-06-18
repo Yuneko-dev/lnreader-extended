@@ -7,14 +7,15 @@ import EpubBuilder from '@modules/react-native-epub-creator';
 import { resolveUrl } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import { getString } from '@strings/translations';
+import { APP_NAME } from '@utils/constants/metadata';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
+
 import { version as appVersion } from '../../../../package.json';
-import { APP_NAME } from '@utils/constants/metadata';
 
 interface ExportEpubLogsModalProps {
   visible: boolean;
@@ -109,11 +110,16 @@ export default function ExportEpubLogsModal({
           stylesheet: epubStylesheet || undefined,
           js: epubUseCustomJS ? epubJavaScript : undefined,
           genres: novel.genres
-            ? novel.genres.split(',').map(g => g.trim()).filter(Boolean)
+            ? novel.genres
+                .split(',')
+                .map(g => g.trim())
+                .filter(Boolean)
             : undefined,
           publisher: novel.pluginId,
           generator: `${APP_NAME} v${appVersion}`,
-          novelUrl: novel.pluginId ? resolveUrl(novel.pluginId, novel.path, true) : "",
+          novelUrl: novel.pluginId
+            ? resolveUrl(novel.pluginId, novel.path, true)
+            : '',
           novelStatus: novel.status ?? undefined,
         },
         destinationUri,

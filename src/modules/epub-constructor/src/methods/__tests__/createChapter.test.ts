@@ -2,14 +2,13 @@ import { createChapter } from '../createChapter';
 
 // Mock react-native-quick-crypto (used by xmlEscape → sanitizeXmlId)
 jest.mock('react-native-quick-crypto', () => ({
-  randomUUID: jest.fn(() => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-    /[xy]/g,
-    c => {
+  randomUUID: jest.fn(() =>
+    'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       const r = (Math.random() * 16) | 0;
       const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
-    },
-  )),
+    }),
+  ),
 }));
 
 describe('createChapter', () => {
@@ -60,9 +59,7 @@ describe('createChapter', () => {
       htmlBody: '<p>Hello</p>',
     });
 
-    expect(file.content).toContain(
-      'xmlns:epub="http://www.idpf.org/2007/ops"',
-    );
+    expect(file.content).toContain('xmlns:epub="http://www.idpf.org/2007/ops"');
   });
 
   it('should escape special characters in title', () => {

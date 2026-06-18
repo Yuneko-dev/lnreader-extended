@@ -45,11 +45,7 @@ export function defaultEpub() {
  * @param author The author of the book (optional, must be pre-escaped for XML).
  * @returns The NCX XML string.
  */
-export function defaultNcxToc(
-  title: string,
-  bookId: string,
-  author?: string,
-) {
+export function defaultNcxToc(title: string, bookId: string, author?: string) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en">
   <head>
