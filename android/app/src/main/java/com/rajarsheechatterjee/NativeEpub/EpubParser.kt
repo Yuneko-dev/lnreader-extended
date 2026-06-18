@@ -130,6 +130,17 @@ object EpubParser {
         }
 
         // --- Resolve cover path ---
+        // EPUB 3: look for manifest item with properties="cover-image"
+        if (coverId.isEmpty() && manifest != null) {
+            for (item in manifest.select("item")) {
+                val props = item.attr("properties")
+                if (props.contains("cover-image")) {
+                    coverId = item.attr("id")
+                    break
+                }
+            }
+        }
+
         if (coverId.isNotEmpty() && idToHref.containsKey(coverId)) {
             metaOut.cover = joinPath(opfDir, idToHref[coverId]!!)
         }
