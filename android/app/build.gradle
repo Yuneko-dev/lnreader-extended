@@ -57,7 +57,7 @@ react {
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC).
@@ -90,6 +90,8 @@ android {
         // Generated version code. Supports versions up to 1024.1024.2048
         versionCode ((((versionMajor << 10) | versionMinor) << 11) | versionPatch)
         versionName "$versionMajor.$versionMinor.$versionPatch"
+        // Saved about 1 MB
+        resConfigs "en"
     }
     signingConfigs {
         debug {
@@ -142,6 +144,11 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/jni/CMakeLists.txt"
+        }
+    }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }

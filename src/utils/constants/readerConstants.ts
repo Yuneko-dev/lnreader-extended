@@ -49,7 +49,6 @@ export const readerFonts: Font[] = [
   { fontFamily: 'Times_New_Roman', name: 'Times New Roman' },
   // Add more fonts (#2)
   { fontFamily: 'BeVietnamPro-Regular', name: 'Be Vietnam Pro' },
-  { fontFamily: 'Nunito-VariableFont_wght', name: 'Nunito' },
   // #region https://github.com/nicoverbruggen/ebook-fonts
   { fontFamily: 'NV_Cardo-Regular', name: 'NV Cardo' },
   { fontFamily: 'NV_Cooper-Regular', name: 'NV Cooper' },

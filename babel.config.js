@@ -8,6 +8,7 @@ export default function (api) {
     presets: ['module:@react-native/babel-preset'],
     plugins: [
       'module:@babel/plugin-transform-export-namespace-from',
+      'lodash',
       ['babel-plugin-react-compiler', ReactCompilerConfig],
       [
         'module-resolver',

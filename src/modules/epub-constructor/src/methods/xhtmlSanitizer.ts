@@ -35,7 +35,7 @@ export function htmlToXhtml(html: string): string {
   $('img').each(function () {
     const el = $(this);
     if (!el.attr('alt')) {
-      el.attr('alt', "");
+      el.attr('alt', '');
     }
   });
 

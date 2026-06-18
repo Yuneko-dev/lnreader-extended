@@ -12,3 +12,10 @@
 -keep class com.facebook.react.turbomodule.** { *; }
 -keep class com.facebook.hermes.unicode.** { *; }
 -keep class com.facebook.jni.** { *; }
+-keep class com.tencent.mmkv.** { *; }
+-keep class com.opengineering.opsqlite.** { *; }
+-keep class com.margelo.nitro.crypto.** { *; }
+
+# Jsoup
+-dontwarn com.google.re2j.**
+-keep class org.jsoup.** { *; }

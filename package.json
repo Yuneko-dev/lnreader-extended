@@ -29,7 +29,8 @@
     "clean:android": "rm -rf ./android/build/ ./android/app/build/ ./android/app/.cxx && cd android/ && ./gradlew clean && cd .. && pnpm run dev:clean-start",
     "prepare": "husky install",
     "nix:shell": "nix develop --extra-experimental-features nix-command --extra-experimental-features flakes",
-    "nix:emulator": "nix develop .#emulator --extra-experimental-features nix-command --extra-experimental-features flakes"
+    "nix:emulator": "nix develop .#emulator --extra-experimental-features nix-command --extra-experimental-features flakes",
+    "debug:bundle": "npx react-native-bundle-visualizer@latest --expo --platform android --format json"
   },
   "codegenConfig": {
     "name": "LNReaderSpec",
@@ -148,6 +149,7 @@
     "@types/sanitize-html": "^2.16.1",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
+    "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "^1.0.0",
     "better-sqlite3": "^12.9.0",
