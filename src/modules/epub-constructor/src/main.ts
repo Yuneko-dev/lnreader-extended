@@ -12,6 +12,7 @@ import {
   manifestCover,
   manifestImage,
   manifestNav,
+  manifestScript,
   manifestStyle,
   manifestToc,
 } from './constructors/manifestConstructor';
@@ -25,6 +26,9 @@ import {
   setChapterFileNames,
   sleep,
 } from './methods/helper';
+import { escapeXml, sanitizeXmlId } from './methods/xmlEscape';
+
+const OPF_FILE_NAME = "package";
 
 export default class EpubFile {
   epubSettings: EpubSettings;
@@ -69,15 +73,17 @@ export default class EpubFile {
     }
 
     const len = this.epubSettings.chapters.length;
+    const hasScript = !!this.epubSettings.js;
 
     this.epubSettings.bookId ??= new Date().getUTCMilliseconds().toString();
     this.epubSettings.fileName = removeFileExtension(
       this.epubSettings.fileName,
     );
 
+    // Cover image — now stored under EPUB/images/ (unified directory)
     if (this.epubSettings.cover) {
       const fileType = getImageType(this.epubSettings.cover);
-      const coverFilePath = `OEBPS/images/cover.${fileType}`;
+      const coverFilePath = `EPUB/images/cover.${fileType}`;
       files.push(createFile(coverFilePath, this.epubSettings.cover, true));
       manifest.push(manifestCover(fileType));
     }
@@ -85,23 +91,31 @@ export default class EpubFile {
     files.push(
       createFile(
         'META-INF/container.xml',
-        defaultContainer(this.epubSettings.fileName),
+        defaultContainer(OPF_FILE_NAME),
       ),
       createFile('EPUB/styles.css', createStyle(this.epubSettings.stylesheet)),
-      createFile(
-        'EPUB/script.js',
-        `function fnEpub(){${this.epubSettings.js ?? ''}}`,
-      ),
     );
+
+    // Only include script.js if custom JS is provided
+    if (hasScript) {
+      files.push(
+        createFile(
+          'EPUB/script.js',
+          `function fnEpub(){${this.epubSettings.js}}`,
+        ),
+      );
+      manifest.push(manifestScript());
+    }
 
     let epub = defaultEpub();
     let ncxToc = defaultNcxToc(
-      this.epubSettings.chapters.length,
-      this.epubSettings.title,
-      this.epubSettings.bookId,
-      this.epubSettings.author,
+      escapeXml(this.epubSettings.title),
+      escapeXml(this.epubSettings.bookId),
+      this.epubSettings.author
+        ? escapeXml(this.epubSettings.author)
+        : undefined,
     );
-    let htmlToc = defaultHtmlToc(this.epubSettings.title);
+    let htmlToc = defaultHtmlToc(escapeXml(this.epubSettings.title));
     const metadata = createMetadata(this.epubSettings);
     const navMap: string[] = [];
     const ol: string[] = [];
@@ -115,32 +129,37 @@ export default class EpubFile {
       dProgress = (index / len) * 100;
 
       let imageIndex = 0;
-      const idRef = sanitizeFileName(chapter.title);
+      const idRef = sanitizeXmlId('ch');
 
+      // Process inline images: extract URIs, create image files, update paths
+      // Images are stored under EPUB/images/, chapters are at EPUB/content/
+      // So relative path from chapter to image: ../images/
       chapter.htmlBody = chapter.htmlBody
         .replace(/(?<=<img[^>]+src=(?:"|')).+?(?="|')/gi, (uri: string) => {
           imageIndex++;
-          const imageIdRef = `${idRef}_image_${imageIndex}`;
+          const imageIdRef = `${idRef}_img_${imageIndex}`;
           const fileType = getImageType(uri);
-          const path = `OEBPS/images/${imageIdRef}.${fileType}`;
-          files.push(createFile(path, uri, true));
-          manifest.push(manifestImage('../' + path, fileType));
-          return `../../${path}`;
-        })
-        .replace(/&nbsp/g, '')
-        .replace(/(<img[^>]+>)(?!\s*<\/img>)/g, '$1</img>')
-        .replace(/<\/?(?:html|head|body|input)[^>]*>/g, '');
+          const imagePath = `EPUB/images/${imageIdRef}.${fileType}`;
+          files.push(createFile(imagePath, uri, true));
+          manifest.push(
+            manifestImage(`images/${imageIdRef}.${fileType}`, fileType),
+          );
+          return `../images/${imageIdRef}.${fileType}`;
+        });
 
-      manifest.push(manifestChapter(idRef, chapter.fileName));
+      manifest.push(manifestChapter(idRef, chapter.fileName, hasScript));
       files.push(createChapter(chapter));
-      spine.push(`<itemref idref="${idRef}" ></itemref>`);
-      ol.push(`<li><a href="${chapter.fileName}">${chapter.title}</a></li>`);
+      spine.push(`<itemref idref="${idRef}"/>`);
+      ol.push(
+        `<li><a href="${chapter.fileName}">${escapeXml(chapter.title)}</a></li>`,
+      );
       navMap.push(
-        `<navPoint id="${idRef}" playOrder="${index + 1}"> 
-          <navLabel> 
-            <text>${chapter.title}</text>
-          </navLabel> <content src="${chapter.fileName}" />
-        </navPoint>`,
+        `<navPoint id="${idRef}" playOrder="${index + 1}">
+      <navLabel>
+        <text>${escapeXml(chapter.title)}</text>
+      </navLabel>
+      <content src="${chapter.fileName}"/>
+    </navPoint>`,
       );
 
       if (localOnProgress && index % 300 === 0) {
@@ -161,7 +180,7 @@ export default class EpubFile {
     htmlToc = htmlToc.replace('#ol', ol.join('\n'));
 
     files.push(
-      createFile(`EPUB/${this.epubSettings.fileName}.opf`, epub),
+      createFile(`EPUB/${OPF_FILE_NAME}.opf`, epub),
       createFile('EPUB/toc.xhtml', htmlToc),
       createFile('EPUB/toc.ncx', ncxToc),
       createFile('mimetype', 'application/epub+zip'),

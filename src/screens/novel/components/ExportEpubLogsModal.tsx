@@ -167,7 +167,7 @@ export default function ExportEpubLogsModal({
             title:
               chapter.name?.trim() || `Chapter ${chapter.chapterNumber || i}`,
             fileName: `Chapter${i}`,
-            htmlBody: `<chapter data-novel-id='${novel.pluginId}' data-chapter-id='${chapter.id}'>${chapterContent}</chapter>`,
+            htmlBody: `<section data-epub-chapter data-novel-id="${novel.pluginId}" data-chapter-id="${chapter.id}">${chapterContent}</section>`,
           });
 
           addedChapters++;

@@ -105,6 +105,56 @@ class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(
     }
 
     @ReactMethod
+    override fun zipEpub(sourceDirPath: String, zipFilePath: String, promise: Promise) {
+        Thread {
+            try {
+                val sourceDir = File(sourceDirPath)
+                val mimetypeFile = File(sourceDir, "mimetype")
+
+                FileOutputStream(zipFilePath).use { fos ->
+                    ZipOutputStream(fos).use { zos ->
+                        // 1. Write mimetype FIRST, STORED (uncompressed) — required by EPUB OCF spec
+                        if (mimetypeFile.exists()) {
+                            val mimetypeBytes = mimetypeFile.readBytes()
+                            val entry = ZipEntry("mimetype")
+                            entry.method = ZipEntry.STORED
+                            entry.size = mimetypeBytes.size.toLong()
+                            entry.compressedSize = mimetypeBytes.size.toLong()
+
+                            val crc = java.util.zip.CRC32()
+                            crc.update(mimetypeBytes)
+                            entry.crc = crc.value
+
+                            zos.putNextEntry(entry)
+                            zos.write(mimetypeBytes)
+                            zos.closeEntry()
+                        }
+
+                        // 2. Zip all remaining files (DEFLATED)
+                        sourceDir.walkTopDown()
+                            .filter { it.isFile && it.name != "mimetype" }
+                            .forEach { file ->
+                                val zipFileName = file.absolutePath
+                                    .removePrefix(sourceDir.absolutePath)
+                                    .removePrefix("/")
+                                val zipEntry = ZipEntry(zipFileName)
+                                zos.putNextEntry(zipEntry)
+                                file.inputStream().use { fis ->
+                                    fis.copyTo(zos, 4096)
+                                }
+                                zos.closeEntry()
+                                Thread.yield()
+                            }
+                    }
+                }
+                promise.resolve(null)
+            } catch (e: Exception) {
+                promise.reject(e)
+            }
+        }.start()
+    }
+
+    @ReactMethod
     override fun remoteZip(
         sourceDirPath: String,
         urlString: String,

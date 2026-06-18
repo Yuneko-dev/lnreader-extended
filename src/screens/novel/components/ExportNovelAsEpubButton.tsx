@@ -106,7 +106,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       let sourceId = ${novel.pluginId};
       let chapterId = "";
       let novelId = ${novel.id};
-      let html = document.querySelector("chapter").innerHTML;
+      let html = document.querySelector("[data-epub-chapter]").innerHTML;
       
       ${readerSettings.customJS}
     `;

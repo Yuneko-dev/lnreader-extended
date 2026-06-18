@@ -36,6 +36,14 @@ jest.mock('react-native-quick-crypto', () => ({
   createHmac: jest.fn(),
   pbkdf2Sync: jest.fn(),
   randomBytes: jest.fn(),
+  randomUUID: jest.fn(() => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+    /[xy]/g,
+    c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    },
+  )),
 }));
 
 jest.mock('react-native-device-info', () => require('react-native-device-info/jest/react-native-device-info-mock'));
@@ -157,5 +165,6 @@ jest.mock('@specs/NativeZipArchive', () => ({
     unzip: jest.fn().mockResolvedValue(),
     remoteUnzip: jest.fn().mockResolvedValue(),
     remoteZip: jest.fn().mockResolvedValue(''),
+    zipEpub: jest.fn().mockResolvedValue(),
   },
 }));

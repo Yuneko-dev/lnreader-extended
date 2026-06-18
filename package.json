@@ -118,7 +118,6 @@
     "react-native-url-polyfill": "^3.0.0",
     "react-native-webview": "^13.16.1",
     "react-native-worklets": "^0.8.1",
-    "react-native-zip-archive": "^7.0.2",
     "sanitize-filename": "^1.6.4",
     "sanitize-html": "^2.17.2",
     "unicode-segmenter": "^0.16.0",
