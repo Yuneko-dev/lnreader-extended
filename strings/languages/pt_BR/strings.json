@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Novos capítulos limpos.",
     "clearUpdatesTab": "Aba de limpeza de novidades",
     "clearUpdatesWarning": "Aba de atualizações será limpa.",
-    "clearupdatesTabDesc": "Limpar capítulos na aba de entrada",
+    "clearUpdatesTabDesc": "Limpar capítulos na aba de entrada",
     "dataManagement": "Manejo de informação",
     "deleteReadChapters": "Excluir capítulos lidos",
     "deleteReadChaptersDialogTitle": "Você tem certeza? Todos os capítulos marcados como lidos serão excluídos.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Restaurar backup",
     "restoreBackupDesc": "Restaure a biblioteca a partir de um arquivo de backup ",
     "restoreLargeBackupsWarning": "Restaurar “backups” grandes pode congelar o aplicativo até que a restauração seja concluída",
-    "restorinBackup": "Restaurando cópia de segurança",
+    "restoringBackup": "Restaurando cópia de segurança",
     "restoringData": "Restaurando dados",
     "selfHost": "Auto hospedar",
     "selfHostDesc": "Fazer “backup” em seu servidor",
@@ -309,7 +309,7 @@
   "history": "Histórico",
   "historyScreen": {
     "chapter": "Capítulo",
-    "clearHistorWarning": "Você tem certeza? Todo o histórico será perdido.",
+    "clearHistoryWarning": "Você tem certeza? Todo o histórico será perdido.",
     "deleted": "Histórico deletado",
     "nothingReadRecently": "Nothing read recently",
     "searchbar": "Histórico de pesquisa"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Interromper histórico de leitura"
   },
   "novelScreen": {
-    "addToLibaray": "Adicionar à biblioteca",
+    "addToLibrary": "Adicionar à biblioteca",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Número do capítulo",

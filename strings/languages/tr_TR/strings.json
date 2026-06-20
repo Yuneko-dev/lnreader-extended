@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Güncellemeler temizlendi.",
     "clearUpdatesTab": "Güncellemeler sekmesini temizle",
     "clearUpdatesWarning": "Güncellemeler sekmesi temizlenecek.",
-    "clearupdatesTabDesc": "Güncellemeler sekmesi bölüm girdilerini temizle",
+    "clearUpdatesTabDesc": "Güncellemeler sekmesi bölüm girdilerini temizle",
     "dataManagement": "Veri Yönetimi",
     "deleteReadChapters": "Okunmuş bölümleri sil",
     "deleteReadChaptersDialogTitle": "Okunmuş olarak işaretlenmiş bütün bölümler silinecek.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Yedeği geri yükle",
     "restoreBackupDesc": "Yedek dosyasından kütüphaneyi geri yükleyin",
     "restoreLargeBackupsWarning": "Büyük boyutlu yedekleri geri yüklemek uygulamanın yedeğin geri yüklenmesi bitene kadar donmasına neden olabilir",
-    "restorinBackup": "Yedek geri yükleniyor",
+    "restoringBackup": "Yedek geri yükleniyor",
     "restoringData": "Veri geri yükleniyor",
     "selfHost": "Yerel Sunucu",
     "selfHostDesc": "Sunucunuza yedekleyin",
@@ -309,7 +309,7 @@
   "history": "Geçmiş",
   "historyScreen": {
     "chapter": "Bölüm",
-    "clearHistorWarning": "Emin misin? Tüm geçmiş kaybolacak.",
+    "clearHistoryWarning": "Emin misin? Tüm geçmiş kaybolacak.",
     "deleted": "Geçmiş silindi.",
     "nothingReadRecently": "Geçmiş yok",
     "searchbar": "Geçmişte ara"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Okuma geçmişini duraklatır"
   },
   "novelScreen": {
-    "addToLibaray": "Kitaplığa ekle",
+    "addToLibrary": "Kitaplığa ekle",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Bölüm numarası",

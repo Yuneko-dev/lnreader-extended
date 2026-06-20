@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "تمت إزالة التحديثات.",
     "clearUpdatesTab": "مسح علامة تبويب التحديثات",
     "clearUpdatesWarning": ".",
-    "clearupdatesTabDesc": "مسح إدخالات الفصول في علامة تبويب التحديثات",
+    "clearUpdatesTabDesc": "مسح إدخالات الفصول في علامة تبويب التحديثات",
     "dataManagement": "إدارة البيانات",
     "deleteReadChapters": "حذف الفصول المقروءة",
     "deleteReadChaptersDialogTitle": "حذف جميع الفصول التي تم قراءتها",
@@ -123,7 +123,7 @@
     "restoreBackup": "استعادة النسخة الاحتياطية",
     "restoreBackupDesc": "استعادة المكتبة من ملف النسخة الاحتياطية",
     "restoreLargeBackupsWarning": "استعادة النسخ الاحتياطية الكبيرة قد تؤدي لتجميد التطبيق حتى انتهاء الاستعادة",
-    "restorinBackup": "استعادة النسخة الاحتياطية",
+    "restoringBackup": "استعادة النسخة الاحتياطية",
     "restoringData": "استعادة البيانات",
     "selfHost": "استضافة ذاتية",
     "selfHostDesc": "نسخ احتياطي إلى خادمك الخاص",
@@ -309,7 +309,7 @@
   "history": "السجل",
   "historyScreen": {
     "chapter": "فصل",
-    "clearHistorWarning": "هل أنت متأكد؟ سيتم مسح كل السجل.",
+    "clearHistoryWarning": "هل أنت متأكد؟ سيتم مسح كل السجل.",
     "deleted": "تم حذف السجل.",
     "nothingReadRecently": "لم يتم قراءة شيء مؤخراً",
     "searchbar": "سجل البحث"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "يوقف سجل القراءة مؤقتاً"
   },
   "novelScreen": {
-    "addToLibaray": "إضافة إلى المكتبة",
+    "addToLibrary": "إضافة إلى المكتبة",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "رقم الفصل",

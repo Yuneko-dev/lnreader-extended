@@ -22,7 +22,7 @@ export interface StringMap {
   'advancedSettingsScreen.clearUpdatesMessage': 'string';
   'advancedSettingsScreen.clearUpdatesTab': 'string';
   'advancedSettingsScreen.clearUpdatesWarning': 'string';
-  'advancedSettingsScreen.clearupdatesTabDesc': 'string';
+  'advancedSettingsScreen.clearUpdatesTabDesc': 'string';
   'advancedSettingsScreen.dataManagement': 'string';
   'advancedSettingsScreen.deleteReadChapters': 'string';
   'advancedSettingsScreen.userAgentRestartRequiredToast': 'string';
@@ -182,7 +182,7 @@ export interface StringMap {
   'backupScreen.restoreBackup': 'string';
   'backupScreen.restoreBackupDesc': 'string';
   'backupScreen.restoreLargeBackupsWarning': 'string';
-  'backupScreen.restorinBackup': 'string';
+  'backupScreen.restoringBackup': 'string';
   'backupScreen.restoringData': 'string';
   'backupScreen.selfHost': 'string';
   'backupScreen.selfHostDesc': 'string';
@@ -348,7 +348,7 @@ export interface StringMap {
   'globalSearch.searchIn': 'string';
   'history': 'string';
   'historyScreen.chapter': 'string';
-  'historyScreen.clearHistorWarning': 'string';
+  'historyScreen.clearHistoryWarning': 'string';
   'historyScreen.deleted': 'string';
   'historyScreen.nothingReadRecently': 'string';
   'historyScreen.searchbar': 'string';
@@ -388,7 +388,7 @@ export interface StringMap {
   'moreScreen.downloadQueue': 'string';
   'moreScreen.incognitoMode': 'string';
   'moreScreen.incognitoModeDesc': 'string';
-  'novelScreen.addToLibaray': 'string';
+  'novelScreen.addToLibrary': 'string';
   'novelScreen.bottomSheet.displays.chapterNumber': 'string';
   'novelScreen.bottomSheet.displays.sourceTitle': 'string';
   'novelScreen.bottomSheet.filters.bookmarked': 'string';

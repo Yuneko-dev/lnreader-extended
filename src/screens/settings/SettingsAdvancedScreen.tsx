@@ -91,7 +91,7 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
           <List.Item
             title={getString('advancedSettingsScreen.clearUpdatesTab')}
             description={getString(
-              'advancedSettingsScreen.clearupdatesTabDesc',
+              'advancedSettingsScreen.clearUpdatesTabDesc',
             )}
             onPress={showClearUpdatesDialog}
             theme={theme}

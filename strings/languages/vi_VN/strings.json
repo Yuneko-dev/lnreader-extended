@@ -21,7 +21,7 @@
     "clearUpdatesMessage": "Đã dọn cập nhật.",
     "clearUpdatesTab": "Dọn mục cập nhật",
     "clearUpdatesWarning": "Mục cập nhật sẽ bị dọn sạch.",
-    "clearupdatesTabDesc": "Dọn dẹp các chương truyện ở trong mục cập nhật",
+    "clearUpdatesTabDesc": "Dọn dẹp các chương truyện ở trong mục cập nhật",
     "dataManagement": "Quản lý dữ liệu",
     "deleteReadChapters": "Xóa chương đã đọc",
     "userAgentRestartRequiredToast": "User-Agent đã thay đổi. Vui lòng khởi động lại ứng dụng để áp dụng.",
@@ -196,7 +196,7 @@
     "restoreBackup": "Khôi phục sao lưu",
     "restoreBackupDesc": "Khôi phục thư viện từ tệp sao lưu",
     "restoreLargeBackupsWarning": "Khôi phục sao lưu lớn có thể đóng băng ứng dụng đến khi hoàn thành",
-    "restorinBackup": "Đang khôi phục sao lưu",
+    "restoringBackup": "Đang khôi phục sao lưu",
     "restoringData": "Đang khôi phục dữ liệu",
     "selfHost": "Tự dựng",
     "selfHostDesc": "Sao lưu lên máy chủ của bạn",
@@ -392,7 +392,7 @@
   "history": "Lịch sử",
   "historyScreen": {
     "chapter": "Chương",
-    "clearHistorWarning": "Bạn có chắc không? Toàn bộ lịch sử sẽ bị xoá.",
+    "clearHistoryWarning": "Bạn có chắc không? Toàn bộ lịch sử sẽ bị xoá.",
     "deleted": "Lịch sử đã được xoá.",
     "nothingReadRecently": "Không đọc gì gần đây",
     "searchbar": "Tìm trong lịch sử"
@@ -448,7 +448,7 @@
     "incognitoModeDesc": "Ngừng lưu lịch sử"
   },
   "novelScreen": {
-    "addToLibaray": "Thêm vào thư viện",
+    "addToLibrary": "Thêm vào thư viện",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Số chương",

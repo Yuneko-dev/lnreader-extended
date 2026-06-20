@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Updates cleared.",
     "clearUpdatesTab": "Clear updates tab",
     "clearUpdatesWarning": "Updates tab will be cleared.",
-    "clearupdatesTabDesc": "Clears chapter entries in updates tab",
+    "clearUpdatesTabDesc": "Clears chapter entries in updates tab",
     "dataManagement": "Data Management",
     "deleteReadChapters": "Delete read chapters",
     "deleteReadChaptersDialogTitle": "All chapters marked as read will be deleted.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Restore backup",
     "restoreBackupDesc": "Restore library from backup file",
     "restoreLargeBackupsWarning": "Restoring large backups may freeze the app until restoring is finished",
-    "restorinBackup": "Restoring backup",
+    "restoringBackup": "Restoring backup",
     "restoringData": "Restoring Data",
     "selfHost": "Self Host",
     "selfHostDesc": "Backup to your server",
@@ -309,7 +309,7 @@
   "history": "Ιστορικό",
   "historyScreen": {
     "chapter": "Chapter",
-    "clearHistorWarning": "Είστε σίγουροι; Όλο το ιστορικό θα χαθεί.",
+    "clearHistoryWarning": "Είστε σίγουροι; Όλο το ιστορικό θα χαθεί.",
     "deleted": "History deleted.",
     "nothingReadRecently": "Nothing read recently",
     "searchbar": "Search history"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Pauses reading history"
   },
   "novelScreen": {
-    "addToLibaray": "Add to library",
+    "addToLibrary": "Add to library",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Chapter number",

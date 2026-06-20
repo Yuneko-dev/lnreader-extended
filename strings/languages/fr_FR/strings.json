@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Mises à jour effacées.",
     "clearUpdatesTab": "Effacer l'onglet Mises à jour",
     "clearUpdatesWarning": "L'onglet Mises à jour sera effacé.",
-    "clearupdatesTabDesc": "Efface les chapitres dans l'onglet Mises à jour",
+    "clearUpdatesTabDesc": "Efface les chapitres dans l'onglet Mises à jour",
     "dataManagement": "Gestion de données",
     "deleteReadChapters": "Supprimer les chapitres lus",
     "deleteReadChaptersDialogTitle": "Tous les chapitres marqués comme lus seront supprimés.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Restaurer la sauvegarde",
     "restoreBackupDesc": "Restore library from backup file",
     "restoreLargeBackupsWarning": "Restoring large backups may freeze the app until restoring is finished",
-    "restorinBackup": "Restoring backup",
+    "restoringBackup": "Restoring backup",
     "restoringData": "Restoring Data",
     "selfHost": "Self Host",
     "selfHostDesc": "Backup to your server",
@@ -309,7 +309,7 @@
   "history": "Historique",
   "historyScreen": {
     "chapter": "Chapitre",
-    "clearHistorWarning": "Êtes-vous sûr? Tout l'historique sera perdu.",
+    "clearHistoryWarning": "Êtes-vous sûr? Tout l'historique sera perdu.",
     "deleted": "Historique supprimé.",
     "nothingReadRecently": "Rien lu récemment",
     "searchbar": "Historique des recherches"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Suspend l'historique de lecture"
   },
   "novelScreen": {
-    "addToLibaray": "Ajouter à la bibliothèque",
+    "addToLibrary": "Ajouter à la bibliothèque",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Numéros du chapitre",

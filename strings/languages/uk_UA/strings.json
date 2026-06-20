@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Оновлення очищено.",
     "clearUpdatesTab": "Очистити вкладку оновлень",
     "clearUpdatesWarning": "Updates tab will be cleared.",
-    "clearupdatesTabDesc": "Видаляє записи розділів у вкладці оновлень",
+    "clearUpdatesTabDesc": "Видаляє записи розділів у вкладці оновлень",
     "dataManagement": "Керування даними",
     "deleteReadChapters": "Видалити прочитані розділи",
     "deleteReadChaptersDialogTitle": "All chapters marked as read will be deleted.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Відновити резервну копію",
     "restoreBackupDesc": "Відновити бібліотеку з резервної копії",
     "restoreLargeBackupsWarning": "Відновлення великих резервних копій може призвести до тимчасового зависання додатка",
-    "restorinBackup": "Відновлення резервної копії",
+    "restoringBackup": "Відновлення резервної копії",
     "restoringData": "Відновлення даних",
     "selfHost": "Власний сервер",
     "selfHostDesc": "Резервне копіювання на власний сервер",
@@ -309,7 +309,7 @@
   "history": "Історія",
   "historyScreen": {
     "chapter": "Розділ",
-    "clearHistorWarning": "Ви впевнені? Вся історія буде втрачена.",
+    "clearHistoryWarning": "Ви впевнені? Вся історія буде втрачена.",
     "deleted": "Історію видалено.",
     "nothingReadRecently": "Нічого не читали останнім часом",
     "searchbar": "Шукати в історії"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Призупиняє історію читання"
   },
   "novelScreen": {
-    "addToLibaray": "Додати до бібліотеки",
+    "addToLibrary": "Додати до бібліотеки",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Номер розділу",

@@ -21,7 +21,7 @@
     "clearUpdatesMessage": "Updates cleared.",
     "clearUpdatesTab": "Clear updates tab",
     "clearUpdatesWarning": "Updates tab will be cleared.",
-    "clearupdatesTabDesc": "This will remove all updates from the updates tab.",
+    "clearUpdatesTabDesc": "This will remove all updates from the updates tab.",
     "dataManagement": "Data Management",
     "deleteReadChapters": "Delete read chapters",
     "userAgentRestartRequiredToast": "User-Agent updated. Please restart the app to apply changes.",
@@ -197,7 +197,7 @@
     "restoreBackup": "Restore backup",
     "restoreBackupDesc": "Restore library from backup file",
     "restoreLargeBackupsWarning": "Restoring large backups may freeze the app until restoring is finished",
-    "restorinBackup": "Restoring backup",
+    "restoringBackup": "Restoring backup",
     "restoringData": "Restoring Data",
     "selfHost": "Self Host",
     "selfHostDesc": "Backup to your server",
@@ -393,7 +393,7 @@
   "history": "History",
   "historyScreen": {
     "chapter": "Chapter",
-    "clearHistorWarning": "Are you sure? All history will be lost.",
+    "clearHistoryWarning": "Are you sure? All history will be lost.",
     "deleted": "History deleted.",
     "nothingReadRecently": "Nothing read recently",
     "searchbar": "Search history"
@@ -449,7 +449,7 @@
     "incognitoModeDesc": "Pauses reading history"
   },
   "novelScreen": {
-    "addToLibaray": "Add to library",
+    "addToLibrary": "Add to library",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Chapter number",

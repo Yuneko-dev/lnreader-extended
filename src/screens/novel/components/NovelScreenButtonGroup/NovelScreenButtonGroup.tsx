@@ -107,7 +107,7 @@ const NovelScreenButtonGroup: React.FC<NovelScreenButtonGroupProps> = ({
           onLongPress={showSetCategoryModal}
           icon={inLibrary ? 'heart' : 'heart-outline'}
           label={getString(
-            inLibrary ? 'novelScreen.inLibaray' : 'novelScreen.addToLibaray',
+            inLibrary ? 'novelScreen.inLibaray' : 'novelScreen.addToLibrary',
           )}
           color={followButtonColor}
         />

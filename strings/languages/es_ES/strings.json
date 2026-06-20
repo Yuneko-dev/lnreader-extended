@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Actualizaciones borradas.",
     "clearUpdatesTab": "Borrar pestaña de actualizaciones",
     "clearUpdatesWarning": "La pestaña de Actualizaciones será limpiada.",
-    "clearupdatesTabDesc": "Limpiar entradas de capítulo en la pestaña actualizaciones",
+    "clearUpdatesTabDesc": "Limpiar entradas de capítulo en la pestaña actualizaciones",
     "dataManagement": "Administración de datos",
     "deleteReadChapters": "Eliminar capítulos leídos",
     "deleteReadChaptersDialogTitle": "Todos los capítulos marcados como leídos serán borrados.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Restaurar copia de seguridad",
     "restoreBackupDesc": "Restaurar biblioteca desde un archivo de copia de seguridad",
     "restoreLargeBackupsWarning": "Restaurar grandes copias de seguridad puede congelar la aplicación hasta que se complete el proceso",
-    "restorinBackup": "Restaurando copia de seguridad",
+    "restoringBackup": "Restaurando copia de seguridad",
     "restoringData": "Restaurando datos",
     "selfHost": "Autoalojar",
     "selfHostDesc": "Guardar copia de seguridad en tu servidor",
@@ -309,7 +309,7 @@
   "history": "Historial",
   "historyScreen": {
     "chapter": "Chapter",
-    "clearHistorWarning": "¿Estás seguro? Todo el historial se perderá.",
+    "clearHistoryWarning": "¿Estás seguro? Todo el historial se perderá.",
     "deleted": "History deleted.",
     "nothingReadRecently": "Nothing read recently",
     "searchbar": "Historial de búsqueda"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Pauses reading history"
   },
   "novelScreen": {
-    "addToLibaray": "Añadir a la biblioteca",
+    "addToLibrary": "Añadir a la biblioteca",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Chapter number",

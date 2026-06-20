@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Updates cleared.",
     "clearUpdatesTab": "Clear updates tab",
     "clearUpdatesWarning": ".",
-    "clearupdatesTabDesc": "",
+    "clearUpdatesTabDesc": "",
     "dataManagement": "",
     "deleteReadChapters": "Hapus bab yang telah dibaca\n",
     "deleteReadChaptersDialogTitle": "Indonesia ",
@@ -123,7 +123,7 @@
     "restoreBackup": "",
     "restoreBackupDesc": "",
     "restoreLargeBackupsWarning": "",
-    "restorinBackup": "",
+    "restoringBackup": "",
     "restoringData": "",
     "selfHost": "",
     "selfHostDesc": "",
@@ -309,7 +309,7 @@
   "history": "Sejarah",
   "historyScreen": {
     "chapter": "Indonesia",
-    "clearHistorWarning": "Apa anda yakin? Semua riwayat akan hilang.\n",
+    "clearHistoryWarning": "Apa anda yakin? Semua riwayat akan hilang.\n",
     "deleted": "History deleted.",
     "nothingReadRecently": "Nothing read recently",
     "searchbar": "Pencarian riwayat"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Pauses reading history"
   },
   "novelScreen": {
-    "addToLibaray": "Tambahkan ke koleksi\n",
+    "addToLibrary": "Tambahkan ke koleksi\n",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Chapter number",

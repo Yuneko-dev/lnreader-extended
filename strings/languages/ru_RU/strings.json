@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "Обновления очищены.",
     "clearUpdatesTab": "Очистить вкладку обновления",
     "clearUpdatesWarning": "Вкладка обновлений будет очищена.",
-    "clearupdatesTabDesc": "Очищает записи глав на вкладке обновлений",
+    "clearUpdatesTabDesc": "Очищает записи глав на вкладке обновлений",
     "dataManagement": "Управление данными",
     "deleteReadChapters": "Удалять прочитанные главы",
     "deleteReadChaptersDialogTitle": "Вы уверены? Все главы, помеченные как прочитанные, будут удалены.",
@@ -123,7 +123,7 @@
     "restoreBackup": "Восстановить из резервной копии",
     "restoreBackupDesc": "Восстановить библиотеку из файла резервной копии",
     "restoreLargeBackupsWarning": "Восстановление больших резервных копий может привести к зависанию приложения до завершения восстановления",
-    "restorinBackup": "Восстановление резервной копии",
+    "restoringBackup": "Восстановление резервной копии",
     "restoringData": "Восстановление данных",
     "selfHost": "Свой сервер",
     "selfHostDesc": "Резервное копирование на свой сервер",
@@ -309,7 +309,7 @@
   "history": "История",
   "historyScreen": {
     "chapter": "Глава",
-    "clearHistorWarning": "Вы уверены? Вся история будет потеряна.",
+    "clearHistoryWarning": "Вы уверены? Вся история будет потеряна.",
     "deleted": "История удалена.",
     "nothingReadRecently": "Ничего не прочитано в последнее время",
     "searchbar": "Поиск в истории"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "Приостанавливает историю чтения"
   },
   "novelScreen": {
-    "addToLibaray": "Добавить в библиотеку",
+    "addToLibrary": "Добавить в библиотеку",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Номер главы",

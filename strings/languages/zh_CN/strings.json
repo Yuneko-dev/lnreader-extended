@@ -18,7 +18,7 @@
     "clearUpdatesMessage": "更新页面已清除。",
     "clearUpdatesTab": "清除更新页面",
     "clearUpdatesWarning": "更新页面将被清除。",
-    "clearupdatesTabDesc": "清除更新页面中的章节",
+    "clearUpdatesTabDesc": "清除更新页面中的章节",
     "dataManagement": "数据",
     "deleteReadChapters": "删除已读章节",
     "deleteReadChaptersDialogTitle": "所有标记为已读的章节将被删除。",
@@ -123,7 +123,7 @@
     "restoreBackup": "恢复备份",
     "restoreBackupDesc": "从备份文件恢复书库",
     "restoreLargeBackupsWarning": "恢复大量备份可能会冻结应用程序，直到恢复完成",
-    "restorinBackup": "恢复备份",
+    "restoringBackup": "恢复备份",
     "restoringData": "恢复数据",
     "selfHost": "自托管",
     "selfHostDesc": "备份到您的服务器",
@@ -309,7 +309,7 @@
   "history": "历史",
   "historyScreen": {
     "chapter": "章节",
-    "clearHistorWarning": "您确定吗？所有历史记录都将删除。",
+    "clearHistoryWarning": "您确定吗？所有历史记录都将删除。",
     "deleted": "历史记录已删除。",
     "nothingReadRecently": "最近没读过什么",
     "searchbar": "搜索历史记录"
@@ -365,7 +365,7 @@
     "incognitoModeDesc": "暂停阅读历史记录"
   },
   "novelScreen": {
-    "addToLibaray": "添加到书库",
+    "addToLibrary": "添加到书库",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "章节编号",
