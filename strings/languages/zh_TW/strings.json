@@ -427,7 +427,7 @@
       "summary": "Description: %{summary}...",
       "title": "Title: %{title}"
     },
-    "inLibaray": "在书库中",
+    "inLibrary": "在书库中",
     "jumpToChapterModal": {
       "chapterName": "章節名稱",
       "chapterNumber": "章節編號",

@@ -462,7 +462,7 @@ export interface StringMap {
   'novelScreen.edit.status': 'string';
   'novelScreen.edit.summary': 'string';
   'novelScreen.edit.title': 'string';
-  'novelScreen.inLibaray': 'string';
+  'novelScreen.inLibrary': 'string';
   'novelScreen.jumpToChapterModal.chapterName': 'string';
   'novelScreen.jumpToChapterModal.chapterNumber': 'string';
   'novelScreen.jumpToChapterModal.error.validChapterName': 'string';

@@ -427,7 +427,7 @@
       "summary": "Description: %{summary}...",
       "title": "Title: %{title}"
     },
-    "inLibaray": "في المكتبة",
+    "inLibrary": "في المكتبة",
     "jumpToChapterModal": {
       "chapterName": "اسم الفصل",
       "chapterNumber": "رقم الفصل",

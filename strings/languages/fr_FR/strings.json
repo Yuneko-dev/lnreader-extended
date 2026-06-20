@@ -427,7 +427,7 @@
       "summary": "Résumé: %{summary}...",
       "title": "Titre: %{title}"
     },
-    "inLibaray": "En bibliothèque",
+    "inLibrary": "En bibliothèque",
     "jumpToChapterModal": {
       "chapterName": "Nom du Chapitre",
       "chapterNumber": "Numéro du chapitre",

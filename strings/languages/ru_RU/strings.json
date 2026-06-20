@@ -427,7 +427,7 @@
       "summary": "Описание: %{summary}...",
       "title": "Название: %{title}"
     },
-    "inLibaray": "В библиотеке",
+    "inLibrary": "В библиотеке",
     "jumpToChapterModal": {
       "chapterName": "Название главы",
       "chapterNumber": "Номер главы",

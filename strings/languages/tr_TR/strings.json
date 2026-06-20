@@ -427,7 +427,7 @@
       "summary": "Açıklama: %{summary}...",
       "title": "Başlık: %{title}"
     },
-    "inLibaray": "Kitaplıkta",
+    "inLibrary": "Kitaplıkta",
     "jumpToChapterModal": {
       "chapterName": "Bölüm Adı",
       "chapterNumber": "Bölüm Sayısı",

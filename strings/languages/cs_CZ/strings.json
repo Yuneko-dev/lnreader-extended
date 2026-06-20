@@ -427,7 +427,7 @@
       "summary": "Description: %{summary}...",
       "title": "Title: %{title}"
     },
-    "inLibaray": "V knihovně",
+    "inLibrary": "V knihovně",
     "jumpToChapterModal": {
       "chapterName": "Název kapitoly",
       "chapterNumber": "Číslo kapitoly",

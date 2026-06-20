@@ -427,7 +427,7 @@
       "summary": "Description: %{summary}...",
       "title": "Title: %{title}"
     },
-    "inLibaray": "পুথিভঁৰালত আছে",
+    "inLibrary": "পুথিভঁৰালত আছে",
     "jumpToChapterModal": {
       "chapterName": "অধ্যায়ৰ নাম",
       "chapterNumber": "অধ্যায় নম্বৰ",

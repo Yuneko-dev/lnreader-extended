@@ -540,7 +540,7 @@
       "summary": "Mô tả: %{summary}...",
       "title": "Tiêu đề: %{title}"
     },
-    "inLibaray": "Trong thư viện",
+    "inLibrary": "Trong thư viện",
     "jumpToChapterModal": {
       "chapterName": "Tên Chương",
       "chapterNumber": "Chương Số",

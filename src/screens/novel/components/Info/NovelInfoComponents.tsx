@@ -196,7 +196,7 @@ const FollowButton = ({
         ]}
       >
         {followed
-          ? getString('novelScreen.inLibaray')
+          ? getString('novelScreen.inLibrary')
           : getString('novelScreen.addToLibrary')}
       </Text>
     </Pressable>

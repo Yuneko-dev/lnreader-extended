@@ -403,7 +403,7 @@ const InLibraryBadge = ({ theme }: { theme: ThemeColors }) => (
       styles.standardBorderRadius,
     ]}
   >
-    {getString('novelScreen.inLibaray')}
+    {getString('novelScreen.inLibrary')}
   </Text>
 );
 
