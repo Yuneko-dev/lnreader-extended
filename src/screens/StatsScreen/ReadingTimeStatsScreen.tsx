@@ -1,5 +1,6 @@
 import {
   Appbar,
+  EmptyView,
   ErrorScreenV2,
   LoadingScreenV2,
   Menu,
@@ -200,9 +201,11 @@ const ReadingTimeStatsScreen: React.FC<Props> = ({ navigation }) => {
       </Appbar>
       {sortedData.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={{ color: theme.onSurfaceVariant }}>
-            {getString('readingTimeStatsScreen.emptyView')}
-          </Text>
+          <EmptyView
+            icon="Σ(ಠ_ಠ)"
+            description={getString('readingTimeStatsScreen.emptyView')}
+            theme={theme}
+          />
         </View>
       ) : (
         <LegendList
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
+    paddingBottom: '25%',
   },
   itemContainer: {
     alignItems: 'center',
