@@ -18,6 +18,7 @@ export interface TranslateConfig {
   llmChunkWordLimit?: number;
   llmRetryEnabled?: boolean;
   llmRetryMaxAttempts?: number;
+  llmDisableStructuredOutput?: boolean;
 }
 
 /** Hermes doesn't have DOMException — create a plain Error with name='AbortError' */
@@ -52,6 +53,7 @@ export class TranslateManager {
 
       return new LLMTranslateEngine(coreClient, {
         systemPrompt: finalSystemPrompt,
+        disableStructuredOutput: config.llmDisableStructuredOutput,
       });
     }
     return new GoogleTranslateFreeEngine();

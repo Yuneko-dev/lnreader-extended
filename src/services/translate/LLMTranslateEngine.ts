@@ -3,6 +3,8 @@ import z from 'zod';
 import { LLMCoreClient, MissingAIProviderError } from '../ai/LLMCoreClient';
 import { TranslateEngine } from './TranslateEngine';
 
+const MARKER = '<br>';
+
 const schema = z.object({
   paragraphs: z
     .array(z.string())
@@ -10,8 +12,10 @@ const schema = z.object({
       'Array of translated paragraphs, must match the order and count of the input array',
     ),
 });
+
 export interface LLMTranslateConfig {
   systemPrompt?: string;
+  disableStructuredOutput?: boolean;
 }
 
 export class LLMTranslateEngine implements TranslateEngine {
@@ -55,6 +59,16 @@ export class LLMTranslateEngine implements TranslateEngine {
   ): Promise<string[]> {
     if (!texts.length) return [];
 
+    const useMarker = this.config.disableStructuredOutput ?? false;
+    const customGuidelines =
+      this.config.systemPrompt || 'No specific guidelines.';
+
+    const formattingConstraint = useMarker
+      ? `You MUST maintain the exact structural integrity of the input. Keep all ${MARKER} markers exactly as they appear between paragraphs.`
+      : 'You MUST output ONLY a valid JSON object.';
+
+    const taskSubject = useMarker ? 'text' : 'text array';
+
     const systemPrompt = `You are an Expert Transcreator. Your task is to translate the source text accurately while dynamically adapting the style, tone, and localization based on any provided custom guidelines.
 
 Core Directives:
@@ -62,15 +76,15 @@ Core Directives:
 2. Neutral Fallback: If no custom style guidelines are provided, produce a highly natural and fluent standard translation in the target language.
 
 Strict Technical Constraints (CRITICAL):
-- Formatting: You MUST output ONLY a valid JSON object.
+- Formatting: ${formattingConstraint}
 - Clean Output: Output ONLY the final processed text. Do NOT include any explanations, formatting tags (unless present in the source), intro/outro conversational filler, or internal thinking.
 
 ---
 [Custom Style Guidelines]:
-${this.config.systemPrompt || 'No specific guidelines.'}
+${customGuidelines}
 
 ---
-Task: Translate the following text array from ${source} to ${target}.
+Task: Translate the following ${taskSubject} from ${source} to ${target}.
 `;
 
     let i: ReturnType<typeof setInterval> | undefined;
@@ -91,14 +105,27 @@ Task: Translate the following text array from ${source} to ${target}.
 
       console.log('Input text count:', texts.length);
 
-      const response = await this.client.generateTranslateContent({
-        userPrompt: JSON.stringify(texts),
-        systemInstruction: systemPrompt,
-        schema,
-        signal,
-      });
+      let translatedParagraphs: string[];
 
-      const translatedParagraphs = response.data.paragraphs;
+      if (useMarker) {
+        const userPrompt = texts.join('\n' + MARKER + '\n');
+        const response = await this.client.generateContent({
+          userPrompt,
+          systemInstruction: systemPrompt,
+          signal,
+        });
+        translatedParagraphs = response.text
+          .split(MARKER)
+          .map((p: string) => p.trim());
+      } else {
+        const response = await this.client.generateTranslateContent({
+          userPrompt: JSON.stringify(texts),
+          systemInstruction: systemPrompt,
+          schema,
+          signal,
+        });
+        translatedParagraphs = response.data.paragraphs;
+      }
 
       if (onProgress) {
         onProgress(100);

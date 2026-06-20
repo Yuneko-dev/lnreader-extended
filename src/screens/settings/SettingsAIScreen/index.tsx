@@ -42,6 +42,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
     llmChunkWordLimit,
     llmRetryEnabled,
     llmRetryMaxAttempts,
+    llmDisableStructuredOutput,
     setTranslateSettings,
   } = useTranslateSettings();
 
@@ -289,6 +290,20 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
               />
             </View>
           )}
+
+          <SwitchItem
+            label={getString('aiSettingsScreen.disableStructuredOutput')}
+            description={getString(
+              'aiSettingsScreen.disableStructuredOutputDesc',
+            )}
+            value={llmDisableStructuredOutput}
+            onPress={() =>
+              setTranslateSettings({
+                llmDisableStructuredOutput: !llmDisableStructuredOutput,
+              })
+            }
+            theme={theme}
+          />
         </List.Section>
       </KeyboardAwareScrollView>
 

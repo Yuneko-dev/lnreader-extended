@@ -108,7 +108,9 @@
     "retryEnabledDesc": "Tự động thử lại bản dịch thất bại với thời gian chờ tăng dần",
     "retryMaxAttempts": "Số lần thử tối đa (%{min}-%{max})",
     "invalidChunkWordLimit": "Số từ mỗi phần phải từ %{min} đến %{max}",
-    "invalidRetryMaxAttempts": "Số lần thử lại phải từ %{min} đến %{max}"
+    "invalidRetryMaxAttempts": "Số lần thử lại phải từ %{min} đến %{max}",
+    "disableStructuredOutput": "Tắt đầu ra có cấu trúc",
+    "disableStructuredOutputDesc": "Chế độ dự phòng cho proxy API không hỗ trợ Đầu ra Mô hình Có cấu trúc. Không đảm bảo tính đầy đủ và độ chính xác của bản dịch."
   },
   "appearance": "Giao diện",
   "appearanceScreen": {

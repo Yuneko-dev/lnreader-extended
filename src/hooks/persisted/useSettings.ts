@@ -189,6 +189,8 @@ export interface TranslateSettings {
   /** Auto-retry: retry failed translations with Fibonacci backoff */
   llmRetryEnabled: boolean;
   llmRetryMaxAttempts: number;
+  /** Fallback for proxies that don't support Structured Model Output */
+  llmDisableStructuredOutput: boolean;
 }
 
 const initialAppSettings: AppSettings = {
@@ -325,6 +327,7 @@ export const initialTranslateSettings: TranslateSettings = {
   llmChunkWordLimit: 4000,
   llmRetryEnabled: false,
   llmRetryMaxAttempts: 3,
+  llmDisableStructuredOutput: false,
 };
 
 export const useAppSettings = () => {

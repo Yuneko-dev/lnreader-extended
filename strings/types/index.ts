@@ -107,6 +107,8 @@ export interface StringMap {
   'aiSettingsScreen.retryMaxAttempts': 'string';
   'aiSettingsScreen.invalidChunkWordLimit': 'string';
   'aiSettingsScreen.invalidRetryMaxAttempts': 'string';
+  'aiSettingsScreen.disableStructuredOutput': 'string';
+  'aiSettingsScreen.disableStructuredOutputDesc': 'string';
   'appearance': 'string';
   'appearanceScreen.accentColor': 'string';
   'appearanceScreen.alwaysShowNavLabels': 'string';

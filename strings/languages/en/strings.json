@@ -109,7 +109,9 @@
     "retryEnabledDesc": "Automatically retry failed translations with increasing delay",
     "retryMaxAttempts": "Max retry attempts (%{min}-%{max})",
     "invalidChunkWordLimit": "Words per chunk must be between %{min} and %{max}",
-    "invalidRetryMaxAttempts": "Retry attempts must be between %{min} and %{max}"
+    "invalidRetryMaxAttempts": "Retry attempts must be between %{min} and %{max}",
+    "disableStructuredOutput": "Disable Structured Output",
+    "disableStructuredOutputDesc": "Fallback mode for API proxies that do not support Structured Model Output. Translation completeness and accuracy are not guaranteed."
   },
   "appearance": "Appearance",
   "appearanceScreen": {
