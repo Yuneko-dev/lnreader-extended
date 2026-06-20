@@ -44,6 +44,9 @@ export class LLMTranslateEngine implements TranslateEngine {
       return translatedParagraphs;
     }
     const result = [...translatedParagraphs];
+    if (result.length !== expectedCount) {
+      console.warn(`The number of output paragraphs does not match the input (input = ${expectedCount} | output = ${result.length}).`)
+    }
     while (result.length < expectedCount) {
       result.push('');
     }
@@ -77,6 +80,7 @@ Core Directives:
 
 Strict Technical Constraints (CRITICAL):
 - Formatting: ${formattingConstraint}
+- Ensure that the number of translated paragraphs is exactly equal to the number of input paragraphs.
 - Clean Output: Output ONLY the final processed text. Do NOT include any explanations, formatting tags (unless present in the source), intro/outro conversational filler, or internal thinking.
 
 ---
