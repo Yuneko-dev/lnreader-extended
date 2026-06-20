@@ -7,8 +7,10 @@
 import './mockDb';
 
 import {
+  addReadDuration,
   bookmarkChapter,
   clearUpdates,
+  deleteAllReadingTime,
   deleteChapter,
   deleteChapters,
   deleteDownloads,
@@ -1157,6 +1159,39 @@ describe('ChapterQueries', () => {
 
       const result = isChapterDownloaded(chapterId);
       expect(result).toBe(false);
+    });
+  });
+
+  describe('deleteAllReadingTime', () => {
+    it('should delete all reading time records', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+      const chapterId1 = await insertTestChapter(testDb, novelId);
+      const chapterId2 = await insertTestChapter(testDb, novelId);
+
+      // Add reading durations
+      await addReadDuration(chapterId1, 120);
+      await addReadDuration(chapterId2, 300);
+
+      // Verify data exists
+      const { sqlite } = testDb;
+      const beforeRows = sqlite.executeSync(
+        'SELECT COUNT(*) as count FROM LNReader_eXtended_Chapter_History',
+      ).rows;
+      expect((beforeRows[0] as any).count).toBe(2);
+
+      // Delete all reading time
+      await deleteAllReadingTime();
+
+      // Verify all records are deleted
+      const afterRows = sqlite.executeSync(
+        'SELECT COUNT(*) as count FROM LNReader_eXtended_Chapter_History',
+      ).rows;
+      expect((afterRows[0] as any).count).toBe(0);
+    });
+
+    it('should not throw when table is empty', async () => {
+      await expect(deleteAllReadingTime()).resolves.not.toThrow();
     });
   });
 });

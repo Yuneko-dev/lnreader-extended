@@ -22,6 +22,7 @@ import type { TestDb } from './testDb';
  */
 export function clearAllTables(testDb: TestDb) {
   const { sqlite } = testDb;
+  sqlite.executeSync('DELETE FROM LNReader_eXtended_Chapter_History');
   sqlite.executeSync('DELETE FROM NovelCategory');
   sqlite.executeSync('DELETE FROM Chapter');
   sqlite.executeSync('DELETE FROM Novel');

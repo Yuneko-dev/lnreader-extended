@@ -2,6 +2,7 @@ import { Appbar, Button, List, Modal, SafeAreaView } from '@components';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
 import {
   clearUpdates,
+  deleteAllReadingTime,
   deleteReadChaptersFromDb,
 } from '@database/queries/ChapterQueries';
 import { useBoolean } from '@hooks';
@@ -30,20 +31,11 @@ import StorageUsageSection from './components/StorageUsageSection';
 
 const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   const theme = useTheme();
-  const clearCookies = () => {
-    CookieManager.clearAll();
-    showToast(getString('webview.cookiesCleared'));
-  };
-
-  const clearStorage = () => {
-    store.clearAll();
-    showToast(getString('webview.storageCleared'));
-  };
-
   const { userAgent, setUserAgent } = useUserAgent();
   const appSettings = useAppSettings();
   const { verboseLogging, setAppSettings } = appSettings;
   const [userAgentInput, setUserAgentInput] = useState(userAgent);
+
   /**
    * Confirm Clear Database Dialog
    */
@@ -59,6 +51,24 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
     value: deleteReadChaptersDialog,
     setTrue: showDeleteReadChaptersDialog,
     setFalse: hideDeleteReadChaptersDialog,
+  } = useBoolean();
+
+  const {
+    value: clearCookiesDialog,
+    setTrue: showClearCookiesDialog,
+    setFalse: hideClearCookiesDialog,
+  } = useBoolean();
+
+  const {
+    value: clearPluginSettingsDialog,
+    setTrue: showClearPluginSettingsDialog,
+    setFalse: hideClearPluginSettingsDialog,
+  } = useBoolean();
+
+  const {
+    value: resetReadingTimeDialog,
+    setTrue: showResetReadingTimeDialog,
+    setFalse: hideResetReadingTimeDialog,
   } = useBoolean();
 
   const {
@@ -98,17 +108,32 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
           />
           <List.Item
             title={getString('advancedSettingsScreen.deleteReadChapters')}
+            description={getString(
+              'advancedSettingsScreen.deleteReadChaptersDesc',
+            )}
             onPress={showDeleteReadChaptersDialog}
             theme={theme}
           />
           <List.Item
-            title={getString('webview.clearCookies')}
-            onPress={clearCookies}
+            title={getString('advancedSettingsScreen.clearCookies')}
+            description={getString('advancedSettingsScreen.clearCookiesDesc')}
+            onPress={showClearCookiesDialog}
             theme={theme}
           />
           <List.Item
-            title={getString('webview.clearStorage')}
-            onPress={clearStorage}
+            title={getString('advancedSettingsScreen.clearPluginSettings')}
+            description={getString(
+              'advancedSettingsScreen.clearPluginSettingsDesc',
+            )}
+            onPress={showClearPluginSettingsDialog}
+            theme={theme}
+          />
+          <List.Item
+            title={getString('advancedSettingsScreen.resetReadingTime')}
+            description={getString(
+              'advancedSettingsScreen.resetReadingTimeDesc',
+            )}
+            onPress={showResetReadingTimeDialog}
             theme={theme}
           />
           <List.Item
@@ -219,6 +244,42 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             hideClearUpdatesDialog();
           }}
           onDismiss={hideClearUpdatesDialog}
+          theme={theme}
+        />
+        <ConfirmationDialog
+          message={getString('advancedSettingsScreen.clearCookiesWarning')}
+          visible={clearCookiesDialog}
+          onSubmit={() => {
+            CookieManager.clearAll();
+            showToast(getString('advancedSettingsScreen.clearCookiesCleared'));
+          }}
+          onDismiss={hideClearCookiesDialog}
+          theme={theme}
+        />
+        <ConfirmationDialog
+          message={getString(
+            'advancedSettingsScreen.clearPluginSettingsWarning',
+          )}
+          visible={clearPluginSettingsDialog}
+          onSubmit={() => {
+            store.clearAll();
+            showToast(
+              getString('advancedSettingsScreen.clearPluginSettingsCleared'),
+            );
+          }}
+          onDismiss={hideClearPluginSettingsDialog}
+          theme={theme}
+        />
+        <ConfirmationDialog
+          message={getString('advancedSettingsScreen.resetReadingTimeWarning')}
+          visible={resetReadingTimeDialog}
+          onSubmit={async () => {
+            await deleteAllReadingTime();
+            showToast(
+              getString('advancedSettingsScreen.resetReadingTimeSuccess'),
+            );
+          }}
+          onDismiss={hideResetReadingTimeDialog}
           theme={theme}
         />
 

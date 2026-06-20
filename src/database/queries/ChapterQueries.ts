@@ -360,6 +360,16 @@ export const clearUpdates = async (): Promise<void> => {
   });
 };
 
+/**
+ * Delete all reading time records from the extended chapter history table.
+ * This removes all accumulated reading duration data for every chapter.
+ */
+export const deleteAllReadingTime = async (): Promise<void> => {
+  await dbManager.write(async tx => {
+    await tx.delete(extendedChapterHistorySchema).run();
+  });
+};
+
 // #endregion
 // #region Selectors
 

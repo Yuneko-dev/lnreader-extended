@@ -79,6 +79,8 @@ export const testModules = {
       'markPreviouschaptersRead',
       'markPreviousChaptersUnread',
       'clearUpdates',
+      'addReadDuration',
+      'deleteAllReadingTime',
       'getCustomPages',
       'getNovelChapters',
       'getUnreadNovelChapters',
