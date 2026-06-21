@@ -48,27 +48,14 @@ type WebViewPostEvent = {
   index?: number;
   total?: number;
   initialScrollPosition?: 'start' | 'end';
+  // console/error log payloads
+  method?: string;
+  args?: unknown[];
+  msg?: string;
 };
 
 type WebViewReaderProps = {
   onPress(): void;
-};
-
-const onLogMessage = (payload: { nativeEvent: { data: string } }) => {
-  try {
-    const dataPayload = JSON.parse(payload.nativeEvent.data);
-    if (dataPayload) {
-      if (dataPayload.type === 'console') {
-        // eslint-disable-next-line no-console
-        console[dataPayload.method as 'log'](`[WebView]`, ...dataPayload.args);
-      } else if (dataPayload.type === 'error') {
-        // eslint-disable-next-line no-console
-        console.error(`[WebView Error]`, dataPayload.msg);
-      }
-    }
-  } catch {
-    // Ignore unparseable messages
-  }
 };
 
 const { RNDeviceInfo, TikTokTTS } = NativeModules;
@@ -571,12 +558,11 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
         }
       }}
       onMessage={(ev: { nativeEvent: { data: string } }) => {
-        onLogMessage(ev);
         let event: WebViewPostEvent;
         try {
           event = JSON.parse(ev.nativeEvent.data);
         } catch {
-          // Non-JSON message, already handled by onLogMessage
+          // Non-JSON / unparseable message
           return;
         }
         switch (event.type) {
@@ -722,7 +708,15 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
             ScreenOrientation.unlockAsync();
             break;
           case 'console':
+            // eslint-disable-next-line no-console
+            console[(event.method as 'log') ?? 'log'](
+              `[WebView]`,
+              ...(event.args ?? []),
+            );
+            break;
           case 'error':
+            // eslint-disable-next-line no-console
+            console.error(`[WebView Error]`, event.msg);
             break;
           default: {
             // eslint-disable-next-line no-console
