@@ -14,6 +14,8 @@
       this.hasSeekedInitial = false;
       this.lastSaveTime = 0;
       this.isDebugMode = false;
+
+      this.disableProgress = false;
     }
 
     init() {
@@ -24,6 +26,17 @@
       );
       if (debugMeta && debugMeta.content === 'true') {
         this.isDebugMode = true;
+      }
+
+      // Check disable progress mode
+      const disableProgressMeta = document.getElementById(
+        'lnreader-video-disable-progress',
+      );
+      if (
+        disableProgressMeta &&
+        disableProgressMeta.tagName.toLowerCase() === 'meta'
+      ) {
+        this.disableProgress = true;
       }
 
       // Get chapter content element to append player inside
@@ -127,7 +140,8 @@
             !self.hasSeekedInitial &&
             video.duration > 0 &&
             window.reader &&
-            window.reader.chapter
+            window.reader.chapter &&
+            !self.disableProgress
           ) {
             var initialProgress = window.reader.chapter.progress || 0;
             self.log(`Initial progress: ${initialProgress}%`);
@@ -148,7 +162,8 @@
           if (
             video.duration > 0 &&
             window.reader &&
-            typeof window.reader.post === 'function'
+            typeof window.reader.post === 'function' &&
+            !self.disableProgress
           ) {
             var currentTime = video.currentTime;
             if (Math.abs(currentTime - self.lastSaveTime) >= 5) {
@@ -170,7 +185,11 @@
       video.addEventListener('ended', function () {
         self.log('Video ended');
         try {
-          if (window.reader && typeof window.reader.post === 'function') {
+          if (
+            window.reader &&
+            typeof window.reader.post === 'function' &&
+            !self.disableProgress
+          ) {
             // mark as completed
             window.reader.post({
               type: 'save',
