@@ -45,7 +45,9 @@ export class LLMTranslateEngine implements TranslateEngine {
     }
     const result = [...translatedParagraphs];
     if (result.length !== expectedCount) {
-      console.warn(`The number of output paragraphs does not match the input (input = ${expectedCount} | output = ${result.length}).`)
+      console.warn(
+        `The number of output paragraphs does not match the input (input = ${expectedCount} | output = ${result.length}).`,
+      );
     }
     while (result.length < expectedCount) {
       result.push('');
