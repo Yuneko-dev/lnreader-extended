@@ -59,6 +59,14 @@ jest.mock('@specs/NativeFile', () => ({
     mkdir: jest.fn(),
     unlink: jest.fn(),
     readDir: jest.fn(() => []),
+    getFileSize: jest.fn(() => 0),
+    getFreeSpace: jest.fn(() => 1000000),
+    detectImageMimeType: jest.fn(() => 'application/octet-stream'),
+    getFileName: jest.fn((uri, fallback) => {
+      // Simulate path-based extraction
+      const segments = uri.split('/');
+      return segments[segments.length - 1] || fallback;
+    }),
     downloadFile: jest.fn().mockResolvedValue(),
     getConstants: jest.fn(() => ({
       ExternalDirectoryPath: '/mock/external',

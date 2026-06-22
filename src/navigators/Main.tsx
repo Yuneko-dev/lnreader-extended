@@ -18,6 +18,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import React, { useEffect } from 'react';
 import { useMMKVBoolean } from 'react-native-mmkv';
 
+import EpubFileIntentDialog from '../components/EpubFileIntentDialog';
 import NewUpdateDialog from '../components/NewUpdateDialog';
 import AniListTopNovels from '../screens/browse/discover/AniListTopNovels';
 import MalTopNovels from '../screens/browse/discover/MalTopNovels';
@@ -109,6 +110,7 @@ const MainNavigator = () => {
       }}
     >
       <LibraryContextProvider>
+        <EpubFileIntentDialog />
         <UpdateContextProvider>
           {isNewVersion && latestRelease && (
             <NewUpdateDialog newVersion={latestRelease} />

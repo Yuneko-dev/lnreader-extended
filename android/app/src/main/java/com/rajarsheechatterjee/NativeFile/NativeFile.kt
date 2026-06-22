@@ -315,6 +315,25 @@ class NativeFile(context: ReactApplicationContext) :
         }
     }
 
+    override fun getFileName(uri: String, fallback: String): String {
+        val parsedUri = Uri.parse(uri)
+        if (parsedUri.scheme == "content") {
+            val cursor = reactApplicationContext.contentResolver.query(
+                parsedUri, null, null, null, null
+            )
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val nameIndex = it.getColumnIndex(
+                        android.provider.OpenableColumns.DISPLAY_NAME
+                    )
+                    if (nameIndex >= 0) return it.getString(nameIndex)
+                }
+            }
+        }
+        // Fallback: last path segment, then caller-supplied fallback
+        return parsedUri.lastPathSegment ?: fallback
+    }
+
     override fun getTypedExportedConstants(): MutableMap<String, Any> {
         val constants: MutableMap<String, Any> = HashMap()
         val externalDirectory = this.reactApplicationContext.getExternalFilesDir(null)

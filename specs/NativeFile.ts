@@ -29,6 +29,12 @@ export interface Spec extends TurboModule {
    * Returns "application/octet-stream" if unknown.
    */
   detectImageMimeType: (filePath: string) => string;
+  /**
+   * Get the display name of a file from a content:// or file:// URI.
+   * Uses ContentResolver for content:// URIs, falls back to path parsing.
+   * @param fallback - fallback filename if extraction fails
+   */
+  getFileName: (uri: string, fallback: string) => string;
   downloadFile: (
     url: string,
     destPath: string,

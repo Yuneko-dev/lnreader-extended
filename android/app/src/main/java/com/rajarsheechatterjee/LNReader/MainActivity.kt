@@ -1,5 +1,6 @@
 package com.rajarsheechatterjee.LNReader
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -55,7 +56,10 @@ class MainActivity : ReactActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
 
     /**
      * Returns the name of the main component registered from JavaScript.

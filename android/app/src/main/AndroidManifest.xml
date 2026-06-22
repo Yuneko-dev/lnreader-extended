@@ -48,6 +48,26 @@
         <action android:name="com.samsung.android.support.REMOTE_ACTION" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
+      <!-- EPUB file association: MIME-based (Chrome, Gmail, etc.) -->
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="content" />
+        <data android:scheme="file" />
+        <data android:mimeType="application/epub+zip" />
+      </intent-filter>
+      <!-- EPUB file association: extension-based (file managers with */* MIME) -->
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="content" />
+        <data android:scheme="file" />
+        <data android:host="*" />
+        <data android:pathPattern=".*\\.epub" />
+        <data android:mimeType="*/*" />
+      </intent-filter>
       <meta-data
         android:name="com.samsung.android.support.REMOTE_ACTION"
         android:resource="@xml/lnreader_s_pen_remote_actions"
