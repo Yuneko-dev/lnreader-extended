@@ -12,6 +12,7 @@ import { SourceNovel } from '@plugins/types';
 import { fetchNovel } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import { getString } from '@strings/translations';
+import { assertSafePathSegment, isSafePathSegment } from '@utils/pathSanitize';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { and, eq, inArray, ne } from 'drizzle-orm';
@@ -28,6 +29,9 @@ export const insertNovelAndChapters = async (
   pluginId: string,
   sourceNovel: SourceNovel,
 ): Promise<number | undefined> => {
+  // pluginId is used as a directory name for the novel's cover/chapter files.
+  // Guard against path traversal (CWE-22) before any filesystem work.
+  assertSafePathSegment(pluginId, 'pluginId');
   const result = await dbManager.write(async tx => {
     return tx
       .insert(novelSchema)
@@ -532,6 +536,14 @@ export const updateNovelCategories = async (
  */
 export const _restoreNovelAndChapters = async (backupNovel: BackupNovel) => {
   const { chapters, ...novel } = backupNovel;
+  // pluginId from a restored backup is later concatenated into filesystem
+  // paths (downloads, updates, deletions). Reject path-traversal ids so a
+  // crafted backup can't make those operations escape NOVEL_STORAGE.
+  if (!isSafePathSegment(novel.pluginId)) {
+    throw new Error(
+      `Unsafe pluginId in backup: ${JSON.stringify(novel.pluginId)}`,
+    );
+  }
   await dbManager.write(async tx => {
     // Delete existing novel data
     await tx.delete(novelSchema).where(eq(novelSchema.id, novel.id)).run();

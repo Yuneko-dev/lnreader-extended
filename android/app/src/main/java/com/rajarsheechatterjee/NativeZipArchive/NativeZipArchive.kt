@@ -15,13 +15,30 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(context) {
+    /**
+     * Resolve a zip entry against the destination directory, rejecting any
+     * entry whose name escapes that directory (Zip Slip / CWE-22). A crafted
+     * archive can carry entry names like "../../databases/x" that would
+     * otherwise write outside the sandbox target.
+     */
+    private fun resolveZipEntry(destDir: File, entryName: String): File {
+        val newFile = File(destDir, entryName).canonicalFile
+        if (newFile != destDir &&
+            !newFile.path.startsWith(destDir.path + File.separator)
+        ) {
+            throw SecurityException("Zip entry escapes target directory: $entryName")
+        }
+        return newFile
+    }
+
     @ReactMethod
     override fun unzip(sourceFilePath: String, distDirPath: String, promise: Promise) {
         Thread {
             try {
                 ZipFile(sourceFilePath).use { zis ->
+                    val destDir = File(distDirPath).canonicalFile
                     zis.entries().asSequence().filterNot { it.isDirectory }.forEach { zipEntry ->
-                        val newFile = File(distDirPath, zipEntry.name)
+                        val newFile = resolveZipEntry(destDir, zipEntry.name)
                         newFile.parentFile?.mkdirs()
                         zis.getInputStream(zipEntry).use { inputStream ->
                             FileOutputStream(newFile).use { fos -> inputStream.copyTo(fos, 4096) }
@@ -67,10 +84,11 @@ class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(
                     connection.setRequestProperty(key, value.toString())
                 }
                 ZipInputStream(connection.inputStream).use { zis ->
+                    val destDir = File(distDirPath).canonicalFile
                     generateSequence { zis.nextEntry }
                         .filterNot { it.isDirectory }
                         .forEach { zipEntry ->
-                            val newFile = File(distDirPath, zipEntry.name)
+                            val newFile = resolveZipEntry(destDir, zipEntry.name)
                             newFile.parentFile?.mkdirs()
                             FileOutputStream(newFile).use { fos -> zis.copyTo(fos, 4096) }
                             Thread.yield()

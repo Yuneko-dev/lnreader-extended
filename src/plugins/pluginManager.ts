@@ -18,6 +18,7 @@ import CookieManager from '@preeternal/react-native-cookie-manager';
 import NativeFile from '@specs/NativeFile';
 import { newer } from '@utils/compareVersion';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
+import { isSafePathSegment } from '@utils/pathSanitize';
 import { showToast } from '@utils/showToast';
 import { PLUGIN_STORAGE } from '@utils/Storages';
 import { load } from 'cheerio';
@@ -136,6 +137,13 @@ const plugins: Record<string, Plugin | undefined> = {};
 const installPlugin = async (
   _plugin: PluginItem,
 ): Promise<Plugin | undefined> => {
+  // Plugin ids come from untrusted repository JSON and are used as a directory
+  // name. Reject path-traversal ids before any network/filesystem work so a
+  // crafted id like "../other-plugin" can't overwrite another plugin's code.
+  if (!isSafePathSegment(_plugin.id)) {
+    showToast(`Rejected plugin with unsafe id: ${_plugin.id}`);
+    return undefined;
+  }
   const rawCode = await fetch(getBypassCacheUrl(_plugin.url), {
     headers: { 'pragma': 'no-cache', 'cache-control': 'no-cache' },
   }).then(res => res.text());
@@ -244,6 +252,12 @@ const fetchPlugins = async (): Promise<PluginItem[]> => {
 const getPlugin = (pluginId: string) => {
   if (pluginId === LOCAL_PLUGIN_ID) {
     return localPlugin;
+  }
+
+  // Defense in depth: never resolve a plugin from an id that would escape the
+  // plugin storage directory (e.g. a backup-injected "../.." pluginId).
+  if (!isSafePathSegment(pluginId)) {
+    return undefined;
   }
 
   if (!plugins[pluginId]) {
