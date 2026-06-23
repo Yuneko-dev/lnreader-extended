@@ -9,9 +9,31 @@ interface Task {
   url: string;
   type: 'interstitial' | 'turnstile' | 'solve-turnstile';
   sitekey?: string;
+  html?: string;
   resolve: (value: boolean | string) => void;
   timeoutId: NodeJS.Timeout;
 }
+
+const buildTurnstileHtml = (sitekey: string): string => `<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=myCallback" async defer></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #fff;">
+  <div id="captcha"></div>
+  <script>
+    window.turnstileToken = null;
+    window.myCallback = function() {
+      turnstile.render('#captcha', {
+        sitekey: ${JSON.stringify(sitekey)},
+        callback: function(token) {
+          window.turnstileToken = token;
+        }
+      });
+    };
+  </script>
+</body>
+</html>`;
 
 interface CloudflareState {
   tasks: Task[];
@@ -52,6 +74,7 @@ export const useCloudflareStore = create<CloudflareState>((set, get) => ({
         url,
         type: 'solve-turnstile',
         sitekey,
+        html: buildTurnstileHtml(sitekey),
         resolve: resolve as (value: boolean | string) => void,
         timeoutId,
       };

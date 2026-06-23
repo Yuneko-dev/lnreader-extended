@@ -25,7 +25,7 @@ export const CloudflareSolverOverlay = () => {
       const abortController = new AbortController();
 
       if (task.type === 'solve-turnstile' && task.sitekey) {
-        solveCloudflareTurnstile(task.url, task.sitekey, abortController.signal)
+        solveCloudflareTurnstile(task.url, abortController.signal)
           .then(result => {
             if (!isCancelled) completeTask(task.id, result);
           })
@@ -108,7 +108,15 @@ export const CloudflareSolverOverlay = () => {
       )}
       <View style={[styles.webviewWrapper, { backgroundColor: theme.surface }]}>
         <WebView
-          source={{ uri: task.url }}
+          source={
+            task.type === 'solve-turnstile' && task.html
+              ? {
+                  html: task.html,
+                  baseUrl: task.url,
+                }
+              : { uri: task.url }
+          }
+          webviewDebuggingEnabled={true}
           style={styles.webview}
           userAgent={userAgent}
           setSupportMultipleWindows={false}

@@ -95,6 +95,53 @@ class CDPClient {
   }
 }
 
+async function findCDPTarget(
+  port: number,
+  url: string,
+  signal?: AbortSignal,
+): Promise<any | null> {
+  let hostname = '';
+  try {
+    hostname = new URL(url).hostname;
+  } catch {}
+
+  let attempts = 0;
+  while (attempts < 20) {
+    if (signal?.aborted) return null;
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/json/list`);
+      const targets = await res.json();
+
+      const candidates = targets.filter(
+        (t: any) => t.webSocketDebuggerUrl && t.type !== 'iframe',
+      );
+
+      const isRealUrl = (u: string) => u && u !== 'about:blank';
+
+      const target =
+        targets.find(
+          (t: any) =>
+            isRealUrl(t.url) && (t.url.includes(url) || url.includes(t.url)),
+        ) ||
+        // Turnstile (source={{ html, baseUrl }}): loadDataWithBaseURL keeps
+        // target.url as "about:blank", but faviconUrl is derived from baseUrl.
+        (hostname
+          ? candidates.find(
+              (t: any) =>
+                t.faviconUrl &&
+                t.faviconUrl.includes(hostname) &&
+                t.url === 'about:blank',
+            )
+          : undefined);
+
+      if (target) return target;
+    } catch {}
+    await sleep(500);
+    attempts++;
+  }
+  return null;
+}
+
 async function getIframeRectViaCDP(client: CDPClient) {
   try {
     const { root } = await client.sendCommand('DOM.getDocument', {
@@ -231,22 +278,7 @@ export async function solveCloudflare(
     NativeCDPProxy.enableWebViewDebugging();
     const port = await NativeCDPProxy.startProxy();
 
-    let target: any = null;
-    let targetAttempts = 0;
-    while (targetAttempts < 20 && !target) {
-      if (signal?.aborted) return false;
-      try {
-        const res = await fetch(`http://127.0.0.1:${port}/json/list`);
-        const targets = await res.json();
-        target = targets.find(
-          (t: any) => t.url.includes(url) || url.includes(t.url),
-        );
-      } catch {}
-      if (!target) {
-        await sleep(500);
-        targetAttempts++;
-      }
-    }
+    const target = await findCDPTarget(port, url, signal);
 
     if (!target || !target.webSocketDebuggerUrl) {
       console.error(`${logPrefix} Target WebView not found for URL:`, url);
@@ -412,7 +444,6 @@ export async function solveCloudflare(
 
 export async function solveCloudflareTurnstile(
   url: string,
-  sitekey: string,
   signal?: AbortSignal,
 ): Promise<string> {
   let client: CDPClient | null = null;
@@ -422,22 +453,7 @@ export async function solveCloudflareTurnstile(
     NativeCDPProxy.enableWebViewDebugging();
     const port = await NativeCDPProxy.startProxy();
 
-    let target: any = null;
-    let targetAttempts = 0;
-    while (targetAttempts < 20 && !target) {
-      if (signal?.aborted) return '';
-      try {
-        const res = await fetch(`http://127.0.0.1:${port}/json/list`);
-        const targets = await res.json();
-        target = targets.find(
-          (t: any) => t.url.includes(url) || url.includes(t.url),
-        );
-      } catch {}
-      if (!target) {
-        await sleep(500);
-        targetAttempts++;
-      }
-    }
+    const target = await findCDPTarget(port, url, signal);
 
     if (!target || !target.webSocketDebuggerUrl) {
       console.error(`${logPrefix} Target WebView not found for URL:`, url);
@@ -447,53 +463,7 @@ export async function solveCloudflareTurnstile(
     client = new CDPClient(target.webSocketDebuggerUrl);
     await client.waitForOpen();
 
-    let readyAttempts = 0;
-    while (readyAttempts < 30) {
-      if (signal?.aborted) return '';
-      try {
-        const readyRes = await client.sendCommand('Runtime.evaluate', {
-          expression: 'document.readyState',
-          returnByValue: true,
-        });
-        if (
-          readyRes?.result?.value === 'complete' ||
-          readyRes?.result?.value === 'interactive'
-        ) {
-          break;
-        }
-      } catch {}
-      await sleep(500);
-      readyAttempts++;
-    }
-
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-</head>
-<body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #fff;">
-  <div id="captcha"></div>
-  <script>
-    window.turnstileToken = null;
-    window.onload = function() {
-      turnstile.render('#captcha', {
-        sitekey: '${sitekey}',
-        callback: function(token) {
-          window.turnstileToken = token;
-        }
-      });
-    };
-  </script>
-</body>
-</html>`;
-
-    await client.sendCommand('Runtime.evaluate', {
-      expression: `
-        document.open();
-        document.write(${JSON.stringify(html)});
-        document.close();
-      `,
-    });
+    console.log(`${logPrefix} Connected to WebView via CDP.`);
 
     let iframeRect = null;
     let attempts = 0;
