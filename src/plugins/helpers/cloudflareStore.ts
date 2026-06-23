@@ -1,10 +1,11 @@
 import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
+import { randomUUID } from 'react-native-quick-crypto';
 import { create } from 'zustand';
 
 interface Task {
-  id: number;
+  id: string;
   url: string;
   type: 'interstitial' | 'turnstile' | 'solve-turnstile';
   sitekey?: string;
@@ -19,15 +20,14 @@ interface CloudflareState {
     type: 'interstitial' | 'turnstile',
   ) => Promise<boolean>;
   pushTurnstileTask: (url: string, sitekey: string) => Promise<string>;
-  completeTask: (id: number, result: boolean | string) => void;
+  completeTask: (id: string, result: boolean | string) => void;
 }
 
-let taskId = 0;
 export const useCloudflareStore = create<CloudflareState>((set, get) => ({
   tasks: [],
   pushTask: (url, type) => {
     return new Promise<boolean>(resolve => {
-      const id = ++taskId;
+      const id = randomUUID();
       const timeoutId = setTimeout(() => {
         get().completeTask(id, false);
       }, 45000);
@@ -43,7 +43,7 @@ export const useCloudflareStore = create<CloudflareState>((set, get) => ({
   },
   pushTurnstileTask: (url, sitekey) => {
     return new Promise<string>(resolve => {
-      const id = ++taskId;
+      const id = randomUUID();
       const timeoutId = setTimeout(() => {
         get().completeTask(id, '');
       }, 45000);

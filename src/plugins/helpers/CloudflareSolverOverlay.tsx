@@ -70,6 +70,33 @@ export const CloudflareSolverOverlay = () => {
     }
   })();
 
+  // Registrable-domain suffix of the target (e.g. "example.com" from
+  // "www.example.com"). Used to allow same-site navigation while blocking
+  // redirects to foreign ad/popup domains.
+  const baseDomain = hostname.split('.').slice(-2).join('.');
+
+  // Cloudflare can only finish the challenge by navigating within the target
+  // site (or to its own challenge endpoints). Any other top-frame navigation
+  // is an injected redirect/popup and is rejected. On Android this fires for
+  // main-frame requests only, so the captcha iframe is unaffected.
+  const allowNavigation = (request: { url: string }) => {
+    if (request.url === task.url) return true;
+    if (/^(about:|data:|blob:)/.test(request.url)) return true;
+    let reqHost: string;
+    try {
+      reqHost = new URL(request.url).hostname;
+    } catch {
+      return false;
+    }
+    return (
+      reqHost === hostname ||
+      reqHost === baseDomain ||
+      reqHost.endsWith('.' + baseDomain) ||
+      reqHost === 'cloudflare.com' ||
+      reqHost.endsWith('.cloudflare.com')
+    );
+  };
+
   return (
     <View
       style={isHidden ? styles.hiddenContainer : styles.visibleContainer}
@@ -111,6 +138,9 @@ export const CloudflareSolverOverlay = () => {
           source={{ uri: task.url }}
           style={styles.webview}
           userAgent={userAgent}
+          setSupportMultipleWindows={false}
+          javaScriptCanOpenWindowsAutomatically={false}
+          onShouldStartLoadWithRequest={allowNavigation}
         />
       </View>
     </View>
