@@ -90,7 +90,7 @@ object EpubParser {
             metaOut.name = selectMainTitle(metadataEl)
             metaOut.author = metadataEl.getTextByTag("dc:creator")
             metaOut.artist = metadataEl.getTextByTag("dc:contributor")
-            metaOut.summary = metadataEl.getTextByTag("dc:description")
+            metaOut.summary = metadataEl.getWholeTextByTag("dc:description")
         }
 
         // --- Find cover ID ---
@@ -437,6 +437,15 @@ object EpubParser {
      */
     private fun Element.getTextByTag(tagName: String): String {
         return this.getElementsByTag(tagName).firstOrNull()?.text() ?: ""
+    }
+
+    /**
+     * Like getTextByTag, but preserves the original whitespace (incl. line
+     * breaks) via wholeText() instead of the whitespace-normalizing text().
+     * Used for dc:description so multi-line summaries keep their newlines.
+     */
+    private fun Element.getWholeTextByTag(tagName: String): String {
+        return this.getElementsByTag(tagName).firstOrNull()?.wholeText()?.trim() ?: ""
     }
 
     /**
