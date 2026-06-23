@@ -74,21 +74,20 @@ object EpubParser {
 
         // --- Parse TOC (NCX or XHTML nav) ---
         val pathToLabel = mutableMapOf<String, String>()
-        val tocHref = findTocHref(opfDoc)
-        if (tocHref.isNotEmpty()) {
-            if (tocHref.contains("ncx")) {
-                val ncxPath = joinPath(opfDir, tocHref)
-                parseTocNcx(ncxPath, pathToLabel)
+        val toc = findToc(opfDoc)
+        if (toc != null && toc.href.isNotEmpty()) {
+            val tocPath = joinPath(opfDir, toc.href)
+            if (toc.isNcx) {
+                parseTocNcx(tocPath, pathToLabel)
             } else {
-                val navPath = joinPath(opfDir, tocHref)
-                parseNavXhtml(navPath, pathToLabel)
+                parseNavXhtml(tocPath, pathToLabel)
             }
         }
 
         // --- Parse metadata ---
         val metadataEl = opfDoc.selectFirst("package > metadata")
         if (metadataEl != null) {
-            metaOut.name = metadataEl.getTextByTag("dc:title")
+            metaOut.name = selectMainTitle(metadataEl)
             metaOut.author = metadataEl.getTextByTag("dc:creator")
             metaOut.artist = metadataEl.getTextByTag("dc:contributor")
             metaOut.summary = metadataEl.getTextByTag("dc:description")
@@ -156,6 +155,10 @@ object EpubParser {
             var part = 2
 
             for (itemref in spine.select("itemref")) {
+                // Skip auxiliary content (cover page, notes) excluded from the
+                // linear reading order.
+                if (itemref.attr("linear").equals("no", ignoreCase = true)) continue
+
                 val idref = itemref.attr("idref")
                 val chapterHref = idToHref[idref] ?: continue
 
@@ -188,21 +191,41 @@ object EpubParser {
         }
     }
 
+    /** A located table-of-contents document plus its concrete format. */
+    private data class TocRef(val href: String, val isNcx: Boolean)
+
     /**
-     * Find the TOC href from the OPF manifest.
-     * Looks for NCX or nav items.
+     * Find the TOC document in the OPF manifest, classified by its real format
+     * instead of guessing from the filename.
+     *
+     * EPUB 3 files commonly ship BOTH an XHTML nav (properties="nav") and an
+     * NCX (media-type application/x-dtbncx+xml) for EPUB 2 backward compat. We
+     * prefer the EPUB 3 nav when present (richer, hierarchical) and fall back to
+     * NCX otherwise.
      */
-    private fun findTocHref(opfDoc: Document): String {
-        val manifest = opfDoc.selectFirst("package > manifest") ?: return ""
+    private fun findToc(opfDoc: Document): TocRef? {
+        val manifest = opfDoc.selectFirst("package > manifest") ?: return null
+        var nav: TocRef? = null
+        var ncx: TocRef? = null
+
         for (item in manifest.select("item")) {
             val mediaType = item.attr("media-type")
             val id = item.attr("id")
             val properties = item.attr("properties")
-            if (mediaType == "application/x-dtbncx+xml" || id == "ncx" || id == "nav" || properties.contains("nav")) {
-                return java.net.URLDecoder.decode(item.attr("href"), "UTF-8")
-            }
+            val href = java.net.URLDecoder.decode(item.attr("href"), "UTF-8")
+            if (href.isEmpty()) continue
+
+            val isNcxItem = mediaType == "application/x-dtbncx+xml" || id == "ncx"
+            // EPUB 3 nav is identified by the "nav" property token; the id=="nav"
+            // heuristic catches loosely-authored files.
+            val isNavItem = properties.split(Regex("\\s+")).contains("nav") ||
+                (id == "nav" && !isNcxItem)
+
+            if (isNavItem && nav == null) nav = TocRef(href, isNcx = false)
+            if (isNcxItem && ncx == null) ncx = TocRef(href, isNcx = true)
         }
-        return ""
+
+        return nav ?: ncx
     }
 
     /**
@@ -250,7 +273,14 @@ object EpubParser {
         if (!navFile.exists()) return
 
         val navDoc = Jsoup.parse(navFile, "UTF-8", "", Parser.xmlParser())
-        for (nav in navDoc.select("nav")) {
+        val allNavs = navDoc.select("nav")
+        // An EPUB 3 nav document also contains landmarks / page-list <nav>s whose
+        // labels ("Cover", "Begin Reading", page numbers) would otherwise clobber
+        // the real chapter labels. Restrict to the toc nav; fall back to every
+        // nav only when none is tagged (loosely-authored files).
+        val tocNavs = allNavs.filter { it.attr("epub:type").split(Regex("\\s+")).contains("toc") }
+        val navs = if (tocNavs.isNotEmpty()) tocNavs else allNavs
+        for (nav in navs) {
             val ol = nav.selectFirst("ol") ?: continue
             parseNavElementRecursive(ol, pathToLabel, navFolder)
         }
@@ -407,6 +437,29 @@ object EpubParser {
      */
     private fun Element.getTextByTag(tagName: String): String {
         return this.getElementsByTag(tagName).firstOrNull()?.text() ?: ""
+    }
+
+    /**
+     * Pick the book's main title. EPUB 3 may carry several <dc:title> elements
+     * (main, subtitle, collection) disambiguated by a refining
+     * <meta property="title-type" refines="#id">main</meta>. When present we
+     * honor it; otherwise we use the first title (EPUB 2 behavior).
+     */
+    private fun selectMainTitle(metadataEl: Element): String {
+        val titles = metadataEl.getElementsByTag("dc:title")
+        if (titles.isEmpty()) return ""
+        if (titles.size == 1) return titles[0].text()
+
+        val mainIds = metadataEl.select("meta[property=title-type]")
+            .filter { it.text().trim() == "main" }
+            .map { it.attr("refines").removePrefix("#") }
+            .filter { it.isNotEmpty() }
+            .toSet()
+
+        if (mainIds.isNotEmpty()) {
+            titles.firstOrNull { it.attr("id") in mainIds }?.let { return it.text() }
+        }
+        return titles[0].text()
     }
 
     /**

@@ -21,6 +21,43 @@ const decodePath = (path: string) => {
   }
 };
 
+// Resource-referencing attributes inside chapter XHTML. EPUB 3 cover wrappers
+// use `xlink:href` on <image> inside <svg>, and <video poster=...>; EPUB 2/3
+// content uses plain href/src. The leading lookbehind requires whitespace or a
+// quote before the attribute name so we don't match inside `data-href`,
+// `data-src`, etc. Case-insensitive, may span lines (s flag).
+const RESOURCE_ATTR_REGEX =
+  /(?<=[\s"'])(href|src|xlink:href|poster)\s*=\s*(["'])(.*?)\2/gis;
+
+// URLs we must NOT rewrite to a local file: any scheme (http:, https:, data:,
+// mailto:, tel:, file:), protocol-relative (//host), or pure fragment (#id).
+const EXTERNAL_URL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i;
+
+/**
+ * Rewrite relative resource references in chapter XHTML to point at the flat
+ * per-novel directory where images/CSS are copied. Leaves external links and
+ * in-document fragments untouched.
+ *
+ * Exported for unit testing — this is the highest-frequency regression point.
+ */
+export const rewriteChapterResourceUrls = (
+  html: string,
+  novelDir: string,
+): string =>
+  html.replace(RESOURCE_ATTR_REGEX, (match, attr, quote, value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed || EXTERNAL_URL_REGEX.test(trimmed)) {
+      return match;
+    }
+    // Drop any query/fragment, then keep only the basename (resources are
+    // flattened into novelDir).
+    const basename = trimmed.split(/[?#]/)[0].split(/[/\\]/).pop();
+    if (!basename) {
+      return match;
+    }
+    return `${attr}=${quote}file://${novelDir}/${basename}${quote}`;
+  });
+
 const insertLocalNovel = async (
   name: string,
   path: string,
@@ -194,12 +231,7 @@ export const importEpub = async (
       let chapterText = NativeFile.readFile(decodePath(result.sourcePath));
       if (!chapterText) continue;
 
-      chapterText = chapterText.replace(
-        /[=](?<= href=| src=)(["'])([^]*?)\1/g,
-        (_, __, $2: string) => {
-          return `="file://${novelDir}/${$2.split(/[/\\]/).pop()}"`;
-        },
-      );
+      chapterText = rewriteChapterResourceUrls(chapterText, novelDir);
 
       NativeFile.mkdir(novelDir + '/' + result.insertId);
       NativeFile.writeFile(
