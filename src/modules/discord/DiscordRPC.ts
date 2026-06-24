@@ -362,9 +362,10 @@ export class DiscordRPCManager {
       return;
     }
 
-    const button2 = sourceUrl
-      ? { name: getString('discord.btnSource'), url: sourceUrl }
-      : undefined;
+    const button2 =
+      sourceUrl && !Util.isLocalhostURL(sourceUrl)
+        ? { name: getString('discord.btnSource'), url: sourceUrl }
+        : undefined;
     const activity = this.createBaseActivity(button2)
       .setAssetsLargeImage(this.LOGO_APP_ID)
       .setAssetsLargeText(APP_NAME)
@@ -395,9 +396,10 @@ export class DiscordRPCManager {
       return;
     }
 
-    const button2 = novelUrl
-      ? { name: getString('discord.btnViewNovel'), url: novelUrl }
-      : undefined;
+    const button2 =
+      novelUrl && !Util.isLocalhostURL(novelUrl)
+        ? { name: getString('discord.btnViewNovel'), url: novelUrl }
+        : undefined;
     const activity = this.createBaseActivity(button2)
       .setAssetsSmallImage(this.LOGO_APP_ID)
       .setAssetsSmallText(APP_NAME)
@@ -430,9 +432,10 @@ export class DiscordRPCManager {
       return;
     }
 
-    const button2 = chapterUrl
-      ? { name: getString('discord.btnReadChapter'), url: chapterUrl }
-      : undefined;
+    const button2 =
+      chapterUrl && !Util.isLocalhostURL(chapterUrl)
+        ? { name: getString('discord.btnReadChapter'), url: chapterUrl }
+        : undefined;
     const activity = this.createBaseActivity(button2)
       .setAssetsSmallImage(this.LOGO_APP_ID)
       .setAssetsSmallText(APP_NAME)

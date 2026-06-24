@@ -241,4 +241,26 @@ export class Util {
       return res.json() as Promise<TokenResponse>;
     }
   }
+
+  static isLocalhostURL(url: string | URL): boolean {
+    try {
+      const parsed = url instanceof URL ? url : new URL(url);
+      const hostname = parsed.hostname.toLowerCase();
+      // localhost
+      if (hostname === 'localhost') {
+        return true;
+      }
+      // IPv6 loopback
+      if (hostname === '::1') {
+        return true;
+      }
+      // IPv4 loopback (127.0.0.0/8)
+      if (/^127(?:\.\d{1,3}){3}$/.test(hostname)) {
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
 }
