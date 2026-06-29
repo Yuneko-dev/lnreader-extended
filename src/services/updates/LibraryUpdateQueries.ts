@@ -257,17 +257,23 @@ const updateNovelChapters = async (
       );
 
       const nowMs = Date.now();
-      let itemCount = insertedNewChapters.length;
+      const total = insertedNewChapters.length;
 
-      await dbManager.write(async tx => {
-        for (const chap of insertedNewChapters) {
-          await tx
-            .update(chapterSchema)
-            .set({ updatedTime: new Date(nowMs + itemCount--).toISOString() })
-            .where(eq(chapterSchema.id, chap.id))
-            .run();
-        }
-      });
+      // Single native batched UPDATE instead of N sequential awaited writes.
+      // Frees the JS thread during library updates for novels with many new
+      // chapters. updatedTime descends with sort order: chap[i] = nowMs+(total-i).
+      const orderingRows = insertedNewChapters.map((chap, i) => ({
+        id: chap.id,
+        updatedTime: new Date(nowMs + (total - i)).toISOString(),
+      }));
+
+      await dbManager.batch(orderingRows, (tx, ph) =>
+        tx
+          .update(chapterSchema)
+          .set({ updatedTime: ph('updatedTime') })
+          .where(eq(chapterSchema.id, ph('id')))
+          .prepare(),
+      );
 
       // Force UI refresh
       MMKVStorage.set(
