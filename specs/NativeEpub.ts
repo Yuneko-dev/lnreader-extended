@@ -10,6 +10,7 @@ interface EpubNovel {
   summary: string | null;
   author: string | null;
   artist: string | null;
+  genres: string | null;
   chapters: EpubChapter[];
   cssPaths: string[];
   imagePaths: string[];

@@ -65,6 +65,7 @@ const insertLocalNovel = async (
   author?: string,
   artist?: string,
   summary?: string,
+  genres?: string,
 ) => {
   const { insertId } = await dbManager.write(async tx => {
     return tx
@@ -98,6 +99,7 @@ const insertLocalNovel = async (
       author: author,
       artist: artist,
       summary: summary,
+      genres: genres,
       path: NOVEL_STORAGE + '/local/' + insertId,
       cover: newCoverPath,
       name: name,
@@ -195,6 +197,7 @@ export const importEpub = async (
     novel.author || '',
     novel.artist || '',
     novel.summary || '',
+    novel.genres || '',
   );
   const now = dayjs().toISOString();
   if (novel.chapters) {

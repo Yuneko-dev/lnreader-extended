@@ -51,6 +51,23 @@ export function createMetadata(epubSettings: EpubSettings) {
     );
   }
 
+  // Contributors (EPUB 3 property-based meta)
+  // Artists
+  if (Array.isArray(epubSettings.artists) && epubSettings.artists.length > 0) {
+    for (const artist of epubSettings.artists) {
+      const trimmed = artist.trim();
+      if (trimmed) {
+        lines.push(
+          `<dc:contributor id="artist">${escapeXml(trimmed)}</dc:contributor>`,
+        );
+      }
+    }
+    lines.push(
+      `<meta property="role" refines="#artist" scheme="marc:relators">illustrator</meta>`,
+    );
+  }
+  // Translators, Editors, Narrators
+
   // Generator (EPUB 3 property-based meta)
   if (epubSettings.generator) {
     lines.push(

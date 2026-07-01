@@ -46,4 +46,9 @@ export interface EpubSettings {
   novelUrl?: string;
   /** Novel publication status, e.g. "Ongoing" */
   novelStatus?: string;
+  /** Contributor */
+  artists?: string[];
+  translators?: string[];
+  editors?: string[];
+  narrators?: string[];
 }

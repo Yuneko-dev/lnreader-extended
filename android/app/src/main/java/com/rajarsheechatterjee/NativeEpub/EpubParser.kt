@@ -20,6 +20,7 @@ data class EpubMetadata(
     var summary: String = "",
     var author: String = "",
     var artist: String = "",
+    var genres: String = "",
     val chapters: MutableList<EpubChapter> = mutableListOf(),
     val cssPaths: MutableList<String> = mutableListOf(),
     val imagePaths: MutableList<String> = mutableListOf(),
@@ -91,6 +92,12 @@ object EpubParser {
             metaOut.author = metadataEl.getTextByTag("dc:creator")
             metaOut.artist = metadataEl.getTextByTag("dc:contributor")
             metaOut.summary = metadataEl.getWholeTextByTag("dc:description")
+
+            // Parse dc:subject → genres (multiple elements, comma-joined)
+            val subjects = metadataEl.getElementsByTag("dc:subject")
+            if (subjects.isNotEmpty()) {
+                metaOut.genres = subjects.joinToString(",") { it.text().trim() }
+            }
         }
 
         // --- Find cover ID ---
@@ -480,6 +487,7 @@ object EpubParser {
         map.putString("author", metadata.author)
         map.putString("artist", metadata.artist)
         map.putString("summary", metadata.summary)
+        map.putString("genres", metadata.genres.ifEmpty { null })
         map.putString("cover", metadata.cover.ifEmpty { null })
 
         val chaptersArray: WritableArray = Arguments.createArray()

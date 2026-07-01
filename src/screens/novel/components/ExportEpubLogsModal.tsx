@@ -121,6 +121,7 @@ export default function ExportEpubLogsModal({
             ? resolveUrl(novel.pluginId, novel.path, true)
             : '',
           novelStatus: novel.status ?? undefined,
+          artists: novel.artist ? [novel.artist] : undefined,
         },
         destinationUri,
       );
