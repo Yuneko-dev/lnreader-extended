@@ -61,16 +61,16 @@ export function createMetadata(epubSettings: EpubSettings) {
   // Novel URL (custom metadata)
   if (epubSettings.novelUrl) {
     lines.push(
-      `<meta property="novel:url">${escapeXml(epubSettings.novelUrl)}</meta>`,
+      `<meta name="novel:url" content="${escapeXml(epubSettings.novelUrl)}"/>`,
     );
   }
 
   // Novel Status (custom metadata)
   if (epubSettings.novelStatus) {
     lines.push(
-      `<meta property="novel:status">${escapeXml(
+      `<meta name="novel:status" content="${escapeXml(
         epubSettings.novelStatus,
-      )}</meta>`,
+      )}"/>`,
     );
   }
 
