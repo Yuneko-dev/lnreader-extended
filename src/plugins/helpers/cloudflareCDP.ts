@@ -1,5 +1,7 @@
 import NativeCDPProxy from '@specs/NativeCDPProxy';
 
+import { hashMD5 } from './cloudflareStore';
+
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 class CDPClient {
@@ -104,36 +106,35 @@ async function findCDPTarget(
   try {
     hostname = new URL(url).hostname;
   } catch {}
-
   let attempts = 0;
   while (attempts < 20) {
     if (signal?.aborted) return null;
     try {
       const res = await fetch(`http://127.0.0.1:${port}/json/list`);
       const targets = await res.json();
-
+      console.log(
+        `[findCDPTarget] Attempt ${attempts + 1}: Found ${
+          targets.length
+        } targets`,
+        targets,
+      );
       const candidates = targets.filter(
         (t: any) => t.webSocketDebuggerUrl && t.type !== 'iframe',
       );
 
       const isRealUrl = (u: string) => u && u !== 'about:blank';
 
-      const target =
-        targets.find(
-          (t: any) =>
-            isRealUrl(t.url) && (t.url.includes(url) || url.includes(t.url)),
-        ) ||
-        // Turnstile (source={{ html, baseUrl }}): loadDataWithBaseURL keeps
-        // target.url as "about:blank", but faviconUrl is derived from baseUrl.
-        (hostname
-          ? candidates.find(
-              (t: any) =>
-                t.faviconUrl &&
-                t.faviconUrl.includes(hostname) &&
-                t.url === 'about:blank',
-            )
-          : undefined);
-
+      const target = targets.find(
+        (t: any) =>
+          (isRealUrl(t.url) && (t.url.includes(url) || url.includes(t.url))) ||
+          // Turnstile (source={{ html, baseUrl }}): loadDataWithBaseURL keeps
+          // target.url as "about:blank"; so we wait for the title to be set to the md5 of the url, which is done in buildTurnstileHtml()
+          (t.url === 'about:blank' && t.title === hashMD5(url)),
+      );
+      console.log(
+        `[findCDPTarget] Attempt ${attempts + 1}: Target found:`,
+        target,
+      );
       if (target) return target;
     } catch {}
     await sleep(500);

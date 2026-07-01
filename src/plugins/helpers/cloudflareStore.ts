@@ -1,8 +1,14 @@
 import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
-import { randomUUID } from 'react-native-quick-crypto';
+import { createHash,randomUUID } from 'react-native-quick-crypto';
 import { create } from 'zustand';
+
+export function hashMD5(input: string): string {
+  const hash = createHash('md5');
+  hash.update(input);
+  return hash.digest('hex');
+}
 
 interface Task {
   id: string;
@@ -14,9 +20,13 @@ interface Task {
   timeoutId: NodeJS.Timeout;
 }
 
-const buildTurnstileHtml = (sitekey: string): string => `<!DOCTYPE html>
+const buildTurnstileHtml = (
+  url: string,
+  sitekey: string,
+): string => `<!DOCTYPE html>
 <html>
 <head>
+  <title>${hashMD5(url)}</title>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=myCallback" async defer></script>
 </head>
 <body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #fff;">
@@ -74,7 +84,7 @@ export const useCloudflareStore = create<CloudflareState>((set, get) => ({
         url,
         type: 'solve-turnstile',
         sitekey,
-        html: buildTurnstileHtml(sitekey),
+        html: buildTurnstileHtml(url, sitekey),
         resolve: resolve as (value: boolean | string) => void,
         timeoutId,
       };
