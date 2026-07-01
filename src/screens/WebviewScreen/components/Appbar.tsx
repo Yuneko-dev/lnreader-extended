@@ -7,6 +7,7 @@ import WebView from 'react-native-webview';
 
 interface AppbarProps {
   title: string;
+  currentUrl: string;
   theme: ThemeColors;
   canGoBack: boolean;
   canGoForward: boolean;
@@ -17,6 +18,7 @@ interface AppbarProps {
 
 const Appbar: React.FC<AppbarProps> = ({
   title,
+  currentUrl,
   theme,
   canGoBack,
   canGoForward,
@@ -33,18 +35,26 @@ const Appbar: React.FC<AppbarProps> = ({
         { paddingTop: top, backgroundColor: theme.surface },
       ]}
     >
-      <IconButtonV2
-        name="close"
-        color={theme.onSurface}
-        onPress={goBack}
-        theme={theme}
-      />
+      <View style={styles.iconContainer}>
+        <IconButtonV2
+          name="close"
+          color={theme.onSurface}
+          onPress={goBack}
+          theme={theme}
+        />
+      </View>
       <View style={styles.titleContainer}>
         <Text
           numberOfLines={1}
           style={[styles.title, { color: theme.onSurface }]}
         >
           {title}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[styles.url, { color: theme.onSurfaceVariant }]}
+        >
+          {currentUrl}
         </Text>
       </View>
       <View style={styles.iconContainer}>
@@ -81,10 +91,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
+    marginTop: 4,
+    paddingBottom: 4,
   },
   iconContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    marginTop: 8,
   },
   title: {
     fontSize: 18,
@@ -94,8 +107,10 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     justifyContent: 'center',
+    marginTop: 4,
   },
   url: {
-    fontSize: 16,
+    fontSize: 12,
+    paddingLeft: 2,
   },
 });

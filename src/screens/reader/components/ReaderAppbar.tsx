@@ -105,13 +105,15 @@ const ReaderAppbar = ({
       ]}
     >
       <View style={styles.appbar}>
-        <IconButtonV2
-          name="arrow-left"
-          onPress={goBack}
-          color={theme.onSurface}
-          size={26}
-          theme={theme}
-        />
+        <View style={styles.iconContainer}>
+          <IconButtonV2
+            name="arrow-left"
+            onPress={goBack}
+            color={theme.onSurface}
+            size={26}
+            theme={theme}
+          />
+        </View>
         <View style={styles.content}>
           <Text
             style={[styles.title, { color: theme.onSurface }]}
@@ -126,50 +128,54 @@ const ReaderAppbar = ({
             {chapter.name}
           </Text>
         </View>
-        <View style={styles.translateButtonContainer}>
-          <IconButtonV2
-            name={getTranslateIconName()}
-            size={22}
-            onPress={() => {
-              if (!isOfflineTranslated) translateChapter();
-            }}
-            color={getTranslateIconColor()}
-            theme={theme}
-            disabled={isOfflineTranslated}
-          />
-          <View
-            style={[
-              styles.progressBarContainer,
-              isTranslating ? styles.opacity1 : styles.opacity0,
-            ]}
-          >
-            <View
-              style={[
-                styles.progressBarBackground,
-                { backgroundColor: color(theme.primary).alpha(0.2).string() },
-              ]}
+        <View style={styles.iconContainer}>
+          <View style={styles.translateButtonContainer}>
+            <IconButtonV2
+              name={getTranslateIconName()}
+              size={22}
+              onPress={() => {
+                if (!isOfflineTranslated) translateChapter();
+              }}
+              color={getTranslateIconColor()}
+              theme={theme}
+              disabled={isOfflineTranslated}
             />
             <View
               style={[
-                styles.progressBarFill,
-                {
-                  backgroundColor: theme.primary,
-                  width: `${Math.max(translateProgress, 2)}%`,
-                },
+                styles.progressBarContainer,
+                isTranslating ? styles.opacity1 : styles.opacity0,
               ]}
-            />
+            >
+              <View
+                style={[
+                  styles.progressBarBackground,
+                  { backgroundColor: color(theme.primary).alpha(0.2).string() },
+                ]}
+              />
+              <View
+                style={[
+                  styles.progressBarFill,
+                  {
+                    backgroundColor: theme.primary,
+                    width: `${Math.max(translateProgress, 2)}%`,
+                  },
+                ]}
+              />
+            </View>
           </View>
+          <IconButtonV2
+            name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+            size={24}
+            onPress={() => {
+              bookmarkChapter(chapter.id).then(() =>
+                setBookmarked(!bookmarked),
+              );
+            }}
+            color={theme.onSurface}
+            theme={theme}
+            style={styles.bookmark}
+          />
         </View>
-        <IconButtonV2
-          name={bookmarked ? 'bookmark' : 'bookmark-outline'}
-          size={24}
-          onPress={() => {
-            bookmarkChapter(chapter.id).then(() => setBookmarked(!bookmarked));
-          }}
-          color={theme.onSurface}
-          theme={theme}
-          style={styles.bookmark}
-        />
       </View>
     </Animated.View>
   );
@@ -182,6 +188,12 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 4,
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
   },
   bookmark: {
     marginEnd: 4,
