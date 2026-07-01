@@ -8,6 +8,7 @@ import {
   AIProvider,
 } from '@hooks/persisted/useAIProviders';
 import {
+  getChapterDownloadCooldownMs,
   initialTranslateSettings,
   TRANSLATE_SETTINGS,
   TranslateSettings,
@@ -150,7 +151,7 @@ export const downloadChapter = async (
         .run();
     });
 
-    await sleep(1000);
+    await sleep(getChapterDownloadCooldownMs());
   } else {
     throw new Error(getString('downloadScreen.chapterEmptyOrScrapeError'));
   }

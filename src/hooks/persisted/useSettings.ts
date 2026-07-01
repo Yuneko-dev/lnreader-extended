@@ -4,10 +4,29 @@ import {
   LibraryFilter,
   LibrarySortOrder,
 } from '@screens/library/constants/constants';
+import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { Voice } from 'expo-speech';
 import { useCallback, useMemo } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
 
+/**
+ * Cooldown applied between sequential chapter downloads when no override
+ * is configured. Matches the historical hard-coded sleep so installs
+ * upgrading from earlier builds keep the same behaviour.
+ */
+export const DEFAULT_CHAPTER_DOWNLOAD_COOLDOWN_MS = 1000;
+
+/**
+ * Resolve the cooldown without subscribing to changes. Safe to call from
+ * background services and the headless task runner.
+ */
+export const getChapterDownloadCooldownMs = (): number => {
+  const settings = getMMKVObject<AppSettings>(APP_SETTINGS);
+  const ms = settings?.chapterDownloadCooldownMs;
+  return typeof ms === 'number' && Number.isFinite(ms) && ms >= 0
+    ? ms
+    : DEFAULT_CHAPTER_DOWNLOAD_COOLDOWN_MS;
+};
 export const APP_SETTINGS = 'APP_SETTINGS';
 export const BROWSE_SETTINGS = 'BROWSE_SETTINGS';
 export const LIBRARY_SETTINGS = 'LIBRARY_SETTINGS';
@@ -59,6 +78,13 @@ export interface AppSettings {
   updateLibraryOnLaunch: boolean;
   downloadNewChapters: boolean;
   refreshNovelMetadata: boolean;
+
+  /**
+   * Download settings
+   */
+
+  /** Cooldown between sequential chapter downloads in milliseconds. */
+  chapterDownloadCooldownMs?: number;
 
   /**
    * Novel settings
