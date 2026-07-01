@@ -102,10 +102,6 @@ async function findCDPTarget(
   url: string,
   signal?: AbortSignal,
 ): Promise<any | null> {
-  let hostname = '';
-  try {
-    hostname = new URL(url).hostname;
-  } catch {}
   let attempts = 0;
   while (attempts < 20) {
     if (signal?.aborted) return null;
@@ -118,10 +114,6 @@ async function findCDPTarget(
         } targets`,
         targets,
       );
-      const candidates = targets.filter(
-        (t: any) => t.webSocketDebuggerUrl && t.type !== 'iframe',
-      );
-
       const isRealUrl = (u: string) => u && u !== 'about:blank';
 
       const target = targets.find(

@@ -1,7 +1,7 @@
 import { APP_SETTINGS } from '@hooks/persisted/useSettings';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
-import { createHash,randomUUID } from 'react-native-quick-crypto';
+import { createHash, randomUUID } from 'react-native-quick-crypto';
 import { create } from 'zustand';
 
 export function hashMD5(input: string): string {
