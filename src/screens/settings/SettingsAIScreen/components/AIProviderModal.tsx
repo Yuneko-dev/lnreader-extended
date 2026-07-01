@@ -196,7 +196,7 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
           { backgroundColor: theme.surface },
         ]}
       >
-        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView showsVerticalScrollIndicator={false} key={visible ? 'visible' : 'hidden'}>
           <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
             {initialProvider
               ? getString('aiSettingsScreen.editProvider')
