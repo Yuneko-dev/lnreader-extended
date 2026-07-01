@@ -1,11 +1,10 @@
-import { SCREEN_HEIGHT } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useTheme } from '@hooks/persisted';
 import { ChapterScreenProps } from '@navigators/types';
 import { useNovelLayout } from '@screens/novel/NovelContext';
 import color from 'color';
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Animated, {
   Easing,
@@ -45,11 +44,14 @@ const ChapterFooter = ({
     radius: 50,
   };
   const { navigationBarHeight } = useNovelLayout();
+  // Use reactive viewport height so footer animation targets stay correct
+  // when the host window is resized (e.g. WSA, foldables, split-screen).
+  const { height: screenHeight } = useWindowDimensions();
 
   const entering = () => {
     'worklet';
     const animations = {
-      originY: withTiming(SCREEN_HEIGHT - navigationBarHeight - 64, {
+      originY: withTiming(screenHeight - navigationBarHeight - 64, {
         duration: 250,
         easing: fastOutSlowIn,
         reduceMotion: ReduceMotion.System,
@@ -57,7 +59,7 @@ const ChapterFooter = ({
       opacity: withTiming(1, { duration: 150 }),
     };
     const initialValues = {
-      originY: SCREEN_HEIGHT - 64,
+      originY: screenHeight - 64,
       opacity: 0,
     };
     return {
@@ -68,7 +70,7 @@ const ChapterFooter = ({
   const exiting = () => {
     'worklet';
     const animations = {
-      originY: withTiming(SCREEN_HEIGHT - 64, {
+      originY: withTiming(screenHeight - 64, {
         duration: 250,
         easing: fastOutSlowIn,
         reduceMotion: ReduceMotion.System,
@@ -76,7 +78,7 @@ const ChapterFooter = ({
       opacity: withTiming(0, { duration: 150 }),
     };
     const initialValues = {
-      originY: SCREEN_HEIGHT - navigationBarHeight - 64,
+      originY: screenHeight - navigationBarHeight - 64,
       opacity: 1,
     };
     return {

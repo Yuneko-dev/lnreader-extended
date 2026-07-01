@@ -51,7 +51,10 @@ const PromptEditModal: React.FC<PromptEditModalProps> = ({
           { backgroundColor: theme.surface },
         ]}
       >
-        <KeyboardAwareScrollView showsVerticalScrollIndicator={false} key={visible ? 'visible' : 'hidden'}>
+        <KeyboardAwareScrollView
+          showsVerticalScrollIndicator={false}
+          key={visible ? 'visible' : 'hidden'}
+        >
           <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
             {initialPrompt
               ? getString('aiSettingsScreen.editPrompt')

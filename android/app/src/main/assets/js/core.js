@@ -35,13 +35,16 @@ class Reader {
     // layout props
     this.paddingTop = parseInt(
       getComputedStyle(document.querySelector('body')).getPropertyValue(
-        'padding-top'
+        'padding-top',
       ),
-      10
+      10,
     );
     this.chapterHeight = this.chapterElement.scrollHeight + this.paddingTop;
-    this.layoutHeight = window.screen.height;
-    this.layoutWidth = window.screen.width;
+    // Use viewport (CSS pixels) instead of monitor screen so coordinate math
+    // matches `clientX/Y` and works on environments like WSA where the WebView
+    // window can be smaller than the host monitor.
+    this.layoutHeight = window.innerHeight;
+    this.layoutWidth = window.innerWidth;
 
     this.layoutEvent = undefined;
     this.chapterEndingVisible = van.state(false);
@@ -58,7 +61,7 @@ class Reader {
         const maxScrollY = scrollHeight - window.innerHeight;
         const progressToSave = parseInt(
           maxScrollY > 0 ? (window.scrollY / maxScrollY) * 100 : 100,
-          10
+          10,
         );
         const finalProgress = progressToSave > 100 ? 100 : progressToSave;
         this.post({
@@ -67,6 +70,24 @@ class Reader {
         });
       }
     };
+
+    // Track viewport size changes (e.g. WSA window resize, foldable, split-screen)
+    // so click-region math, page counts and scroll amounts stay in sync with the
+    // current WebView size rather than the value captured at first load.
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        this.layoutHeight = window.innerHeight;
+        this.layoutWidth = window.innerWidth;
+        if (
+          this.generalSettings.val.pageReader &&
+          typeof calculatePages === 'function'
+        ) {
+          calculatePages();
+        }
+      }, 150);
+    });
   }
 
   post = (obj) => {

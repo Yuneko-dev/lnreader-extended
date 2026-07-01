@@ -216,6 +216,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
   <script src="${assetsUriPrefix}/js/tts.js"></script>
   <script src="${assetsUriPrefix}/js/page-reader.js"></script>
   <script src="${assetsUriPrefix}/js/gestures.js"></script>
+  <script src="${assetsUriPrefix}/js/keyboard-handler.js"></script>
   <script src="${assetsUriPrefix}/js/index.js"></script>
   ${proxyFetchScript}
   ${corePlayerScripts}
