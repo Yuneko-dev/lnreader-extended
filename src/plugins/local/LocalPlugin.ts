@@ -46,7 +46,7 @@ class LocalPlugin implements Plugin {
   };
 
   get disableEpubCss(): boolean {
-    return Boolean(storage.get('disableEpubCss', false));
+    return Boolean(storage.get('disableEpubCss'));
   }
 
   async popularNovels(): Promise<NovelItem[]> {

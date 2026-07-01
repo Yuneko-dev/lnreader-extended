@@ -52,7 +52,8 @@ const SourceSettingsModal: React.FC<SourceSettingsModal> = ({
             return {
               key,
               value:
-                storedValue !== null ? storedValue : pluginSettings[key].value,
+                // undefined & null
+                storedValue != null ? storedValue : pluginSettings[key].value,
             };
           }),
         );

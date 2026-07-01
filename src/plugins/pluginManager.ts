@@ -134,6 +134,23 @@ const initPlugin = (pluginId: string, rawCode: string) => {
 
 const plugins: Record<string, Plugin | undefined> = {};
 
+/**
+ * Initializes default values for plugin settings.
+ * Only writes defaults for keys that don't already exist in storage,
+ * preserving user-customized values during updates.
+ */
+const initPluginSettings = (plugin: Plugin) => {
+  if (!plugin.pluginSettings) {
+    return;
+  }
+  const storage = new Storage(plugin.id);
+  Object.entries(plugin.pluginSettings).forEach(([key, setting]) => {
+    if (storage.get(key) === undefined) {
+      storage.set(key, setting.value);
+    }
+  });
+};
+
 const installPlugin = async (
   _plugin: PluginItem,
 ): Promise<Plugin | undefined> => {
@@ -181,6 +198,7 @@ const installPlugin = async (
       console.log(`[${plugin.id}]: Deleted CSS`);
     }
     NativeFile.writeFile(pluginPath, rawCode);
+    initPluginSettings(plugin);
   }
   return currentPlugin;
 };
@@ -188,7 +206,7 @@ const installPlugin = async (
 const uninstallPlugin = async (_plugin: PluginItem) => {
   plugins[_plugin.id] = undefined;
   store.getAllKeys().forEach(key => {
-    if (key.startsWith(_plugin.id)) {
+    if (key.startsWith(_plugin.id + '_')) {
       store.remove(key);
     }
   });
