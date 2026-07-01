@@ -280,7 +280,15 @@ class NativeFile(context: ReactApplicationContext) :
         if (!file.exists() || file.length() < 4) return "application/octet-stream"
 
         val bytes = ByteArray(12)
-        val bytesRead = file.inputStream().use { it.readNBytes(bytes, 0, bytes.size) }
+        val bytesRead = file.inputStream().use { stream ->
+            var totalRead = 0
+            while (totalRead < bytes.size) {
+                val n = stream.read(bytes, totalRead, bytes.size - totalRead)
+                if (n <= 0) break
+                totalRead += n
+            }
+            totalRead
+        }
         if (bytesRead < 4) return "application/octet-stream"
 
         return when {
