@@ -2,7 +2,12 @@ import Config from '@env';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 
-import { Tracker, UserListStatus } from './index';
+import {
+  AuthenticationResult,
+  Tracker,
+  UserListEntry,
+  UserListStatus,
+} from './index';
 
 const clientId = Config.MYANIMELIST_CLIENT_ID;
 const baseOAuthUrl = 'https://myanimelist.net/v1/oauth2/authorize';
@@ -119,53 +124,72 @@ export const myAnimeListTracker: Tracker = {
     });
 
     const data = await response.json();
+
+    if (!data.my_list_status) {
+      const newListEntry = await updateMyAnimeListEntry(
+        id,
+        { status: 'CURRENT', progress: 0, score: 0 },
+        auth,
+      );
+      return {
+        ...newListEntry,
+        totalChapters: data.num_chapters,
+      };
+    }
+
     return {
-      status: malToNormalized[data.my_list_status?.status] || 'CURRENT',
-      score: data.my_list_status?.score || 0,
-      progress: data.my_list_status?.num_chapters_read || 0,
+      status: malToNormalized[data.my_list_status.status] || 'CURRENT',
+      score: data.my_list_status.score || 0,
+      progress: data.my_list_status.num_chapters_read || 0,
       totalChapters: data.num_chapters,
     };
   },
-  updateUserListEntry: async (id, payload, auth) => {
-    let status = payload.status
-      ? normalizedToMal[payload.status]
-      : normalizedToMal.CURRENT;
-    let repeating = 'false';
-    if (status.includes(';')) {
-      const split = status.split(';');
-      status = split[0];
-      repeating = split[1];
-    }
-
-    const url = `${baseApiUrl}/manga/${id}/my_list_status`;
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${auth.accessToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        status,
-        is_rereading: repeating,
-        num_chapters_read: '' + payload.progress!,
-        score: '' + payload.score!,
-      }).toString(),
-    });
-
-    const data = await res.json();
-
-    let normalizedStatus = malToNormalized[data.status];
-    if (!normalizedStatus && data.is_rereading) {
-      normalizedStatus = 'REPEATING';
-    }
-
-    return {
-      status: normalizedStatus,
-      progress: data.num_chapters_read,
-      score: data.score,
-    };
-  },
+  updateUserListEntry: updateMyAnimeListEntry,
 };
+
+async function updateMyAnimeListEntry(
+  id: number | string,
+  payload: Partial<UserListEntry>,
+  auth: AuthenticationResult,
+) {
+  let status = payload.status
+    ? normalizedToMal[payload.status]
+    : normalizedToMal.CURRENT;
+  let repeating = 'false';
+  if (status.includes(';')) {
+    const split = status.split(';');
+    status = split[0];
+    repeating = split[1];
+  }
+
+  const url = `${baseApiUrl}/manga/${id}/my_list_status`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${auth.accessToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      status,
+      is_rereading: repeating,
+      num_chapters_read: String(payload.progress ?? 0),
+      score: String(payload.score ?? 0),
+    }).toString(),
+  });
+
+  const data = await res.json();
+
+  let normalizedStatus = malToNormalized[data.status];
+  if (!normalizedStatus && data.is_rereading) {
+    normalizedStatus = 'REPEATING';
+  }
+
+  return {
+    status: normalizedStatus || payload.status || 'CURRENT',
+    progress: data.num_chapters_read ?? payload.progress ?? 0,
+    score: data.score ?? payload.score ?? 0,
+  };
+}
 
 function pkceChallenger() {
   const MAX_LENGTH = 88;
