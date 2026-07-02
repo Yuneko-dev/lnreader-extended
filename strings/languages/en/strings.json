@@ -653,7 +653,9 @@
     "nextChapter": "Next: %{name}",
     "noNextChapter": "There's no next chapter",
     "noPreviousChapter": "There's no previous chapter",
-    "usingOfflineTranslation": "Using offline translated version"
+    "usingOfflineTranslation": "Using offline translated version",
+    "retranslating": "Re-translating chapter...",
+    "retranslateQueued": "Waiting for pre-fetch to finish before re-translating..."
   },
   "readerSettings": {
     "autoScrollInterval": "Scroll interval (seconds)",

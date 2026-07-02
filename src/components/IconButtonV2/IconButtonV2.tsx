@@ -13,6 +13,7 @@ type Props = {
   disabled?: boolean;
   padding?: number;
   onPress?: () => void;
+  onLongPress?: () => void;
   theme: ThemeColors;
   style?: ViewStyle;
 };
@@ -23,6 +24,7 @@ const IconButton: React.FC<Props> = ({
   size = 24,
   padding = 8,
   onPress,
+  onLongPress,
   disabled,
   theme,
   style,
@@ -31,6 +33,7 @@ const IconButton: React.FC<Props> = ({
     <Pressable
       style={[styles.pressable, { padding }]}
       onPress={onPress}
+      onLongPress={onLongPress}
       disabled={disabled}
       android_ripple={
         onPress

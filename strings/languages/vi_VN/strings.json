@@ -652,7 +652,9 @@
     "nextChapter": "Tiếp: %{name}",
     "noNextChapter": "Không có chương kế tiếp",
     "noPreviousChapter": "Không có chương trước",
-    "usingOfflineTranslation": "Đang sử dụng bản dịch ngoại tuyến"
+    "usingOfflineTranslation": "Đang sử dụng bản dịch ngoại tuyến",
+    "retranslating": "Đang dịch lại chương...",
+    "retranslateQueued": "Đang chờ dịch trước hoàn tất để dịch lại..."
   },
   "readerSettings": {
     "autoScrollInterval": "Khoảng thời gian cuộn (giây)",

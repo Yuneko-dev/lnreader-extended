@@ -20,6 +20,8 @@ import {
   AIProvider,
 } from '@hooks/persisted/useAIProviders';
 import {
+  APP_SETTINGS,
+  AppSettings,
   initialTranslateSettings,
   TRANSLATE_SETTINGS,
   TranslateSettings,
@@ -40,6 +42,7 @@ import { parseChapterNumber } from '@utils/parseChapterNumber';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { load } from 'cheerio';
+import * as Haptics from 'expo-haptics';
 import * as Speech from 'expo-speech';
 import { defaultTo } from 'lodash-es';
 import {
@@ -103,6 +106,8 @@ export default function useChapter(
   const backgroundTranslateAbort = useRef<AbortController | null>(null);
   // Tracks which chapter ID is being background-translated
   const backgroundTranslatingChapterId = useRef<number | null>(null);
+  // Stores the background translation promise so retranslateChapter can await it
+  const backgroundTranslatePromise = useRef<Promise<void> | null>(null);
   // A callback ref to update state when background translation finishes for the current chapter
   const onBackgroundCompleteRef = useRef<
     ((chapterId: number, html: string) => void) | null
@@ -181,6 +186,7 @@ export default function useChapter(
     return () => {
       currentTranslateAbort.current?.abort();
       backgroundTranslateAbort.current?.abort();
+      backgroundTranslatePromise.current = null;
       cache.clear();
     };
   }, []);
@@ -239,30 +245,36 @@ export default function useChapter(
         activeAIProvider,
       };
 
-      TranslateManager.translateChapterHTML(
-        sanitizedText,
-        config,
-        undefined, // no progress callback for background
-        abortCtrl.signal,
-      )
-        .then(translatedHtml => {
-          if (abortCtrl.signal.aborted) return;
+      backgroundTranslatePromise.current =
+        TranslateManager.translateChapterHTML(
+          sanitizedText,
+          config,
+          undefined, // no progress callback for background
+          abortCtrl.signal,
+        )
+          .then(translatedHtml => {
+            if (abortCtrl.signal.aborted) return;
 
-          // Store in cache (limit to 1 entry)
-          translatedChapterCache.current.clear();
-          translatedChapterCache.current.set(targetChapter.id, translatedHtml);
-          backgroundTranslatingChapterId.current = null;
+            // Store in cache (limit to 1 entry)
+            translatedChapterCache.current.clear();
+            translatedChapterCache.current.set(
+              targetChapter.id,
+              translatedHtml,
+            );
+            backgroundTranslatingChapterId.current = null;
+            backgroundTranslatePromise.current = null;
 
-          // If the user is currently viewing this chapter, apply translation
-          if (onBackgroundCompleteRef.current) {
-            onBackgroundCompleteRef.current(targetChapter.id, translatedHtml);
-          }
-        })
-        .catch(e => {
-          if (e?.name === 'AbortError') return; // silently ignore cancellation
-          backgroundTranslatingChapterId.current = null;
-          // On error, do NOT continue translating
-        });
+            // If the user is currently viewing this chapter, apply translation
+            if (onBackgroundCompleteRef.current) {
+              onBackgroundCompleteRef.current(targetChapter.id, translatedHtml);
+            }
+          })
+          .catch(e => {
+            if (e?.name === 'AbortError') return; // silently ignore cancellation
+            backgroundTranslatingChapterId.current = null;
+            backgroundTranslatePromise.current = null;
+            // On error, do NOT continue translating
+          });
     },
     [novel.pluginId, novel.name],
   );
@@ -737,6 +749,7 @@ export default function useChapter(
       }
       onBackgroundCompleteRef.current = null;
       setIsTranslating(false);
+      setIsTranslated(false);
       setTranslateProgress(0);
       // Revert to original text if we had saved it
       if (originalChapterText.current) {
@@ -837,6 +850,82 @@ export default function useChapter(
     startBackgroundTranslate,
   ]);
 
+  const retranslateChapter = useCallback(async () => {
+    if (!isTranslated || isTranslating || isOfflineTranslated) return;
+    if (!originalChapterText.current) return;
+
+    // Haptic feedback
+    const appSettings = getMMKVObject<AppSettings>(APP_SETTINGS);
+    if (!appSettings?.disableHapticFeedback) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
+    setIsTranslating(true);
+    setIsTranslated(false);
+    setTranslateProgress(0);
+
+    if (
+      backgroundTranslatingChapterId.current !== null &&
+      backgroundTranslatePromise.current
+    ) {
+      showToast(getString('readerScreen.retranslateQueued'));
+      try {
+        await backgroundTranslatePromise.current;
+      } catch {
+        // nothing
+      }
+    }
+
+    showToast(getString('readerScreen.retranslating'));
+
+    const abortCtrl = new AbortController();
+    currentTranslateAbort.current = abortCtrl;
+    const sourceText = originalChapterText.current;
+    const translatingChapterId = chapterIdRef.current;
+
+    try {
+      const settings =
+        getMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS) ||
+        initialTranslateSettings;
+      const providers = getMMKVObject<AIProvider[]>(AI_PROVIDERS_KEY) || [];
+      const activeProviderId = getMMKVObject<string>(ACTIVE_AI_PROVIDER_KEY);
+      const activeAIProvider = providers.find(p => p.id === activeProviderId);
+      const config: TranslateConfig = {
+        ...(settings as any),
+        activeAIProvider,
+      };
+
+      const translatedHtml = await TranslateManager.translateChapterHTML(
+        sourceText,
+        config,
+        progress => setTranslateProgress(progress),
+        abortCtrl.signal,
+      );
+
+      if (
+        chapterIdRef.current === translatingChapterId &&
+        !abortCtrl.signal.aborted
+      ) {
+        setChapterText(translatedHtml);
+        setIsTranslated(true);
+      }
+    } catch (e: any) {
+      if (e?.name === 'AbortError') return;
+      if (chapterIdRef.current === translatingChapterId) {
+        showToast(e.message);
+        setIsTranslated(true);
+      }
+    } finally {
+      if (
+        chapterIdRef.current === translatingChapterId &&
+        !abortCtrl.signal.aborted
+      ) {
+        setIsTranslating(false);
+        currentTranslateAbort.current = null;
+      }
+    }
+  }, [isTranslated, isTranslating, isOfflineTranslated]);
+
   return useMemo(
     () => ({
       hidden,
@@ -861,6 +950,7 @@ export default function useChapter(
       isOfflineTranslated,
       revertTranslation,
       resetAutoScroll,
+      retranslateChapter,
     }),
     [
       hidden,
@@ -885,6 +975,7 @@ export default function useChapter(
       isOfflineTranslated,
       revertTranslation,
       resetAutoScroll,
+      retranslateChapter,
     ],
   );
 }

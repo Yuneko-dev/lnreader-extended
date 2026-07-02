@@ -37,6 +37,7 @@ const ReaderAppbar = ({
     isTranslating,
     translateProgress,
     isOfflineTranslated,
+    retranslateChapter,
   } = useChapterContext();
   const { statusBarHeight } = useNovelLayout();
 
@@ -136,6 +137,7 @@ const ReaderAppbar = ({
               onPress={() => {
                 if (!isOfflineTranslated) translateChapter();
               }}
+              onLongPress={retranslateChapter}
               color={getTranslateIconColor()}
               theme={theme}
               disabled={isOfflineTranslated}
