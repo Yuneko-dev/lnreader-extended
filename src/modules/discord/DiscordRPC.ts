@@ -353,6 +353,7 @@ export class DiscordRPCManager {
     sourceUrl?: string,
     sourceIcon?: string,
   ): Promise<void> {
+    if (!this.isReady) return;
     const settings = this.getSettings();
     if (
       settings?.discordRPCEnabled === false ||
@@ -387,6 +388,7 @@ export class DiscordRPCManager {
     cover?: string | null,
     novelUrl?: string,
   ): Promise<void> {
+    if (!this.isReady) return;
     const settings = this.getSettings();
     if (
       settings?.discordRPCEnabled === false ||
@@ -423,6 +425,7 @@ export class DiscordRPCManager {
     chapterUrl?: string,
     chapterPage?: string | null,
   ): Promise<void> {
+    if (!this.isReady) return;
     const settings = this.getSettings();
     if (
       settings?.discordRPCEnabled === false ||
