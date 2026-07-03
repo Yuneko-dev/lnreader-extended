@@ -1,6 +1,7 @@
 import z from 'zod';
 
 import { LLMCoreClient, MissingAIProviderError } from '../ai/LLMCoreClient';
+import { isAbortError } from './abort';
 import { TranslateEngine } from './TranslateEngine';
 
 const MARKER = '<br>';
@@ -139,13 +140,14 @@ Task: Translate the following ${taskSubject} from ${source} to ${target}.
 
       return this.adjustCount(translatedParagraphs, texts.length);
     } catch (e: any) {
+      if (isAbortError(e)) throw e;
       const message = e?.message || 'Unknown LLM error';
       throw new Error(`LLM Translation failed: ${message}`);
     } finally {
       console.info(
         `LLM Translation finished in ${(Date.now() - startTime) / 1000}s`,
       );
-      clearInterval(i);
+      if (i) clearInterval(i);
     }
   }
 }

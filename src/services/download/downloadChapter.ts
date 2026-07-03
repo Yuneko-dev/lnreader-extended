@@ -2,28 +2,15 @@ import { dbManager } from '@database/db';
 import { getChapter } from '@database/queries/ChapterQueries';
 import { getNovelById } from '@database/queries/NovelQueries';
 import { chapterSchema } from '@database/schema';
-import {
-  ACTIVE_AI_PROVIDER_KEY,
-  AI_PROVIDERS_KEY,
-  AIProvider,
-} from '@hooks/persisted/useAIProviders';
-import {
-  getChapterDownloadCooldownMs,
-  initialTranslateSettings,
-  TRANSLATE_SETTINGS,
-  TranslateSettings,
-} from '@hooks/persisted/useSettings';
+import { getChapterDownloadCooldownMs } from '@hooks/persisted/useSettings';
 import { downloadFile } from '@plugins/helpers/fetch';
 import { getPlugin } from '@plugins/pluginManager';
 import { Plugin } from '@plugins/types';
 import { BackgroundTaskMetadata } from '@services/ServiceManager';
-import {
-  TranslateConfig,
-  TranslateManager,
-} from '@services/translate/TranslateManager';
+import { getTranslateConfigSnapshot } from '@services/translate/getTranslateConfig';
+import { TranslateManager } from '@services/translate/TranslateManager';
 import NativeFile from '@specs/NativeFile';
 import { getString } from '@strings/translations';
-import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
 import { sleep } from '@utils/sleep';
 import { NOVEL_STORAGE } from '@utils/Storages';
@@ -106,24 +93,14 @@ export const downloadChapter = async (
   if (chapterText && chapterText.length) {
     let finalHtml = chapterText;
 
-    const translateSettings =
-      getMMKVObject<TranslateSettings>(TRANSLATE_SETTINGS) ||
-      initialTranslateSettings;
+    const translateSnapshot = getTranslateConfigSnapshot();
+    const translateSettings = translateSnapshot.settings;
 
     if (translateSettings.downloadTranslated) {
       try {
-        const providers = getMMKVObject<AIProvider[]>(AI_PROVIDERS_KEY) || [];
-        const activeProviderId = getMMKVObject<string>(ACTIVE_AI_PROVIDER_KEY);
-        const activeAIProvider = providers.find(p => p.id === activeProviderId);
-
-        const config: TranslateConfig = {
-          ...(translateSettings as any),
-          activeAIProvider,
-        };
-
         finalHtml = await TranslateManager.translateChapterHTML(
           finalHtml,
-          config,
+          translateSnapshot.config,
         );
         const loadedCheerio = cheerio.load(finalHtml, null, false);
         const metaHTML = '<meta id="offline-translated-marker"/>';

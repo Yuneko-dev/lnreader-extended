@@ -183,3 +183,20 @@ describe('LLMTranslateEngine — marker-based (disableStructuredOutput=true)', (
     expect(client.generateContent).not.toHaveBeenCalled();
   });
 });
+
+describe('LLMTranslateEngine — lifecycle', () => {
+  it('preserves AbortError and clears its progress interval', async () => {
+    jest.useFakeTimers();
+    const abortError = new Error('Aborted');
+    abortError.name = 'AbortError';
+    const client = makeMockClient({
+      generateTranslateContent: jest.fn().mockRejectedValue(abortError),
+    });
+
+    await expect(
+      new LLMTranslateEngine(client, {}).translate(['hello'], 'en', 'vi'),
+    ).rejects.toBe(abortError);
+    expect(jest.getTimerCount()).toBe(0);
+    jest.useRealTimers();
+  });
+});

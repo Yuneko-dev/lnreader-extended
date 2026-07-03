@@ -1,8 +1,7 @@
 import { decode } from 'html-entities';
 
+import { abortableDelay, throwIfAborted } from './abort';
 import { TranslateEngine } from './TranslateEngine';
-
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export class GoogleTranslateFreeEngine implements TranslateEngine {
   id = 'google-free';
@@ -63,56 +62,53 @@ export class GoogleTranslateFreeEngine implements TranslateEngine {
     ) {
       const chunk = chunks[currentChunkIdx];
       let retryCount = 0;
+      let completed = false;
 
-      const bodyJSON = [[chunk.textArray, source, target], 'te'];
-      const res = await fetch(
-        'https://translate-pa.googleapis.com/v1/translateHtml',
-        {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json+protobuf',
-            'x-client-data': 'CIH/ygE=',
-            'x-goog-api-key': 'AIzaSyATBXajvzQLTDHEQbcpq0Ihe0vWDHmO520',
+      while (!completed) {
+        throwIfAborted(signal);
+        const bodyJSON = [[chunk.textArray, source, target], 'te'];
+        const res = await fetch(
+          'https://translate-pa.googleapis.com/v1/translateHtml',
+          {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json+protobuf',
+              'x-client-data': 'CIH/ygE=',
+              'x-goog-api-key': 'AIzaSyATBXajvzQLTDHEQbcpq0Ihe0vWDHmO520',
+            },
+            body: JSON.stringify(bodyJSON),
+            signal,
           },
-          body: JSON.stringify(bodyJSON),
-          signal,
-        },
-      );
+        );
 
-      if (res.status === 429) {
-        if (retryCount >= MAX_RETRIES) {
-          console.warn(
-            'Google Translate rate limit exceeded after max retries',
-          );
+        if (res.status === 429) {
+          if (retryCount >= MAX_RETRIES) {
+            console.warn(
+              'Google Translate rate limit exceeded after max retries',
+            );
+            break;
+          }
+          retryCount++;
+          await abortableDelay(1000 * retryCount, signal);
           continue;
         }
-        retryCount++;
-        await sleep(1000 * retryCount);
-        currentChunkIdx--;
-        continue;
-      }
 
-      // Reset retry count on success
-      retryCount = 0;
+        completed = true;
+        if (!res.ok) break;
 
-      if (!res.ok) {
-        continue;
-      }
-
-      const data = await res.json();
-
-      if (Array.isArray(data) && Array.isArray(data[0])) {
-        // If split perfectly aligns
-        if (data[0].length === chunk.indices.length) {
-          chunk.indices.forEach((originalIndex, innerIdx) => {
-            results[originalIndex] = decode(data[0][innerIdx] || '').trim();
-          });
-        } else {
-          console.warn('Google chunk mismatch length');
+        const data = await res.json();
+        if (Array.isArray(data) && Array.isArray(data[0])) {
+          if (data[0].length === chunk.indices.length) {
+            chunk.indices.forEach((originalIndex, innerIdx) => {
+              results[originalIndex] = decode(data[0][innerIdx] || '').trim();
+            });
+          } else {
+            console.warn('Google chunk mismatch length');
+          }
         }
       }
 
-      await sleep(200);
+      await abortableDelay(200, signal);
       if (onProgress) {
         onProgress(((currentChunkIdx + 1) / chunks.length) * 100);
       }

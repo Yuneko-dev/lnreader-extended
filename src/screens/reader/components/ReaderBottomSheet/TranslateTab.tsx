@@ -3,10 +3,9 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@hooks/persisted';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';
 import { useTranslateSettings } from '@hooks/persisted/useSettings';
-import { useChapterContext } from '@screens/reader/ChapterContext';
 import { supportedLanguagesList } from '@services/translate/TranslateEngine';
 import { getString } from '@strings/translations';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 
@@ -244,24 +243,10 @@ const TranslateTab: React.FC = () => {
     activeSystemPromptId,
     autoTranslateNextChapter,
     downloadTranslated,
-    setTranslateSettings: _setTranslateSettings,
+    setTranslateSettings,
   } = useTranslateSettings();
 
   const { providers, activeProviderId, setActiveProviderId } = useAIProviders();
-
-  const { revertTranslation, isTranslated } = useChapterContext();
-
-  // Wrap setTranslateSettings: when any translation-affecting setting changes,
-  // revert to original text so the user doesn't end up with double-translated text.
-  const setTranslateSettings = useCallback(
-    (values: Parameters<typeof _setTranslateSettings>[0]) => {
-      if (isTranslated) {
-        revertTranslation();
-      }
-      _setTranslateSettings(values);
-    },
-    [_setTranslateSettings, isTranslated, revertTranslation],
-  );
 
   const [sourceLangModalVisible, setSourceLangModalVisible] = useState(false);
   const [targetLangModalVisible, setTargetLangModalVisible] = useState(false);

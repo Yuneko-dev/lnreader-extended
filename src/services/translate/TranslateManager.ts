@@ -3,6 +3,12 @@ import * as cheerio from 'cheerio';
 import { isAlphanumeric } from 'unicode-segmenter/general';
 
 import { AIManager } from '../ai/AIManager';
+import {
+  abortableDelay,
+  createAbortError,
+  isAbortError,
+  throwIfAborted,
+} from './abort';
 import { GoogleTranslateFreeEngine } from './GoogleTranslateFreeEngine';
 import { LLMTranslateEngine } from './LLMTranslateEngine';
 import { TranslateEngine } from './TranslateEngine';
@@ -20,13 +26,6 @@ export interface TranslateConfig {
   llmRetryMaxAttempts?: number;
   llmDisableStructuredOutput?: boolean;
 }
-
-/** Hermes doesn't have DOMException — create a plain Error with name='AbortError' */
-const createAbortError = (): Error => {
-  const error = new Error('Aborted');
-  error.name = 'AbortError';
-  return error;
-};
 
 export class TranslateManager {
   private static async getEngine(
@@ -155,9 +154,7 @@ export class TranslateManager {
       let completedChunks = 0;
 
       for (const chunk of chunks) {
-        if (signal?.aborted) {
-          throw createAbortError();
-        }
+        throwIfAborted(signal);
 
         const chunkProgress = (progress: number) => {
           if (onProgress) {
@@ -360,7 +357,7 @@ export class TranslateManager {
         );
       } catch (e: any) {
         // Don't retry on user-initiated abort
-        if (e?.name === 'AbortError') {
+        if (isAbortError(e)) {
           throw e;
         }
 
@@ -376,17 +373,7 @@ export class TranslateManager {
             this.FIBONACCI_DELAYS[attempt] ??
             this.FIBONACCI_DELAYS[this.FIBONACCI_DELAYS.length - 1];
 
-          await new Promise<void>((resolve, reject) => {
-            const onAbort = () => {
-              clearTimeout(timer);
-              reject(createAbortError());
-            };
-            const timer = setTimeout(() => {
-              signal?.removeEventListener('abort', onAbort);
-              resolve();
-            }, delay);
-            signal?.addEventListener('abort', onAbort, { once: true });
-          });
+          await abortableDelay(delay, signal);
         }
       }
     }
