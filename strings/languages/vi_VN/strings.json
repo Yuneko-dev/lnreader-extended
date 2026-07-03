@@ -469,6 +469,7 @@
   },
   "novelScreen": {
     "addToLibrary": "Thêm vào thư viện",
+    "promptAddToLibrary": "Thêm truyện vào thư viện?",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Số chương",

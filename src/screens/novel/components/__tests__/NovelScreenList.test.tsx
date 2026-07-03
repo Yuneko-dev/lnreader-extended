@@ -4,7 +4,6 @@ import NovelScreenList from '../NovelScreenList';
 
 const mockUseNovelValue = jest.fn();
 const mockUseNovelActions = jest.fn();
-const mockDownloadChapter = jest.fn();
 let mockDownloadingChapterIds = new Set<number>();
 
 jest.mock('../../NovelContext', () => ({
@@ -21,7 +20,6 @@ jest.mock('@hooks/persisted', () => ({
   }),
   useDownload: () => ({
     downloadingChapterIds: mockDownloadingChapterIds,
-    downloadChapter: mockDownloadChapter,
   }),
   useTheme: () => ({
     primary: '#111',
@@ -67,7 +65,7 @@ jest.mock('../ChapterItem', () => {
   const React = require('react');
   const { Pressable, Text, View } = require('react-native');
 
-  return ({ chapter, onDeleteChapter }: any) =>
+  return ({ chapter, onDeleteChapter, onDownloadChapter }: any) =>
     React.createElement(
       View,
       { testID: `chapter-item-${chapter.id}` },
@@ -78,6 +76,14 @@ jest.mock('../ChapterItem', () => {
           onPress: () => onDeleteChapter(chapter),
         },
         React.createElement(Text, null, 'delete'),
+      ),
+      React.createElement(
+        Pressable,
+        {
+          testID: `download-chapter-${chapter.id}`,
+          onPress: () => onDownloadChapter(chapter),
+        },
+        React.createElement(Text, null, 'download'),
       ),
     );
 });
@@ -256,7 +262,7 @@ const navigation = { navigate: jest.fn() };
 const listRef = { current: { scrollToOffset: jest.fn() } };
 const headerOpacity = { set: jest.fn() };
 
-const renderList = () =>
+const renderList = (onDownloadChapter = jest.fn()) =>
   render(
     <NovelScreenList
       headerOpacity={headerOpacity as any}
@@ -269,6 +275,7 @@ const renderList = () =>
       }}
       selected={[]}
       setSelected={jest.fn()}
+      onDownloadChapter={onDownloadChapter}
     />,
   );
 
@@ -287,6 +294,17 @@ describe('NovelScreenList (task 12 context boundary cutover)', () => {
     fireEvent.press(screen.getByTestId('delete-chapter-1'));
 
     expect(store.state.deleteChapter).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates chapter downloads to the screen callback', () => {
+    const store = createStore();
+    const onDownloadChapter = jest.fn();
+    wireStoreSelectors(store);
+
+    renderList(onDownloadChapter);
+    fireEvent.press(screen.getByTestId('download-chapter-1'));
+
+    expect(onDownloadChapter).toHaveBeenCalledWith(baseChapter);
   });
 
   it('marks downloaded chapter when an id leaves downloading set', () => {
@@ -310,6 +328,7 @@ describe('NovelScreenList (task 12 context boundary cutover)', () => {
         }}
         selected={[]}
         setSelected={jest.fn()}
+        onDownloadChapter={jest.fn()}
       />,
     );
 

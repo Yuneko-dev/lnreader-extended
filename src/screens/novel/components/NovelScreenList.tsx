@@ -50,6 +50,7 @@ type NovelScreenListProps = {
     cover?: string | null;
   };
   deleteDownloadSnackbar?: UseBooleanReturnType;
+  onDownloadChapter: (chapter: ChapterInfo) => void;
 };
 
 const chapterKeyExtractor = (item: ChapterInfo) => 'c' + item.id;
@@ -62,6 +63,7 @@ const NovelScreenList = ({
   selected,
   setSelected,
   deleteDownloadSnackbar,
+  onDownloadChapter,
 }: NovelScreenListProps) => {
   const chapters = useNovelValue('chapters');
   const fetching = useNovelValue('fetching');
@@ -109,7 +111,7 @@ const NovelScreenList = ({
   const theme = useTheme();
   const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
 
-  const { downloadingChapterIds, downloadChapter } = useDownload();
+  const { downloadingChapterIds } = useDownload();
 
   // Mark chapters as downloaded when their download completes
   const prevDownloadingRef = useRef(downloadingChapterIds);
@@ -260,10 +262,10 @@ const NovelScreenList = ({
   const handleDownloadChapter = useCallback(
     (chapter: ChapterInfo) => {
       if (novel && novel.id !== 'NO_ID') {
-        downloadChapter(novel, chapter);
+        onDownloadChapter(chapter);
       }
     },
-    [novel, downloadChapter],
+    [novel, onDownloadChapter],
   );
 
   const handleToggleRead = useCallback(

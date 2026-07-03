@@ -409,6 +409,7 @@ export interface StringMap {
   'moreScreen.incognitoMode': 'string';
   'moreScreen.incognitoModeDesc': 'string';
   'novelScreen.addToLibrary': 'string';
+  'novelScreen.promptAddToLibrary': 'string';
   'novelScreen.bottomSheet.displays.chapterNumber': 'string';
   'novelScreen.bottomSheet.displays.sourceTitle': 'string';
   'novelScreen.bottomSheet.filters.bookmarked': 'string';

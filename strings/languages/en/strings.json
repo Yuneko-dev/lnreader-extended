@@ -470,6 +470,7 @@
   },
   "novelScreen": {
     "addToLibrary": "Add to library",
+    "promptAddToLibrary": "Add to library?",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Chapter number",

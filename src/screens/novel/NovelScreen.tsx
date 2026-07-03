@@ -4,7 +4,7 @@ import {
   getAllUndownloadedChapters,
   updateChapterProgressByIds,
 } from '@database/queries/ChapterQueries';
-import { ChapterInfo } from '@database/types';
+import { ChapterInfo, NovelInfo } from '@database/types';
 import { useBoolean } from '@hooks';
 import { useDownload, useTheme } from '@hooks/persisted';
 import { LegendListRef } from '@legendapp/list';
@@ -15,6 +15,7 @@ import { resolveUrl } from '@services/plugin/fetch';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import { MaterialDesignIconName } from '@type/icon';
+import { showToast } from '@utils/showToast';
 import { isNumber } from 'lodash-es';
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Share, StatusBar, StyleSheet, Text, View } from 'react-native';
@@ -36,6 +37,8 @@ import NovelAppbar from './components/NovelAppbar';
 import NovelScreenList from './components/NovelScreenList';
 import { useNovelActions, useNovelValue } from './NovelContext';
 
+const FLOATING_BUTTON_CLEARANCE = 88;
+
 const Novel = ({ route, navigation }: NovelScreenProps) => {
   const novel = useNovelValue('novel');
   const chapters = useNovelValue('chapters');
@@ -48,13 +51,17 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
     markPreviousChaptersUnread,
     refreshChapters,
     deleteChapters,
+    followNovel,
   } = useNovelActions();
 
   const theme = useTheme();
-  const { downloadChapters } = useDownload();
+  const { downloadChapter, downloadChapters } = useDownload();
 
   const [selected, setSelected] = useState<ChapterInfo[]>([]);
   const [editInfoModal, showEditInfoModal] = useState(false);
+  const [addToLibraryPromptVisible, setAddToLibraryPromptVisible] =
+    useState(false);
+  const hasPromptedToAddToLibrary = useRef(false);
 
   const chapterListRef = useRef<LegendListRef | null>(null);
 
@@ -78,6 +85,39 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
         );
       }
     }, [route.params?.name, novel]),
+  );
+
+  const promptToAddToLibrary = useCallback(() => {
+    if (novel?.inLibrary || hasPromptedToAddToLibrary.current) {
+      return;
+    }
+
+    hasPromptedToAddToLibrary.current = true;
+    setAddToLibraryPromptVisible(true);
+  }, [novel?.inLibrary]);
+
+  const downloadChapterWithPrompt = useCallback(
+    (chapter: ChapterInfo) => {
+      if (!novel) {
+        return;
+      }
+
+      downloadChapter(novel, chapter);
+      promptToAddToLibrary();
+    },
+    [downloadChapter, novel, promptToAddToLibrary],
+  );
+
+  const downloadChaptersWithPrompt = useCallback(
+    (novelToDownload: NovelInfo, chaptersToDownload: ChapterInfo[]) => {
+      if (chaptersToDownload.length === 0) {
+        return;
+      }
+
+      downloadChapters(novelToDownload, chaptersToDownload);
+      promptToAddToLibrary();
+    },
+    [downloadChapters, promptToAddToLibrary],
   );
 
   const downloadChs = useCallback(
@@ -109,10 +149,10 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
       }
 
       if (filtered.length > 0) {
-        downloadChapters(novel, filtered);
+        downloadChaptersWithPrompt(novel, filtered);
       }
     },
-    [chapters, downloadChapters, novel],
+    [chapters, downloadChaptersWithPrompt, novel],
   );
 
   const deleteChs = useCallback(() => {
@@ -143,7 +183,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
         icon: 'download-outline',
         onPress: () => {
           if (novel) {
-            downloadChapters(
+            downloadChaptersWithPrompt(
               novel,
               selected.filter(chapter => !chapter.isDownloaded),
             );
@@ -218,7 +258,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   }, [
     bookmarkChapters,
     deleteChapters,
-    downloadChapters,
+    downloadChaptersWithPrompt,
     markChaptersRead,
     markChaptersUnread,
     markPreviousChaptersUnread,
@@ -246,6 +286,18 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
     [],
   );
   const hideEditInfoModal = useCallback(() => showEditInfoModal(false), []);
+  const hideAddToLibraryPrompt = useCallback(
+    () => setAddToLibraryPromptVisible(false),
+    [],
+  );
+  const addNovelToLibrary = useCallback(() => {
+    hideAddToLibraryPrompt();
+    if (!novel?.inLibrary) {
+      followNovel().catch(error =>
+        showToast('Failed updating: ' + (error as Error).message),
+      );
+    }
+  }, [followNovel, hideAddToLibraryPrompt, novel?.inLibrary]);
   const clearSelection = useCallback(() => setSelected([]), []);
   const selectAll = useCallback(() => setSelected(chapters), [chapters]);
 
@@ -327,6 +379,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
               selected={selected}
               setSelected={setSelected}
               deleteDownloadSnackbar={deleteDownloadsSnackbar}
+              onDownloadChapter={downloadChapterWithPrompt}
             />
           </Suspense>
         </SafeAreaView>
@@ -334,14 +387,36 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
         <Portal>
           <Actionbar active={selected.length > 0} actions={actions} />
           <Snackbar
+            testID="delete-downloads-snackbar"
             visible={deleteDownloadsSnackbar.value}
             onDismiss={deleteDownloadsSnackbar.setFalse}
+            onIconPress={deleteDownloadsSnackbar.setFalse}
+            iconAccessibilityLabel={getString('common.cancel')}
             action={snackbarAction}
             theme={snackbarTheme}
             style={styles.snackbar}
+            wrapperStyle={styles.snackbarWrapper}
           >
             <Text style={snackbarTextStyle}>
               {getString('novelScreen.deleteMessage')}
+            </Text>
+          </Snackbar>
+          <Snackbar
+            testID="add-to-library-snackbar"
+            visible={addToLibraryPromptVisible}
+            onDismiss={hideAddToLibraryPrompt}
+            onIconPress={hideAddToLibraryPrompt}
+            iconAccessibilityLabel={getString('common.cancel')}
+            action={{
+              label: getString('common.add'),
+              onPress: addNovelToLibrary,
+            }}
+            theme={snackbarTheme}
+            style={styles.snackbar}
+            wrapperStyle={styles.snackbarWrapper}
+          >
+            <Text style={snackbarTextStyle}>
+              {getString('novelScreen.promptAddToLibrary')}
             </Text>
           </Snackbar>
         </Portal>
@@ -368,7 +443,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
                 novel={novel}
                 chapters={chapters}
                 theme={theme}
-                downloadChapters={downloadChapters}
+                downloadChapters={downloadChaptersWithPrompt}
               />
               <ForceResetModal
                 visible={forceResetModal}
@@ -405,6 +480,7 @@ function createStyles(theme: ThemeColors) {
       flexDirection: 'row',
       justifyContent: 'space-between',
     },
-    snackbar: { backgroundColor: theme.surface, marginBottom: 32 },
+    snackbar: { backgroundColor: theme.surface },
+    snackbarWrapper: { bottom: FLOATING_BUTTON_CLEARANCE },
   });
 }

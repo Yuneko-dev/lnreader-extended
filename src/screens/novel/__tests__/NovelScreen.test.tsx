@@ -3,9 +3,12 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import NovelScreen from '../NovelScreen';
 
 const mockDownloadChapters = jest.fn();
+const mockDownloadChapter = jest.fn();
 const mockUpdateChapterProgressByIds = jest.fn();
 const mockUseNovelValue = jest.fn();
 const mockUseNovelActions = jest.fn();
+const mockBooleanSetFalse = jest.fn();
+let mockBooleanValue = false;
 
 jest.mock('@hooks/persisted', () => ({
   useTheme: () => ({
@@ -17,15 +20,16 @@ jest.mock('@hooks/persisted', () => ({
     surface2: '#666',
   }),
   useDownload: () => ({
+    downloadChapter: mockDownloadChapter,
     downloadChapters: mockDownloadChapters,
   }),
 }));
 
 jest.mock('@hooks', () => ({
   useBoolean: () => ({
-    value: false,
+    value: mockBooleanValue,
     setTrue: jest.fn(),
-    setFalse: jest.fn(),
+    setFalse: mockBooleanSetFalse,
   }),
 }));
 
@@ -65,7 +69,7 @@ jest.mock('../components/NovelScreenList', () => {
 
   return {
     __esModule: true,
-    default: ({ setSelected }: any) => {
+    default: ({ onDownloadChapter, setSelected }: any) => {
       const base = {
         id: 1,
         novelId: 7,
@@ -83,6 +87,20 @@ jest.mock('../components/NovelScreenList', () => {
       return React.createElement(
         View,
         null,
+        React.createElement(
+          Pressable,
+          {
+            testID: 'download-single',
+            onPress: () =>
+              onDownloadChapter({
+                ...base,
+                id: 9,
+                unread: true,
+                isDownloaded: false,
+              }),
+          },
+          React.createElement(Text, null, 'download-single'),
+        ),
         React.createElement(
           Pressable,
           {
@@ -158,7 +176,7 @@ jest.mock('@components', () => {
 
 jest.mock('react-native-paper', () => {
   const React = require('react');
-  const { Pressable, Text } = require('react-native');
+  const { Pressable, Text, View } = require('react-native');
 
   const Portal: any = ({ children }: { children: React.ReactNode }) =>
     React.createElement(React.Fragment, null, children);
@@ -176,8 +194,28 @@ jest.mock('react-native-paper', () => {
         ),
       Content: ({ title }: any) => React.createElement(Text, null, title),
     },
-    Snackbar: ({ visible, children }: any) =>
-      visible ? React.createElement(React.Fragment, null, children) : null,
+    Snackbar: ({ visible, children, action, onIconPress, testID }: any) =>
+      visible
+        ? React.createElement(
+            View,
+            { testID },
+            children,
+            action
+              ? React.createElement(
+                  Pressable,
+                  { testID: `${testID}-action`, onPress: action.onPress },
+                  React.createElement(Text, null, action.label),
+                )
+              : null,
+            onIconPress
+              ? React.createElement(
+                  Pressable,
+                  { testID: `${testID}-close`, onPress: onIconPress },
+                  React.createElement(Text, null, 'close'),
+                )
+              : null,
+          )
+        : null,
   };
 });
 
@@ -245,6 +283,7 @@ const createStore = (overrides: Record<string, unknown> = {}) => {
     markPreviousChaptersUnread: jest.fn(),
     refreshChapters: jest.fn(),
     deleteChapters: jest.fn(),
+    followNovel: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 
@@ -268,6 +307,7 @@ const wireStoreSelectors = (store: ReturnType<typeof createStore>) => {
     markPreviousChaptersUnread: store.state.markPreviousChaptersUnread,
     refreshChapters: store.state.refreshChapters,
     deleteChapters: store.state.deleteChapters,
+    followNovel: store.state.followNovel,
   });
 };
 
@@ -288,6 +328,7 @@ const navigation = {
 describe('NovelScreen (task 12 context boundary cutover)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockBooleanValue = false;
   });
 
   it('uses novelStore action selectors for selected unread workflow', () => {
@@ -339,5 +380,94 @@ describe('NovelScreen (task 12 context boundary cutover)', () => {
     fireEvent.press(screen.getByTestId('action-download-outline'));
 
     expect(mockDownloadChapters).not.toHaveBeenCalled();
+  });
+
+  it('downloads first, then prompts once per mounted screen when outside the library', () => {
+    const store = createStore();
+    wireStoreSelectors(store);
+
+    render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+
+    fireEvent.press(screen.getByTestId('download-single'));
+
+    expect(mockDownloadChapter).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('add-to-library-snackbar')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('add-to-library-snackbar-close'));
+    fireEvent.press(screen.getByTestId('download-single'));
+
+    expect(mockDownloadChapter).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId('add-to-library-snackbar')).toBeNull();
+  });
+
+  it('adds the novel through the existing follow action and closes the prompt', () => {
+    const store = createStore();
+    wireStoreSelectors(store);
+
+    render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+
+    fireEvent.press(screen.getByTestId('download-single'));
+    fireEvent.press(screen.getByTestId('add-to-library-snackbar-action'));
+
+    expect(store.state.followNovel).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('add-to-library-snackbar')).toBeNull();
+  });
+
+  it('does not prompt for a library novel', () => {
+    const store = createStore({
+      novel: { ...baseNovel, inLibrary: true },
+    });
+    wireStoreSelectors(store);
+
+    render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+
+    fireEvent.press(screen.getByTestId('download-single'));
+
+    expect(mockDownloadChapter).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('add-to-library-snackbar')).toBeNull();
+  });
+
+  it('resets the dismissed flag after the novel screen unmounts', () => {
+    const store = createStore();
+    wireStoreSelectors(store);
+
+    const view = render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+    fireEvent.press(screen.getByTestId('download-single'));
+    fireEvent.press(screen.getByTestId('add-to-library-snackbar-close'));
+    view.unmount();
+
+    render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+    fireEvent.press(screen.getByTestId('download-single'));
+
+    expect(screen.getByTestId('add-to-library-snackbar')).toBeTruthy();
+  });
+
+  it('allows the delete-download snackbar to be closed with the X button', () => {
+    const store = createStore();
+    mockBooleanValue = true;
+    wireStoreSelectors(store);
+
+    render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+    fireEvent.press(screen.getByTestId('delete-downloads-snackbar-close'));
+
+    expect(mockBooleanSetFalse).toHaveBeenCalledTimes(1);
   });
 });
