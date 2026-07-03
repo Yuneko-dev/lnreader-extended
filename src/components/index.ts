@@ -21,3 +21,4 @@ export { default as SafeAreaView } from './SafeAreaView/SafeAreaView';
 export { default as SearchbarV2 } from './SearchbarV2/SearchbarV2';
 export { SegmentedControl } from './SegmentedControl';
 export { default as SwitchItem } from './Switch/SwitchItem';
+export { default as TaskLogDialog } from './TaskLogDialog';

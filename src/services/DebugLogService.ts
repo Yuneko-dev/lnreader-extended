@@ -166,6 +166,10 @@ export class DebugLogServiceClass {
     this.subscribers.add(callback);
     return () => {
       this.subscribers.delete(callback);
+      if (this.subscribers.size === 0 && this.notifyTimer) {
+        clearTimeout(this.notifyTimer);
+        this.notifyTimer = null;
+      }
     };
   }
 

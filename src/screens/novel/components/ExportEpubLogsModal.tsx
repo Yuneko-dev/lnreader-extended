@@ -1,8 +1,7 @@
-import { LogViewer, Modal } from '@components';
-import { BaseLogEntry } from '@components/LogViewer';
+import { Button, TaskLogDialog } from '@components';
 import { getNovelDownloadedChapters } from '@database/queries/ChapterQueries';
 import { NovelInfo } from '@database/types';
-import { useTheme } from '@hooks/persisted';
+import { useBufferedLogs } from '@hooks';
 import EpubBuilder from '@modules/react-native-epub-creator';
 import { resolveUrl } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
@@ -12,8 +11,7 @@ import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Portal } from 'react-native-paper';
+import { View } from 'react-native';
 
 import { version as appVersion } from '../../../../package.json';
 
@@ -40,45 +38,28 @@ export default function ExportEpubLogsModal({
   epubJavaScript,
   epubUseCustomJS,
 }: ExportEpubLogsModalProps) {
-  const theme = useTheme();
-
   const [isExporting, setIsExporting] = useState(false);
-  const [logs, setLogs] = useState<BaseLogEntry[]>([]);
+  const { logs, addLog, clearLogs, flushLogs } = useBufferedLogs();
 
   // Ref to handle cancellation inside the async loop
   const isCancelledRef = useRef(false);
-
-  const addLog = useCallback((msg: string) => {
-    setLogs(prev => [
-      ...prev,
-      {
-        id: `${Date.now().toString(36)}-${Math.random()
-          .toString(36)
-          .substring(2)}`,
-        message: msg,
-        timestamp: new Date(),
-        level: 'info',
-      },
-    ]);
-  }, []);
+  const exportStartedRef = useRef(false);
 
   const handleDismiss = useCallback(() => {
     if (isExporting) {
       isCancelledRef.current = true;
     } else {
+      clearLogs();
       onDismiss();
-      setTimeout(() => {
-        setLogs([]);
-      }, 500);
     }
-  }, [isExporting, onDismiss]);
+  }, [clearLogs, isExporting, onDismiss]);
 
   const startExport = useCallback(async () => {
     if (!novel) return;
 
     setIsExporting(true);
     isCancelledRef.current = false;
-    setLogs([]);
+    clearLogs();
     addLog(getString('novelScreen.exportEpubLogsModal.logStart'));
 
     let epub: EpubBuilder | undefined;
@@ -128,14 +109,8 @@ export default function ExportEpubLogsModal({
 
       await epub.prepare();
 
-      const yieldToMain = () => new Promise(requestAnimationFrame);
-
       let addedChapters = 0;
       for (let i = 0; i < chapters.length; i++) {
-        if (i % 10 === 0) {
-          await yieldToMain();
-        }
-
         if (isCancelledRef.current) {
           addLog(getString('novelScreen.exportEpubLogsModal.logCancelled'));
           await epub.discardChanges();
@@ -206,7 +181,6 @@ export default function ExportEpubLogsModal({
       }
 
       addLog(getString('novelScreen.exportEpubLogsModal.logZipping'));
-      await yieldToMain();
 
       const outputFile = await epub.save();
 
@@ -241,8 +215,8 @@ export default function ExportEpubLogsModal({
       } catch {
         // Notification permission denied or unavailable — non-critical
       }
-    } catch (error: any) {
-      const errorMsg = error?.message || error;
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
       const failedLog = getString('novelScreen.exportEpubLogsModal.logFailed', {
         error: errorMsg,
       });
@@ -250,6 +224,7 @@ export default function ExportEpubLogsModal({
       showToast(failedLog);
       await epub?.discardChanges();
     } finally {
+      flushLogs();
       setIsExporting(false);
     }
   }, [
@@ -261,118 +236,44 @@ export default function ExportEpubLogsModal({
     epubJavaScript,
     epubUseCustomJS,
     addLog,
+    clearLogs,
+    flushLogs,
   ]);
 
   useEffect(() => {
-    if (visible && logs.length === 0 && !isExporting) {
+    if (!visible) {
+      exportStartedRef.current = false;
+      return;
+    }
+
+    if (!exportStartedRef.current) {
+      exportStartedRef.current = true;
       startExport();
     }
-  }, [visible, logs.length, isExporting, startExport]);
+  }, [visible, startExport]);
+
+  useEffect(
+    () => () => {
+      isCancelledRef.current = true;
+    },
+    [],
+  );
 
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={handleDismiss}
-        dismissable={!isExporting}
-      >
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.onSurface }]}>
-            {getString('novelScreen.exportEpubLogsModal.title')}
-          </Text>
-          {isExporting && (
-            <Text style={[styles.runningText, { color: theme.primary }]}>
-              ● {getString('common.loading')}
-            </Text>
-          )}
-        </View>
-
+    <TaskLogDialog
+      visible={visible}
+      title={getString('novelScreen.exportEpubLogsModal.title')}
+      description={getString('novelScreen.exportEpubLogsModal.description')}
+      running={isExporting}
+      logs={logs}
+      onDismiss={handleDismiss}
+      actions={
         <View>
-          <Text style={[styles.description, { color: theme.onSurfaceVariant }]}>
-            {getString('novelScreen.exportEpubLogsModal.description')}
-          </Text>
-
-          <LogViewer
-            logs={logs}
-            theme={theme}
-            style={{ backgroundColor: theme.surfaceVariant, ...styles.list }}
-            contentContainerStyle={styles.listContent}
-          />
+          <Button mode="contained-tonal" onPress={handleDismiss}>
+            {getString(isExporting ? 'common.cancel' : 'common.ok')}
+          </Button>
         </View>
-
-        <View style={styles.footer}>
-          <View style={styles.footerRight}>
-            <Pressable
-              style={[
-                styles.footerBtn,
-                { borderColor: isExporting ? theme.outline : theme.primary },
-                isExporting
-                  ? styles.bgTransparent
-                  : { backgroundColor: theme.primary },
-              ]}
-              onPress={handleDismiss}
-            >
-              <Text
-                style={[
-                  styles.footerBtnText,
-                  { color: isExporting ? theme.onSurface : theme.onPrimary },
-                ]}
-              >
-                {getString(isExporting ? 'common.cancel' : 'common.ok')}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-    </Portal>
+      }
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  description: {
-    marginBottom: 16,
-  },
-  runningText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  list: {
-    borderRadius: 8,
-    maxHeight: 350,
-  },
-  listContent: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 16,
-  },
-  footerBtn: {
-    borderRadius: 6,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  footerBtnText: {
-    fontSize: 13,
-  },
-  bgTransparent: {
-    backgroundColor: 'transparent',
-  },
-  footerRight: {
-    flexDirection: 'row',
-  },
-});

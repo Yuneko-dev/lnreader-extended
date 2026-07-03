@@ -1,4 +1,4 @@
-import { LogViewer, Modal } from '@components';
+import { Button, TaskLogDialog } from '@components';
 import DebugLogService, { LogEntry } from '@services/DebugLogService';
 import ServiceManager, {
   type QueuedBackgroundTask,
@@ -8,18 +8,11 @@ import { ThemeColors } from '@theme/types';
 import { showToast } from '@utils/showToast';
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useMMKVObject } from 'react-native-mmkv';
-import { Button, Portal } from 'react-native-paper';
 
-/**
- * Tag used to filter backup-related log entries.
- */
 export const BACKUP_LOG_TAG = '[Backup]';
 
-/**
- * Backup task names.
- */
 const BACKUP_TASK_NAMES = [
   'LOCAL_BACKUP',
   'DRIVE_BACKUP',
@@ -42,56 +35,53 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const sessionStartIdRef = useRef<number | null>(null);
   const [visible, setVisible] = useState(false);
-
-  // Watch task queue to detect backup/restore tasks
   const [taskQueue] = useMMKVObject<QueuedBackgroundTask[]>(
     ServiceManager.manager.STORE_KEY,
   );
 
-  // Determine if a backup or restore task is currently active
   const hasActiveBackupRestore = (taskQueue ?? []).some(
-    t => t?.task?.name && ALL_BACKUP_RESTORE_NAMES.includes(t.task.name as any),
+    task =>
+      task?.task?.name &&
+      (ALL_BACKUP_RESTORE_NAMES as readonly string[]).includes(task.task.name),
   );
 
   const hasActiveBackupOnly = (taskQueue ?? []).some(
-    t =>
-      t?.task?.name &&
-      (BACKUP_TASK_NAMES as readonly string[]).includes(t.task.name),
+    task =>
+      task?.task?.name &&
+      (BACKUP_TASK_NAMES as readonly string[]).includes(task.task.name),
   );
 
-  // Auto-open when a backup/restore task starts
   useEffect(() => {
     if (hasActiveBackupRestore && !visible) {
-      // Clear previous session entries and start new session
       sessionStartIdRef.current = DebugLogService.getNextId();
       setEntries([]);
       setVisible(true);
     }
   }, [hasActiveBackupRestore, visible]);
 
-  // Subscribe to log updates while visible
   useEffect(() => {
     if (!visible) {
       return;
     }
 
-    const unsubscribe = DebugLogService.subscribe(newEntries => {
+    return DebugLogService.subscribe(newEntries => {
       const sessionStart = sessionStartIdRef.current ?? 0;
-      const filtered = newEntries
-        .filter(
-          e => e.index >= sessionStart && e.message.startsWith(BACKUP_LOG_TAG),
-        )
-        .map(e => ({
-          ...e,
-          message: e.message.replace(BACKUP_LOG_TAG + ' ', ''),
-        }));
-      setEntries(filtered);
+      setEntries(
+        newEntries
+          .filter(
+            entry =>
+              entry.index >= sessionStart &&
+              entry.message.startsWith(BACKUP_LOG_TAG),
+          )
+          .map(entry => ({
+            ...entry,
+            message: entry.message.replace(`${BACKUP_LOG_TAG} `, ''),
+          })),
+      );
     });
-    return unsubscribe;
   }, [visible]);
 
   const closeModal = useCallback(() => {
-    // Only allow closing when no backup/restore task is running
     if (!hasActiveBackupRestore) {
       setVisible(false);
     }
@@ -99,7 +89,9 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
 
   const copyLog = useCallback(() => {
     const text = entries
-      .map(e => `[${e.timestamp.toLocaleTimeString()}] ${e.message}`)
+      .map(
+        entry => `[${entry.timestamp.toLocaleTimeString()}] ${entry.message}`,
+      )
       .join('\n');
     Clipboard.setStringAsync(text);
     showToast(getString('common.copiedToClipboard', { name: 'Backup Log' }));
@@ -117,32 +109,15 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
   }, []);
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={closeModal}>
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.onSurface }]}>
-            {getString('backupLogScreen.title')}
-          </Text>
-          {hasActiveBackupRestore && (
-            <Text style={[styles.runningText, { color: theme.primary }]}>
-              ● {getString('common.loading')}
-            </Text>
-          )}
-        </View>
-
-        <LogViewer
-          logs={entries}
-          theme={theme}
-          style={{ backgroundColor: theme.surfaceVariant, ...styles.list }}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <Text style={[styles.emptyText, { color: theme.onSurfaceVariant }]}>
-              {getString('backupLogScreen.noLogs')}
-            </Text>
-          }
-        />
-
-        <View style={styles.footer}>
+    <TaskLogDialog
+      visible={visible}
+      title={getString('backupLogScreen.title')}
+      running={hasActiveBackupRestore}
+      logs={entries}
+      emptyMessage={getString('backupLogScreen.noLogs')}
+      onDismiss={closeModal}
+      actions={
+        <View style={styles.actions}>
           {hasActiveBackupOnly ? (
             <Button
               mode="outlined"
@@ -167,46 +142,22 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
             </Button>
           </View>
         </View>
-      </Modal>
-    </Portal>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  emptyText: {
-    padding: 16,
-    textAlign: 'center',
-  },
-  footer: {
+  actions: {
+    alignItems: 'center',
+    flex: 1,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 12,
   },
   footerRight: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  list: {
-    borderRadius: 8,
-    maxHeight: 350,
-  },
-  listContent: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-
-  runningText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
 });
