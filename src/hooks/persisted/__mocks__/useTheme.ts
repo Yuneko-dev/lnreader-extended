@@ -29,6 +29,10 @@ const mockTheme = {
 const useTheme = jest.fn(() => mockTheme);
 
 const ThemeProvider = ({ children }: PropsWithChildren) => children as any;
+const useAvailableThemes = jest.fn(() => ({
+  light: [mockTheme],
+  dark: [mockTheme],
+}));
 
 export default useTheme;
-export { mockTheme, ThemeProvider, useTheme };
+export { mockTheme, ThemeProvider, useAvailableThemes, useTheme };

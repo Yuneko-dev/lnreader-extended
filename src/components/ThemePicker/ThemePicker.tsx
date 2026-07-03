@@ -39,7 +39,13 @@ export const ThemePicker = ({
           },
         ]}
       >
-        <Pressable style={styles.flex1} onPress={onPress}>
+        <Pressable
+          style={styles.flex1}
+          onPress={onPress}
+          accessibilityRole="radio"
+          accessibilityLabel={theme.name}
+          accessibilityState={{ selected: currentTheme.id === theme.id }}
+        >
           {currentTheme.id !== theme.id ? null : (
             <MaterialCommunityIcons
               name="check"

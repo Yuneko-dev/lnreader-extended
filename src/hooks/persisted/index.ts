@@ -17,8 +17,7 @@ export {
   useLibrarySettings,
   useTranslateSettings,
 } from './useSettings';
-export { useTheme } from './useTheme';
-export { ThemeProvider } from './useTheme';
+export { ThemeProvider, useAvailableThemes, useTheme } from './useTheme';
 export { useTrackedNovel } from './useTrackedNovel';
 export { getTracker, useTracker } from './useTracker';
 export { useLastUpdate, useUpdates } from './useUpdates';
