@@ -61,6 +61,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   const [editInfoModal, showEditInfoModal] = useState(false);
   const [addToLibraryPromptVisible, setAddToLibraryPromptVisible] =
     useState(false);
+  const [hasFloatingButtons, setHasFloatingButtons] = useState(false);
   const hasPromptedToAddToLibrary = useRef(false);
 
   const chapterListRef = useRef<LegendListRef | null>(null);
@@ -286,6 +287,10 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
     [],
   );
   const hideEditInfoModal = useCallback(() => showEditInfoModal(false), []);
+  const handleFloatingButtonsVisibilityChange = useCallback(
+    (visible: boolean) => setHasFloatingButtons(visible),
+    [],
+  );
   const hideAddToLibraryPrompt = useCallback(
     () => setAddToLibraryPromptVisible(false),
     [],
@@ -380,6 +385,9 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
               setSelected={setSelected}
               deleteDownloadSnackbar={deleteDownloadsSnackbar}
               onDownloadChapter={downloadChapterWithPrompt}
+              onFloatingButtonsVisibilityChange={
+                handleFloatingButtonsVisibilityChange
+              }
             />
           </Suspense>
         </SafeAreaView>
@@ -395,7 +403,9 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
             action={snackbarAction}
             theme={snackbarTheme}
             style={styles.snackbar}
-            wrapperStyle={styles.snackbarWrapper}
+            wrapperStyle={
+              hasFloatingButtons ? styles.snackbarAboveFloatingButtons : null
+            }
           >
             <Text style={snackbarTextStyle}>
               {getString('novelScreen.deleteMessage')}
@@ -413,7 +423,9 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
             }}
             theme={snackbarTheme}
             style={styles.snackbar}
-            wrapperStyle={styles.snackbarWrapper}
+            wrapperStyle={
+              hasFloatingButtons ? styles.snackbarAboveFloatingButtons : null
+            }
           >
             <Text style={snackbarTextStyle}>
               {getString('novelScreen.promptAddToLibrary')}
@@ -481,6 +493,6 @@ function createStyles(theme: ThemeColors) {
       justifyContent: 'space-between',
     },
     snackbar: { backgroundColor: theme.surface },
-    snackbarWrapper: { bottom: FLOATING_BUTTON_CLEARANCE },
+    snackbarAboveFloatingButtons: { bottom: FLOATING_BUTTON_CLEARANCE },
   });
 }

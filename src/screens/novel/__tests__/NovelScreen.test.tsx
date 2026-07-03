@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import NovelScreen from '../NovelScreen';
 
@@ -9,6 +9,9 @@ const mockUseNovelValue = jest.fn();
 const mockUseNovelActions = jest.fn();
 const mockBooleanSetFalse = jest.fn();
 let mockBooleanValue = false;
+let mockFloatingButtonsVisibilityChange:
+  | ((visible: boolean) => void)
+  | undefined;
 
 jest.mock('@hooks/persisted', () => ({
   useTheme: () => ({
@@ -69,7 +72,13 @@ jest.mock('../components/NovelScreenList', () => {
 
   return {
     __esModule: true,
-    default: ({ onDownloadChapter, setSelected }: any) => {
+    default: ({
+      onDownloadChapter,
+      onFloatingButtonsVisibilityChange,
+      setSelected,
+    }: any) => {
+      mockFloatingButtonsVisibilityChange = onFloatingButtonsVisibilityChange;
+
       const base = {
         id: 1,
         novelId: 7,
@@ -194,11 +203,18 @@ jest.mock('react-native-paper', () => {
         ),
       Content: ({ title }: any) => React.createElement(Text, null, title),
     },
-    Snackbar: ({ visible, children, action, onIconPress, testID }: any) =>
+    Snackbar: ({
+      visible,
+      children,
+      action,
+      onIconPress,
+      testID,
+      wrapperStyle,
+    }: any) =>
       visible
         ? React.createElement(
             View,
-            { testID },
+            { testID, style: wrapperStyle },
             children,
             action
               ? React.createElement(
@@ -329,6 +345,7 @@ describe('NovelScreen (task 12 context boundary cutover)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockBooleanValue = false;
+    mockFloatingButtonsVisibilityChange = undefined;
   });
 
   it('uses novelStore action selectors for selected unread workflow', () => {
@@ -469,5 +486,23 @@ describe('NovelScreen (task 12 context boundary cutover)', () => {
     fireEvent.press(screen.getByTestId('delete-downloads-snackbar-close'));
 
     expect(mockBooleanSetFalse).toHaveBeenCalledTimes(1);
+  });
+
+  it('only raises snackbars when a floating button is rendered', () => {
+    const store = createStore();
+    mockBooleanValue = true;
+    wireStoreSelectors(store);
+
+    render(
+      // @ts-expect-error narrowed test props
+      <NovelScreen navigation={navigation} route={route} />,
+    );
+    expect(screen.getByTestId('delete-downloads-snackbar').props.style).toBe(
+      null,
+    );
+    act(() => mockFloatingButtonsVisibilityChange?.(true));
+    expect(screen.getByTestId('delete-downloads-snackbar')).toHaveStyle({
+      bottom: 88,
+    });
   });
 });

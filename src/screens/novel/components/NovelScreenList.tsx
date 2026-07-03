@@ -51,6 +51,7 @@ type NovelScreenListProps = {
   };
   deleteDownloadSnackbar?: UseBooleanReturnType;
   onDownloadChapter: (chapter: ChapterInfo) => void;
+  onFloatingButtonsVisibilityChange: (visible: boolean) => void;
 };
 
 const chapterKeyExtractor = (item: ChapterInfo) => 'c' + item.id;
@@ -64,6 +65,7 @@ const NovelScreenList = ({
   setSelected,
   deleteDownloadSnackbar,
   onDownloadChapter,
+  onFloatingButtonsVisibilityChange,
 }: NovelScreenListProps) => {
   const chapters = useNovelValue('chapters');
   const fetching = useNovelValue('fetching');
@@ -420,6 +422,14 @@ const NovelScreenList = ({
   }, [lastRead, firstUnreadChapter, novel, navigation]);
 
   const hasMultiplePages = pages.length > 1 || (novel?.totalPages ?? 0) > 1;
+  const hasFloatingButtons =
+    novel.id !== 'NO_ID' &&
+    (showScrollToTop ||
+      (useFabForContinueReading && !!(lastRead || firstUnreadChapter)));
+
+  useEffect(() => {
+    onFloatingButtonsVisibilityChange(hasFloatingButtons);
+  }, [hasFloatingButtons, onFloatingButtonsVisibilityChange]);
 
   const openPageNavDrawer = useCallback(
     () => pageNavigationSheetRef.current?.present(),

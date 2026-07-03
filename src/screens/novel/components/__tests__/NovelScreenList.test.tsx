@@ -262,7 +262,10 @@ const navigation = { navigate: jest.fn() };
 const listRef = { current: { scrollToOffset: jest.fn() } };
 const headerOpacity = { set: jest.fn() };
 
-const renderList = (onDownloadChapter = jest.fn()) =>
+const renderList = (
+  onDownloadChapter = jest.fn(),
+  onFloatingButtonsVisibilityChange = jest.fn(),
+) =>
   render(
     <NovelScreenList
       headerOpacity={headerOpacity as any}
@@ -276,6 +279,7 @@ const renderList = (onDownloadChapter = jest.fn()) =>
       selected={[]}
       setSelected={jest.fn()}
       onDownloadChapter={onDownloadChapter}
+      onFloatingButtonsVisibilityChange={onFloatingButtonsVisibilityChange}
     />,
   );
 
@@ -307,6 +311,16 @@ describe('NovelScreenList (task 12 context boundary cutover)', () => {
     expect(onDownloadChapter).toHaveBeenCalledWith(baseChapter);
   });
 
+  it('reports whether floating buttons are currently rendered', () => {
+    const store = createStore();
+    const onFloatingButtonsVisibilityChange = jest.fn();
+    wireStoreSelectors(store);
+
+    renderList(jest.fn(), onFloatingButtonsVisibilityChange);
+
+    expect(onFloatingButtonsVisibilityChange).toHaveBeenLastCalledWith(true);
+  });
+
   it('marks downloaded chapter when an id leaves downloading set', () => {
     const store = createStore();
 
@@ -329,6 +343,7 @@ describe('NovelScreenList (task 12 context boundary cutover)', () => {
         selected={[]}
         setSelected={jest.fn()}
         onDownloadChapter={jest.fn()}
+        onFloatingButtonsVisibilityChange={jest.fn()}
       />,
     );
 
