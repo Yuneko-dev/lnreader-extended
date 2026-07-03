@@ -1050,43 +1050,130 @@ describe('ChapterQueries', () => {
   });
 
   describe('getNovelDownloadedChapters', () => {
-    it('should return downloaded chapters for a novel', async () => {
+    it('should return downloaded chapters in page and position order', async () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
       await insertTestChapter(testDb, novelId, {
         isDownloaded: true,
+        page: '10',
+        position: 1,
+      });
+      await insertTestChapter(testDb, novelId, {
+        isDownloaded: true,
+        page: '2',
+        position: 1,
+      });
+      await insertTestChapter(testDb, novelId, {
+        isDownloaded: true,
+        page: '1',
+        position: 1,
+      });
+      await insertTestChapter(testDb, novelId, {
+        isDownloaded: true,
+        page: '2',
         position: 0,
       });
       await insertTestChapter(testDb, novelId, {
         isDownloaded: false,
+        page: '1',
+        position: 0,
+      });
+
+      const result = await getNovelDownloadedChapters(novelId);
+
+      expect(result.map(chapter => [chapter.page, chapter.position])).toEqual([
+        ['1', 1],
+        ['2', 0],
+        ['2', 1],
+        ['10', 1],
+      ]);
+    });
+
+    it('should apply a range to the ordered downloaded chapters', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+      await insertTestChapter(testDb, novelId, {
+        name: 'Chapter 1',
+        isDownloaded: true,
+        page: '1',
+        position: 0,
+      });
+      await insertTestChapter(testDb, novelId, {
+        name: 'Chapter 2',
+        isDownloaded: true,
+        page: '1',
+        position: 1,
+      });
+      await insertTestChapter(testDb, novelId, {
+        name: 'Chapter 3',
+        isDownloaded: true,
+        page: '2',
+        position: 0,
+      });
+      await insertTestChapter(testDb, novelId, {
+        name: 'Chapter 4',
+        isDownloaded: true,
+        page: '2',
+        position: 1,
+      });
+
+      const result = await getNovelDownloadedChapters(novelId, 2, 3);
+
+      expect(result.map(chapter => chapter.name)).toEqual([
+        'Chapter 2',
+        'Chapter 3',
+      ]);
+    });
+
+    it('should order marked volume pages by global position', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+      await insertTestChapter(testDb, novelId, {
+        name: 'Volume 10 first',
+        isDownloaded: true,
+        page: '10\u200b',
+        position: 0,
+      });
+      await insertTestChapter(testDb, novelId, {
+        name: 'Volume 2 second',
+        isDownloaded: true,
+        page: '2\u200b',
         position: 1,
       });
 
       const result = await getNovelDownloadedChapters(novelId);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].isDownloaded).toBe(true);
+      expect(result.map(chapter => chapter.name)).toEqual([
+        'Volume 10 first',
+        'Volume 2 second',
+      ]);
     });
 
-    it('should filter by position range', async () => {
+    it('should apply a range across marked volume pages', async () => {
       const testDb = getTestDb();
       const novelId = await insertTestNovel(testDb, { inLibrary: true });
-      await insertTestChapter(testDb, novelId, {
-        isDownloaded: true,
-        position: 0,
-      });
-      await insertTestChapter(testDb, novelId, {
-        isDownloaded: true,
-        position: 1,
-      });
-      await insertTestChapter(testDb, novelId, {
-        isDownloaded: true,
-        position: 2,
-      });
+      const chapters = [
+        ['Volume 1 Chapter 1', 'Volume 1\u200b'],
+        ['Volume 1 Chapter 2', 'Volume 1\u200b'],
+        ['Volume 2 Chapter 1', 'Volume 2\u200b'],
+        ['Volume 2 Chapter 2', 'Volume 2\u200b'],
+      ] as const;
 
-      const result = await getNovelDownloadedChapters(novelId, 0, 1);
+      for (const [position, [name, page]] of chapters.entries()) {
+        await insertTestChapter(testDb, novelId, {
+          name,
+          page,
+          position,
+          isDownloaded: true,
+        });
+      }
 
-      expect(result.length).toBeLessThanOrEqual(2);
+      const result = await getNovelDownloadedChapters(novelId, 2, 3);
+
+      expect(result.map(chapter => chapter.name)).toEqual([
+        'Volume 1 Chapter 2',
+        'Volume 2 Chapter 1',
+      ]);
     });
   });
 

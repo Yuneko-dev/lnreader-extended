@@ -1,3 +1,4 @@
+import { normalizePluginChapters } from '@plugins/helpers/chapterPage';
 import { isUrlAbsolute } from '@plugins/helpers/isAbsoluteUrl';
 import { getPlugin } from '@plugins/pluginManager';
 
@@ -7,7 +8,10 @@ export const fetchNovel = async (pluginId: string, novelPath: string) => {
     throw new Error(`Unknown plugin: ${pluginId}`);
   }
   const res = await plugin.parseNovel(novelPath);
-  return res;
+  return {
+    ...res,
+    chapters: normalizePluginChapters(pluginId, res.chapters, 'parseNovel'),
+  };
 };
 
 export const fetchChapter = async (pluginId: string, chapterPath: string) => {
@@ -25,7 +29,7 @@ export const fetchChapters = async (pluginId: string, novelPath: string) => {
     throw new Error(`Unknown plugin: ${pluginId}`);
   }
   const res = await plugin.parseNovel(novelPath);
-  return res?.chapters;
+  return normalizePluginChapters(pluginId, res.chapters, 'parseNovel');
 };
 
 export const fetchPage = async (
@@ -43,7 +47,10 @@ export const fetchPage = async (
     throw new Error(`Could not fetch chapters for page ${page}`);
   }
   const res = await plugin.parsePage(novelPath, page);
-  return res;
+  return {
+    ...res,
+    chapters: normalizePluginChapters(pluginId, res.chapters, 'parsePage'),
+  };
 };
 
 export const resolveUrl = (

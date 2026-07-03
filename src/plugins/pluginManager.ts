@@ -32,6 +32,7 @@ import { reverse, uniqBy } from 'lodash-es';
 import NodeCrypto from 'react-native-quick-crypto';
 import { decode, encode } from 'urlencode';
 
+import { createVolumePage, VOLUME_PAGE_MARKER } from './helpers/chapterPage';
 import {
   solveCloudflareAPI,
   solveCloudflareTurnstileAPI,
@@ -65,6 +66,8 @@ const packages: Record<string, any> = {
   '@libs/defaultCover': { defaultCover },
   '@libs/aes': { ctr, ecb, cbc, cfb, gcm, gcmsiv, aeskw, aeskwp, cmac, aessiv },
   '@libs/utils': {
+    createVolumePage,
+    VOLUME_PAGE_MARKER,
     utf8ToBytes,
     bytesToUtf8,
     Buffer: NodeCrypto.Buffer,

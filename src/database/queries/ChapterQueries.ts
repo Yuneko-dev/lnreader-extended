@@ -802,24 +802,28 @@ export const getNovelDownloadedChapters = async (
   startPosition?: number,
   endPosition?: number,
 ): Promise<ChapterInfo[]> => {
-  const whereConditions = [
-    eq(chapterSchema.novelId, novelId),
-    eq(chapterSchema.isDownloaded, true),
-  ];
+  const pageOrder = sql<number>`CASE
+    WHEN substr(${chapterSchema.page}, -1) = char(8203) THEN 0
+    ELSE CAST(${chapterSchema.page} AS INTEGER)
+  END`;
 
-  if (startPosition !== undefined && endPosition !== undefined) {
-    whereConditions.push(
-      sql`${chapterSchema.position} >= ${startPosition - 1}`,
-    );
-    whereConditions.push(sql`${chapterSchema.position} <= ${endPosition - 1}`);
-  }
-
-  return dbManager
+  const query = dbManager
     .select()
     .from(chapterSchema)
-    .where(and(...whereConditions))
-    .orderBy(asc(chapterSchema.position))
-    .all();
+    .where(
+      and(
+        eq(chapterSchema.novelId, novelId),
+        eq(chapterSchema.isDownloaded, true),
+      ),
+    )
+    .orderBy(asc(pageOrder), asc(chapterSchema.position), asc(chapterSchema.id))
+    .$dynamic();
+
+  if (startPosition !== undefined && endPosition !== undefined) {
+    query.limit(endPosition - startPosition + 1).offset(startPosition - 1);
+  }
+
+  return query.all();
 };
 
 export const getUpdatedOverviewFromDb = async () =>
