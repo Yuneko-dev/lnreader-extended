@@ -20,6 +20,7 @@ import com.rajarsheechatterjee.NativeEpub.NativeEpubPackage
 import com.rajarsheechatterjee.LocalServer.LocalServerPackage
 import com.rajarsheechatterjee.TikTokTTS.TikTokTTSPackage
 import com.rajarsheechatterjee.NativeCDPProxy.CDPProxyPackage
+import com.rajarsheechatterjee.NativeMaterialYou.NativeMaterialYouPackage
 import expo.modules.ApplicationLifecycleDispatcher
 
 class MainApplication : Application(), ReactApplication {
@@ -38,6 +39,7 @@ class MainApplication : Application(), ReactApplication {
                     add(LocalServerPackage())
                     add(TikTokTTSPackage())
                     add(CDPProxyPackage())
+                    add(NativeMaterialYouPackage())
                 },
         )
     }

@@ -2,10 +2,9 @@ import { SegmentedControl } from '@components';
 import type { SegmentedControlOption } from '@components/SegmentedControl';
 import Switch from '@components/Switch/Switch';
 import { ThemePicker } from '@components/ThemePicker/ThemePicker';
-import { useTheme } from '@hooks/persisted';
+import { useAvailableThemes, useTheme } from '@hooks/persisted';
 import { LegendList } from '@legendapp/list';
 import { getString } from '@strings/translations';
-import { darkThemes, lightThemes } from '@theme/md3';
 import { ThemeColors } from '@theme/types';
 import React, { useMemo } from 'react';
 import {
@@ -54,14 +53,15 @@ const AmoledToggle: React.FC<AmoledToggleProps> = ({ theme }) => {
 
 export default function ThemeSelectionStep() {
   const theme = useTheme();
+  const availableThemes = useAvailableThemes();
   const [themeMode = 'system', setThemeMode] = useMMKVString('THEME_MODE');
   const [, setThemeId] = useMMKVNumber('APP_THEME_ID');
 
   const currentMode = themeMode as ThemeMode;
 
-  const availableThemes = useMemo(() => {
-    return theme.isDark ? darkThemes : lightThemes;
-  }, [theme.isDark]);
+  const visibleThemes = useMemo(() => {
+    return theme.isDark ? availableThemes.dark : availableThemes.light;
+  }, [availableThemes, theme.isDark]);
 
   const themeModeOptions: SegmentedControlOption<ThemeMode>[] = useMemo(
     () => [
@@ -133,7 +133,7 @@ export default function ThemeSelectionStep() {
       <LegendList
         numColumns={3}
         showsHorizontalScrollIndicator={false}
-        data={availableThemes}
+        data={visibleThemes}
         extraData={theme}
         keyExtractor={item => 'theme-' + item.id}
         renderItem={({ item }) => (

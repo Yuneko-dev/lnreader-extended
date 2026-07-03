@@ -1,3 +1,9 @@
+import {
+  AvailableThemes,
+  buildAvailableThemes,
+  isMaterialYouTheme,
+  readMaterialYouThemes,
+} from '@theme/materialYou';
 import { darkThemes, lightThemes } from '@theme/md3';
 import { ThemeColors } from '@theme/types';
 import Color from 'color';
@@ -66,8 +72,9 @@ const applyCustomAccent = (
 const findThemeById = (
   themeId: number | undefined,
   isDark: boolean,
+  availableThemes: AvailableThemes,
 ): ThemeColors => {
-  const themeList = isDark ? darkThemes : lightThemes;
+  const themeList = isDark ? availableThemes.dark : availableThemes.light;
   let theme: ThemeColors | undefined;
   if (themeId !== undefined) {
     const id = transformThemeId(themeId, isDark);
@@ -112,18 +119,23 @@ const getBaseTheme = (
   themeMode: string,
   themeId: number | undefined,
   systemColorScheme: ColorSchemeName,
+  availableThemes: AvailableThemes,
 ): ThemeColors => {
   if (themeMode === 'system') {
     const shouldUseDarkTheme = systemColorScheme === 'dark';
-    return findThemeById(themeId, shouldUseDarkTheme);
+    return findThemeById(themeId, shouldUseDarkTheme, availableThemes);
   }
 
   const isDark = themeMode === 'dark';
 
-  return findThemeById(themeId, isDark);
+  return findThemeById(themeId, isDark, availableThemes);
 };
 
 const ThemeContext = createContext<ThemeColors | null>(null);
+const AvailableThemesContext = createContext<AvailableThemes>({
+  light: lightThemes,
+  dark: darkThemes,
+});
 
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
   const [themeId] = useMMKVNumber('APP_THEME_ID');
@@ -133,6 +145,10 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
 
   const [systemColorScheme, setSystemColorScheme] = useState<ColorSchemeName>(
     Appearance.getColorScheme() ?? 'light',
+  );
+  const availableThemes = useMemo(
+    () => buildAvailableThemes(readMaterialYouThemes()),
+    [],
   );
 
   useEffect(() => {
@@ -144,15 +160,34 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const theme = useMemo<ThemeColors>(() => {
-    const baseTheme = getBaseTheme(themeMode, themeId, systemColorScheme);
+    const baseTheme = getBaseTheme(
+      themeMode,
+      themeId,
+      systemColorScheme,
+      availableThemes,
+    );
     const withAmoled = applyAmoledBlack(baseTheme, isAmoledBlack);
-    const withAccent = applyCustomAccent(withAmoled, customAccent);
+    const withAccent = applyCustomAccent(
+      withAmoled,
+      isMaterialYouTheme(baseTheme) ? undefined : customAccent,
+    );
     const finalTheme = addComputedColors(withAccent);
 
     return finalTheme;
-  }, [themeId, themeMode, systemColorScheme, isAmoledBlack, customAccent]);
+  }, [
+    themeId,
+    themeMode,
+    systemColorScheme,
+    isAmoledBlack,
+    customAccent,
+    availableThemes,
+  ]);
 
-  return createElement(ThemeContext.Provider, { value: theme }, children);
+  return createElement(
+    AvailableThemesContext.Provider,
+    { value: availableThemes },
+    createElement(ThemeContext.Provider, { value: theme }, children),
+  );
 };
 
 export const useTheme = (): ThemeColors => {
@@ -165,3 +200,6 @@ export const useTheme = (): ThemeColors => {
 
   return theme;
 };
+
+export const useAvailableThemes = (): AvailableThemes =>
+  useContext(AvailableThemesContext);

@@ -2,10 +2,10 @@ import { Appbar, List, SafeAreaView, SegmentedControl } from '@components';
 import ColorPickerModal from '@components/ColorPickerModal/ColorPickerModal';
 import type { SegmentedControlOption } from '@components/SegmentedControl';
 import { ThemePicker } from '@components/ThemePicker/ThemePicker';
-import { useAppSettings, useTheme } from '@hooks/persisted';
+import { useAppSettings, useAvailableThemes, useTheme } from '@hooks/persisted';
 import { AppearanceSettingsScreenProps } from '@navigators/types';
 import { getString } from '@strings/translations';
-import { darkThemes, lightThemes } from '@theme/md3';
+import { isMaterialYouTheme } from '@theme/materialYou';
 import { ThemeColors } from '@theme/types';
 import Color from 'color';
 import React, { useMemo, useState } from 'react';
@@ -30,6 +30,7 @@ type ThemeMode = 'light' | 'dark' | 'system';
 
 const AppearanceSettings = ({ navigation }: AppearanceSettingsScreenProps) => {
   const theme = useTheme();
+  const availableThemes = useAvailableThemes();
   const [, setThemeId] = useMMKVNumber('APP_THEME_ID');
   const [themeMode = 'system', setThemeMode] = useMMKVString('THEME_MODE') as [
     ThemeMode,
@@ -231,17 +232,18 @@ const AppearanceSettings = ({ navigation }: AppearanceSettingsScreenProps) => {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-              {(actualThemeMode === 'light' ? lightThemes : darkThemes).map(
-                item => (
-                  <ThemePicker
-                    horizontal
-                    key={item.id}
-                    currentTheme={theme}
-                    theme={item}
-                    onPress={e => handleThemeSelect(item, e)}
-                  />
-                ),
-              )}
+              {(actualThemeMode === 'light'
+                ? availableThemes.light
+                : availableThemes.dark
+              ).map(item => (
+                <ThemePicker
+                  horizontal
+                  key={item.id}
+                  currentTheme={theme}
+                  theme={item}
+                  onPress={e => handleThemeSelect(item, e)}
+                />
+              ))}
             </ScrollView>
           </View>
           {theme.isDark ? (
@@ -252,12 +254,14 @@ const AppearanceSettings = ({ navigation }: AppearanceSettingsScreenProps) => {
               theme={theme}
             />
           ) : null}
-          <List.ColorItem
-            title={getString('appearanceScreen.accentColor')}
-            color={Color(theme.primary)}
-            onPress={showAccentColorModal}
-            theme={theme}
-          />
+          {!isMaterialYouTheme(theme) ? (
+            <List.ColorItem
+              title={getString('appearanceScreen.accentColor')}
+              color={Color(theme.primary)}
+              onPress={showAccentColorModal}
+              theme={theme}
+            />
+          ) : null}
           <List.Item
             title={getString('appearanceScreen.appLanguage')}
             description={getCurrentLanguageName()}

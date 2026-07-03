@@ -130,6 +130,7 @@ export interface StringMap {
   'appearanceScreen.themeModeDark': 'string';
   'appearanceScreen.themeModeSystem': 'string';
   'appearanceScreen.theme.default': 'string';
+  'appearanceScreen.theme.materialYou': 'string';
   'appearanceScreen.theme.lavender': 'string';
   'appearanceScreen.theme.midnightDusk': 'string';
   'appearanceScreen.theme.daybreakBloom': 'string';
