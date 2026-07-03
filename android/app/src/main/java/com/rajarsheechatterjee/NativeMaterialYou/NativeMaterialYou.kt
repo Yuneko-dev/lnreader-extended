@@ -19,9 +19,9 @@ class NativeMaterialYou(reactContext: ReactApplicationContext) :
             "dark" to emptyPalette(),
         )
 
-        if (!isDynamicColorSupported()) return unavailable
-
         return try {
+            if (!isDynamicColorSupported()) return unavailable
+
             val light = readPalette("light")
             val dark = readPalette("dark")
             mutableMapOf(
