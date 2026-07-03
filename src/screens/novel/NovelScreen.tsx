@@ -306,7 +306,15 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   const clearSelection = useCallback(() => setSelected([]), []);
   const selectAll = useCallback(() => setSelected(chapters), [chapters]);
 
-  const snackbarTheme = useMemo(() => ({ colors: theme }), [theme]);
+  const snackbarTheme = useMemo(
+    () => ({
+      colors: {
+        ...theme,
+        inverseOnSurface: theme.onSurface,
+      },
+    }),
+    [theme],
+  );
   const snackbarTextStyle = useMemo(
     () => ({ color: theme.onSurface }),
     [theme.onSurface],
