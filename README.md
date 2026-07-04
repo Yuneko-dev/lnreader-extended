@@ -13,27 +13,109 @@ This is a modified version for my personal use. It is perfectly compatible with 
 
 ---
 
-### Screenshots
+### What’s different from LNReader?
 
-|||||
-| :-: | :-: | :-: | :-: |
-| <img src="./.github/readme-images/v2/applock.jpg" width="220" /> | <img src="./.github/readme-images/v2/book_detail.jpg" width="220" /> | <img src="./.github/readme-images/v2/reader.jpg" width="220" /> | <img src="./.github/readme-images/v2/translate.jpg" width="220" /> |
+<details>
+<summary><b>Built-in chapter translation</b> (Click to expand/collapse)</summary>
 
-### Key Changes from the Original LNReader
+- Translate novels directly in the reader using Google Translate
+- Translate with an LLM (OpenAI/OpenAI-compatible APIs or Gemini/Gemini Proxy)
+- Manage LLM providers
+- Manage translation system prompts
+- Automatically pre-translate the next chapter
+- Enable or disable chapter splitting by word count to avoid exceeding the model's context window
+- Automatically retry failed translations
+- Download translated chapters for offline reading
+- Optionally include LLM API keys in backups
+- And many more features coming soon...
 
-- **Advanced Light Novel Structure**: Partial support for organizing Japanese Light Novels into "series" and "volumes" based on the legacy Page structure.
-- **Auto HTTPS Upgrade**: The reader WebView now automatically upgrades insecure HTTP connections to HTTPS.
-- ~~**Default DNS over HTTPS (DoH)**: Implemented DoH by default using Cloudflare's 1.1.1.1 for enhanced privacy and bypass.~~ https://github.com/Yuneko-dev/lnreader-extended/issues/8
-- **EPUB Image Fixes**: Fixed bugs causing missing images when exporting image-heavy novels to EPUB (also resolved issues when importing these EPUB files).
-- **EPUB Import Permissions**: Fixed file read permission errors that occurred when importing EPUBs.
-- **Novel Translation**: Implemented in-app novel translation capabilities using Google Translate and LLMs.
-- **App Lock & Privacy**: Added custom App Lock and prevented taking screenshots to protect privacy.
-- **Smooth Backups**: Optimized the Backup & Restore menu to prevent UI freezes.
-- **Developer Tools**: Added a Debug menu and a Storage/Cache viewer.
-- **UI Enhancements**: Minor but meaningful tweaks and improvements to the user interface.
-- **Samsung S-Pen Air Actions (Only on N10-N20U/S21U-S24U/Tab S6-Tab S10U)**: Support for Samsung users with S-Pen to control without touching the screen when reading.
-- **Bypass CF Turnstile**: wtf
-- **Discord RPC**
+|                                                                    |                                                                        |                                                             |
+| :----------------------------------------------------------------: | :--------------------------------------------------------------------: | :---------------------------------------------------------: |
+| <img src="./.github/readme-images/v2/translate/ai_settings.jpg" /> | <img src="./.github/readme-images/v2/translate/reader_settings.jpg" /> | <img src="./.github/readme-images/v2/translate/demo.jpg" /> |
+
+</details>
+
+<details>
+<summary><b>Privacy and Security</b> (Click to expand/collapse)</summary>
+
+- The reader WebView now automatically upgrades insecure HTTP connections to HTTPS.
+- ~~Implemented DoH by default using Cloudflare's 1.1.1.1 for enhanced privacy and bypass.~~ https://github.com/Yuneko-dev/lnreader-extended/issues/8
+- Security features are inspired by Mihon. Special thanks to the developers for creating such an excellent app.
+- Fixed a path traversal vulnerability.
+
+|                                                                         |                                                               |
+| :---------------------------------------------------------------------: | :-----------------------------------------------------------: |
+| <img src="./.github/readme-images/v2/security/security_settings.jpg" /> | <img src="./.github/readme-images/v2/security/applock.jpg" /> |
+
+</details>
+
+<details>
+<summary><b>Reader Features</b> (Click to expand/collapse)</summary>
+
+- Partial support for organizing Japanese Light Novels into "series" and "volumes" based on the legacy Page structure.
+- Fixed most issues with the paged reading mode.
+- Swiping to change chapters now uses vertical gestures (when paged reading is disabled), providing a more ergonomic reading experience.
+- Optimized for E-Ink displays (untested).
+- Added more reading fonts.
+
+|                                                                 |                                                           |                                                                |
+| :-------------------------------------------------------------: | :-------------------------------------------------------: | :------------------------------------------------------------: |
+| <img src="./.github/readme-images/v2/reader/book_detail.jpg" /> | <img src="./.github/readme-images/v2/reader/fonts.jpg" /> | <img src="./.github/readme-images/v2/reader/demo_swipe.gif" /> |
+
+</details>
+
+<details>
+<summary><b>EPUB-Specific Features</b> (Click to expand/collapse)</summary>
+
+- The EPUB importer has been extensively improved and now provides much better support for EPUB 2 and EPUB 3.
+- The EPUB exporter has been significantly improved, fixing many critical issues, including:
+  - Export failures when a chapter contains multiple images
+  - Compatibility issues with some EPUB readers
+  - Chapter ordering issues
+
+> Exported EPUBs follow the EPUB 3 specification and pass most EPUBCheck v5 validations (depending on the novel's HTML content).
+
+- A dedicated export log screen is available during EPUB export, making the waiting time more informative.
+- Open `.epub` files directly to import them into the app.
+
+</details>
+
+<details>
+<summary><b>App and UI/UX Improvements</b> (Click to expand/collapse)</summary>
+
+- Support for Android Dynamic Colors (Material You).
+- Discord Rich Presence (RPC), so you can share your reading status with your friends.
+- Added a Debug menu and a Storage/Cache viewer.
+- Optimized the Backup & Restore menu to prevent UI freezes.
+- Search history for novels across sources and libraries.
+- Added support for Samsung S Pen Air Actions (available on the N10-N20U/S21U-S24U/Tab S6-Tab S10U), allowing users to control the app without touching the screen.
+- Displays the current URL in the app's WebView.
+- Added support for the `<video>` element, along with experimental video playback support.
+- Added many new libraries and APIs for plugin developers.
+- Enable or disable plugin repositories.
+- Built-in Cloudflare/Turnstile solver (with APIs available for plugins).
+- Warns when an installed plugin no longer exists (has been removed) from its repository.
+- Added a statistics screen showing total reading time for each novel and chapter.
+- Added several user warning dialogs.
+- Improved backup and restore performance, along with a log screen to provide progress feedback.
+- Optimized several database queries.
+- Improved various UI and UX aspects.
+
+</details>
+
+<details>
+<summary><b>Upcoming Features</b> (Click to expand/collapse)</summary>
+
+> Here are some of the features I plan to add in the future:
+
+- Advanced novel translation with improved translation consistency.
+- Stable background Text-to-Speech (TTS) playback.
+- More detailed reading statistics, including per-session tracking to enable daily statistics.
+- Search within the current chapter or across the entire novel.
+- Features inspired by other novel reader apps that I find useful.
+- Selected feature requests from the upstream repository.
+
+</details>
 
 ---
 
