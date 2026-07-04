@@ -167,7 +167,7 @@ const ReaderAppbar = ({
           </View>
           <IconButtonV2
             name={bookmarked ? 'bookmark' : 'bookmark-outline'}
-            size={24}
+            size={26}
             onPress={() => {
               bookmarkChapter(chapter.id).then(() =>
                 setBookmarked(!bookmarked),
@@ -221,7 +221,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginStart: 4,
-    marginBottom: 3,
+    marginEnd: -4,
+    marginBottom: 4,
   },
   progressBarContainer: {
     width: 28,
