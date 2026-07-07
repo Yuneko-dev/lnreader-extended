@@ -275,39 +275,35 @@ export class DiscordRPCManager {
       } else {
         try {
           const res = await FileSystem.uploadAsync(
-            'https://tmpfiles.org/api/v1/upload',
+            'https://litterbox.catbox.moe/resources/internals/api.php',
             cover,
             {
-              fieldName: 'file',
+              fieldName: 'fileToUpload',
               httpMethod: 'POST',
               parameters: {
-                expire: '86400',
+                reqtype: 'fileupload',
+                time: '24h', // '1h', '12h', '24h', '72h'
+                fileNameLength: '16', // 6 or 16
               },
               uploadType: FileSystem.FileSystemUploadType.MULTIPART,
               headers: {
-                'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                'User-Agent': `${APP_NAME} (${APP_GITHUB})`,
               },
             },
           );
-          const json = JSON.parse(res.body);
+          const litterboxUrl = res.body.trim();
           if (
             res.status === 200 &&
-            json?.status === 'success' &&
-            json?.data?.url
+            litterboxUrl.startsWith('https://litter.catbox.moe/')
           ) {
-            const directUrl = json.data.url.replace(
-              'tmpfiles.org/',
-              'tmpfiles.org/dl/',
-            );
-            this.uploadedImages.set(cover, directUrl);
-            uploadUrl = directUrl;
+            this.uploadedImages.set(cover, litterboxUrl);
+            uploadUrl = litterboxUrl;
           } else {
             return null;
           }
         } catch (e) {
           // eslint-disable-next-line no-console
-          console.log('Failed to upload local cover to tmpfiles', e);
+          console.log('Failed to upload local cover to Litterbox', e);
           return null;
         }
       }
