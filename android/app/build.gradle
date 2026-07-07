@@ -162,6 +162,9 @@ dependencies {
 
     implementation 'org.jsoup:jsoup:1.22.1'
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
+    implementation platform("com.squareup.okhttp3:okhttp-bom:${rootProject.ext.okhttpVersion}")
+    implementation "com.squareup.okhttp3:okhttp"
+    implementation "com.squareup.okhttp3:okhttp-urlconnection"
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
