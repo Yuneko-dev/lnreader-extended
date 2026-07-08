@@ -36,6 +36,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
   const [logsModalVisible, setLogsModalVisible] = React.useState(false);
   const [exportParams, setExportParams] = React.useState<{
     destinationUri: string;
+    fileName: string;
     startChapter?: number;
     endChapter?: number;
   }>();
@@ -114,6 +115,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
 
   const handleExportSubmit = (
     destinationUri: string,
+    fileName: string,
     startChapter?: number,
     endChapter?: number,
   ) => {
@@ -122,7 +124,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       return;
     }
 
-    setExportParams({ destinationUri, startChapter, endChapter });
+    setExportParams({ destinationUri, fileName, startChapter, endChapter });
     hideModal();
     setLogsModalVisible(true);
   };
@@ -133,6 +135,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       <Portal>
         <ExportEpubModal
           isVisible={isModalVisible}
+          novelName={novel?.name}
           hideModal={hideModal}
           onSubmit={handleExportSubmit}
         />
@@ -142,6 +145,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
             onDismiss={() => setLogsModalVisible(false)}
             novel={novel}
             destinationUri={exportParams.destinationUri}
+            fileName={exportParams.fileName}
             startChapter={exportParams.startChapter}
             endChapter={exportParams.endChapter}
             epubStylesheet={epubStylesheet}

@@ -425,9 +425,12 @@ export interface StringMap {
   'novelScreen.exportEpubModal.downloadedChaptersOnly': 'string';
   'novelScreen.exportEpubModal.endChapter': 'string';
   'novelScreen.exportEpubModal.exportAll': 'string';
+  'novelScreen.exportEpubModal.fileName': 'string';
   'novelScreen.exportEpubModal.includeCustomCSS': 'string';
   'novelScreen.exportEpubModal.includeCustomJS': 'string';
+  'novelScreen.exportEpubModal.invalidFileName': 'string';
   'novelScreen.exportEpubModal.invalidRange': 'string';
+  'novelScreen.exportEpubModal.overwriteWarning': 'string';
   'novelScreen.exportEpubModal.selectFolder': 'string';
   'novelScreen.exportEpubModal.startChapter': 'string';
   'novelScreen.exportEpubModal.startGreaterThanEnd': 'string';

@@ -20,6 +20,7 @@ interface ExportEpubLogsModalProps {
   onDismiss: () => void;
   novel: NovelInfo;
   destinationUri: string;
+  fileName: string;
   startChapter?: number;
   endChapter?: number;
   epubStylesheet?: string;
@@ -32,6 +33,7 @@ export default function ExportEpubLogsModal({
   onDismiss,
   novel,
   destinationUri,
+  fileName,
   startChapter,
   endChapter,
   epubStylesheet,
@@ -82,7 +84,7 @@ export default function ExportEpubLogsModal({
       epub = new EpubBuilder(
         {
           title: novel.name,
-          fileName: novel.name.replace(/[\\/:*?"<>|\s]/g, '') || 'novel',
+          fileName,
           language: 'en',
           cover: novel.cover ?? undefined,
           description: novel.summary ?? undefined,
@@ -230,6 +232,7 @@ export default function ExportEpubLogsModal({
   }, [
     novel,
     destinationUri,
+    fileName,
     startChapter,
     endChapter,
     epubStylesheet,

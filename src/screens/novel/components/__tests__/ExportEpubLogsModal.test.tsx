@@ -1,5 +1,6 @@
 import { getNovelDownloadedChapters } from '@database/queries/ChapterQueries';
 import { NovelInfo } from '@database/types';
+import EpubBuilder from '@modules/react-native-epub-creator';
 import { act, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
@@ -105,6 +106,7 @@ describe('ExportEpubLogsModal', () => {
         onDismiss={onDismiss}
         novel={novel}
         destinationUri="content://exports"
+        fileName="custom-export"
       />,
     );
 
@@ -124,6 +126,7 @@ describe('ExportEpubLogsModal', () => {
         onDismiss={onDismiss}
         novel={novel}
         destinationUri="content://exports"
+        fileName="custom-export"
       />,
     );
     view.rerender(
@@ -132,6 +135,7 @@ describe('ExportEpubLogsModal', () => {
         onDismiss={onDismiss}
         novel={novel}
         destinationUri="content://exports"
+        fileName="custom-export"
       />,
     );
     await waitFor(() =>
@@ -148,10 +152,17 @@ describe('ExportEpubLogsModal', () => {
         onDismiss={onDismiss}
         novel={novel}
         destinationUri="content://exports"
+        fileName="custom-export"
       />,
     );
 
     await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
+    expect(EpubBuilder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fileName: 'custom-export',
+      }),
+      'content://exports',
+    );
     await waitFor(() => expect(mockTaskLogDialogProps?.running).toBe(false));
 
     act(() => {
@@ -177,6 +188,7 @@ describe('ExportEpubLogsModal', () => {
         onDismiss={jest.fn()}
         novel={novel}
         destinationUri="content://exports"
+        fileName="custom-export"
       />,
     );
 

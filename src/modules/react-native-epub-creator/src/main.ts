@@ -17,7 +17,7 @@ import {
 } from 'react-native-saf-x';
 
 const getEpubfileName = (name: string) => {
-  return name.replace(/\..*$/g, '') + '.epub';
+  return name.replace(/\.epub$/i, '') + '.epub';
 };
 
 const validateDir = async (path: string) => {
