@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3';
 
+import { ReadyEvent } from './events';
 import {
   DEFAULT_SUPER_PROPERTIES,
   DEFAULTS,
@@ -41,16 +42,6 @@ export interface GatewayPacket<T = unknown> {
 export interface GatewayCloseInfo {
   code: number;
   reason: string;
-}
-
-/** The parsed, guaranteed fields of a READY dispatch payload. */
-export interface ReadyEvent {
-  user: {
-    id: string;
-    username: string;
-    global_name?: string;
-  };
-  session_id: string;
 }
 
 export interface GatewayClient {
