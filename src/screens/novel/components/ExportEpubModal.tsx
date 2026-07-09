@@ -177,6 +177,7 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
             underlineColor={theme.outline}
             dense
             style={styles.fileNameInput}
+            maxLength={200}
           />
           <View style={styles.warningContainer}>
             <MaterialCommunityIcons
