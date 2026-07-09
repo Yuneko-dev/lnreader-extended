@@ -2,6 +2,11 @@ import { getRepositoriesFromDb } from '@database/queries/RepositoryQueries';
 import { DISABLED_REPOSITORIES } from '@hooks/persisted/useDisabledRepositories';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
 import {
+  NodeHtmlMarkdown,
+  PostProcessResult,
+  TranslatorCollection,
+} from '@modules/node-html-markdown';
+import {
   aeskw,
   aeskwp,
   aessiv,
@@ -59,6 +64,11 @@ const packages: Record<string, any> = {
   'cheerio': { load },
   'dayjs': dayjs,
   'urlencode': { encode, decode },
+  'node-html-markdown': {
+    NodeHtmlMarkdown,
+    PostProcessResult,
+    TranslatorCollection,
+  },
   '@libs/novelStatus': { NovelStatus },
   '@libs/fetch': { fetchApi, fetchText, fetchProto },
   '@libs/isAbsoluteUrl': { isUrlAbsolute },
