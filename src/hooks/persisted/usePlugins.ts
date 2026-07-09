@@ -4,7 +4,11 @@ import {
   uninstallPlugin as _uninstall,
   updatePlugin as _update,
 } from '@plugins/pluginManager';
-import { PluginItem } from '@plugins/types';
+import {
+  PluginContentType,
+  PluginContentWarning,
+  PluginItem,
+} from '@plugins/types';
 import { getString } from '@strings/translations';
 import { newer } from '@utils/compareVersion';
 import { languagesMapping } from '@utils/constants/languages';
@@ -21,6 +25,29 @@ export const LAST_USED_PLUGIN = 'LAST_USED_PLUGIN';
 export const PINNED_PLUGINS = 'PINNED_PLUGINS';
 export const FILTERED_AVAILABLE_PLUGINS = 'FILTERED_AVAILABLE_PLUGINS';
 export const FILTERED_INSTALLED_PLUGINS = 'FILTERED_INSTALLED_PLUGINS';
+
+const contentWarningValues = new Set<number>([
+  PluginContentWarning.UNSPECIFIED,
+  PluginContentWarning.SAFE,
+  PluginContentWarning.MIXED,
+  PluginContentWarning.NSFW,
+]);
+
+const contentTypeValues = new Set<string>(Object.values(PluginContentType));
+
+const normalizePluginItemMetadata = (plugin: PluginItem): PluginItem => ({
+  ...plugin,
+  contentWarning:
+    typeof plugin.contentWarning === 'number' &&
+    contentWarningValues.has(plugin.contentWarning)
+      ? plugin.contentWarning
+      : PluginContentWarning.UNSPECIFIED,
+  contentType:
+    typeof plugin.contentType === 'string' &&
+    contentTypeValues.has(plugin.contentType)
+      ? (plugin.contentType as PluginContentType)
+      : PluginContentType.NOVEL,
+});
 
 export default function usePlugins() {
   const defaultLang =
@@ -39,6 +66,20 @@ export default function usePlugins() {
   const [availablePlugins = []] =
     useMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS);
 
+  const normalizedLastUsedPlugin = useMemo(
+    () =>
+      lastUsedPlugin ? normalizePluginItemMetadata(lastUsedPlugin) : undefined,
+    [lastUsedPlugin],
+  );
+  const normalizedFilteredAvailablePlugins = useMemo(
+    () => filteredAvailablePlugins.map(normalizePluginItemMetadata),
+    [filteredAvailablePlugins],
+  );
+  const normalizedFilteredInstalledPlugins = useMemo(
+    () => filteredInstalledPlugins.map(normalizePluginItemMetadata),
+    [filteredInstalledPlugins],
+  );
+
   const availablePluginsSet = useMemo(
     () => new Set(availablePlugins.map(p => p.id)),
     [availablePlugins],
@@ -54,15 +95,21 @@ export default function usePlugins() {
         getMMKVObject<PluginItem[]>(INSTALLED_PLUGINS) || [];
       const availableFilterPlugins =
         getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
+      const normalizedInstalledPlugins = installedPlugins.map(
+        normalizePluginItemMetadata,
+      );
+      const normalizedAvailablePlugins = availableFilterPlugins.map(
+        normalizePluginItemMetadata,
+      );
       setFilteredInstalledPlugins(
-        installedPlugins.filter(plg => filter.includes(plg.lang)),
+        normalizedInstalledPlugins.filter(plg => filter.includes(plg.lang)),
       );
       setFilteredAvailablePlugins(
         orderBy(
-          availableFilterPlugins
+          normalizedAvailablePlugins
             .filter(
               avalilablePlugin =>
-                !installedPlugins.some(
+                !normalizedInstalledPlugins.some(
                   installedPlugin => installedPlugin.id === avalilablePlugin.id,
                 ),
             )
@@ -78,15 +125,25 @@ export default function usePlugins() {
     const installedPlugins =
       getMMKVObject<PluginItem[]>(INSTALLED_PLUGINS) || [];
     return fetchPlugins().then(fetchedPlugins => {
+      const normalizedInstalledPlugins = installedPlugins.map(
+        normalizePluginItemMetadata,
+      );
+      const normalizedFetchedPlugins = fetchedPlugins.map(
+        normalizePluginItemMetadata,
+      );
       // Update installed plugins with new version info (immutably)
-      const updatedInstalled = installedPlugins.map(installed => {
-        const remote = fetchedPlugins.find(p => p.id === installed.id);
+      const updatedInstalled = normalizedInstalledPlugins.map(installed => {
+        const remote = normalizedFetchedPlugins.find(
+          p => p.id === installed.id,
+        );
         if (remote && newer(remote.version, installed.version)) {
           const updated = {
             ...installed,
             hasUpdate: true,
             iconUrl: remote.iconUrl,
             url: remote.url,
+            contentWarning: remote.contentWarning,
+            contentType: remote.contentType,
           };
           if (installed.id === lastUsedPlugin?.id) {
             setLastUsedPlugin(updated);
@@ -97,7 +154,7 @@ export default function usePlugins() {
       });
 
       setMMKVObject(INSTALLED_PLUGINS, updatedInstalled);
-      setMMKVObject(AVAILABLE_PLUGINS, fetchedPlugins);
+      setMMKVObject(AVAILABLE_PLUGINS, normalizedFetchedPlugins);
       filterPlugins(languagesFilter);
     });
   }, [filterPlugins, languagesFilter, lastUsedPlugin?.id, setLastUsedPlugin]);
@@ -130,12 +187,14 @@ export default function usePlugins() {
             ...plugin,
             version: _plg.version,
             hasSettings: !!_plg.pluginSettings,
+            contentWarning: _plg.contentWarning,
+            contentType: _plg.contentType,
           };
           // safe
           if (!installedPlugins.some(plg => plg.id === plugin.id)) {
             setMMKVObject(INSTALLED_PLUGINS, [
               ...installedPlugins,
-              actualPlugin,
+              normalizePluginItemMetadata(actualPlugin),
             ]);
           }
           filterPlugins(languagesFilter);
@@ -180,7 +239,9 @@ export default function usePlugins() {
       const availableUpdatePlugins =
         getMMKVObject<PluginItem[]>(AVAILABLE_PLUGINS) || [];
       const latestPlugin =
-        availableUpdatePlugins.find(p => p.id === plugin.id) || plugin;
+        availableUpdatePlugins
+          .map(normalizePluginItemMetadata)
+          .find(p => p.id === plugin.id) || normalizePluginItemMetadata(plugin);
 
       return _update(latestPlugin).then(_plg => {
         if (plugin.version === _plg?.version && !__DEV__) {
@@ -202,11 +263,13 @@ export default function usePlugins() {
                 version: _plg.version,
                 hasUpdate: false,
                 hasSettings: !!_plg.pluginSettings,
+                contentWarning: _plg.contentWarning,
+                contentType: _plg.contentType,
               };
               if (newPlugin.id === lastUsedPlugin?.id) {
                 setLastUsedPlugin(newPlugin);
               }
-              return newPlugin;
+              return normalizePluginItemMetadata(newPlugin);
             }),
           );
           filterPlugins(languagesFilter);
@@ -237,10 +300,10 @@ export default function usePlugins() {
 
   return useMemo(
     () => ({
-      filteredAvailablePlugins,
-      filteredInstalledPlugins,
+      filteredAvailablePlugins: normalizedFilteredAvailablePlugins,
+      filteredInstalledPlugins: normalizedFilteredInstalledPlugins,
       availablePluginsSet,
-      lastUsedPlugin,
+      lastUsedPlugin: normalizedLastUsedPlugin,
       pinnedPlugins,
       languagesFilter,
       setLastUsedPlugin,
@@ -253,10 +316,10 @@ export default function usePlugins() {
       isPinned,
     }),
     [
-      filteredAvailablePlugins,
-      filteredInstalledPlugins,
+      normalizedFilteredAvailablePlugins,
+      normalizedFilteredInstalledPlugins,
       availablePluginsSet,
-      lastUsedPlugin,
+      normalizedLastUsedPlugin,
       pinnedPlugins,
       languagesFilter,
       setLastUsedPlugin,

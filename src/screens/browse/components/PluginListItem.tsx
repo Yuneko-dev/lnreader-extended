@@ -13,6 +13,13 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
+import {
+  AdultContentWarningBadge,
+  getPluginDisplayName,
+  hasAdultContentWarning,
+  PLUGIN_METADATA_SEPARATOR,
+} from './PluginMetadata';
+
 interface PluginListItemProps {
   item: PluginItem;
   theme: ThemeColors;
@@ -43,6 +50,7 @@ export const PluginListItem = memo(
     const isPluginPinned = isPinned(item.id);
     const isMissingFromRepo =
       !isLocalPlugin && !availablePluginsSet.has(item.id);
+    const showAdultContentWarning = hasAdultContentWarning(item.contentWarning);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const rightActionStyle = useMemo(
@@ -65,6 +73,7 @@ export const PluginListItem = memo(
       () => [{ color: theme.onSurfaceVariant }, styles.addition],
       [theme.onSurfaceVariant],
     );
+    const displayName = useMemo(() => getPluginDisplayName(item), [item]);
 
     const handleWebviewPress = useCallback(
       (ref: any) => {
@@ -187,18 +196,25 @@ export const PluginListItem = memo(
           <Image source={{ uri: item.iconUrl }} style={iconStyle} />
           <View style={styles.details}>
             <Text numberOfLines={1} style={nameStyle}>
-              {item.name}
+              {displayName}
             </Text>
             <View style={[styles.row, styles.center]}>
-              <Text numberOfLines={1} style={additionStyle}>
-                {`${item.lang} - ${item.version}`}
-              </Text>
               {isMissingFromRepo && (
                 <MaterialCommunityIcons
                   name="alert-circle-outline"
                   size={14}
                   color="#ffc107"
-                  style={styles.warningIcon}
+                  style={styles.miniIcon}
+                />
+              )}
+              <Text numberOfLines={1} style={additionStyle}>
+                {`${item.lang}${PLUGIN_METADATA_SEPARATOR}${item.version}`}
+              </Text>
+              {showAdultContentWarning && (
+                <AdultContentWarningBadge
+                  color={theme.error}
+                  separatorStyle={additionStyle}
+                  style={[styles.miniIcon, styles.addition]}
                 />
               )}
             </View>
@@ -300,7 +316,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
-  warningIcon: {
-    marginStart: 4,
+  miniIcon: {
+    marginEnd: 4,
   },
 });

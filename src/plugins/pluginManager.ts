@@ -52,11 +52,56 @@ import {
   store,
 } from './helpers/storage';
 import { LOCAL_PLUGIN_ID, localPlugin } from './local/LocalPlugin';
-import { NovelStatus, Plugin, PluginItem, PluginSetting } from './types';
+import {
+  NovelStatus,
+  Plugin,
+  PluginContentType,
+  PluginContentWarning,
+  PluginItem,
+  PluginSetting,
+} from './types';
 import { FilterTypes } from './types/filterTypes';
 
 const getBypassCacheUrl = (url: string) => {
   return `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+};
+
+const contentWarningValues = new Set<number>([
+  PluginContentWarning.UNSPECIFIED,
+  PluginContentWarning.SAFE,
+  PluginContentWarning.MIXED,
+  PluginContentWarning.NSFW,
+]);
+
+const contentTypeValues = new Set<string>(Object.values(PluginContentType));
+
+const normalizePluginContentWarning = (
+  contentWarning: unknown,
+): PluginContentWarning => {
+  return typeof contentWarning === 'number' &&
+    contentWarningValues.has(contentWarning)
+    ? contentWarning
+    : PluginContentWarning.UNSPECIFIED;
+};
+
+const normalizePluginContentType = (
+  contentType: unknown,
+): PluginContentType => {
+  return typeof contentType === 'string' && contentTypeValues.has(contentType)
+    ? (contentType as PluginContentType)
+    : PluginContentType.NOVEL;
+};
+
+const normalizePluginMetadata = (plugin: PluginItem): PluginItem => ({
+  ...plugin,
+  contentWarning: normalizePluginContentWarning(plugin.contentWarning),
+  contentType: normalizePluginContentType(plugin.contentType),
+});
+
+const normalizeLoadedPluginMetadata = <T extends Plugin>(plugin: T): T => {
+  plugin.contentWarning = normalizePluginContentWarning(plugin.contentWarning);
+  plugin.contentType = normalizePluginContentType(plugin.contentType);
+  return plugin;
 };
 
 const packages: Record<string, any> = {
@@ -70,6 +115,10 @@ const packages: Record<string, any> = {
     TranslatorCollection,
   },
   '@libs/novelStatus': { NovelStatus },
+  '@libs/pluginMetadata': {
+    ContentWarning: PluginContentWarning,
+    ContentType: PluginContentType,
+  },
   '@libs/fetch': { fetchApi, fetchText, fetchProto },
   '@libs/isAbsoluteUrl': { isUrlAbsolute },
   '@libs/filterInputs': { FilterTypes },
@@ -138,7 +187,7 @@ const initPlugin = (pluginId: string, rawCode: string) => {
       }
     }
 
-    return plugin;
+    return normalizeLoadedPluginMetadata(plugin);
   } catch (e) {
     console.error('Init Plugin Failed:', e);
     return undefined;
@@ -325,7 +374,7 @@ const fetchPlugins = async (): Promise<PluginItem[]> => {
 
   repoPluginsRes.forEach(repoPlugins => {
     if (repoPlugins.status === 'fulfilled') {
-      allPlugins.push(...repoPlugins.value);
+      allPlugins.push(...repoPlugins.value.map(normalizePluginMetadata));
     } else {
       showToast(repoPlugins.reason.toString());
     }

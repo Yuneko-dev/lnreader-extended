@@ -16,6 +16,14 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+
+import {
+  AdultContentWarningBadge,
+  getPluginDisplayName,
+  hasAdultContentWarning,
+  PLUGIN_METADATA_SEPARATOR,
+} from './PluginMetadata';
+
 interface AvailableTabProps {
   searchText: string;
   theme: ThemeColors;
@@ -39,6 +47,10 @@ const AvailablePluginCard = memo(
     const textStyles = useAnimatedStyle(() => ({
       lineHeight: ratio.value * 20,
     }));
+    const displayName = useMemo(() => getPluginDisplayName(plugin), [plugin]);
+    const showAdultContentWarning = hasAdultContentWarning(
+      plugin.contentWarning,
+    );
 
     return (
       <View>
@@ -74,18 +86,32 @@ const AvailablePluginCard = memo(
                   textStyles,
                 ]}
               >
-                {plugin.name}
+                {displayName}
               </Animated.Text>
-              <Animated.Text
-                numberOfLines={1}
-                style={[
-                  { color: theme.onSurfaceVariant },
-                  styles.addition,
-                  textStyles,
-                ]}
-              >
-                {`${getLocaleLanguageName(plugin.lang)} - ${plugin.version}`}
-              </Animated.Text>
+              <Animated.View style={[styles.row, styles.center]}>
+                <Animated.Text
+                  numberOfLines={1}
+                  style={[
+                    { color: theme.onSurfaceVariant },
+                    styles.addition,
+                    textStyles,
+                  ]}
+                >
+                  {`${getLocaleLanguageName(
+                    plugin.lang,
+                  )}${PLUGIN_METADATA_SEPARATOR}${plugin.version}`}
+                </Animated.Text>
+                {showAdultContentWarning ? (
+                  <AdultContentWarningBadge
+                    color={theme.error}
+                    separatorStyle={[
+                      { color: theme.onSurfaceVariant },
+                      styles.addition,
+                    ]}
+                    style={[styles.miniIcon, styles.addition]}
+                  />
+                ) : null}
+              </Animated.View>
             </Animated.View>
           </Animated.View>
           <IconButtonV2
@@ -258,4 +284,7 @@ const styles = StyleSheet.create({
   },
   center: { alignItems: 'center' },
   flex: { flex: 1 },
+  miniIcon: {
+    marginEnd: 4,
+  },
 });

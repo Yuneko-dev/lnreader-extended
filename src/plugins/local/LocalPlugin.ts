@@ -3,6 +3,8 @@ import {
   ImageRequestInit,
   NovelItem,
   Plugin,
+  PluginContentType,
+  PluginContentWarning,
   PluginSettings,
   SourceNovel,
   SourcePage,
@@ -33,6 +35,8 @@ class LocalPlugin implements Plugin {
   url = '';
   iconUrl =
     'https://raw.githubusercontent.com/Yuneko-dev/lnreader-plugins/refs/heads/master/public/static/epub.png';
+  contentWarning = PluginContentWarning.SAFE;
+  contentType = PluginContentType.NOVEL;
   imageRequestInit: ImageRequestInit = { headers: {} };
   hasSettings = true;
   webStorageUtilized = false;

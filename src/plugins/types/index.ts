@@ -71,6 +71,20 @@ export enum NovelStatus {
   OnHiatus = 'On Hiatus',
 }
 
+export enum PluginContentWarning {
+  UNSPECIFIED = 0,
+  SAFE = 1,
+  MIXED = 2,
+  NSFW = 3,
+}
+
+export enum PluginContentType {
+  NOVEL = 'novel',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  MIXED = 'mixed',
+}
+
 export interface SourceNovel extends NovelItem {
   genres?: string;
   summary?: string;
@@ -97,12 +111,15 @@ export interface PluginItem {
   site: string;
   lang: string;
   version: string;
-  url: string; // the url of raw code
+  // The url of raw code.
+  url: string;
   iconUrl: string;
   customJS?: string;
   customCSS?: string;
   hasUpdate?: boolean;
   hasSettings?: boolean;
+  contentWarning?: PluginContentWarning;
+  contentType?: PluginContentType;
 }
 
 export interface ImageRequestInit {
