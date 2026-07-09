@@ -96,6 +96,7 @@
     "react-native-draggable-flatlist": "^4.0.3",
     "react-native-drawer-layout": "^4.2.2",
     "react-native-edge-to-edge": "^1.8.1",
+    "react-native-enriched-markdown": "^0.7.3",
     "react-native-error-boundary": "^3.1.0",
     "react-native-file-access": "^4.0.2",
     "react-native-file-viewer": "^2.1.5",

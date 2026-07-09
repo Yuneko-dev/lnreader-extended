@@ -10,7 +10,8 @@
       "expo-localization",
       "react-native-edge-to-edge",
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      "react-native-enriched-markdown"
     ]
   }
 }

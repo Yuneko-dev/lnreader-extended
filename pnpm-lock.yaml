@@ -178,6 +178,9 @@ importers:
       react-native-edge-to-edge:
         specifier: ^1.8.1
         version: 1.8.1(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4)
+      react-native-enriched-markdown:
+        specifier: ^0.7.3
+        version: 0.7.3(@expo/config-plugins@55.0.7)(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4)
       react-native-error-boundary:
         specifier: ^3.1.0
         version: 3.1.0(react-native-safe-area-context@5.7.0(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4))(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4)
@@ -5455,6 +5458,19 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-enriched-markdown@0.7.3:
+    resolution: {integrity: sha512-+RP3r3bveVpMbT8GLt5GRZl8L2an5hrUMPHHLZ8z4ivtICql26D7T+DDXVSph+vZc7rbPbP5/5RsouDOPaDXWg==}
+    peerDependencies:
+      '@expo/config-plugins': '>=50.0.0'
+      katex: '>=0.16.0'
+      react: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      '@expo/config-plugins':
+        optional: true
+      katex:
+        optional: true
 
   react-native-error-boundary@3.1.0:
     resolution: {integrity: sha512-yOz3uEwhYae6WIqZB3332MqL7He0Dck1KwBUkLhD9UfEvizwX7TGSKNXdQo2uMB22GdZEiFRpCxz14u2HBnSNg==}
@@ -13042,6 +13058,13 @@ snapshots:
     dependencies:
       react: 19.2.4
       react-native: 0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4)
+
+  react-native-enriched-markdown@0.7.3(@expo/config-plugins@55.0.7)(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      react-native: 0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4)
+    optionalDependencies:
+      '@expo/config-plugins': 55.0.7
 
   react-native-error-boundary@3.1.0(react-native-safe-area-context@5.7.0(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4))(react-native@0.83.4(@babel/core@7.29.0)(@react-native-community/cli@20.1.3(typescript@5.9.3))(@react-native/metro-config@0.83.4(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4))(react@19.2.4):
     dependencies:
