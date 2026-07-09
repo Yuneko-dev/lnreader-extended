@@ -52,7 +52,7 @@ import {
   store,
 } from './helpers/storage';
 import { LOCAL_PLUGIN_ID, localPlugin } from './local/LocalPlugin';
-import { NovelStatus, Plugin, PluginItem } from './types';
+import { NovelStatus, Plugin, PluginItem, PluginSetting } from './types';
 import { FilterTypes } from './types/filterTypes';
 
 const getBypassCacheUrl = (url: string) => {
@@ -147,10 +147,55 @@ const initPlugin = (pluginId: string, rawCode: string) => {
 
 const plugins: Record<string, Plugin | undefined> = {};
 
+const areSettingValuesEqual = (
+  value: unknown,
+  other: string | boolean | string[],
+) => {
+  if (Array.isArray(value) || Array.isArray(other)) {
+    return (
+      Array.isArray(value) &&
+      Array.isArray(other) &&
+      value.length === other.length &&
+      value.every((item, index) => item === other[index])
+    );
+  }
+  return value === other;
+};
+
+const normalizePluginSettingValue = (
+  setting: PluginSetting,
+  storedValue: unknown,
+): string | boolean | string[] => {
+  if (setting.type === 'Switch') {
+    return typeof storedValue === 'boolean' ? storedValue : setting.value;
+  }
+
+  if (setting.type === 'Select') {
+    return typeof storedValue === 'string' &&
+      setting.options.some(option => option.value === storedValue)
+      ? storedValue
+      : setting.value;
+  }
+
+  if (setting.type === 'CheckboxGroup') {
+    if (!Array.isArray(storedValue)) {
+      return setting.value;
+    }
+
+    const optionValues = new Set(setting.options.map(option => option.value));
+    return storedValue.filter(
+      (value): value is string =>
+        typeof value === 'string' && optionValues.has(value),
+    );
+  }
+
+  return typeof storedValue === 'string' ? storedValue : setting.value;
+};
+
 /**
  * Initializes default values for plugin settings.
- * Only writes defaults for keys that don't already exist in storage,
- * preserving user-customized values during updates.
+ * Preserves valid user-customized values during updates, fills newly added
+ * settings, and normalizes stale values when a setting type/options changed.
  */
 const initPluginSettings = (plugin: Plugin) => {
   if (!plugin.pluginSettings) {
@@ -158,8 +203,13 @@ const initPluginSettings = (plugin: Plugin) => {
   }
   const storage = new Storage(plugin.id);
   Object.entries(plugin.pluginSettings).forEach(([key, setting]) => {
-    if (storage.get(key) === undefined) {
-      storage.set(key, setting.value);
+    const storedValue = storage.get(key);
+    const normalizedValue = normalizePluginSettingValue(setting, storedValue);
+    if (
+      storedValue === undefined ||
+      !areSettingValuesEqual(storedValue, normalizedValue)
+    ) {
+      storage.set(key, normalizedValue);
     }
   });
 };
@@ -179,6 +229,10 @@ const installPlugin = async (
   }).then(res => res.text());
   const plugin = initPlugin(_plugin.id, rawCode);
   if (!plugin) {
+    return undefined;
+  }
+  if (plugin.id !== _plugin.id) {
+    showToast(`Rejected plugin with mismatched id: ${_plugin.id}`);
     return undefined;
   }
   let currentPlugin = plugins[plugin.id];

@@ -39,9 +39,10 @@ export const PluginListItem = memo(
       availablePluginsSet,
     } = usePlugins();
 
+    const isLocalPlugin = item.id === LOCAL_PLUGIN_ID;
     const isPluginPinned = isPinned(item.id);
     const isMissingFromRepo =
-      item.id !== LOCAL_PLUGIN_ID && !availablePluginsSet.has(item.id);
+      !isLocalPlugin && !availablePluginsSet.has(item.id);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const rightActionStyle = useMemo(
@@ -119,20 +120,20 @@ export const PluginListItem = memo(
     }, [updatePlugin, item]);
 
     const handleLatestPress = useCallback(() => {
-      if (item.id === LOCAL_PLUGIN_ID) {
+      if (isLocalPlugin) {
         handleSettingsPress();
       } else {
         navigateToSource(item, true);
       }
-    }, [navigateToSource, item, handleSettingsPress]);
+    }, [navigateToSource, item, handleSettingsPress, isLocalPlugin]);
 
     const handlePress = useCallback(() => {
-      if (item.id === LOCAL_PLUGIN_ID) {
+      if (isLocalPlugin) {
         handleSettingsPress();
       } else {
         navigateToSource(item);
       }
-    }, [navigateToSource, item, handleSettingsPress]);
+    }, [navigateToSource, item, handleSettingsPress, isLocalPlugin]);
 
     const renderRightActions = useCallback(
       (_progress: any, _dragX: any, ref: any) => (
@@ -176,67 +177,75 @@ export const PluginListItem = memo(
       ],
     );
 
+    const content = (
+      <Pressable
+        style={containerStyle}
+        android_ripple={{ color: theme.rippleColor }}
+        onPress={handlePress}
+      >
+        <View style={[styles.center, styles.row]}>
+          <Image source={{ uri: item.iconUrl }} style={iconStyle} />
+          <View style={styles.details}>
+            <Text numberOfLines={1} style={nameStyle}>
+              {item.name}
+            </Text>
+            <View style={[styles.row, styles.center]}>
+              <Text numberOfLines={1} style={additionStyle}>
+                {`${item.lang} - ${item.version}`}
+              </Text>
+              {isMissingFromRepo && (
+                <MaterialCommunityIcons
+                  name="alert-circle-outline"
+                  size={14}
+                  color="#ffc107"
+                  style={styles.warningIcon}
+                />
+              )}
+            </View>
+          </View>
+        </View>
+        <View style={styles.flex} />
+        {!isLocalPlugin && (item.hasUpdate || __DEV__) ? (
+          <IconButtonV2
+            name="download-outline"
+            size={22}
+            color={theme.primary}
+            onPress={handleUpdatePress}
+            theme={theme}
+          />
+        ) : null}
+        {item.hasSettings ? (
+          <IconButtonV2
+            name="cog-outline"
+            size={22}
+            color={theme.primary}
+            onPress={handleSettingsPress}
+            theme={theme}
+          />
+        ) : null}
+        {!isLocalPlugin ? (
+          <Button
+            title={getString('browseScreen.latest')}
+            textColor={theme.primary}
+            onPress={handleLatestPress}
+          />
+        ) : null}
+      </Pressable>
+    );
+
     return (
       <>
-        <Swipeable
-          dragOffsetFromLeftEdge={30}
-          dragOffsetFromRightEdge={30}
-          renderRightActions={renderRightActions}
-        >
-          <Pressable
-            style={containerStyle}
-            android_ripple={{ color: theme.rippleColor }}
-            onPress={handlePress}
+        {isLocalPlugin ? (
+          content
+        ) : (
+          <Swipeable
+            dragOffsetFromLeftEdge={30}
+            dragOffsetFromRightEdge={30}
+            renderRightActions={renderRightActions}
           >
-            <View style={[styles.center, styles.row]}>
-              <Image source={{ uri: item.iconUrl }} style={iconStyle} />
-              <View style={styles.details}>
-                <Text numberOfLines={1} style={nameStyle}>
-                  {item.name}
-                </Text>
-                <View style={[styles.row, styles.center]}>
-                  <Text numberOfLines={1} style={additionStyle}>
-                    {`${item.lang} - ${item.version}`}
-                  </Text>
-                  {isMissingFromRepo && (
-                    <MaterialCommunityIcons
-                      name="alert-circle-outline"
-                      size={14}
-                      color="#ffc107"
-                      style={styles.warningIcon}
-                    />
-                  )}
-                </View>
-              </View>
-            </View>
-            <View style={styles.flex} />
-            {item.hasUpdate || __DEV__ ? (
-              <IconButtonV2
-                name="download-outline"
-                size={22}
-                color={theme.primary}
-                onPress={handleUpdatePress}
-                theme={theme}
-              />
-            ) : null}
-            {item.hasSettings ? (
-              <IconButtonV2
-                name="cog-outline"
-                size={22}
-                color={theme.primary}
-                onPress={handleSettingsPress}
-                theme={theme}
-              />
-            ) : null}
-            {item.id !== LOCAL_PLUGIN_ID ? (
-              <Button
-                title={getString('browseScreen.latest')}
-                textColor={theme.primary}
-                onPress={handleLatestPress}
-              />
-            ) : null}
-          </Pressable>
-        </Swipeable>
+            {content}
+          </Swipeable>
+        )}
         <ConfirmationDialog
           visible={showDeleteDialog}
           title={getString('common.delete')}
