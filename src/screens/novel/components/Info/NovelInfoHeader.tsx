@@ -405,10 +405,7 @@ const NovelInfoHeader = ({
         ) : (
           <>
             <NovelSummary
-              summary={
-                '# Markdown syntax guide\r\n\r\n## Headers\r\n\r\n# This is a Heading h1\r\n## This is a Heading h2\r\n###### This is a Heading h6\r\n\r\n## Emphasis\r\n\r\n*This text will be italic*  \r\n_This will also be italic_\r\n\r\n**This text will be bold**  \r\n__This will also be bold__\r\n\r\n_You **can** combine them_\r\n\r\n~~test underline~~\r\n\r\n## Lists\r\n\r\n### Unordered\r\n\r\n* Item 1\r\n* Item 2\r\n* Item 2a\r\n* Item 2b\r\n    * Item 3a\r\n    * Item 3b\r\n\r\n### Ordered\r\n\r\n1. Item 1\r\n2. Item 2\r\n3. Item 3\r\n    1. Item 3a\r\n    2. Item 3b\r\n\r\n## Images\r\n\r\n![This is an alt text.](https://i.ibb.co/1G7sVj2x/b7c1ac5e9a811bdf4290.jpg "This is a sample image.")\r\n\r\n## Links\r\n\r\nYou may be using [Markdown Live Preview](https://markdownlivepreview.com/).\r\n\r\n## Blockquotes\r\n\r\n> Markdown is a lightweight markup language with plain-text-formatting syntax, created in 2004 by John Gruber with Aaron Swartz.\r\n>\r\n>> Markdown is often used to format readme files, for writing messages in online discussion forums, and to create rich text using a plain text editor.\r\n\r\n## Tables\r\n\r\n| Left columns  | Right columns |\r\n| ------------- |:-------------:|\r\n| left foo      | right foo     |\r\n| left bar      | right bar     |\r\n| left baz      | right baz     |\r\n\r\n## Blocks of code\r\n\r\n```\r\nlet message = \'Hello world\';\r\nalert(message);\r\n```\r\n\r\n## Mermaid diagrams\r\n```mermaid\r\ngraph TD\r\n  A[Start] --> B{Decision}\r\n  B -->|Yes| C[Finish]\r\n  B -->|No| D[Alternate]\r\n```\r\n\r\n## Inline code\r\n\r\nThis web site is using `markedjs/marked`.\r\n'
-              }
-              // summary={novel.summary ?? ''}
+              summary={novel.summary ?? ''}
               isExpanded={!novel.inLibrary}
               theme={theme}
             />
