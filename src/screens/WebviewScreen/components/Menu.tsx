@@ -67,11 +67,11 @@ const Menu: React.FC<MenuProps> = ({
             setMenuVisible(false);
             webView.current?.clearCache?.(true);
             webView.current?.reload();
-            showToast(getString('webview.dataDeleted'));
+            showToast(getString('webview.cacheCleared'));
           }}
         >
           <Text style={{ color: theme.onSurface }}>
-            {getString('webview.clearData')}
+            {getString('webview.clearCache')}
           </Text>
         </Pressable>
       </View>

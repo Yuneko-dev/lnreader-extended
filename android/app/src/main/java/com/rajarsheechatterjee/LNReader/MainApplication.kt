@@ -7,6 +7,7 @@ import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
+import com.facebook.react.modules.network.OkHttpClientProvider
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
@@ -21,6 +22,8 @@ import com.rajarsheechatterjee.LocalServer.LocalServerPackage
 import com.rajarsheechatterjee.TikTokTTS.TikTokTTSPackage
 import com.rajarsheechatterjee.NativeCDPProxy.CDPProxyPackage
 import com.rajarsheechatterjee.NativeMaterialYou.NativeMaterialYouPackage
+import com.rajarsheechatterjee.NativeNetwork.NativeNetworkPackage
+import com.rajarsheechatterjee.NativeNetwork.NetworkClientFactory
 import expo.modules.ApplicationLifecycleDispatcher
 
 class MainApplication : Application(), ReactApplication {
@@ -40,12 +43,14 @@ class MainApplication : Application(), ReactApplication {
                     add(TikTokTTSPackage())
                     add(CDPProxyPackage())
                     add(NativeMaterialYouPackage())
+                    add(NativeNetworkPackage())
                 },
         )
     }
 
     override fun onCreate() {
         super.onCreate()
+        OkHttpClientProvider.setOkHttpClientFactory(NetworkClientFactory(this))
         setupCrashHandler()
         loadReactNative(this)
         ApplicationLifecycleDispatcher.onApplicationCreate(this)

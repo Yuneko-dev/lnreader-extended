@@ -16,22 +16,24 @@ import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
 import { AdvancedSettingsScreenProps } from '@navigators/types';
 import { store } from '@plugins/helpers/storage';
 import CookieManager from '@preeternal/react-native-cookie-manager';
+import { getDohProviderName } from '@services/network/doh';
 import NativeLocalServer from '@specs/NativeLocalServer';
+import NativeNetwork from '@specs/NativeNetwork';
 import { getString } from '@strings/translations';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { getUserAgentSync } from 'react-native-device-info';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Portal, Text, TextInput } from 'react-native-paper';
 
+import DohProviderModal from './components/DohProviderModal';
 import SettingSwitch from './components/SettingSwitch';
 import StorageUsageSection from './components/StorageUsageSection';
 
 const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   const theme = useTheme();
-  const { userAgent, setUserAgent } = useUserAgent();
+  const { userAgent, hasCustomUserAgent, setUserAgent } = useUserAgent();
   const appSettings = useAppSettings();
   const { verboseLogging, setAppSettings } = appSettings;
   const [userAgentInput, setUserAgentInput] = useState(userAgent);
@@ -77,6 +79,46 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
     setFalse: hideUserAgentModal,
   } = useBoolean();
 
+  const {
+    value: dohProviderModalVisible,
+    setTrue: showDohProviderModal,
+    setFalse: hideDohProviderModal,
+  } = useBoolean();
+
+  const openUserAgentModal = () => {
+    setUserAgentInput(userAgent);
+    showUserAgentModal();
+  };
+
+  const saveUserAgent = () => {
+    const normalizedUserAgent = userAgentInput.trim();
+    if (!NativeNetwork.isUserAgentValid(normalizedUserAgent)) {
+      showToast(getString('advancedSettingsScreen.invalidUserAgent'));
+      return;
+    }
+    setUserAgent(normalizedUserAgent);
+    showToast(
+      getString('advancedSettingsScreen.userAgentRestartRequiredToast'),
+    );
+    hideUserAgentModal();
+  };
+
+  const resetUserAgent = () => {
+    setUserAgent(undefined);
+    showToast(
+      getString('advancedSettingsScreen.userAgentRestartRequiredToast'),
+    );
+  };
+
+  const clearWebViewData = async () => {
+    try {
+      await NativeNetwork.clearWebViewData();
+      showToast(getString('advancedSettingsScreen.webViewDataCleared'));
+    } catch {
+      showToast(getString('advancedSettingsScreen.webViewDataClearFailed'));
+    }
+  };
+
   return (
     <SafeAreaView excludeTop>
       <Appbar
@@ -115,12 +157,6 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             theme={theme}
           />
           <List.Item
-            title={getString('advancedSettingsScreen.clearCookies')}
-            description={getString('advancedSettingsScreen.clearCookiesDesc')}
-            onPress={showClearCookiesDialog}
-            theme={theme}
-          />
-          <List.Item
             title={getString('advancedSettingsScreen.clearPluginSettings')}
             description={getString(
               'advancedSettingsScreen.clearPluginSettingsDesc',
@@ -136,10 +172,45 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             onPress={showResetReadingTimeDialog}
             theme={theme}
           />
+        </List.Section>
+        <List.Section>
+          <List.SubHeader theme={theme}>
+            {getString('advancedSettingsScreen.network')}
+          </List.SubHeader>
+          <List.Item
+            title={getString('advancedSettingsScreen.clearCookies')}
+            description={getString('advancedSettingsScreen.clearCookiesDesc')}
+            onPress={showClearCookiesDialog}
+            theme={theme}
+          />
+          <List.Item
+            title={getString('advancedSettingsScreen.clearWebViewData')}
+            description={getString(
+              'advancedSettingsScreen.clearWebViewDataDesc',
+            )}
+            onPress={clearWebViewData}
+            theme={theme}
+          />
+          <List.Item
+            title={getString('advancedSettingsScreen.dnsOverHttps')}
+            description={
+              appSettings.dohProvider === 'disabled'
+                ? getString('advancedSettingsScreen.disabled')
+                : getDohProviderName(appSettings.dohProvider)
+            }
+            onPress={showDohProviderModal}
+            theme={theme}
+          />
           <List.Item
             title={getString('advancedSettingsScreen.userAgent')}
             description={userAgent}
-            onPress={showUserAgentModal}
+            onPress={openUserAgentModal}
+            theme={theme}
+          />
+          <List.Item
+            title={getString('advancedSettingsScreen.resetUserAgent')}
+            onPress={resetUserAgent}
+            disabled={!hasCustomUserAgent}
             theme={theme}
           />
         </List.Section>
@@ -249,8 +320,8 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
         <ConfirmationDialog
           message={getString('advancedSettingsScreen.clearCookiesWarning')}
           visible={clearCookiesDialog}
-          onSubmit={() => {
-            CookieManager.clearAll();
+          onSubmit={async () => {
+            await CookieManager.clearAll();
             showToast(getString('advancedSettingsScreen.clearCookiesCleared'));
           }}
           onDismiss={hideClearCookiesDialog}
@@ -292,8 +363,8 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             <TextInput
               multiline
               mode="outlined"
-              defaultValue={userAgent}
-              onChangeText={text => setUserAgentInput(text.trim())}
+              value={userAgentInput}
+              onChangeText={setUserAgentInput}
               placeholderTextColor={theme.onSurfaceDisabled}
               underlineColor={theme.outline}
               style={[{ color: theme.onSurface }, styles.textInput]}
@@ -301,35 +372,29 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
             />
             <View style={styles.buttonGroup}>
               <Button
-                onPress={() => {
-                  setUserAgent(userAgentInput);
-                  showToast(
-                    getString(
-                      'advancedSettingsScreen.userAgentRestartRequiredToast',
-                    ),
-                  );
-                  hideUserAgentModal();
-                }}
+                onPress={saveUserAgent}
                 style={styles.button}
                 title={getString('common.save')}
                 mode="contained"
               />
               <Button
                 style={styles.button}
-                onPress={() => {
-                  setUserAgent(getUserAgentSync());
-                  showToast(
-                    getString(
-                      'advancedSettingsScreen.userAgentRestartRequiredToast',
-                    ),
-                  );
-                  hideUserAgentModal();
-                }}
-                title={getString('common.reset')}
+                onPress={hideUserAgentModal}
+                title={getString('common.cancel')}
               />
             </View>
           </KeyboardAwareScrollView>
         </Modal>
+        <DohProviderModal
+          currentProvider={appSettings.dohProvider}
+          visible={dohProviderModalVisible}
+          onDismiss={hideDohProviderModal}
+          onSelect={providerId => {
+            setAppSettings({ dohProvider: providerId });
+            showToast(getString('advancedSettingsScreen.restartRequiredToast'));
+            hideDohProviderModal();
+          }}
+        />
       </Portal>
     </SafeAreaView>
   );

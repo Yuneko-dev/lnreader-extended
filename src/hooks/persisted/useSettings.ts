@@ -9,6 +9,8 @@ import { Voice } from 'expo-speech';
 import { useCallback, useMemo } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
 
+import type { DohProviderId } from '../../services/network/doh';
+
 /**
  * Cooldown applied between sequential chapter downloads when no override
  * is configured. Matches the historical hard-coded sleep so installs
@@ -52,6 +54,7 @@ export interface AppSettings {
   allowCloudflareBypass: boolean;
   hideCloudflareOverlay: boolean;
   allowProxyAPI: boolean;
+  dohProvider: DohProviderId;
 
   /**
    * Appearence settings
@@ -234,6 +237,7 @@ const initialAppSettings: AppSettings = {
   allowCloudflareBypass: false,
   hideCloudflareOverlay: false,
   allowProxyAPI: false,
+  dohProvider: 'disabled',
 
   /**
    * Appearence settings

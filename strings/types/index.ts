@@ -40,6 +40,15 @@ export interface StringMap {
   'advancedSettingsScreen.resetReadingTimeWarning': 'string';
   'advancedSettingsScreen.resetReadingTimeSuccess': 'string';
   'advancedSettingsScreen.userAgentRestartRequiredToast': 'string';
+  'advancedSettingsScreen.network': 'string';
+  'advancedSettingsScreen.clearWebViewData': 'string';
+  'advancedSettingsScreen.clearWebViewDataDesc': 'string';
+  'advancedSettingsScreen.webViewDataCleared': 'string';
+  'advancedSettingsScreen.webViewDataClearFailed': 'string';
+  'advancedSettingsScreen.dnsOverHttps': 'string';
+  'advancedSettingsScreen.disabled': 'string';
+  'advancedSettingsScreen.resetUserAgent': 'string';
+  'advancedSettingsScreen.invalidUserAgent': 'string';
   'advancedSettingsScreen.storageUsage': 'string';
   'advancedSettingsScreen.storagePath': 'string';
   'advancedSettingsScreen.storageAvailable': 'string';
@@ -303,6 +312,8 @@ export interface StringMap {
   'webview.openInBrowser': 'string';
   'webview.clearCookies': 'string';
   'webview.cookiesCleared': 'string';
+  'webview.clearCache': 'string';
+  'webview.cacheCleared': 'string';
   'webview.clearData': 'string';
   'webview.dataDeleted': 'string';
   'webview.clearStorage': 'string';

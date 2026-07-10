@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import OnboardingScreen from '@screens/onboarding/OnboardingScreen';
 import WebviewScreen from '@screens/WebviewScreen/WebviewScreen';
 import ServiceManager from '@services/ServiceManager';
+import NativeNetwork from '@specs/NativeNetwork';
 import { getString } from '@strings/translations';
 import {
   changeNavigationBarColor,
@@ -43,9 +44,13 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const MainNavigator = () => {
   const theme = useTheme();
-  const { updateLibraryOnLaunch } = useAppSettings();
+  const { updateLibraryOnLaunch, dohProvider } = useAppSettings();
   const { refreshPlugins } = usePlugins();
   const [isOnboarded] = useMMKVBoolean('IS_ONBOARDED');
+
+  useEffect(() => {
+    NativeNetwork.setDohProvider(dohProvider);
+  }, [dohProvider]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

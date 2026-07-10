@@ -5,27 +5,39 @@ import { useMMKVString } from 'react-native-mmkv';
 
 export const CUSTOM_USER_AGENT = 'CUSTOM_USER_AGENT';
 
+export const getDefaultUserAgent = () =>
+  getUserAgentSync()
+    .replace(/; Android .*?\)/, '; Android 10; K)')
+    .replace(/Version\/.* Chrome\//, 'Chrome/');
+
 export const getUserAgent = () => {
-  return MMKVStorage.getString(CUSTOM_USER_AGENT) || getUserAgentSync();
+  return (
+    MMKVStorage.getString(CUSTOM_USER_AGENT)?.trim() || getDefaultUserAgent()
+  );
 };
 
 export default function useUserAgent() {
-  const [userAgent = getUserAgentSync(), _setUserAgent] =
-    useMMKVString(CUSTOM_USER_AGENT);
+  const [customUserAgent, _setUserAgent] = useMMKVString(CUSTOM_USER_AGENT);
+  const defaultUserAgent = getDefaultUserAgent();
+  const userAgent = customUserAgent?.trim() || defaultUserAgent;
 
   const setUserAgent = useCallback(
     (newUA: string | undefined | null) => {
-      if (!newUA || newUA === getUserAgentSync()) {
-        _setUserAgent(undefined); // removes the key completely
+      const normalizedUserAgent = newUA?.trim();
+      if (!normalizedUserAgent || normalizedUserAgent === defaultUserAgent) {
+        // Remove the custom key so future WebView updates refresh the default.
+        _setUserAgent(undefined);
       } else {
-        _setUserAgent(newUA);
+        _setUserAgent(normalizedUserAgent);
       }
     },
-    [_setUserAgent],
+    [_setUserAgent, defaultUserAgent],
   );
 
   return {
     userAgent,
+    defaultUserAgent,
+    hasCustomUserAgent: Boolean(customUserAgent?.trim()),
     setUserAgent,
   };
 }
