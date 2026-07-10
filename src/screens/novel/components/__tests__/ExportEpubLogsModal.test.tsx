@@ -12,6 +12,7 @@ const mockSave = jest.fn();
 const mockDiscardChanges = jest.fn();
 const mockFileExists = jest.fn();
 const mockReadFile = jest.fn();
+const mockReadDir = jest.fn();
 let mockTaskLogDialogProps:
   | { onDismiss: () => void; running: boolean }
   | undefined;
@@ -50,6 +51,7 @@ jest.mock('@modules/react-native-epub-creator', () => ({
 jest.mock('@services/plugin/fetch', () => ({ resolveUrl: jest.fn() }));
 jest.mock('@specs/NativeFile', () => ({
   exists: (...args: unknown[]) => mockFileExists(...args),
+  readDir: (...args: unknown[]) => mockReadDir(...args),
   readFile: (...args: unknown[]) => mockReadFile(...args),
 }));
 jest.mock('@strings/translations', () => ({
@@ -92,6 +94,7 @@ describe('ExportEpubLogsModal', () => {
     mockDiscardChanges.mockResolvedValue(undefined);
     mockFileExists.mockReturnValue(true);
     mockReadFile.mockReturnValue('<p>Chapter</p>');
+    mockReadDir.mockReturnValue([]);
     global.requestAnimationFrame = jest.fn(callback => {
       callback(0);
       return 1;
@@ -200,5 +203,43 @@ describe('ExportEpubLogsModal', () => {
 
     await waitFor(() => expect(mockDiscardChanges).toHaveBeenCalledTimes(1));
     expect(mockSave).not.toHaveBeenCalled();
+  });
+
+  it('checks chapter images with one directory read and removes missing images', async () => {
+    mockGetNovelDownloadedChapters.mockResolvedValue(chapters);
+    mockReadFile.mockReturnValue(
+      '<figure><img src="file:///novels/test-plugin/1/11/present.jpg"/></figure>' +
+        '<figure><img src="file:///novels/test-plugin/1/11/missing.jpg"/></figure>',
+    );
+    mockReadDir.mockReturnValue([
+      {
+        name: 'present.jpg',
+        path: '/novels/test-plugin/1/11/present.jpg',
+        isDirectory: false,
+      },
+    ]);
+
+    render(
+      <ExportEpubLogsModal
+        visible
+        onDismiss={jest.fn()}
+        novel={novel}
+        destinationUri="content://exports"
+        fileName="custom-export"
+      />,
+    );
+
+    await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
+
+    expect(mockReadDir).toHaveBeenCalledTimes(1);
+    expect(mockFileExists).toHaveBeenCalledTimes(1);
+    expect(mockAddChapter).toHaveBeenCalledWith(
+      expect.objectContaining({
+        htmlBody: expect.stringContaining('present.jpg'),
+      }),
+    );
+    expect(mockAddChapter.mock.calls[0][0].htmlBody).not.toContain(
+      'missing.jpg',
+    );
   });
 });

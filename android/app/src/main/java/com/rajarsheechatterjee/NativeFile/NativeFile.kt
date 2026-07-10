@@ -43,7 +43,7 @@ private fun ByteArray.startsWith(vararg expected: Int, offset: Int = 0): Boolean
 
 class NativeFile(context: ReactApplicationContext) :
     NativeFileSpec(context) {
-    private val BUFFER_SIZE = 4096
+    private val BUFFER_SIZE = 64 * 1024
     private val okHttpClient = OkHttpClientProvider.createClient()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 

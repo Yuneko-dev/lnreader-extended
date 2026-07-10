@@ -7,6 +7,7 @@ import { resolveUrl } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import { getString } from '@strings/translations';
 import { APP_NAME } from '@utils/constants/metadata';
+import { EpubPerformanceTracker } from '@utils/epubPerformance';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import * as Notifications from 'expo-notifications';
@@ -65,9 +66,14 @@ export default function ExportEpubLogsModal({
     addLog(getString('novelScreen.exportEpubLogsModal.logStart'));
 
     let epub: EpubBuilder | undefined;
+    const performance = new EpubPerformanceTracker('export');
+    let chapterBytes = 0;
+    let imageCount = 0;
+    let exportedChapterCount = 0;
 
     try {
       addLog(getString('novelScreen.exportEpubLogsModal.logFetchChapters'));
+      performance.startPhase('queryChapters');
       const chapters = await getNovelDownloadedChapters(
         novel.id,
         startChapter,
@@ -81,6 +87,7 @@ export default function ExportEpubLogsModal({
       }
 
       addLog(getString('novelScreen.exportEpubLogsModal.logPreparing'));
+      performance.startPhase('prepareBuilder');
       epub = new EpubBuilder(
         {
           title: novel.name,
@@ -112,6 +119,7 @@ export default function ExportEpubLogsModal({
       await epub.prepare();
 
       let addedChapters = 0;
+      performance.startPhase('readChapters');
       for (let i = 0; i < chapters.length; i++) {
         if (isCancelledRef.current) {
           addLog(getString('novelScreen.exportEpubLogsModal.logCancelled'));
@@ -133,6 +141,7 @@ export default function ExportEpubLogsModal({
 
         if (NativeFile.exists(chapterFilePath)) {
           let chapterContent = NativeFile.readFile(chapterFilePath);
+          chapterBytes += chapterContent.length;
 
           const chapterDir = `${NOVEL_STORAGE}/${novel.pluginId}/${novel.id}/${chapter.id}`;
           const escapedDir = chapterDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -141,16 +150,27 @@ export default function ExportEpubLogsModal({
             'g',
           );
 
-          for (const match of chapterContent.matchAll(imagePathRegex)) {
+          const imageMatches = [...chapterContent.matchAll(imagePathRegex)];
+          imageCount += imageMatches.length;
+          const availableFiles =
+            imageMatches.length > 0
+              ? new Set(
+                  NativeFile.readDir(chapterDir)
+                    .filter(file => !file.isDirectory)
+                    .map(file => file.path),
+                )
+              : undefined;
+
+          for (const match of imageMatches) {
             const imagePath = match[1];
-            if (imagePath && !NativeFile.exists(imagePath)) {
+            if (imagePath && !availableFiles?.has(imagePath)) {
               const escapedPath = imagePath.replace(
                 /[.*+?^${}()|[\]\\]/g,
                 '\\$&',
               );
               const figureRegex = new RegExp(
-                `<figure[^>]*>.*?${escapedPath}.*?</figure>`,
-                'gs',
+                `<figure\\b(?:(?!<\\/figure>)[\\s\\S])*?${escapedPath}(?:(?!<\\/figure>)[\\s\\S])*?<\\/figure>`,
+                'g',
               );
 
               chapterContent = chapterContent.replace(figureRegex, '');
@@ -184,6 +204,8 @@ export default function ExportEpubLogsModal({
 
       addLog(getString('novelScreen.exportEpubLogsModal.logZipping'));
 
+      exportedChapterCount = addedChapters;
+      performance.startPhase('buildAndSave');
       const outputFile = await epub.save();
 
       const successLog = getString(
@@ -226,6 +248,12 @@ export default function ExportEpubLogsModal({
       showToast(failedLog);
       await epub?.discardChanges();
     } finally {
+      performance.finish({
+        novelId: novel.id,
+        chapterBytes,
+        chapterCount: exportedChapterCount,
+        imageCount,
+      });
       flushLogs();
       setIsExporting(false);
     }

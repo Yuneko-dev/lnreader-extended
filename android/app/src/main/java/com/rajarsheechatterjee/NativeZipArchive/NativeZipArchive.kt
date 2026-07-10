@@ -15,6 +15,10 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(context) {
+    private companion object {
+        const val BUFFER_SIZE = 64 * 1024
+    }
+
     /**
      * Resolve a zip entry against the destination directory, rejecting any
      * entry whose name escapes that directory (Zip Slip / CWE-22). A crafted
@@ -41,9 +45,10 @@ class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(
                         val newFile = resolveZipEntry(destDir, zipEntry.name)
                         newFile.parentFile?.mkdirs()
                         zis.getInputStream(zipEntry).use { inputStream ->
-                            FileOutputStream(newFile).use { fos -> inputStream.copyTo(fos, 4096) }
+                            FileOutputStream(newFile).use { fos ->
+                                inputStream.copyTo(fos, BUFFER_SIZE)
+                            }
                         }
-                        Thread.yield()
                     }
                 }
                 promise.resolve(null)
@@ -90,8 +95,9 @@ class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(
                         .forEach { zipEntry ->
                             val newFile = resolveZipEntry(destDir, zipEntry.name)
                             newFile.parentFile?.mkdirs()
-                            FileOutputStream(newFile).use { fos -> zis.copyTo(fos, 4096) }
-                            Thread.yield()
+                            FileOutputStream(newFile).use { fos ->
+                                zis.copyTo(fos, BUFFER_SIZE)
+                            }
                         }
                 }
                 if (connection.responseCode == 200) {
@@ -115,10 +121,8 @@ class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(
             val entry = ZipEntry("$zipFileName${(if (file.isDirectory) "/" else "")}")
             zos.putNextEntry(entry)
             file.inputStream().use { fis ->
-                fis.copyTo(zos, 4096)
-                fis.close()
+                fis.copyTo(zos, BUFFER_SIZE)
             }
-            Thread.yield()
         }
     }
 
@@ -158,10 +162,9 @@ class NativeZipArchive(context: ReactApplicationContext) : NativeZipArchiveSpec(
                                 val zipEntry = ZipEntry(zipFileName)
                                 zos.putNextEntry(zipEntry)
                                 file.inputStream().use { fis ->
-                                    fis.copyTo(zos, 4096)
+                                    fis.copyTo(zos, BUFFER_SIZE)
                                 }
                                 zos.closeEntry()
-                                Thread.yield()
                             }
                     }
                 }

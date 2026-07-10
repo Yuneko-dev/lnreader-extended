@@ -68,6 +68,7 @@ object EpubParser {
     ) {
         val opfPath = joinPath(baseDir, opfRelPath)
         val opfDir = getParentPath(opfPath)
+        val baseDirCanonicalPath = File(baseDir).canonicalPath
         val opfFile = File(opfPath)
         if (!opfFile.exists()) return
 
@@ -134,7 +135,7 @@ object EpubParser {
                 idToHref[id] = href
 
                 val resolvedPath = joinPath(opfDir, href)
-                if (!isWithin(baseDir, resolvedPath)) continue
+                if (!isWithin(baseDirCanonicalPath, resolvedPath)) continue
 
                 val resolvedType = mediaType.ifEmpty {
                     detectMediaType(resolvedPath)
@@ -152,7 +153,7 @@ object EpubParser {
         // --- Resolve cover path ---
         if (coverId.isNotEmpty() && idToHref.containsKey(coverId)) {
             val coverPath = joinPath(opfDir, idToHref[coverId]!!)
-            if (isWithin(baseDir, coverPath)) metaOut.cover = coverPath
+            if (isWithin(baseDirCanonicalPath, coverPath)) metaOut.cover = coverPath
         }
 
         // --- Parse spine (reading order) ---
@@ -170,7 +171,7 @@ object EpubParser {
                 val chapterHref = idToHref[idref] ?: continue
 
                 val chapterPath = joinPath(opfDir, chapterHref)
-                if (!isWithin(baseDir, chapterPath)) continue
+                if (!isWithin(baseDirCanonicalPath, chapterPath)) continue
                 var chapterName = pathToLabel[chapterPath] ?: ""
 
                 if (chapterName.isEmpty()) {
@@ -368,12 +369,11 @@ object EpubParser {
      * ".." segments can make joinPath() climb above the root and point at
      * arbitrary app files, which import.ts would then read or move/delete.
      */
-    private fun isWithin(root: String, path: String): Boolean {
+    private fun isWithin(rootCanonicalPath: String, path: String): Boolean {
         return try {
-            val rootCanon = File(root).canonicalPath
             val pathCanon = File(path).canonicalPath
-            pathCanon == rootCanon ||
-                pathCanon.startsWith(rootCanon + File.separator)
+            pathCanon == rootCanonicalPath ||
+                pathCanon.startsWith(rootCanonicalPath + File.separator)
         } catch (_: Exception) {
             false
         }
