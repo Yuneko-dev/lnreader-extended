@@ -3,7 +3,10 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@hooks/persisted';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';
 import { useTranslateSettings } from '@hooks/persisted/useSettings';
-import { supportedLanguagesList } from '@services/translate/TranslateEngine';
+import {
+  supportedLanguagesList,
+  targetSupportedLanguagesList,
+} from '@services/translate/TranslateEngine';
 import { getString } from '@strings/translations';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,6 +17,7 @@ interface LanguagePickerModalProps {
   onDismiss: () => void;
   onSelect: (langCode: string) => void;
   currentLang: string;
+  languages: typeof supportedLanguagesList;
 }
 
 const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
@@ -21,6 +25,7 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
   onDismiss,
   onSelect,
   currentLang,
+  languages,
 }) => {
   const theme = useTheme();
 
@@ -38,7 +43,7 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
           Select Language
         </Text>
         <ScrollView style={styles.languageList}>
-          {supportedLanguagesList.map(lang => (
+          {languages.map(lang => (
             <Pressable
               key={lang.value}
               style={[
@@ -379,12 +384,14 @@ const TranslateTab: React.FC = () => {
         onDismiss={() => setSourceLangModalVisible(false)}
         onSelect={lang => setTranslateSettings({ sourceLang: lang })}
         currentLang={sourceLang}
+        languages={supportedLanguagesList}
       />
       <LanguagePickerModal
         visible={targetLangModalVisible}
         onDismiss={() => setTargetLangModalVisible(false)}
         onSelect={lang => setTranslateSettings({ targetLang: lang })}
         currentLang={targetLang}
+        languages={targetSupportedLanguagesList}
       />
 
       <ProviderPickerModal

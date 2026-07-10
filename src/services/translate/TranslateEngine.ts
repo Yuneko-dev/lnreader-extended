@@ -71,6 +71,11 @@ export const supportedLanguagesList = Object.keys(supportedLanguages).map(
   }),
 );
 
+// Auto-detection is only valid for a source language.
+export const targetSupportedLanguagesList = supportedLanguagesList.filter(
+  language => language.value !== 'auto',
+);
+
 export interface TranslateEngine {
   id: string;
   name: string;
