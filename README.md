@@ -39,7 +39,8 @@ This is a modified version for my personal use. It is perfectly compatible with 
 <summary><b>Privacy and Security</b> (Click to expand/collapse)</summary>
 
 - The reader WebView now automatically upgrades insecure HTTP connections to HTTPS.
-- ~~Implemented DoH by default using Cloudflare's 1.1.1.1 for enhanced privacy and bypass.~~ https://github.com/Yuneko-dev/lnreader-extended/issues/8
+- Implement DNS over HTTPS (DoH) for enhanced security and bypass capabilities, using the same User-Agent as Mihon.
+- Set separate privacy rules for mixed-content and NSFW sources.
 - Security features are inspired by Mihon. Special thanks to the developers for creating such an excellent app.
 - Fixed a path traversal vulnerability.
 
@@ -57,6 +58,7 @@ This is a modified version for my personal use. It is perfectly compatible with 
 - Swiping to change chapters now uses vertical gestures (when paged reading is disabled), providing a more ergonomic reading experience.
 - Optimized for E-Ink displays (untested).
 - Added more reading fonts.
+- Render Markdown formatting in novel summaries.
 
 |                                                                 |                                                           |                                                                |
 | :-------------------------------------------------------------: | :-------------------------------------------------------: | :------------------------------------------------------------: |
@@ -95,6 +97,7 @@ This is a modified version for my personal use. It is perfectly compatible with 
 - Enable or disable plugin repositories.
 - Built-in Cloudflare/Turnstile solver (with APIs available for plugins).
 - Warns when an installed plugin no longer exists (has been removed) from its repository.
+- Shows content-type icons and 18+ badges for sources that provide metadata, and preserves compatible plugin settings during updates.
 - Added a statistics screen showing total reading time for each novel and chapter.
 - Added several user warning dialogs.
 - Improved backup and restore performance, along with a log screen to provide progress feedback.
