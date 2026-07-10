@@ -630,6 +630,12 @@ export interface StringMap {
   'securitySettingsScreen.screenProtection': 'string';
   'securitySettingsScreen.screenProtectionDesc': 'string';
   'securitySettingsScreen.incognitoOnly': 'string';
+  'securitySettingsScreen.sensitiveContentSection': 'string';
+  'securitySettingsScreen.mixedSources': 'string';
+  'securitySettingsScreen.nsfwSources': 'string';
+  'securitySettingsScreen.blockReadingProgress': 'string';
+  'securitySettingsScreen.blockReadingHistory': 'string';
+  'securitySettingsScreen.blockDiscordRPC': 'string';
   'securitySettingsScreen.appLocked': 'string';
   'securitySettingsScreen.appLockedDesc': 'string';
   'securitySettingsScreen.unlock': 'string';

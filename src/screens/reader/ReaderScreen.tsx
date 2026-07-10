@@ -92,6 +92,7 @@ export const ChapterContent = ({
           novel?.cover,
           url,
           chapter.page,
+          novel.pluginId,
         );
       }
     }, [novel, chapter]),

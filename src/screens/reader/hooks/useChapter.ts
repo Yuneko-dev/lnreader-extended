@@ -10,7 +10,6 @@ import { ChapterInfo, NovelInfo } from '@database/types';
 import { useFullscreenMode } from '@hooks';
 import {
   useChapterGeneralSettings,
-  useLibrarySettings,
   useTrackedNovel,
   useTracker,
 } from '@hooks/persisted';
@@ -22,6 +21,7 @@ import NativeSPenRemote from '@specs/NativeSPenRemote';
 import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
 import { getString } from '@strings/translations';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
+import { shouldBlockPrivacyAction } from '@utils/privacy';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { load } from 'cheerio';
@@ -85,7 +85,6 @@ export default function useChapter(
     volumeButtonsOffset,
     pageReader: isPageReaderMode,
   } = useChapterGeneralSettings();
-  const { incognitoMode } = useLibrarySettings();
   const [error, setError] = useState<string>();
   const { tracker } = useTracker();
   const { trackedNovel, updateAllTrackedNovels } = useTrackedNovel(novel.id);
@@ -387,7 +386,7 @@ export default function useChapter(
 
   const saveProgress = useCallback(
     (percentage: number) => {
-      if (!incognitoMode) {
+      if (!shouldBlockPrivacyAction('readingProgress', novel.pluginId)) {
         updateChapterProgress(chapter.id, percentage > 100 ? 100 : percentage);
 
         if (percentage >= 97) {
@@ -399,8 +398,8 @@ export default function useChapter(
     },
     [
       chapter.id,
-      incognitoMode,
       markChapterRead,
+      novel.pluginId,
       updateChapterProgress,
       updateTracker,
     ],
@@ -488,17 +487,17 @@ export default function useChapter(
   }, [connectSPenRemote]);
 
   useEffect(() => {
-    if (!incognitoMode) {
+    if (!shouldBlockPrivacyAction('readingHistory', novel.pluginId)) {
       insertHistory(chapter.id);
       getDbChapter(chapter.id).then(result => result && setLastRead(result));
     }
 
     return () => {
-      if (!incognitoMode) {
+      if (!shouldBlockPrivacyAction('readingHistory', novel.pluginId)) {
         getDbChapter(chapter.id).then(result => result && setLastRead(result));
       }
     };
-  }, [incognitoMode, setLastRead, setLoading, chapter.id]);
+  }, [novel.pluginId, setLastRead, setLoading, chapter.id]);
 
   useEffect(() => {
     if (!chapter || !chapterText) {

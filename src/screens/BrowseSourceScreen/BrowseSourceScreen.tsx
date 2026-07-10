@@ -133,8 +133,9 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
         getString('discord.browseSource'),
         site,
         pluginIcon,
+        pluginId,
       );
-    }, [pluginName, site, pluginIcon]),
+    }, [pluginId, pluginName, site, pluginIcon]),
   );
 
   const { bottom, right } = useSafeAreaInsets();

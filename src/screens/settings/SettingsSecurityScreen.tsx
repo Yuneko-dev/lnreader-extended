@@ -1,7 +1,12 @@
 import { Appbar, List, Modal, SafeAreaView } from '@components';
 import { useBoolean } from '@hooks';
 import { useTheme } from '@hooks/persisted';
-import { useSecuritySettings } from '@hooks/persisted/useSettings';
+import {
+  ContentPrivacyAction,
+  ContentPrivacySettings,
+  ContentPrivacySource,
+  useSecuritySettings,
+} from '@hooks/persisted/useSettings';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -41,12 +46,75 @@ const SCREEN_PROTECTION_OPTIONS = [
   { label: 'securitySettingsScreen.never' as const, value: 'never' as const },
 ];
 
+const CONTENT_PRIVACY_SOURCES: {
+  label:
+    | 'securitySettingsScreen.mixedSources'
+    | 'securitySettingsScreen.nsfwSources';
+  value: ContentPrivacySource;
+}[] = [
+  { label: 'securitySettingsScreen.mixedSources', value: 'mixed' },
+  { label: 'securitySettingsScreen.nsfwSources', value: 'nsfw' },
+];
+
+const CONTENT_PRIVACY_ACTIONS: {
+  label:
+    | 'securitySettingsScreen.blockReadingProgress'
+    | 'securitySettingsScreen.blockReadingHistory'
+    | 'securitySettingsScreen.blockDiscordRPC';
+  value: ContentPrivacyAction;
+}[] = [
+  {
+    label: 'securitySettingsScreen.blockReadingProgress',
+    value: 'readingProgress',
+  },
+  {
+    label: 'securitySettingsScreen.blockReadingHistory',
+    value: 'readingHistory',
+  },
+  { label: 'securitySettingsScreen.blockDiscordRPC', value: 'discordRPC' },
+];
+
+interface ContentPrivacySectionProps {
+  onToggle: (
+    source: ContentPrivacySource,
+    action: ContentPrivacyAction,
+    blocked: boolean,
+  ) => void;
+  settings: ContentPrivacySettings;
+  source: (typeof CONTENT_PRIVACY_SOURCES)[number];
+  theme: ReturnType<typeof useTheme>;
+}
+
+const ContentPrivacySection = ({
+  onToggle,
+  settings,
+  source,
+  theme,
+}: ContentPrivacySectionProps) => (
+  <>
+    <List.SubHeader theme={theme}>{getString(source.label)}</List.SubHeader>
+    {CONTENT_PRIVACY_ACTIONS.map(action => (
+      <SettingSwitch
+        key={action.value}
+        label={getString(action.label)}
+        value={settings[action.value]}
+        onPress={() =>
+          onToggle(source.value, action.value, !settings[action.value])
+        }
+        theme={theme}
+      />
+    ))}
+  </>
+);
+
 const SettingsSecurityScreen = ({ navigation }: any) => {
   const theme = useTheme();
   const {
     appLockEnabled,
     lockOnBackground,
     screenProtection,
+    sourcePrivacy,
+    setContentPrivacy,
     setSecuritySettings,
   } = useSecuritySettings();
 
@@ -149,6 +217,19 @@ const SettingsSecurityScreen = ({ navigation }: any) => {
             onPress={showScreenProtModal}
             theme={theme}
           />
+          <List.Divider theme={theme} />
+          <List.SubHeader theme={theme}>
+            {getString('securitySettingsScreen.sensitiveContentSection')}
+          </List.SubHeader>
+          {CONTENT_PRIVACY_SOURCES.map(source => (
+            <ContentPrivacySection
+              key={source.value}
+              source={source}
+              settings={sourcePrivacy[source.value]}
+              onToggle={setContentPrivacy}
+              theme={theme}
+            />
+          ))}
         </List.Section>
       </ScrollView>
 

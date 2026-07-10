@@ -564,18 +564,66 @@ export type LockOnBackground =
   | '10min'
   | 'never';
 export type ScreenProtection = 'always' | 'incognito' | 'never';
+export type ContentPrivacySource = 'mixed' | 'nsfw';
+export type ContentPrivacyAction =
+  | 'readingProgress'
+  | 'readingHistory'
+  | 'discordRPC';
+
+export interface ContentPrivacySettings {
+  readingProgress: boolean;
+  readingHistory: boolean;
+  discordRPC: boolean;
+}
+
+export interface SourcePrivacySettings {
+  mixed: ContentPrivacySettings;
+  nsfw: ContentPrivacySettings;
+}
 
 export interface SecuritySettings {
   appLockEnabled: boolean;
   lockOnBackground: LockOnBackground;
   screenProtection: ScreenProtection;
+  sourcePrivacy: SourcePrivacySettings;
 }
 
-const initialSecuritySettings: SecuritySettings = {
+export const initialSecuritySettings: SecuritySettings = {
   appLockEnabled: false,
   lockOnBackground: 'always',
   screenProtection: 'never',
+  sourcePrivacy: {
+    mixed: {
+      readingProgress: false,
+      readingHistory: false,
+      discordRPC: false,
+    },
+    nsfw: {
+      readingProgress: false,
+      readingHistory: false,
+      discordRPC: true,
+    },
+  },
 };
+
+const mergeSecuritySettings = (
+  settings?: Partial<SecuritySettings>,
+): SecuritySettings => ({
+  ...initialSecuritySettings,
+  ...settings,
+  sourcePrivacy: {
+    ...initialSecuritySettings.sourcePrivacy,
+    ...settings?.sourcePrivacy,
+    mixed: {
+      ...initialSecuritySettings.sourcePrivacy.mixed,
+      ...settings?.sourcePrivacy?.mixed,
+    },
+    nsfw: {
+      ...initialSecuritySettings.sourcePrivacy.nsfw,
+      ...settings?.sourcePrivacy?.nsfw,
+    },
+  },
+});
 
 export const useSecuritySettings = () => {
   const [securitySettings = initialSecuritySettings, setSettings] =
@@ -583,20 +631,38 @@ export const useSecuritySettings = () => {
 
   const setSecuritySettings = useCallback(
     (values: Partial<SecuritySettings>) =>
-      setSettings(prev => ({
-        ...initialSecuritySettings,
-        ...prev,
-        ...values,
-      })),
+      setSettings(prev => mergeSecuritySettings({ ...prev, ...values })),
+    [setSettings],
+  );
+
+  const setContentPrivacy = useCallback(
+    (
+      source: ContentPrivacySource,
+      action: ContentPrivacyAction,
+      blocked: boolean,
+    ) =>
+      setSettings(prev => {
+        const settings = mergeSecuritySettings(prev);
+        return {
+          ...settings,
+          sourcePrivacy: {
+            ...settings.sourcePrivacy,
+            [source]: {
+              ...settings.sourcePrivacy[source],
+              [action]: blocked,
+            },
+          },
+        };
+      }),
     [setSettings],
   );
 
   return useMemo(
     () => ({
-      ...initialSecuritySettings,
-      ...securitySettings,
+      ...mergeSecuritySettings(securitySettings),
       setSecuritySettings,
+      setContentPrivacy,
     }),
-    [securitySettings, setSecuritySettings],
+    [securitySettings, setContentPrivacy, setSecuritySettings],
   );
 };

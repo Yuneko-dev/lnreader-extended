@@ -2,6 +2,7 @@ import { APP_SETTINGS, AppSettings } from '@hooks/persisted/useSettings';
 import { getString } from '@strings/translations';
 import { APP_GITHUB, APP_NAME } from '@utils/constants/metadata';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
+import { shouldBlockPrivacyAction } from '@utils/privacy';
 import * as FileSystem from 'expo-file-system/legacy';
 import { AppState, AppStateStatus, InteractionManager } from 'react-native';
 
@@ -26,6 +27,7 @@ export class DiscordRPCManager {
   private currentPayload: any = null;
   private throttleTimeout: NodeJS.Timeout | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
+  private activityRequestId = 0;
   private uploadedImages = new Map<string, string>();
   private sessionId = '';
   private applicationId = DISCORD_CLIENT_ID;
@@ -195,8 +197,15 @@ export class DiscordRPCManager {
   /**
    * Send an RPC update with throttling (1 req / 5s)
    */
-  setActivity(activity: RichPresence | null): void {
+  setActivity(
+    activity: RichPresence | null,
+    activityRequestId = this.activityRequestId,
+  ): void {
     InteractionManager.runAfterInteractions(() => {
+      if (activityRequestId !== this.activityRequestId) {
+        return;
+      }
+
       const librarySettings = this.getLibrarySettings();
 
       if (librarySettings?.incognitoMode || !this.gateway) {
@@ -232,6 +241,39 @@ export class DiscordRPCManager {
         }
       }
     });
+  }
+
+  private startActivityRequest(): number {
+    this.activityRequestId++;
+    return this.activityRequestId;
+  }
+
+  private clearActivity(): void {
+    this.startActivityRequest();
+    this.pendingPayload = null;
+
+    if (this.throttleTimeout) {
+      clearTimeout(this.throttleTimeout);
+      this.throttleTimeout = null;
+    }
+
+    const payload = {
+      activities: [],
+      afk: false,
+      since: 0,
+      status: 'idle',
+    };
+    this.currentPayload = payload;
+
+    if (!this.gateway) {
+      return;
+    }
+
+    if (this.isReady) {
+      this.sendPayload(payload);
+    } else {
+      this.pendingPayload = payload;
+    }
   }
 
   private sendPayload(payload: any) {
@@ -332,15 +374,16 @@ export class DiscordRPCManager {
       settings?.discordRPCEnabled === false ||
       settings?.discordRPCAppOpen === false
     ) {
-      this.setActivity(null);
+      this.clearActivity();
       return;
     }
 
+    const activityRequestId = this.startActivityRequest();
     const activity = this.createBaseActivity()
       .setAssetsLargeImage(this.LOGO_APP_ID)
       .setAssetsLargeText(APP_NAME)
       .setState(text);
-    this.setActivity(activity);
+    this.setActivity(activity, activityRequestId);
   }
 
   async setBrowsingSource(
@@ -348,17 +391,20 @@ export class DiscordRPCManager {
     text: string,
     sourceUrl?: string,
     sourceIcon?: string,
+    pluginId?: string,
   ): Promise<void> {
-    if (!this.isReady) return;
     const settings = this.getSettings();
     if (
       settings?.discordRPCEnabled === false ||
-      settings?.discordRPCBrowsing === false
+      settings?.discordRPCBrowsing === false ||
+      shouldBlockPrivacyAction('discordRPC', pluginId)
     ) {
-      this.setActivity(null);
+      this.clearActivity();
       return;
     }
+    if (!this.isReady) return;
 
+    const activityRequestId = this.startActivityRequest();
     const button2 =
       sourceUrl && !Util.isLocalhostURL(sourceUrl)
         ? { name: getString('discord.btnSource'), url: sourceUrl }
@@ -370,12 +416,15 @@ export class DiscordRPCManager {
       .setState(sourceName);
 
     const resolvedIcon = await this.resolveCoverForRPC(sourceIcon);
+    if (activityRequestId !== this.activityRequestId) {
+      return;
+    }
     if (resolvedIcon) {
       activity.setAssetsSmallImage(resolvedIcon);
       activity.setAssetsSmallText(sourceName);
     }
 
-    this.setActivity(activity);
+    this.setActivity(activity, activityRequestId);
   }
 
   async setBrowsingNovel(
@@ -383,17 +432,20 @@ export class DiscordRPCManager {
     text: string,
     cover?: string | null,
     novelUrl?: string,
+    pluginId?: string,
   ): Promise<void> {
-    if (!this.isReady) return;
     const settings = this.getSettings();
     if (
       settings?.discordRPCEnabled === false ||
-      settings?.discordRPCReading === false
+      settings?.discordRPCReading === false ||
+      shouldBlockPrivacyAction('discordRPC', pluginId)
     ) {
-      this.setActivity(null);
+      this.clearActivity();
       return;
     }
+    if (!this.isReady) return;
 
+    const activityRequestId = this.startActivityRequest();
     const button2 =
       novelUrl && !Util.isLocalhostURL(novelUrl)
         ? { name: getString('discord.btnViewNovel'), url: novelUrl }
@@ -405,12 +457,15 @@ export class DiscordRPCManager {
       .setState(novelName);
 
     const resolvedCover = await this.resolveCoverForRPC(cover);
+    if (activityRequestId !== this.activityRequestId) {
+      return;
+    }
     if (resolvedCover) {
       activity.setAssetsLargeImage(resolvedCover);
       activity.setAssetsLargeText(novelName);
     }
 
-    this.setActivity(activity);
+    this.setActivity(activity, activityRequestId);
   }
 
   async setReadingChapter(
@@ -420,17 +475,20 @@ export class DiscordRPCManager {
     cover?: string | null,
     chapterUrl?: string,
     chapterPage?: string | null,
+    pluginId?: string,
   ): Promise<void> {
-    if (!this.isReady) return;
     const settings = this.getSettings();
     if (
       settings?.discordRPCEnabled === false ||
-      settings?.discordRPCReading === false
+      settings?.discordRPCReading === false ||
+      shouldBlockPrivacyAction('discordRPC', pluginId)
     ) {
-      this.setActivity(null);
+      this.clearActivity();
       return;
     }
+    if (!this.isReady) return;
 
+    const activityRequestId = this.startActivityRequest();
     const button2 =
       chapterUrl && !Util.isLocalhostURL(chapterUrl)
         ? { name: getString('discord.btnReadChapter'), url: chapterUrl }
@@ -442,6 +500,9 @@ export class DiscordRPCManager {
       .setState(`${text}: ${chapterName}`);
 
     const resolvedCover = await this.resolveCoverForRPC(cover);
+    if (activityRequestId !== this.activityRequestId) {
+      return;
+    }
     if (resolvedCover) {
       activity.setAssetsLargeImage(resolvedCover);
       const largeText = chapterPage
@@ -450,7 +511,7 @@ export class DiscordRPCManager {
       activity.setAssetsLargeText(largeText);
     }
 
-    this.setActivity(activity);
+    this.setActivity(activity, activityRequestId);
   }
 }
 

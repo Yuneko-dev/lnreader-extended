@@ -83,9 +83,10 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
           getString('discord.browseNovel'),
           novel?.cover,
           url,
+          novel?.pluginId ?? route.params?.pluginId,
         );
       }
-    }, [route.params?.name, novel]),
+    }, [route.params?.name, route.params?.pluginId, novel]),
   );
 
   const promptToAddToLibrary = useCallback(() => {
