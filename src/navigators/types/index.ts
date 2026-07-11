@@ -14,7 +14,6 @@ export type RootStackParamList = {
     pluginId: string;
     pluginName: string;
     site: string;
-    showLatestNovels?: boolean;
     searchText?: string;
   };
   BrowseMal: undefined;

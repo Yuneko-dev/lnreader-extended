@@ -243,6 +243,7 @@
     "defaultSources": "Nguồn mặc định",
     "pendingUpdates": "Đang chờ cập nhật",
     "latest": "Mới nhất",
+    "popular": "Nổi tiếng",
     "listEmpty": "Chọn ngôn ngữ",
     "migration": {
       "dialogMessage": "Chuyển đổi sang %{url}?",

@@ -42,12 +42,11 @@ export const InstalledTab = memo(
       : undefined;
 
     const navigateToSource = useCallback(
-      (plugin: PluginItem, showLatestNovels?: boolean) => {
+      (plugin: PluginItem) => {
         navigation.navigate('SourceScreen', {
           pluginId: plugin.id,
           pluginName: plugin.name,
           site: plugin.site,
-          showLatestNovels,
         });
         setLastUsedPlugin(plugin);
       },

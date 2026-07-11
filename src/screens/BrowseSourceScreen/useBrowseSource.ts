@@ -7,9 +7,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 export const useBrowseSource = (
   pluginId: string,
   showLatestNovels?: boolean,
-  initialSearchText?: string,
+  shouldSkipInitialFetch?: boolean,
 ) => {
-  const [isLoading, setIsLoading] = useState(!initialSearchText);
+  const [isLoading, setIsLoading] = useState(!shouldSkipInitialFetch);
   const [novels, setNovels] = useState<NovelItem[]>([]);
   const [error, setError] = useState<string>();
 
@@ -88,12 +88,19 @@ export const useBrowseSource = (
   }, []);
 
   useEffect(() => {
-    // If initialSearchText is provided, skip fetching popularNovels on mount
-    if (initialSearchText && currentPage === 1 && fetchIdRef.current === 0) {
+    // Skip the initial fetch while an initial source search is in progress.
+    if (
+      shouldSkipInitialFetch &&
+      currentPage === 1 &&
+      fetchIdRef.current === 0
+    ) {
       return;
     }
+    if (fetchIdRef.current === 0) {
+      setIsLoading(true);
+    }
     fetchNovels(currentPage, selectedFilters);
-  }, [fetchNovels, currentPage, selectedFilters, initialSearchText]);
+  }, [fetchNovels, currentPage, selectedFilters, shouldSkipInitialFetch]);
 
   const refetchNovels = useCallback(() => {
     setError('');

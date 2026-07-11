@@ -1,19 +1,8 @@
 import { IconButtonV2 } from '@components';
 import { PluginItem } from '@plugins/types';
-import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React, { memo, useCallback, useMemo } from 'react';
-import {
-  Image,
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
-import { Text as PaperText } from 'react-native-paper';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface PluginListItemSkeletonProps {
   item: PluginItem;
@@ -63,28 +52,6 @@ export const PluginListItemSkeleton = memo(
       [theme],
     );
 
-    const LatestButton = useCallback(() => {
-      const viewStyle: StyleProp<ViewStyle> = {
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: 64,
-        paddingBottom: 1,
-      };
-      const textStyle: StyleProp<TextStyle> = {
-        color: theme.primary,
-      };
-      return (
-        <View style={viewStyle}>
-          <PaperText
-            variant="labelLarge"
-            style={[styles.buttonGroup, textStyle]}
-          >
-            {getString('browseScreen.latest')}
-          </PaperText>
-        </View>
-      );
-    }, [theme]);
-
     return (
       <Pressable
         style={containerStyle}
@@ -104,7 +71,6 @@ export const PluginListItemSkeleton = memo(
         <View style={styles.flex} />
         {item.hasSettings ? <CogButton /> : null}
         {item.hasUpdate || __DEV__ ? <DownloadButton /> : null}
-        <LatestButton />
       </Pressable>
     );
   },
@@ -114,10 +80,6 @@ const styles = StyleSheet.create({
   addition: {
     fontSize: 12,
     lineHeight: 20,
-  },
-  buttonGroup: {
-    alignItems: 'center',
-    flexDirection: 'row',
   },
   center: { alignItems: 'center' },
   container: {

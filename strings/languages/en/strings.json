@@ -244,6 +244,7 @@
     "defaultSources": "Default sources",
     "pendingUpdates": "Pending updates",
     "latest": "Latest",
+    "popular": "Popular",
     "listEmpty": "Enable languages from settings",
     "migration": {
       "dialogMessage": "Migrate %{url}?",

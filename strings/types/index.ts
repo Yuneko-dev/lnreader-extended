@@ -227,6 +227,7 @@ export interface StringMap {
   'browseScreen.defaultSources': 'string';
   'browseScreen.pendingUpdates': 'string';
   'browseScreen.latest': 'string';
+  'browseScreen.popular': 'string';
   'browseScreen.listEmpty': 'string';
   'browseScreen.migration.dialogMessage': 'string';
   'browseScreen.migration.novelAlreadyInLibrary': 'string';

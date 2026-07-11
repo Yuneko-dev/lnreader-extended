@@ -1,4 +1,4 @@
-import { Button, IconButtonV2 } from '@components';
+import { IconButtonV2 } from '@components';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
 import { UseBooleanReturnType } from '@hooks';
 import { usePlugins } from '@hooks/persisted';
@@ -25,7 +25,7 @@ interface PluginListItemProps {
   theme: ThemeColors;
   navigation: BrowseScreenProps['navigation'];
   settingsModal: UseBooleanReturnType;
-  navigateToSource: (plugin: PluginItem, showLatestNovels?: boolean) => void;
+  navigateToSource: (plugin: PluginItem) => void;
   setSelectedPluginId: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -128,14 +128,6 @@ export const PluginListItem = memo(
         .catch((error: Error) => showToast(error.message));
     }, [updatePlugin, item]);
 
-    const handleLatestPress = useCallback(() => {
-      if (isLocalPlugin) {
-        handleSettingsPress();
-      } else {
-        navigateToSource(item, true);
-      }
-    }, [navigateToSource, item, handleSettingsPress, isLocalPlugin]);
-
     const handlePress = useCallback(() => {
       if (isLocalPlugin) {
         handleSettingsPress();
@@ -237,13 +229,6 @@ export const PluginListItem = memo(
             color={theme.primary}
             onPress={handleSettingsPress}
             theme={theme}
-          />
-        ) : null}
-        {!isLocalPlugin ? (
-          <Button
-            title={getString('browseScreen.latest')}
-            textColor={theme.primary}
-            onPress={handleLatestPress}
           />
         ) : null}
       </Pressable>

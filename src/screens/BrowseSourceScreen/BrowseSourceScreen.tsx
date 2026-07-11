@@ -15,28 +15,68 @@ import { NovelItem } from '@plugins/types';
 import { useFocusEffect } from '@react-navigation/native';
 import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
 import { getString } from '@strings/translations';
+import { ThemeColors } from '@theme/types';
+import Color from 'color';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 import { FAB } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TabBar, TabView } from 'react-native-tab-view';
 
 import FilterBottomSheet from './components/FilterBottomSheet';
 import { useBrowseSource, useSearchSource } from './useBrowseSource';
 
-const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
-  const theme = useTheme();
-  const {
-    pluginId,
-    pluginName,
-    site,
-    showLatestNovels,
-    searchText: initialSearchText,
-  } = route.params;
+interface SourceRoute {
+  key: 'popular' | 'latest';
+  title: string;
+}
+
+const routes: SourceRoute[] = [
+  {
+    key: 'popular',
+    title: getString('browseScreen.popular'),
+  },
+  {
+    key: 'latest',
+    title: getString('browseScreen.latest'),
+  },
+];
+
+interface SourceNovelsTabProps {
+  pluginId: string;
+  showLatestNovels: boolean;
+  theme: ThemeColors;
+  searchText: string;
+  isSearchFocused: boolean;
+  onHistorySearch: (keyword: string) => void;
+  isSearching: boolean;
+  searchResults: NovelItem[];
+  hasNextSearchPage: boolean;
+  searchNextPage: () => void;
+  searchSource: (searchTerm: string) => void;
+  searchError?: string;
+  navigateToNovel: (item: NovelItem | NovelInfo) => void;
+}
+
+const SourceNovelsTab = ({
+  pluginId,
+  showLatestNovels,
+  theme,
+  searchText,
+  isSearchFocused,
+  onHistorySearch,
+  isSearching,
+  searchResults,
+  hasNextSearchPage,
+  searchNextPage,
+  searchSource,
+  searchError,
+  navigateToNovel,
+}: SourceNovelsTabProps) => {
   const imageRequestInit = useMemo(
     () => getPlugin(pluginId)?.imageRequestInit,
     [pluginId],
   );
-
   const {
     isLoading,
     novels,
@@ -47,104 +87,14 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
     setFilters,
     clearFilters,
     refetchNovels,
-  } = useBrowseSource(pluginId, showLatestNovels, initialSearchText);
-
-  const {
-    isSearching,
-    searchResults,
-    searchSource,
-    searchNextPage,
-    hasNextSearchPage,
-    clearSearchResults,
-    searchError,
-  } = useSearchSource(pluginId, initialSearchText);
-  const novelList = searchResults.length > 0 ? searchResults : novels;
-  const errorMessage = error || searchError;
-
-  const { searchText, setSearchText, clearSearchbar } = useSearch(
-    initialSearchText,
-    false,
-  );
-  const onChangeText = useCallback(
-    (text: string) => setSearchText(text),
-    [setSearchText],
-  );
-
-  const { addSearchKey } = useSearchHistory();
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-
-  const onSubmitEditing = useCallback(() => {
-    addSearchKey(searchText);
-    searchSource(searchText);
-  }, [searchSource, searchText, addSearchKey]);
-
-  const handleHistorySearch = useCallback(
-    (keyword: string) => {
-      setSearchText(keyword);
-      searchSource(keyword);
-    },
-    [setSearchText, searchSource],
-  );
-
-  const onSearchFocus = useCallback(() => setIsSearchFocused(true), []);
-  const onSearchBlur = useCallback(() => setIsSearchFocused(false), []);
-
-  const handleClearSearchbar = useCallback(() => {
-    clearSearchbar();
-    clearSearchResults();
-    if (novels.length === 0) {
-      refetchNovels();
-    }
-  }, [clearSearchbar, clearSearchResults, novels.length, refetchNovels]);
-
-  const handleOpenWebView = useCallback(() => {
-    navigation.navigate('WebviewScreen', {
-      name: pluginName,
-      url: site,
-      pluginId,
-    });
-  }, [navigation, pluginName, site, pluginId]);
-
+  } = useBrowseSource(pluginId, showLatestNovels, Boolean(searchText));
   const { novelInLibrary, switchNovelToLibrary } = useLibraryContext();
   const [inActivity, setInActivity] = useState<Record<string, boolean>>({});
-
-  const navigateToNovel = useCallback(
-    (item: NovelItem | NovelInfo) =>
-      navigation.navigate('ReaderStack', {
-        screen: 'Novel',
-        params: {
-          ...item,
-          pluginId: pluginId,
-        },
-      }),
-    [navigation, pluginId],
-  );
-
-  const { filteredInstalledPlugins } = usePlugins();
-  const pluginIcon = useMemo(
-    () => filteredInstalledPlugins.find(p => p.id === pluginId)?.iconUrl,
-    [filteredInstalledPlugins, pluginId],
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      discordRPC.setBrowsingSource(
-        pluginName,
-        getString('discord.browseSource'),
-        site,
-        pluginIcon,
-        pluginId,
-      );
-    }, [pluginId, pluginName, site, pluginIcon]),
-  );
-
   const { bottom, right } = useSafeAreaInsets();
   const filterSheetRef = useRef<BottomSheetModal | null>(null);
 
-  const rightIcons = useMemo(
-    () => [{ iconName: 'earth' as const, onPress: handleOpenWebView }],
-    [handleOpenWebView],
-  );
+  const novelList = searchResults.length > 0 ? searchResults : novels;
+  const errorMessage = error || searchError;
 
   const renderItem = useCallback(
     ({ item }: { item: NovelItem | NovelInfo }) => {
@@ -191,7 +141,9 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
       if (hasNextSearchPage) {
         searchNextPage();
       }
-    } else if (hasNextPage) {
+      return;
+    }
+    if (hasNextPage) {
       fetchNextPage();
     }
   }, [
@@ -207,13 +159,8 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
       {
         iconName: 'refresh' as const,
         title: getString('common.retry'),
-        onPress: () => {
-          if (searchText) {
-            searchSource(searchText);
-          } else {
-            refetchNovels();
-          }
-        },
+        onPress: () =>
+          searchText ? searchSource(searchText) : refetchNovels(),
       },
     ],
     [searchText, searchSource, refetchNovels],
@@ -232,27 +179,14 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
   );
 
   const openFilterSheet = useCallback(
-    () => filterSheetRef?.current?.present(),
+    () => filterSheetRef.current?.present(),
     [],
   );
 
   return (
-    <SafeAreaView>
-      <SearchbarV2
-        searchText={searchText}
-        leftIcon="magnify"
-        placeholder={`${getString('common.search')} ${pluginName}`}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmitEditing}
-        onFocus={onSearchFocus}
-        onBlur={onSearchBlur}
-        clearSearchbar={handleClearSearchbar}
-        handleBackAction={navigation.goBack}
-        rightIcons={rightIcons}
-        theme={theme}
-      />
+    <>
       {isSearchFocused && !searchText ? (
-        <SearchHistoryList theme={theme} onSearch={handleHistorySearch} />
+        <SearchHistoryList theme={theme} onSearch={onHistorySearch} />
       ) : isLoading || isSearching ? (
         <SourceScreenSkeletonLoading theme={theme} />
       ) : errorMessage || novelList.length === 0 ? (
@@ -272,7 +206,7 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
       {!showLatestNovels && filterValues && !searchText ? (
         <>
           <FAB
-            icon={'filter-variant'}
+            icon="filter-variant"
             style={fabStyle}
             label={getString('common.filter')}
             uppercase={false}
@@ -287,6 +221,186 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
           />
         </>
       ) : null}
+    </>
+  );
+};
+
+const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
+  const theme = useTheme();
+  const {
+    pluginId,
+    pluginName,
+    site,
+    searchText: initialSearchText,
+  } = route.params;
+  const layout = useWindowDimensions();
+  const {
+    isSearching,
+    searchResults,
+    hasNextSearchPage,
+    searchNextPage,
+    searchSource,
+    clearSearchResults,
+    searchError,
+  } = useSearchSource(pluginId, initialSearchText);
+  const { searchText, setSearchText, clearSearchbar } = useSearch(
+    initialSearchText,
+    false,
+  );
+  const { addSearchKey } = useSearchHistory();
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [index, setIndex] = useState(0);
+
+  const onChangeText = useCallback(
+    (text: string) => setSearchText(text),
+    [setSearchText],
+  );
+  const onSubmitEditing = useCallback(() => {
+    addSearchKey(searchText);
+    searchSource(searchText);
+  }, [searchSource, searchText, addSearchKey]);
+  const handleHistorySearch = useCallback(
+    (keyword: string) => {
+      setSearchText(keyword);
+      searchSource(keyword);
+    },
+    [setSearchText, searchSource],
+  );
+  const handleClearSearchbar = useCallback(() => {
+    clearSearchbar();
+    clearSearchResults();
+  }, [clearSearchbar, clearSearchResults]);
+  const handleOpenWebView = useCallback(() => {
+    navigation.navigate('WebviewScreen', {
+      name: pluginName,
+      url: site,
+      pluginId,
+    });
+  }, [navigation, pluginName, site, pluginId]);
+  const navigateToNovel = useCallback(
+    (item: NovelItem | NovelInfo) =>
+      navigation.navigate('ReaderStack', {
+        screen: 'Novel',
+        params: {
+          ...item,
+          pluginId,
+        },
+      }),
+    [navigation, pluginId],
+  );
+
+  const { filteredInstalledPlugins } = usePlugins();
+  const pluginIcon = useMemo(
+    () => filteredInstalledPlugins.find(p => p.id === pluginId)?.iconUrl,
+    [filteredInstalledPlugins, pluginId],
+  );
+  useFocusEffect(
+    useCallback(() => {
+      discordRPC.setBrowsingSource(
+        pluginName,
+        getString('discord.browseSource'),
+        site,
+        pluginIcon,
+        pluginId,
+      );
+    }, [pluginId, pluginName, site, pluginIcon]),
+  );
+
+  const rightIcons = useMemo(
+    () => [{ iconName: 'earth' as const, onPress: handleOpenWebView }],
+    [handleOpenWebView],
+  );
+  const indicatorStyle = useMemo(
+    () => ({ backgroundColor: theme.primary, height: 3 }),
+    [theme.primary],
+  );
+  const tabBarStyle = useMemo(
+    () => ({
+      backgroundColor: theme.surface,
+      elevation: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: Color(theme.isDark ? '#FFFFFF' : '#000000')
+        .alpha(0.12)
+        .string(),
+    }),
+    [theme.surface, theme.isDark],
+  );
+  const renderScene = useCallback(
+    ({ route: sourceRoute }: { route: SourceRoute }) => (
+      <SourceNovelsTab
+        pluginId={pluginId}
+        showLatestNovels={sourceRoute.key === 'latest'}
+        theme={theme}
+        searchText={searchText}
+        isSearchFocused={isSearchFocused}
+        onHistorySearch={handleHistorySearch}
+        isSearching={isSearching}
+        searchResults={searchResults}
+        hasNextSearchPage={hasNextSearchPage}
+        searchNextPage={searchNextPage}
+        searchSource={searchSource}
+        searchError={searchError}
+        navigateToNovel={navigateToNovel}
+      />
+    ),
+    [
+      pluginId,
+      theme,
+      searchText,
+      isSearchFocused,
+      handleHistorySearch,
+      isSearching,
+      searchResults,
+      hasNextSearchPage,
+      searchNextPage,
+      searchSource,
+      searchError,
+      navigateToNovel,
+    ],
+  );
+  const renderTabBar = useCallback(
+    (props: any) => (
+      <TabBar
+        {...props}
+        indicatorStyle={indicatorStyle}
+        style={tabBarStyle}
+        inactiveColor={theme.secondary}
+        activeColor={theme.primary}
+        android_ripple={{ color: theme.rippleColor }}
+      />
+    ),
+    [
+      indicatorStyle,
+      tabBarStyle,
+      theme.secondary,
+      theme.primary,
+      theme.rippleColor,
+    ],
+  );
+
+  return (
+    <SafeAreaView>
+      <SearchbarV2
+        searchText={searchText}
+        leftIcon="magnify"
+        placeholder={`${getString('common.search')} ${pluginName}`}
+        onChangeText={onChangeText}
+        onSubmitEditing={onSubmitEditing}
+        onFocus={() => setIsSearchFocused(true)}
+        onBlur={() => setIsSearchFocused(false)}
+        clearSearchbar={handleClearSearchbar}
+        handleBackAction={navigation.goBack}
+        rightIcons={rightIcons}
+        theme={theme}
+      />
+      <TabView
+        navigationState={{ index, routes }}
+        initialLayout={{ width: layout.width }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        renderTabBar={renderTabBar}
+        lazy
+      />
     </SafeAreaView>
   );
 };
