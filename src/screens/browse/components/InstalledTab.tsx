@@ -1,3 +1,4 @@
+import { Button } from '@components';
 import { useBoolean } from '@hooks';
 import { useBrowseSettings, usePlugins } from '@hooks/persisted';
 import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
@@ -7,8 +8,9 @@ import { getPlugin } from '@plugins/pluginManager';
 import { PluginItem } from '@plugins/types';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
+import { showToast } from '@utils/showToast';
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Portal } from 'react-native-paper';
 
 import DiscoverCard from '../discover/DiscoverCard';
@@ -28,10 +30,12 @@ export const InstalledTab = memo(
       lastUsedPlugin,
       setLastUsedPlugin,
       pinnedPlugins,
+      updatePlugin,
     } = usePlugins();
     const { showMyAnimeList, showAniList } = useBrowseSettings();
     const settingsModal = useBoolean();
     const [selectedPluginId, setSelectedPluginId] = useState<string>('');
+    const [isUpdatingAll, setIsUpdatingAll] = useState(false);
 
     const pluginSettings = selectedPluginId
       ? getPlugin(selectedPluginId)?.pluginSettings
@@ -50,16 +54,24 @@ export const InstalledTab = memo(
       [navigation, setLastUsedPlugin],
     );
 
-    const { pinnedPluginsList, unpinnedPluginsList } = useMemo(() => {
-      const sortedInstalledPlugins = filteredInstalledPlugins.sort(
+    const {
+      pluginsWithUpdate,
+      pinnedPluginsList,
+      unpinnedPluginsList,
+      allInstalledPlugins,
+    } = useMemo(() => {
+      const sortedInstalledPlugins = [...filteredInstalledPlugins].sort(
         (plgFirst, plgSecond) => plgFirst.name.localeCompare(plgSecond.name),
       );
 
+      const pendingUpdates: PluginItem[] = [];
       const pinned: PluginItem[] = [];
       const unpinned: PluginItem[] = [];
 
       sortedInstalledPlugins.forEach(plugin => {
-        if (pinnedPlugins.includes(plugin.id)) {
+        if (plugin.hasUpdate) {
+          pendingUpdates.push(plugin);
+        } else if (pinnedPlugins.includes(plugin.id)) {
           pinned.push(plugin);
         } else {
           unpinned.push(plugin);
@@ -67,22 +79,48 @@ export const InstalledTab = memo(
       });
 
       return {
+        pluginsWithUpdate: pendingUpdates,
         pinnedPluginsList: pinned,
         unpinnedPluginsList: unpinned,
+        allInstalledPlugins: sortedInstalledPlugins,
       };
     }, [filteredInstalledPlugins, pinnedPlugins]);
 
     const searchedPlugins = useMemo(() => {
       if (searchText) {
         const lowerCaseSearchText = searchText.toLocaleLowerCase();
-        return [...pinnedPluginsList, ...unpinnedPluginsList].filter(
+        return allInstalledPlugins.filter(
           plg =>
             plg.name.toLocaleLowerCase().includes(lowerCaseSearchText) ||
             plg.id.includes(lowerCaseSearchText),
         );
       }
       return unpinnedPluginsList;
-    }, [searchText, pinnedPluginsList, unpinnedPluginsList]);
+    }, [searchText, allInstalledPlugins, unpinnedPluginsList]);
+
+    const handleUpdateAll = useCallback(async () => {
+      setIsUpdatingAll(true);
+      let errorMessage: string | undefined;
+
+      try {
+        for (const plugin of pluginsWithUpdate) {
+          try {
+            await updatePlugin(plugin);
+          } catch (error) {
+            errorMessage ??=
+              error instanceof Error
+                ? error.message
+                : getString('browseScreen.updateFailed');
+          }
+        }
+
+        if (errorMessage) {
+          showToast(errorMessage);
+        }
+      } finally {
+        setIsUpdatingAll(false);
+      }
+    }, [pluginsWithUpdate, updatePlugin]);
 
     const renderItem = useCallback(
       ({ item }: LegendListRenderItemProps<PluginItem>) => {
@@ -179,10 +217,49 @@ export const InstalledTab = memo(
               </>
             ) : null}
 
+            {/* Pending Updates Section */}
+            {!searchText && pluginsWithUpdate.length > 0 ? (
+              <>
+                <View style={styles.sectionHeader}>
+                  <Text
+                    style={[
+                      styles.listHeader,
+                      { color: theme.onSurfaceVariant },
+                    ]}
+                  >
+                    {getString('browseScreen.pendingUpdates')}
+                  </Text>
+                  <Button
+                    compact
+                    disabled={isUpdatingAll}
+                    loading={isUpdatingAll}
+                    mode="contained"
+                    onPress={handleUpdateAll}
+                    style={styles.updateAllButton}
+                    title={getString('browseScreen.updateAll')}
+                  />
+                </View>
+                {pluginsWithUpdate.map(plugin => (
+                  <DeferredPluginListItem
+                    key={plugin.id}
+                    item={plugin}
+                    theme={theme}
+                    navigation={navigation}
+                    settingsModal={settingsModal}
+                    navigateToSource={navigateToSource}
+                    setSelectedPluginId={setSelectedPluginId}
+                  />
+                ))}
+              </>
+            ) : null}
+
             {/* Last Used Section */}
             {!searchText &&
             lastUsedPlugin &&
-            !pinnedPlugins.includes(lastUsedPlugin.id) ? (
+            !pinnedPlugins.includes(lastUsedPlugin.id) &&
+            !pluginsWithUpdate.some(
+              plugin => plugin.id === lastUsedPlugin.id,
+            ) ? (
               <>
                 <Text
                   style={[styles.listHeader, { color: theme.onSurfaceVariant }]}
@@ -232,5 +309,17 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingHorizontal: 16,
     paddingVertical: 8,
+  },
+  sectionHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingEnd: 8,
+  },
+  updateAllButton: {
+    marginStart: 8,
+    marginEnd: 16,
+    paddingStart: 16,
+    paddingEnd: 16,
   },
 });

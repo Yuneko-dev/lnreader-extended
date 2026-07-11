@@ -242,6 +242,7 @@
     "installedPlugins": "Installed plugins",
     "lastUsed": "Last used",
     "defaultSources": "Default sources",
+    "pendingUpdates": "Pending updates",
     "latest": "Latest",
     "listEmpty": "Enable languages from settings",
     "migration": {
@@ -261,6 +262,7 @@
     "uninstalledPlugin": "Uninstalled %{name}",
     "unpinnedPlugin": "Unpinned %{name}",
     "updateFailed": "Update failed",
+    "updateAll": "Update all",
     "updatedTo": "Updated to %{version}",
     "settings": {
       "title": "Plugin Settings",

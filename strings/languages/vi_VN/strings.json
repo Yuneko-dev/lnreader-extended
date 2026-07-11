@@ -241,6 +241,7 @@
     "installedPlugins": "Nguồn đã cài đặt",
     "lastUsed": "Lần sử dụng trước",
     "defaultSources": "Nguồn mặc định",
+    "pendingUpdates": "Đang chờ cập nhật",
     "latest": "Mới nhất",
     "listEmpty": "Chọn ngôn ngữ",
     "migration": {
@@ -260,6 +261,7 @@
     "uninstalledPlugin": "Gỡ cài đặt %{name}",
     "unpinnedPlugin": "Đã bỏ ghim %{name}",
     "updateFailed": "Cập nhật thất bại",
+    "updateAll": "Cập nhật tất cả",
     "updatedTo": "Đã cập nhật lên %{version}",
     "settings": {
       "title": "Cài đặt nguồn",

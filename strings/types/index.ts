@@ -225,6 +225,7 @@ export interface StringMap {
   'browseScreen.installedPlugins': 'string';
   'browseScreen.lastUsed': 'string';
   'browseScreen.defaultSources': 'string';
+  'browseScreen.pendingUpdates': 'string';
   'browseScreen.latest': 'string';
   'browseScreen.listEmpty': 'string';
   'browseScreen.migration.dialogMessage': 'string';
@@ -242,6 +243,7 @@ export interface StringMap {
   'browseScreen.uninstalledPlugin': 'string';
   'browseScreen.unpinnedPlugin': 'string';
   'browseScreen.updateFailed': 'string';
+  'browseScreen.updateAll': 'string';
   'browseScreen.updatedTo': 'string';
   'browseScreen.settings.title': 'string';
   'browseScreen.settings.description': 'string';
