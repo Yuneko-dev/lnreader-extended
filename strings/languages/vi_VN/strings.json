@@ -347,6 +347,7 @@
     "refresh": "Làm mới",
     "share": "Chia sẻ",
     "openInBrowser": "Mở trong trình duyệt",
+    "openInWebView": "Mở bằng WebView",
     "clearCookies": "Xoá cookie",
     "cookiesCleared": "Cookie đã được xoá",
     "clearCache": "Xóa bộ nhớ đệm WebView",

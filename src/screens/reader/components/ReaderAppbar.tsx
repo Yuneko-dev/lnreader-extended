@@ -1,8 +1,9 @@
 import { bookmarkChapter } from '@database/queries/ChapterQueries';
 import { useNovelLayout } from '@screens/novel/NovelContext';
+import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import color from 'color';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import Animated, {
@@ -11,7 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { IconButtonV2 } from '../../../components';
+import { IconButtonV2, Menu } from '../../../components';
 import { useChapterContext } from '../ChapterContext';
 
 interface ReaderAppbarProps {
@@ -19,6 +20,7 @@ interface ReaderAppbarProps {
   goBack: () => void;
   bookmarked: boolean;
   setBookmarked: React.Dispatch<React.SetStateAction<boolean>>;
+  openWebView: () => void;
 }
 
 const fastOutSlowIn = Easing.bezier(0.4, 0.0, 0.2, 1.0);
@@ -28,18 +30,18 @@ const ReaderAppbar = ({
   theme,
   bookmarked,
   setBookmarked,
+  openWebView,
 }: ReaderAppbarProps) => {
-  const {
-    chapter,
-    novel,
-    translateChapter,
-    isTranslated,
-    isTranslating,
-    translateProgress,
-    isOfflineTranslated,
-    retranslateChapter,
-  } = useChapterContext();
+  const { chapter, novel } = useChapterContext();
   const { statusBarHeight } = useNovelLayout();
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const openMenu = useCallback(() => setMenuVisible(true), []);
+  const closeMenu = useCallback(() => setMenuVisible(false), []);
+  const handleOpenWebView = useCallback(() => {
+    closeMenu();
+    openWebView();
+  }, [closeMenu, openWebView]);
 
   const entering = () => {
     'worklet';
@@ -80,19 +82,6 @@ const ReaderAppbar = ({
     };
   };
 
-  const getTranslateIconName = () => {
-    if (isTranslating) return 'translate';
-    if (isTranslated) return 'translate-off';
-    return 'translate';
-  };
-
-  const getTranslateIconColor = () => {
-    if (isOfflineTranslated) return color(theme.onSurface).alpha(0.38).string();
-    if (isTranslating) return theme.primary;
-    if (isTranslated) return theme.primary;
-    return theme.onSurface;
-  };
-
   return (
     <Animated.View
       entering={entering}
@@ -130,41 +119,6 @@ const ReaderAppbar = ({
           </Text>
         </View>
         <View style={styles.iconContainer}>
-          <View style={styles.translateButtonContainer}>
-            <IconButtonV2
-              name={getTranslateIconName()}
-              size={22}
-              onPress={() => {
-                if (!isOfflineTranslated) translateChapter();
-              }}
-              onLongPress={retranslateChapter}
-              color={getTranslateIconColor()}
-              theme={theme}
-              disabled={isOfflineTranslated}
-            />
-            <View
-              style={[
-                styles.progressBarContainer,
-                isTranslating ? styles.opacity1 : styles.opacity0,
-              ]}
-            >
-              <View
-                style={[
-                  styles.progressBarBackground,
-                  { backgroundColor: color(theme.primary).alpha(0.2).string() },
-                ]}
-              />
-              <View
-                style={[
-                  styles.progressBarFill,
-                  {
-                    backgroundColor: theme.primary,
-                    width: `${Math.max(translateProgress, 2)}%`,
-                  },
-                ]}
-              />
-            </View>
-          </View>
           <IconButtonV2
             name={bookmarked ? 'bookmark' : 'bookmark-outline'}
             size={26}
@@ -175,8 +129,27 @@ const ReaderAppbar = ({
             }}
             color={theme.onSurface}
             theme={theme}
-            style={styles.bookmark}
           />
+          <Menu
+            visible={menuVisible}
+            onDismiss={closeMenu}
+            anchor={
+              <IconButtonV2
+                name="dots-vertical"
+                size={26}
+                onPress={openMenu}
+                color={theme.onSurface}
+                theme={theme}
+                style={styles.menu}
+                disabled={Boolean(novel.isLocal)}
+              />
+            }
+            contentStyle={{ backgroundColor: theme.surface2 }}
+          >
+            {!novel.isLocal ? (
+              <Menu.Item title={getString('webview.openInWebView')} onPress={handleOpenWebView} />
+            ) : null}
+          </Menu>
         </View>
       </View>
     </Animated.View>
@@ -197,7 +170,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 8,
   },
-  bookmark: {
+  menu: {
     marginEnd: 4,
   },
   container: {
@@ -216,33 +189,5 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-  },
-  translateButtonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginStart: 4,
-    marginEnd: -4,
-    marginBottom: 4,
-  },
-  progressBarContainer: {
-    width: 28,
-    height: 3,
-    borderRadius: 1.5,
-    overflow: 'hidden',
-    marginTop: -6,
-  },
-  progressBarBackground: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 1.5,
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 1.5,
-  },
-  opacity1: {
-    opacity: 1,
-  },
-  opacity0: {
-    opacity: 0,
   },
 });

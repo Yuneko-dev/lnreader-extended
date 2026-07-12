@@ -1,6 +1,6 @@
+import { IconButtonV2 } from '@components';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useTheme } from '@hooks/persisted';
-import { ChapterScreenProps } from '@navigators/types';
 import { useNovelLayout } from '@screens/novel/NovelContext';
 import color from 'color';
 import React, { useMemo } from 'react';
@@ -17,7 +17,6 @@ import { useChapterContext } from '../ChapterContext';
 interface ChapterFooterProps {
   readerSheetRef: React.RefObject<BottomSheetModalMethods | null>;
   scrollToStart: () => void;
-  navigation: ChapterScreenProps['navigation'];
   openDrawer: () => void;
 }
 
@@ -26,16 +25,18 @@ const fastOutSlowIn = Easing.bezier(0.4, 0.0, 0.2, 1.0);
 const ChapterFooter = ({
   readerSheetRef,
   scrollToStart,
-  navigation,
   openDrawer,
 }: ChapterFooterProps) => {
   const {
-    novel,
-    chapter,
     nextChapter,
     prevChapter,
     navigateChapter,
     isTranslating,
+    translateChapter,
+    isTranslated,
+    translateProgress,
+    isOfflineTranslated,
+    retranslateChapter,
   } = useChapterContext();
   const theme = useTheme();
   const rippleConfig = {
@@ -47,6 +48,12 @@ const ChapterFooter = ({
   // Use reactive viewport height so footer animation targets stay correct
   // when the host window is resized (e.g. WSA, foldables, split-screen).
   const { height: screenHeight } = useWindowDimensions();
+
+  const translateIconColor = isOfflineTranslated
+    ? color(theme.onSurface).alpha(0.38).string()
+    : isTranslating || isTranslated
+    ? theme.primary
+    : theme.onSurface;
 
   const entering = () => {
     'worklet';
@@ -117,21 +124,47 @@ const ChapterFooter = ({
             iconColor={theme.onSurface}
           />
         </Pressable>
-        {!novel.isLocal ? (
-          <Pressable
-            android_ripple={rippleConfig}
-            style={styles.buttonStyles}
-            onPress={() =>
-              navigation.navigate('WebviewScreen', {
-                name: novel.name,
-                url: chapter.path,
-                pluginId: novel.pluginId,
-              })
-            }
-          >
-            <IconButton icon="earth" size={26} iconColor={theme.onSurface} />
-          </Pressable>
-        ) : null}
+        <View style={styles.buttonStyles}>
+          <View style={styles.translateButtonContainer}>
+            <IconButtonV2
+              name={
+                isTranslating
+                  ? 'translate'
+                  : isTranslated
+                  ? 'translate-off'
+                  : 'translate'
+              }
+              size={26}
+              onPress={translateChapter}
+              onLongPress={retranslateChapter}
+              color={translateIconColor}
+              theme={theme}
+              disabled={isOfflineTranslated}
+            />
+            <View
+              style={[
+                styles.progressBarContainer,
+                isTranslating ? styles.opacity1 : styles.opacity0,
+              ]}
+            >
+              <View
+                style={[
+                  styles.progressBarBackground,
+                  { backgroundColor: color(theme.primary).alpha(0.2).string() },
+                ]}
+              />
+              <View
+                style={[
+                  styles.progressBarFill,
+                  {
+                    backgroundColor: theme.primary,
+                    width: `${Math.max(translateProgress, 2)}%`,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        </View>
         <Pressable
           android_ripple={rippleConfig}
           style={styles.buttonStyles}
@@ -206,5 +239,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     zIndex: 1,
+  },
+  opacity0: {
+    opacity: 0,
+  },
+  opacity1: {
+    opacity: 1,
+  },
+  progressBarBackground: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 1.5,
+  },
+  progressBarContainer: {
+    width: 28,
+    height: 3,
+    borderRadius: 1.5,
+    overflow: 'hidden',
+    marginTop: -6,
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 1.5,
+  },
+  translateButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
   },
 });

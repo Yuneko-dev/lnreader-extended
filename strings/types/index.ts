@@ -315,6 +315,7 @@ export interface StringMap {
   'webview.refresh': 'string';
   'webview.share': 'string';
   'webview.openInBrowser': 'string';
+  'webview.openInWebView': 'string';
   'webview.clearCookies': 'string';
   'webview.cookiesCleared': 'string';
   'webview.clearCache': 'string';

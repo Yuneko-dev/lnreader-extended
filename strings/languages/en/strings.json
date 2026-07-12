@@ -348,6 +348,7 @@
     "refresh": "Refresh",
     "share": "Share",
     "openInBrowser": "Open in browser",
+    "openInWebView": "Open in WebView",
     "clearCookies": "Clear cookies",
     "cookiesCleared": "Cookies cleared",
     "clearCache": "Clear WebView cache",

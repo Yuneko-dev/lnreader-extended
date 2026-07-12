@@ -116,6 +116,14 @@ export const ChapterContent = ({
     hideHeader();
   }, [hideHeader, openDrawer]);
 
+  const openWebView = useCallback(() => {
+    navigation.navigate('WebviewScreen', {
+      name: novel.name,
+      url: chapter.path,
+      pluginId: novel.pluginId,
+    });
+  }, [chapter.path, navigation, novel.name, novel.pluginId]);
+
   if (error) {
     return (
       <ErrorScreenV2
@@ -129,12 +137,7 @@ export const ChapterContent = ({
           {
             iconName: 'earth',
             title: 'WebView',
-            onPress: () =>
-              navigation.navigate('WebviewScreen', {
-                name: novel.name,
-                url: chapter.path,
-                pluginId: novel.pluginId,
-              }),
+            onPress: openWebView,
           },
         ]}
       />
@@ -156,11 +159,11 @@ export const ChapterContent = ({
             theme={theme}
             bookmarked={bookmarked}
             setBookmarked={setBookmarked}
+            openWebView={openWebView}
           />
           <ReaderFooter
             readerSheetRef={readerSheetRef}
             scrollToStart={scrollToStart}
-            navigation={navigation}
             openDrawer={openDrawerI}
           />
         </View>
