@@ -4,6 +4,7 @@ import android.content.Context
 import com.facebook.react.modules.network.OkHttpClientFactory
 import com.facebook.react.modules.network.OkHttpClientProvider
 import java.io.File
+import java.net.Proxy
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 
@@ -23,14 +24,24 @@ class NetworkClientFactory(context: Context) : OkHttpClientFactory {
         val baseClient = OkHttpClientProvider.createClientBuilder()
             .cache(cache)
             .build()
-        val providerId = applicationContext
-            .getSharedPreferences(NETWORK_PREFERENCES, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(
+            NETWORK_PREFERENCES,
+            Context.MODE_PRIVATE,
+        )
+        val providerId = preferences
             .getString(DOH_PROVIDER_KEY, DISABLED_DOH_PROVIDER)
             .orEmpty()
-        val provider = DohProvider.fromId(providerId) ?: return baseClient
+        val provider = DohProvider.fromId(providerId)
+        val clientBuilder = baseClient.newBuilder()
+            .socketFactory(RoutingSocketFactory(applicationContext))
 
-        return baseClient.newBuilder()
-            .dns(provider.createDns(baseClient))
-            .build()
+        if (provider != null) {
+            val bootstrapClient = baseClient.newBuilder()
+                .proxy(Proxy.NO_PROXY)
+                .build()
+            clientBuilder.dns(provider.createDns(bootstrapClient))
+        }
+
+        return clientBuilder.build()
     }
 }

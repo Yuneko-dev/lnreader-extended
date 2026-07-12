@@ -16,13 +16,15 @@ import { NOVEL_UPDATE_RANDOM_KEY } from '@hooks/persisted/useUpdates';
 import { AdvancedSettingsScreenProps } from '@navigators/types';
 import { store } from '@plugins/helpers/storage';
 import CookieManager from '@preeternal/react-native-cookie-manager';
+import { useFocusEffect } from '@react-navigation/native';
 import { getDohProviderName } from '@services/network/doh';
+import { getNetworkMode, setNetworkMode } from '@services/network/settings';
 import NativeLocalServer from '@specs/NativeLocalServer';
 import NativeNetwork from '@specs/NativeNetwork';
 import { getString } from '@strings/translations';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Portal, Text, TextInput } from 'react-native-paper';
@@ -37,6 +39,13 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
   const appSettings = useAppSettings();
   const { verboseLogging, setAppSettings } = appSettings;
   const [userAgentInput, setUserAgentInput] = useState(userAgent);
+  const [networkMode, setCurrentNetworkMode] = useState(getNetworkMode);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCurrentNetworkMode(getNetworkMode());
+    }, []),
+  );
 
   /**
    * Confirm Clear Database Dialog
@@ -199,6 +208,18 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
                 : getDohProviderName(appSettings.dohProvider)
             }
             onPress={showDohProviderModal}
+            theme={theme}
+          />
+          <SettingSwitch
+            label={getString('advancedSettingsScreen.bypassDpi')}
+            description={getString('advancedSettingsScreen.bypassDpiDesc')}
+            value={networkMode === 'dpi_bypass'}
+            onPress={() => {
+              const mode =
+                networkMode === 'dpi_bypass' ? 'direct' : 'dpi_bypass';
+              setNetworkMode(mode);
+              setCurrentNetworkMode(mode);
+            }}
             theme={theme}
           />
           <List.Item
