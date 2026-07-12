@@ -147,7 +147,10 @@ const ReaderAppbar = ({
             contentStyle={{ backgroundColor: theme.surface2 }}
           >
             {!novel.isLocal ? (
-              <Menu.Item title={getString('webview.openInWebView')} onPress={handleOpenWebView} />
+              <Menu.Item
+                title={getString('webview.openInWebView')}
+                onPress={handleOpenWebView}
+              />
             ) : null}
           </Menu>
         </View>
