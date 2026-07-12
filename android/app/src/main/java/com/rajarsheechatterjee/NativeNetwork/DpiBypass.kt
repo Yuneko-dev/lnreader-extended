@@ -199,8 +199,9 @@ private class BypassSocket(
 private class BypassOutputStream(
     private val delegate: OutputStream,
 ) : FilterOutputStream(delegate) {
-    private val buffer = ByteArrayOutputStream()
+    private val buffer = FirstWriteBuffer()
     private var firstWrite = true
+    private var httpScanOffset = 0
 
     override fun write(value: Int) {
         if (!firstWrite) {
@@ -212,36 +213,49 @@ private class BypassOutputStream(
     }
 
     override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        if (offset < 0 || length < 0 || offset > bytes.size - length) {
+            throw IndexOutOfBoundsException()
+        }
+        if (length == 0) return
         if (!firstWrite) {
             delegate.write(bytes, offset, length)
             return
         }
-        buffer.write(bytes, offset, length)
-        flushFirstWriteIfReady()
+
+        val bufferedLength = min(length, MAX_FIRST_WRITE - buffer.length)
+        if (bufferedLength > 0) {
+            buffer.write(bytes, offset, bufferedLength)
+            flushFirstWriteIfReady()
+        }
+        if (firstWrite && bufferedLength < length) processFirstWrite()
+        if (bufferedLength < length) {
+            delegate.write(bytes, offset + bufferedLength, length - bufferedLength)
+        }
     }
 
     override fun flush() {
-        if (firstWrite && buffer.size() > 0) processFirstWrite()
+        if (firstWrite && buffer.length > 0) processFirstWrite()
         delegate.flush()
     }
 
     private fun flushFirstWriteIfReady() {
-        val data = buffer.toByteArray()
+        val data = buffer.data
+        val size = buffer.length
         when {
-            looksLikeTlsRecord(data) && data.size < 9 -> Unit
+            looksLikeTlsRecord(data, size) && size < 9 -> Unit
 
-            isTlsClientHello(data) -> {
-                val recordSize = if (data.size >= 5) unsignedShort(data, 3) + 5 else Int.MAX_VALUE
-                if (data.size >= recordSize || data.size >= MAX_FIRST_WRITE) processFirstWrite()
+            isTlsClientHello(data, size) -> {
+                val recordSize = unsignedShort(data, 3) + TLS_HEADER_SIZE
+                if (size >= recordSize || size >= MAX_FIRST_WRITE) processFirstWrite()
             }
 
-            looksLikeHttpRequest(data) -> {
-                if (data.indexOf(HTTP_HEADERS_END) >= 0 || data.size >= MAX_FIRST_WRITE) {
+            looksLikeHttpRequest(data, size) -> {
+                if (hasHttpHeadersEnd(data, size) || size >= MAX_FIRST_WRITE) {
                     processFirstWrite()
                 }
             }
 
-            data.size >= TLS_HEADER_SIZE -> processFirstWrite()
+            size >= TLS_HEADER_SIZE -> processFirstWrite()
         }
     }
 
@@ -253,7 +267,7 @@ private class BypassOutputStream(
 
         when {
             isTlsClientHello(data) -> writeTls(data)
-            isHttpRequest(data) -> simpleSplit(transformHttpRequest(data))
+            looksLikeHttpRequest(data, data.size) -> simpleSplit(transformHttpRequest(data))
             else -> simpleSplit(data)
         }
     }
@@ -386,25 +400,49 @@ private class BypassOutputStream(
         return null
     }
 
-    private fun isTlsClientHello(data: ByteArray): Boolean =
-        data.size >= 9 &&
+    private fun isTlsClientHello(data: ByteArray, size: Int = data.size): Boolean =
+        size >= 9 &&
             data[0] == 0x16.toByte() &&
             data[1] == 0x03.toByte() &&
             data[5].toInt() and 0xFF == 0x01
 
-    private fun looksLikeTlsRecord(data: ByteArray): Boolean =
-        data.isNotEmpty() &&
+    private fun looksLikeTlsRecord(data: ByteArray, size: Int): Boolean =
+        size > 0 &&
             data[0] == 0x16.toByte() &&
-            (data.size == 1 || data[1] == 0x03.toByte())
+            (size == 1 || data[1] == 0x03.toByte())
 
-    private fun looksLikeHttpRequest(data: ByteArray): Boolean {
-        val prefix = String(data, Charsets.ISO_8859_1).uppercase()
-        return HTTP_METHODS.any { method -> "$method ".startsWith(prefix) || prefix.startsWith("$method ") }
+    private fun looksLikeHttpRequest(data: ByteArray, size: Int): Boolean {
+        if (size == 0) return false
+        return HTTP_METHOD_PREFIXES.any { method ->
+            val comparedLength = min(size, method.size)
+            (0 until comparedLength).all { index ->
+                data[index].uppercaseAscii() == method[index]
+            }
+        }
     }
 
-    private fun isHttpRequest(data: ByteArray): Boolean {
-        val firstLine = String(data, Charsets.ISO_8859_1).substringBefore("\r\n")
-        return firstLine.substringBefore(' ').uppercase() in HTTP_METHODS
+    private fun hasHttpHeadersEnd(data: ByteArray, size: Int): Boolean {
+        val lastStart = size - HTTP_HEADERS_END.size
+        if (lastStart < httpScanOffset) return false
+        for (start in httpScanOffset..lastStart) {
+            if (HTTP_HEADERS_END.indices.all { offset ->
+                    data[start + offset] == HTTP_HEADERS_END[offset]
+                }
+            ) {
+                return true
+            }
+        }
+        httpScanOffset = maxOf(0, size - HTTP_HEADERS_END.size + 1)
+        return false
+    }
+
+    private fun Byte.uppercaseAscii(): Byte {
+        val value = toInt() and 0xFF
+        return if (value in 'a'.code..'z'.code) {
+            (value - ASCII_CASE_OFFSET).toByte()
+        } else {
+            this
+        }
     }
 
     private fun unsignedShort(data: ByteArray, offset: Int): Int =
@@ -425,22 +463,32 @@ private class BypassOutputStream(
         return if (mixed == value) value.replaceFirstChar(Char::lowercaseChar) else mixed
     }
 
-    private fun ByteArray.indexOf(needle: ByteArray): Int {
-        if (needle.isEmpty() || size < needle.size) return -1
-        for (index in 0..size - needle.size) {
-            if (needle.indices.all { offset -> this[index + offset] == needle[offset] }) return index
-        }
-        return -1
-    }
-
     private data class SniInfo(val offset: Int, val length: Int)
 
+    private class FirstWriteBuffer : ByteArrayOutputStream(INITIAL_BUFFER_SIZE) {
+        val data: ByteArray
+            get() = buf
+        val length: Int
+            get() = count
+    }
+
     private companion object {
+        const val ASCII_CASE_OFFSET = 'a'.code - 'A'.code
+        const val INITIAL_BUFFER_SIZE = 1024
         const val MAX_FIRST_WRITE = 32 * 1024
         const val MIN_FRAGMENT_SIZE = 4
         const val TLS_HEADER_SIZE = 5
         val HTTP_HEADERS_END = "\r\n\r\n".toByteArray(Charsets.ISO_8859_1)
-        val HTTP_METHODS = setOf("GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "CONNECT", "PATCH")
+        val HTTP_METHOD_PREFIXES = arrayOf(
+            "GET ",
+            "POST ",
+            "HEAD ",
+            "PUT ",
+            "DELETE ",
+            "OPTIONS ",
+            "CONNECT ",
+            "PATCH ",
+        ).map { it.toByteArray(Charsets.US_ASCII) }
         val HOST_HEADER_REGEX = Regex("(?im)^\\s*(Host):\\s*([^\\r\\n]+)")
     }
 }
