@@ -14,6 +14,8 @@ import Animated, {
 
 import { IconButtonV2, Menu } from '../../../components';
 import { useChapterContext } from '../ChapterContext';
+import { NativeChapterSearch } from '../hooks/useNativeChapterSearch';
+import ReaderSearchbar from './ReaderSearchbar';
 
 interface ReaderAppbarProps {
   theme: ThemeColors;
@@ -21,6 +23,7 @@ interface ReaderAppbarProps {
   bookmarked: boolean;
   setBookmarked: React.Dispatch<React.SetStateAction<boolean>>;
   openWebView: () => void;
+  search: NativeChapterSearch;
 }
 
 const fastOutSlowIn = Easing.bezier(0.4, 0.0, 0.2, 1.0);
@@ -31,10 +34,12 @@ const ReaderAppbar = ({
   bookmarked,
   setBookmarked,
   openWebView,
+  search,
 }: ReaderAppbarProps) => {
   const { chapter, novel } = useChapterContext();
   const { statusBarHeight } = useNovelLayout();
   const [menuVisible, setMenuVisible] = useState(false);
+  const { openSearch } = search;
 
   const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
@@ -42,6 +47,10 @@ const ReaderAppbar = ({
     closeMenu();
     openWebView();
   }, [closeMenu, openWebView]);
+  const handleOpenSearch = useCallback(() => {
+    closeMenu();
+    openSearch();
+  }, [closeMenu, openSearch]);
 
   const entering = () => {
     'worklet';
@@ -95,63 +104,73 @@ const ReaderAppbar = ({
       ]}
     >
       <View style={styles.appbar}>
-        <View style={styles.iconContainer}>
-          <IconButtonV2
-            name="arrow-left"
-            onPress={goBack}
-            color={theme.onSurface}
-            size={26}
-            theme={theme}
-          />
-        </View>
-        <View style={styles.content}>
-          <Text
-            style={[styles.title, { color: theme.onSurface }]}
-            numberOfLines={1}
-          >
-            {novel.name}
-          </Text>
-          <Text
-            style={[styles.subtitle, { color: theme.onSurfaceVariant }]}
-            numberOfLines={1}
-          >
-            {chapter.name}
-          </Text>
-        </View>
-        <View style={styles.iconContainer}>
-          <IconButtonV2
-            name={bookmarked ? 'bookmark' : 'bookmark-outline'}
-            size={26}
-            onPress={() => {
-              bookmarkChapter(chapter.id).then(() =>
-                setBookmarked(!bookmarked),
-              );
-            }}
-            color={theme.onSurface}
-            theme={theme}
-          />
-          <Menu
-            visible={menuVisible}
-            onDismiss={closeMenu}
-            anchor={
+        {search.visible ? (
+          <ReaderSearchbar theme={theme} search={search} />
+        ) : (
+          <>
+            <View style={styles.iconContainer}>
               <IconButtonV2
-                name="dots-vertical"
+                name="arrow-left"
+                onPress={goBack}
+                color={theme.onSurface}
                 size={26}
-                onPress={openMenu}
+                theme={theme}
+              />
+            </View>
+            <View style={styles.content}>
+              <Text
+                style={[styles.title, { color: theme.onSurface }]}
+                numberOfLines={1}
+              >
+                {novel.name}
+              </Text>
+              <Text
+                style={[styles.subtitle, { color: theme.onSurfaceVariant }]}
+                numberOfLines={1}
+              >
+                {chapter.name}
+              </Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <IconButtonV2
+                name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+                size={26}
+                onPress={() => {
+                  bookmarkChapter(chapter.id).then(() =>
+                    setBookmarked(!bookmarked),
+                  );
+                }}
                 color={theme.onSurface}
                 theme={theme}
-                style={styles.menu}
               />
-            }
-            contentStyle={{ backgroundColor: theme.surface2 }}
-          >
-            <Menu.Item
-              title={getString('webview.openInWebView')}
-              onPress={handleOpenWebView}
-              disabled={Boolean(novel.isLocal)}
-            />
-          </Menu>
-        </View>
+              <Menu
+                visible={menuVisible}
+                onDismiss={closeMenu}
+                anchor={
+                  <IconButtonV2
+                    name="dots-vertical"
+                    size={26}
+                    onPress={openMenu}
+                    color={theme.onSurface}
+                    theme={theme}
+                    style={styles.menu}
+                  />
+                }
+                contentStyle={{ backgroundColor: theme.surface2 }}
+              >
+                <Menu.Item
+                  title={getString('readerScreen.findInChapter')}
+                  onPress={handleOpenSearch}
+                />
+                <Menu.Item
+                  title={getString('webview.openInWebView')}
+                  onPress={handleOpenWebView}
+                  disabled={Boolean(novel.isLocal)}
+                />
+              </Menu>
+            </View>
+          </>
+        )}
       </View>
     </Animated.View>
   );
