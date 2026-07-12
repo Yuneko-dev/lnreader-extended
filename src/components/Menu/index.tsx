@@ -1,4 +1,5 @@
 import { useTheme } from '@hooks/persisted';
+import color from 'color';
 import React, {
   useCallback,
   useLayoutEffect,
@@ -34,12 +35,14 @@ interface MenuProps {
   anchor: React.ReactNode;
   contentStyle?: StyleProp<ViewStyle>;
   children: React.ReactNode;
-  fullWidth?: boolean; // Full width of the anchor
+  // Full width of the anchor
+  fullWidth?: boolean;
 }
 
 interface MenuItemProps {
   title: string;
   onPress: () => void;
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
 }
@@ -108,7 +111,8 @@ const Menu: React.FC<MenuProps> & { Item: React.FC<MenuItemProps> } = ({
     if (visible) {
       measureAnchor();
     } else {
-      setMenuLayout(null); // Reset layout when closed
+      // Reset layout when closed
+      setMenuLayout(null);
     }
   }, [measureAnchor, visible]);
 
@@ -202,19 +206,24 @@ const Menu: React.FC<MenuProps> & { Item: React.FC<MenuItemProps> } = ({
 const MenuItem: React.FC<MenuItemProps> = ({
   title,
   onPress,
+  disabled = false,
   style,
   titleStyle,
 }) => {
   const theme = useTheme();
+  const titleColor = disabled
+    ? color(theme.onSurface).alpha(0.38).string()
+    : theme.onSurface;
 
   return (
     <Pressable
       style={[styles.menuItem, style]}
       onPress={onPress}
+      disabled={disabled}
       android_ripple={{ color: theme.rippleColor, foreground: true }}
     >
       <Animated.Text
-        style={[styles.menuItemText, { color: theme.onSurface }, titleStyle]}
+        style={[styles.menuItemText, { color: titleColor }, titleStyle]}
       >
         {title}
       </Animated.Text>
