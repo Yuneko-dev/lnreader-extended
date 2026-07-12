@@ -38,7 +38,7 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={search.setSearchText}
-        onSubmitEditing={search.submitSearch}
+        onSubmitEditing={() => search.findNext(true)}
         placeholder={getString('readerScreen.findInChapter')}
         placeholderTextColor={theme.onSurfaceVariant}
         returnKeyType="search"
@@ -81,7 +81,7 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
   );
 };
 
-export default React.memo(ReaderSearchbar);
+export default ReaderSearchbar;
 
 const styles = StyleSheet.create({
   container: {

@@ -32,17 +32,6 @@ export const useNativeChapterSearch = (
   const [result, setResult] = useState(EMPTY_FIND_RESULT);
   const textRef = useRef('');
 
-  const searchNow = useCallback(
-    (query: string) => {
-      if (!query) {
-        webViewRef.current?.clearMatches?.();
-        return;
-      }
-      webViewRef.current?.findAllAsync?.(query);
-    },
-    [webViewRef],
-  );
-
   const setSearchText = useCallback(
     (query: string) => {
       textRef.current = query;
@@ -53,9 +42,13 @@ export const useNativeChapterSearch = (
         total: 0,
         isDoneCounting: !query,
       });
-      searchNow(query);
+      if (query) {
+        webViewRef.current?.findAllAsync?.(query);
+      } else {
+        webViewRef.current?.clearMatches?.();
+      }
     },
-    [searchNow],
+    [webViewRef],
   );
 
   const openSearch = useCallback(() => setVisible(true), []);
@@ -75,17 +68,6 @@ export const useNativeChapterSearch = (
     },
     [webViewRef],
   );
-
-  const submitSearch = useCallback(() => {
-    if (!textRef.current) {
-      return;
-    }
-    if (result.query === textRef.current && result.total > 0) {
-      findNext(true);
-      return;
-    }
-    searchNow(textRef.current);
-  }, [findNext, result.query, result.total, searchNow]);
 
   const handleFindResult = useCallback((nextResult: NativeFindResult) => {
     if (nextResult.query === textRef.current) {
@@ -108,7 +90,6 @@ export const useNativeChapterSearch = (
     closeSearch,
     setSearchText,
     findNext,
-    submitSearch,
     handleFindResult,
   };
 };
