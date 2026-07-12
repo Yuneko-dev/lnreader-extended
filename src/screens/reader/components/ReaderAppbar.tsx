@@ -14,7 +14,7 @@ import Animated, {
 
 import { IconButtonV2, Menu } from '../../../components';
 import { useChapterContext } from '../ChapterContext';
-import { NativeChapterSearch } from '../hooks/useNativeChapterSearch';
+import type { NativeChapterSearch } from '../hooks/useNativeChapterSearch';
 import ReaderSearchbar from './ReaderSearchbar';
 
 interface ReaderAppbarProps {
