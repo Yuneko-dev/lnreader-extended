@@ -159,13 +159,13 @@ const ReaderAppbar = ({
                 contentStyle={{ backgroundColor: theme.surface2 }}
               >
                 <Menu.Item
-                  title={getString('readerScreen.findInChapter')}
-                  onPress={handleOpenSearch}
-                />
-                <Menu.Item
                   title={getString('webview.openInWebView')}
                   onPress={handleOpenWebView}
                   disabled={Boolean(novel.isLocal)}
+                />
+                <Menu.Item
+                  title={getString('readerScreen.findInChapter')}
+                  onPress={handleOpenSearch}
                 />
               </Menu>
             </View>
