@@ -16,7 +16,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import SourceScreenSkeletonLoading from '@screens/browse/loadingAnimation/SourceScreenSkeletonLoading';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
-import Color from 'color';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import { FAB } from 'react-native-paper';
@@ -319,11 +318,9 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
       backgroundColor: theme.surface,
       elevation: 0,
       borderBottomWidth: 1,
-      borderBottomColor: Color(theme.isDark ? '#FFFFFF' : '#000000')
-        .alpha(0.12)
-        .string(),
+      borderBottomColor: theme.outlineVariant,
     }),
-    [theme.surface, theme.isDark],
+    [theme.surface, theme.outlineVariant],
   );
   const renderScene = useCallback(
     ({ route: sourceRoute }: { route: SourceRoute }) => (
@@ -359,20 +356,23 @@ const BrowseSourceScreen = ({ route, navigation }: BrowseSourceScreenProps) => {
     ],
   );
   const renderTabBar = useCallback(
-    (props: any) => (
-      <TabBar
-        {...props}
-        indicatorStyle={indicatorStyle}
-        style={tabBarStyle}
-        inactiveColor={theme.secondary}
-        activeColor={theme.primary}
-        android_ripple={{ color: theme.rippleColor }}
-      />
-    ),
+    (props: any) =>
+      isSearchFocused || searchText ? null : (
+        <TabBar
+          {...props}
+          indicatorStyle={indicatorStyle}
+          style={tabBarStyle}
+          inactiveColor={theme.onSurfaceVariant}
+          activeColor={theme.primary}
+          android_ripple={{ color: theme.rippleColor }}
+        />
+      ),
     [
+      isSearchFocused,
+      searchText,
       indicatorStyle,
       tabBarStyle,
-      theme.secondary,
+      theme.onSurfaceVariant,
       theme.primary,
       theme.rippleColor,
     ],

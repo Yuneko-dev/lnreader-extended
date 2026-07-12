@@ -404,11 +404,7 @@ const NovelInfoHeader = ({
           <NovelMetaSkeleton />
         ) : (
           <>
-            <NovelSummary
-              summary={novel.summary ?? ''}
-              isExpanded={!novel.inLibrary}
-              theme={theme}
-            />
+            <NovelSummary summary={novel.summary ?? ''} theme={theme} />
             {novel.genres ? (
               <NovelGenres theme={theme} genres={novel.genres} />
             ) : null}

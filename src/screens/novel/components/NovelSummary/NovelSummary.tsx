@@ -23,18 +23,13 @@ const OVERFLOW_THRESHOLD = 2;
 
 interface NovelSummaryProps {
   summary: string;
-  isExpanded: boolean;
   theme: ThemeColors;
 }
 
-const NovelSummary: React.FC<NovelSummaryProps> = ({
-  summary,
-  isExpanded,
-  theme,
-}) => {
+const NovelSummary: React.FC<NovelSummaryProps> = ({ summary, theme }) => {
   const textColor = theme.onSurfaceVariant;
 
-  const [expanded, setExpanded] = useState(isExpanded);
+  const [expanded, setExpanded] = useState(false);
   const [summaryHeight, setSummaryHeight] = useState(0);
   const [summaryWidth, setSummaryWidth] = useState(200);
 
@@ -200,9 +195,9 @@ const NovelSummary: React.FC<NovelSummaryProps> = ({
   );
 
   useEffect(() => {
-    setExpanded(isExpanded);
+    setExpanded(false);
     setSummaryHeight(0);
-  }, [isExpanded, summary]);
+  }, [summary]);
 
   const toggleExpanded = useCallback(() => {
     if (hasSummary) {
