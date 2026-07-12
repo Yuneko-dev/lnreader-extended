@@ -59,6 +59,7 @@ This is a modified version for my personal use. It is perfectly compatible with 
 - Optimized for E-Ink displays (untested).
 - Added more reading fonts.
 - Render Markdown formatting in novel summaries.
+- Search for text directly within the reading (chapter) screen.
 
 |                                                                 |                                                           |                                                                |
 | :-------------------------------------------------------------: | :-------------------------------------------------------: | :------------------------------------------------------------: |

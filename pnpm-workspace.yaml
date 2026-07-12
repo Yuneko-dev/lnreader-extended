@@ -7,3 +7,4 @@ onlyBuiltDependencies:
 
 patchedDependencies:
   '@rock-js/plugin-metro@0.12.12': patches/@rock-js__plugin-metro@0.12.12.patch
+  'react-native-webview@13.16.1': patches/react-native-webview@13.16.1.patch

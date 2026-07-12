@@ -39,6 +39,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
 import { useChapterContext } from '../ChapterContext';
+import type { NativeFindResult } from '../hooks/useNativeChapterSearch';
 import { generateReaderHtml } from '../utils/htmlGenerator';
 
 type WebViewPostEvent = {
@@ -56,6 +57,7 @@ type WebViewPostEvent = {
 
 type WebViewReaderProps = {
   onPress(): void;
+  onFindResult(result: NativeFindResult): void;
 };
 
 const { RNDeviceInfo, TikTokTTS } = NativeModules;
@@ -66,7 +68,10 @@ const assetsUriPrefix = __DEV__
   ? 'http://localhost:8081/assets'
   : 'file:///android_asset';
 
-const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
+const WebViewReader: React.FC<WebViewReaderProps> = ({
+  onPress,
+  onFindResult,
+}) => {
   const {
     novel,
     chapter,
@@ -623,6 +628,24 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({ onPress }) => {
               saveProgress(event.data);
             }
             break;
+          case 'find-result': {
+            const { data } = event;
+            if (
+              typeof data?.query === 'string' &&
+              typeof data.activeMatchOrdinal === 'number' &&
+              typeof data.numberOfMatches === 'number' &&
+              typeof data.isDoneCounting === 'boolean'
+            ) {
+              onFindResult({
+                query: data.query,
+                current:
+                  data.numberOfMatches > 0 ? data.activeMatchOrdinal + 1 : 0,
+                total: data.numberOfMatches,
+                isDoneCounting: data.isDoneCounting,
+              });
+            }
+            break;
+          }
           case 'speak':
             if (event.data && typeof event.data === 'string') {
               if (typeof event.index === 'number') {

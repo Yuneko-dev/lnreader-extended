@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { resolveUrl } from '@services/plugin/fetch';
 import { getString } from '@strings/translations';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +20,7 @@ import ReaderAppbar from './components/ReaderAppbar';
 import ReaderBottomSheetV2 from './components/ReaderBottomSheet/ReaderBottomSheet';
 import ReaderFooter from './components/ReaderFooter';
 import WebViewReader from './components/WebViewReader';
+import { useNativeChapterSearch } from './hooks/useNativeChapterSearch';
 
 const Chapter = ({ route, navigation }: ChapterScreenProps) => {
   const [open, setOpen] = useState(false);
@@ -66,10 +67,21 @@ export const ChapterContent = ({
   openDrawer,
 }: ChapterContentProps) => {
   const { left, right } = useSafeAreaInsets();
-  const { novel, chapter } = useChapterContext();
+  const {
+    novel,
+    chapter,
+    hidden,
+    loading,
+    error,
+    webViewRef,
+    hideHeader,
+    refetch,
+  } = useChapterContext();
   const readerSheetRef = useRef<BottomSheetModalMethods>(null);
   const theme = useTheme();
   const { pageReader = false, keepScreenOn } = useChapterGeneralSettings();
+  const search = useNativeChapterSearch(webViewRef);
+  const { closeSearch, handleFindResult, visible: searchVisible } = search;
   const [bookmarked, setBookmarked] = useState<boolean>(
     chapter.bookmark ?? false,
   );
@@ -78,8 +90,25 @@ export const ChapterContent = ({
     setBookmarked(chapter.bookmark ?? false);
   }, [chapter]);
 
-  const { hidden, loading, error, webViewRef, hideHeader, refetch } =
-    useChapterContext();
+  useEffect(() => {
+    closeSearch();
+  }, [chapter.id, closeSearch]);
+
+  useEffect(() => {
+    if (hidden) {
+      closeSearch();
+    }
+  }, [closeSearch, hidden]);
+
+  useBackHandler(
+    useCallback(() => {
+      if (searchVisible) {
+        closeSearch();
+        return true;
+      }
+      return false;
+    }, [closeSearch, searchVisible]),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -124,6 +153,14 @@ export const ChapterContent = ({
     });
   }, [chapter.path, navigation, novel.name, novel.pluginId]);
 
+  const handleReaderPress = useCallback(() => {
+    if (searchVisible) {
+      Keyboard.dismiss();
+      return;
+    }
+    hideHeader();
+  }, [hideHeader, searchVisible]);
+
   if (error) {
     return (
       <ErrorScreenV2
@@ -148,7 +185,10 @@ export const ChapterContent = ({
       {keepScreenOn ? <KeepScreenAwake /> : null}
       <ChapterLoadingScreen isLoading={loading}>
         <View style={styles.container}>
-          <WebViewReader onPress={hideHeader} />
+          <WebViewReader
+            onPress={handleReaderPress}
+            onFindResult={handleFindResult}
+          />
         </View>
       </ChapterLoadingScreen>
       <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
@@ -160,12 +200,15 @@ export const ChapterContent = ({
             bookmarked={bookmarked}
             setBookmarked={setBookmarked}
             openWebView={openWebView}
+            search={search}
           />
-          <ReaderFooter
-            readerSheetRef={readerSheetRef}
-            scrollToStart={scrollToStart}
-            openDrawer={openDrawerI}
-          />
+          {!searchVisible ? (
+            <ReaderFooter
+              readerSheetRef={readerSheetRef}
+              scrollToStart={scrollToStart}
+              openDrawer={openDrawerI}
+            />
+          ) : null}
         </View>
       )}
     </View>
