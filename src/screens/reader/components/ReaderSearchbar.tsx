@@ -14,11 +14,11 @@ type ReaderSearchbarProps = {
 const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
   const inputRef = useRef<TextInput>(null);
   const hasMatches = search.result.total > 0;
-  const resultText = search.text
-    ? search.result.isDoneCounting
+  const resultText =
+    search.text && search.result.isDoneCounting
       ? `${search.result.current}/${search.result.total}`
-      : '…'
-    : '';
+      : '';
+  const emptySearchResult = !hasMatches && search.text.length > 0;
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => inputRef.current?.focus());
@@ -31,7 +31,6 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
         name="magnify"
         color={theme.onSurfaceVariant}
         onPress={() => inputRef.current?.focus()}
-        padding={8}
         theme={theme}
       />
       <TextInput
@@ -48,7 +47,14 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
         submitBehavior="submit"
         value={search.text}
       />
-      <Text style={[styles.result, { color: theme.onSurfaceVariant }]}>
+      <Text
+        style={[
+          styles.result,
+          {
+            color: emptySearchResult ? theme.error : theme.onSurfaceVariant,
+          },
+        ]}
+      >
         {resultText}
       </Text>
       <IconButtonV2
@@ -56,7 +62,6 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
         color={theme.onSurface}
         disabled={!hasMatches}
         onPress={() => search.findNext(false)}
-        padding={8}
         theme={theme}
       />
       <IconButtonV2
@@ -64,14 +69,12 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
         color={theme.onSurface}
         disabled={!hasMatches}
         onPress={() => search.findNext(true)}
-        padding={8}
         theme={theme}
       />
       <IconButtonV2
         name="close"
         color={theme.onSurface}
         onPress={search.closeSearch}
-        padding={8}
         theme={theme}
       />
     </View>
@@ -86,6 +89,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     minHeight: 48,
+    marginTop: 2,
+    marginStart: 8,
+    marginEnd: 8,
   },
   input: {
     flex: 1,
