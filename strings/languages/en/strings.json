@@ -46,6 +46,8 @@
     "webViewDataClearFailed": "Failed to clear WebView data",
     "dnsOverHttps": "DNS over HTTPS (DoH)",
     "disabled": "Disabled",
+    "bypassDpi": "Bypass internet censorship",
+    "bypassDpiDesc": "(Experimental) Split initial HTTP and TLS traffic to bypass DPI filtering.",
     "resetUserAgent": "Reset default User Agent",
     "invalidUserAgent": "Invalid User-Agent value",
     "storageUsage": "Storage usage",

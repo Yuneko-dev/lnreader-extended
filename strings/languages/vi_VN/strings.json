@@ -46,6 +46,8 @@
     "webViewDataClearFailed": "Không thể xóa dữ liệu WebView",
     "dnsOverHttps": "DNS qua HTTPS (DoH)",
     "disabled": "Đã tắt",
+    "bypassDpi": "Vượt kiểm duyệt Internet",
+    "bypassDpiDesc": "(Thử nghiệm) Chia nhỏ lưu lượng HTTP và TLS ban đầu để vượt bộ lọc DPI.",
     "resetUserAgent": "Đặt lại User Agent mặc định",
     "invalidUserAgent": "Giá trị User-Agent không hợp lệ",
     "storageUsage": "Kho chứa chiếm dụng",

@@ -47,6 +47,8 @@ export interface StringMap {
   'advancedSettingsScreen.webViewDataClearFailed': 'string';
   'advancedSettingsScreen.dnsOverHttps': 'string';
   'advancedSettingsScreen.disabled': 'string';
+  'advancedSettingsScreen.bypassDpi': 'string';
+  'advancedSettingsScreen.bypassDpiDesc': 'string';
   'advancedSettingsScreen.resetUserAgent': 'string';
   'advancedSettingsScreen.invalidUserAgent': 'string';
   'advancedSettingsScreen.storageUsage': 'string';
