@@ -1,6 +1,10 @@
 import { List, SafeAreaView } from '@components';
+import NewUpdateDialog from '@components/NewUpdateDialog';
 import Config from '@env';
-import { fetchUpdateInfo } from '@hooks/common/useGithubUpdateChecker';
+import {
+  fetchUpdateInfo,
+  GithubUpdateRelease,
+} from '@hooks/common/useGithubUpdateChecker';
 import { useTheme } from '@hooks/persisted';
 import { AboutScreenProps } from '@navigators/types';
 import { getString } from '@strings/translations';
@@ -14,7 +18,7 @@ import { showToast } from '@utils/showToast';
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { version } from '../../../package.json';
 import { MoreHeader } from './components/MoreHeader';
@@ -24,6 +28,7 @@ const { GIT_HASH, RELEASE_DATE, BUILD_TYPE } = Config;
 const AboutScreen = ({ navigation }: AboutScreenProps) => {
   const theme = useTheme();
   const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [availableUpdate, setAvailableUpdate] = useState<GithubUpdateRelease>();
 
   function getBuildName() {
     if (!GIT_HASH || !RELEASE_DATE || !BUILD_TYPE) {
@@ -47,21 +52,7 @@ const AboutScreen = ({ navigation }: AboutScreenProps) => {
     try {
       const result = await fetchUpdateInfo();
       if (result.isNewVersion && result.latestRelease) {
-        const release = result.latestRelease;
-        Alert.alert(
-          `${getString('common.newUpdateAvailable')} ${release.tag_name}`,
-          release.body.split('\n').join('\n\n'),
-          [
-            { text: getString('common.cancel'), style: 'cancel' },
-            {
-              text: getString('common.install'),
-              onPress: () =>
-                Linking.openURL(
-                  'https://github.com/Yuneko-dev/lnreader-extended/releases',
-                ),
-            },
-          ],
-        );
+        setAvailableUpdate(result.latestRelease);
       } else {
         showToast(getString('aboutScreen.noUpdatesAvailable'));
       }
@@ -140,6 +131,12 @@ const AboutScreen = ({ navigation }: AboutScreenProps) => {
           />
         </List.Section>
       </ScrollView>
+      {availableUpdate ? (
+        <NewUpdateDialog
+          newVersion={availableUpdate}
+          onDismiss={() => setAvailableUpdate(undefined)}
+        />
+      ) : null}
     </SafeAreaView>
   );
 };

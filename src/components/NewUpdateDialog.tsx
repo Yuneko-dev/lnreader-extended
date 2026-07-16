@@ -1,4 +1,4 @@
-import { Modal } from '@components';
+import { MarkdownText, Modal } from '@components';
 import { GithubUpdateRelease } from '@hooks/common/useGithubUpdateChecker';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
@@ -12,34 +12,34 @@ import Button from './Button/Button';
 
 interface NewUpdateDialogProps {
   newVersion: GithubUpdateRelease;
+  onDismiss?: () => void;
 }
 
-const NewUpdateDialog: React.FC<NewUpdateDialogProps> = ({ newVersion }) => {
+const NewUpdateDialog: React.FC<NewUpdateDialogProps> = ({
+  newVersion,
+  onDismiss,
+}) => {
   const [newUpdateDialog, showNewUpdateDialog] = useState(true);
 
   const theme = useTheme();
 
   const modalHeight = Dimensions.get('window').height / 2;
+  const dismiss = () => {
+    showNewUpdateDialog(false);
+    onDismiss?.();
+  };
 
   return (
     <Portal>
-      <Modal
-        visible={newUpdateDialog}
-        onDismiss={() => showNewUpdateDialog(false)}
-      >
+      <Modal visible={newUpdateDialog} onDismiss={dismiss}>
         <Text style={[styles.modalHeader, { color: theme.onSurface }]}>
           {`${getString('common.newUpdateAvailable')} ${newVersion.tag_name}`}
         </Text>
         <ScrollView style={{ height: modalHeight }}>
-          <Text style={[styles.body, { color: theme.onSurfaceVariant }]}>
-            {newVersion.body.split('\n').join('\n\n')}
-          </Text>
+          <MarkdownText markdown={newVersion.body} theme={theme} />
         </ScrollView>
         <View style={styles.buttonCtn}>
-          <Button
-            title={getString('common.cancel')}
-            onPress={() => showNewUpdateDialog(false)}
-          />
+          <Button title={getString('common.cancel')} onPress={dismiss} />
           <Button
             title={getString('common.install')}
             onPress={() =>
@@ -57,10 +57,6 @@ const NewUpdateDialog: React.FC<NewUpdateDialogProps> = ({ newVersion }) => {
 export default NewUpdateDialog;
 
 const styles = StyleSheet.create({
-  body: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
   buttonCtn: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

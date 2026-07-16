@@ -14,6 +14,7 @@ export { default as List } from './List/List';
 export { default as LoadingMoreIndicator } from './LoadingMoreIndicator/LoadingMoreIndicator';
 export { default as LoadingScreenV2 } from './LoadingScreenV2/LoadingScreenV2';
 export * from './LogViewer';
+export { default as MarkdownText } from './MarkdownText/MarkdownText';
 export { default as Menu } from './Menu';
 export { default as Modal } from './Modal/Modal';
 export { RadioButton } from './RadioButton/RadioButton';
