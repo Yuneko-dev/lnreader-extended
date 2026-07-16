@@ -1013,6 +1013,59 @@ describe('ChapterQueries', () => {
       ]);
       expect(resultExcludeBoth).toBeUndefined();
     });
+
+    it('should skip a previous page containing only excluded scanlators', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+      const previousChapterId = await insertTestChapter(testDb, novelId, {
+        page: '1',
+        position: 0,
+        scanlator: 'Scan B',
+      });
+      await insertTestChapter(testDb, novelId, {
+        page: '2',
+        position: 0,
+        scanlator: 'Scan A',
+      });
+      await insertTestChapter(testDb, novelId, {
+        page: '3',
+        position: 0,
+        scanlator: 'Scan B',
+      });
+
+      const result = await getPrevChapter(novelId, 0, '3', ['Scan A']);
+
+      expect(result?.id).toBe(previousChapterId);
+    });
+
+    it('should preserve page order when the first chapter is excluded', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+      await insertTestChapter(testDb, novelId, {
+        page: '1',
+        position: 0,
+        scanlator: 'Scan A',
+      });
+      const previousChapterId = await insertTestChapter(testDb, novelId, {
+        page: '2',
+        position: 0,
+        scanlator: 'Scan B',
+      });
+      await insertTestChapter(testDb, novelId, {
+        page: '1',
+        position: 1,
+        scanlator: 'Scan B',
+      });
+      await insertTestChapter(testDb, novelId, {
+        page: '3',
+        position: 0,
+        scanlator: 'Scan B',
+      });
+
+      const result = await getPrevChapter(novelId, 0, '3', ['Scan A']);
+
+      expect(result?.id).toBe(previousChapterId);
+    });
   });
 
   describe('getNextChapter', () => {
@@ -1148,6 +1201,30 @@ describe('ChapterQueries', () => {
 
       const result = await getNextChapter(novelId, 0, '1', ['Scan A']);
       expect(result?.id).toBe(nextPageChapter1);
+    });
+
+    it('should skip a next page containing only excluded scanlators', async () => {
+      const testDb = getTestDb();
+      const novelId = await insertTestNovel(testDb, { inLibrary: true });
+      await insertTestChapter(testDb, novelId, {
+        page: '1',
+        position: 0,
+        scanlator: 'Scan B',
+      });
+      await insertTestChapter(testDb, novelId, {
+        page: '2',
+        position: 0,
+        scanlator: 'Scan A',
+      });
+      const nextChapterId = await insertTestChapter(testDb, novelId, {
+        page: '3',
+        position: 0,
+        scanlator: 'Scan B',
+      });
+
+      const result = await getNextChapter(novelId, 0, '1', ['Scan A']);
+
+      expect(result?.id).toBe(nextChapterId);
     });
   });
 

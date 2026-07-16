@@ -160,30 +160,33 @@ export const createBootstrapService = (
       } catch {
         newChapters = [];
       }
-    } else if (settingsFilter.length === 0) {
-      const sourcePage = await deps.fetchPage(pluginId, novelPath, page);
-      const sourceChapters = sourcePage.chapters.map(ch => {
-        return {
-          ...ch,
+    } else {
+      const storedChapterCount = await deps.getChapterCount(novel.id, page);
+      if (storedChapterCount === 0) {
+        const sourcePage = await deps.fetchPage(pluginId, novelPath, page);
+        const sourceChapters = sourcePage.chapters.map(ch => {
+          return {
+            ...ch,
+            page,
+          };
+        });
+        await deps.insertChapters(novel.id, sourceChapters);
+        newChapters = await deps.getPageChapters(
+          novel.id,
+          settingsSort,
+          settingsFilter,
           page,
-        };
-      });
-      await deps.insertChapters(novel.id, sourceChapters);
-      newChapters = await deps.getPageChapters(
-        novel.id,
-        settingsSort,
-        settingsFilter,
-        page,
-        undefined,
-        undefined,
-        excludedScanlators,
-      );
-      chapterCount = await deps.getChapterCount(
-        novel.id,
-        page,
-        settingsFilter,
-        excludedScanlators,
-      );
+          undefined,
+          undefined,
+          excludedScanlators,
+        );
+        chapterCount = await deps.getChapterCount(
+          novel.id,
+          page,
+          settingsFilter,
+          excludedScanlators,
+        );
+      }
     }
 
     const batchInformation: BatchInfo = {
@@ -412,7 +415,13 @@ export const createBootstrapService = (
               settingsFilter,
               excludedScanlators,
             );
-      if (chapterCount === 0 && settingsFilter.length === 0) {
+      const hasActiveFilters =
+        settingsFilter.length > 0 || (excludedScanlators?.length ?? 0) > 0;
+      const storedChapterCount =
+        chapterCount === 0 && hasActiveFilters
+          ? deps.getChapterCountSync(novel.id, page)
+          : chapterCount;
+      if (storedChapterCount === 0) {
         return {
           ok: false,
           reason: 'missing-chapters',

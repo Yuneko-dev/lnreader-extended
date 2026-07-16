@@ -28,6 +28,7 @@ import {
   notInArray,
   or,
   sql,
+  type SQLWrapper,
 } from 'drizzle-orm';
 
 import { ChapterInfo, DownloadedChapter, Update } from '../types';
@@ -412,6 +413,28 @@ const scanlatorFilterToSQL = (excludedScanlators?: string[]) => {
   );
 };
 
+const navigablePageFilterToSQL = (
+  novelId: number,
+  pageColumn: SQLWrapper,
+  excludedScanlators?: string[],
+) => {
+  if (!excludedScanlators?.length) {
+    return sql.raw('true');
+  }
+
+  const navigablePages = dbManager
+    .selectDistinct({ page: chapterSchema.page })
+    .from(chapterSchema)
+    .where(
+      and(
+        eq(chapterSchema.novelId, novelId),
+        scanlatorFilterToSQL(excludedScanlators),
+      ),
+    );
+
+  return inArray(pageColumn, navigablePages);
+};
+
 export const getNovelChapters = async (
   novelId: number,
   sort?: ChapterOrderKey,
@@ -714,14 +737,22 @@ export const getPrevChapter = async (
     .where(eq(chapterSchema.novelId, novelId))
     .groupBy(chapterSchema.page)
     .as('page_order');
+  const navigablePageFilter = navigablePageFilterToSQL(
+    novelId,
+    pageOrder.page,
+    excludedScanlators,
+  );
 
   const prevPageRow = await dbManager
     .select({ page: pageOrder.page })
     .from(pageOrder)
     .where(
-      lt(
-        pageOrder.minId,
-        sql`(SELECT MIN(${chapterSchema.id}) FROM ${chapterSchema} WHERE ${chapterSchema.novelId} = ${novelId} AND ${chapterSchema.page} = ${page})`,
+      and(
+        lt(
+          pageOrder.minId,
+          sql`(SELECT MIN(${chapterSchema.id}) FROM ${chapterSchema} WHERE ${chapterSchema.novelId} = ${novelId} AND ${chapterSchema.page} = ${page})`,
+        ),
+        navigablePageFilter,
       ),
     )
     .orderBy(desc(pageOrder.minId))
@@ -781,14 +812,22 @@ export const getNextChapter = async (
     .where(eq(chapterSchema.novelId, novelId))
     .groupBy(chapterSchema.page)
     .as('page_order');
+  const navigablePageFilter = navigablePageFilterToSQL(
+    novelId,
+    pageOrder.page,
+    excludedScanlators,
+  );
 
   const nextPageRow = await dbManager
     .select({ page: pageOrder.page })
     .from(pageOrder)
     .where(
-      gt(
-        pageOrder.minId,
-        sql`(SELECT MIN(${chapterSchema.id}) FROM ${chapterSchema} WHERE ${chapterSchema.novelId} = ${novelId} AND ${chapterSchema.page} = ${page})`,
+      and(
+        gt(
+          pageOrder.minId,
+          sql`(SELECT MIN(${chapterSchema.id}) FROM ${chapterSchema} WHERE ${chapterSchema.novelId} = ${novelId} AND ${chapterSchema.page} = ${page})`,
+        ),
+        navigablePageFilter,
       ),
     )
     .orderBy(asc(pageOrder.minId))
