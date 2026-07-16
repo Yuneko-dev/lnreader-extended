@@ -44,6 +44,7 @@ module.exports = {
       transformIgnorePatterns: baseTransformIgnorePatterns,
       moduleNameMapper: baseModuleNameMapper,
       setupFilesAfterEnv: ['<rootDir>/src/database/queries/__tests__/setup.ts'],
+      globalTeardown: '<rootDir>/scripts/jest-db-global-teardown.cjs',
       collectCoverageFrom: [
         'src/database/queries/**/*.ts',
         '!src/database/queries/**/__tests__/**',
