@@ -50,7 +50,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({
             navigate('ReaderStack', {
               screen: 'Novel',
               params: {
-                name: history.name,
+                name: history.novelName,
                 path: history.novelPath,
                 cover: history.novelCover,
                 pluginId: history.pluginId,

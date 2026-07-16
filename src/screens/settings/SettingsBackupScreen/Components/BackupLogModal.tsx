@@ -150,14 +150,18 @@ export default function BackupLogModal({ theme }: BackupLogModalProps) {
 const styles = StyleSheet.create({
   actions: {
     alignItems: 'center',
-    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    rowGap: 8,
+    width: '100%',
   },
   footerRight: {
+    alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    justifyContent: 'flex-end',
+    marginLeft: 'auto',
   },
 });
