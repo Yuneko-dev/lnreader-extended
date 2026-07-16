@@ -19,8 +19,8 @@ import { open } from '@op-engineering/op-sqlite';
 import { drizzle } from 'drizzle-orm/op-sqlite';
 import { platform } from 'os';
 
-// SQL migration from drizzle/0000_past_mandrill.sql
-// SQLite uses double quotes or no quotes for identifiers, not backticks
+// Initial SQL migration
+// // SQLite uses double quotes or no quotes for identifiers, not backticks
 const MIGRATION_STATEMENTS = [
   `CREATE TABLE IF NOT EXISTS Category (
 	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -43,7 +43,8 @@ const MIGRATION_STATEMENTS = [
 	chapterNumber real,
 	page text DEFAULT '1',
 	position integer DEFAULT 0,
-	progress integer
+	progress integer,
+	scanlator text
 )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS chapter_novel_path_unique ON Chapter (novelId, path)`,
   `CREATE INDEX IF NOT EXISTS chapterNovelIdIndex ON Chapter (novelId, position, page, id)`,

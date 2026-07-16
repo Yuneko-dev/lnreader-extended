@@ -42,10 +42,18 @@ export function createStore({
   };
 
   const bootstrapService = createBootstrapService();
+  let storeRef: { getState: () => NovelStoreState } | null = null;
   const deps: NovelStoreDependencies = {
     bootstrapService,
     chapterActionsDependencies: defaultChapterActionsDependencies,
-    transformChapters: c => c,
+    transformChapters: c => {
+      const excluded =
+        storeRef?.getState().novelSettings.excludedScanlators || [];
+      if (excluded.length === 0) {
+        return c;
+      }
+      return c.filter(ch => !ch.scanlator || !excluded.includes(ch.scanlator));
+    },
     persistPageIndex: value =>
       novelPersistence.writePageIndex(persistenceInput, value),
     persistNovelSettings: value => {
@@ -91,6 +99,7 @@ export function createStore({
       actions,
     };
   });
+  storeRef = store;
 
   const success = store.getState().actions.bootstrapNovelSync();
   if (!success) {

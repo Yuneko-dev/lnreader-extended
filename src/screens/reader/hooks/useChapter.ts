@@ -14,7 +14,7 @@ import {
   useTracker,
 } from '@hooks/persisted';
 import { LOCAL_PLUGIN_ID } from '@plugins/pluginManager';
-import { useNovelActions } from '@screens/novel/NovelContext';
+import { useNovelActions, useNovelValue } from '@screens/novel/NovelContext';
 import { fetchChapter, fetchPage } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import NativeSPenRemote from '@specs/NativeSPenRemote';
@@ -69,6 +69,8 @@ export default function useChapter(
     updateChapterProgress,
     chapterTextCache,
   } = useNovelActions();
+  const novelSettings = useNovelValue('novelSettings');
+
   const [hidden, setHidden] = useState(true);
   const [chapter, setChapter] = useState(initialChapter);
   const [loading, setLoading] = useState(true);
@@ -195,10 +197,21 @@ export default function useChapter(
           cachedText && cachedText.length > 0
             ? cachedText
             : loadChapterText(chap.id, chap.path);
+        const excludedScanlators = novelSettings?.excludedScanlators || [];
         const [nextChapResult, prevChapResult, awaitedText] = await Promise.all(
           [
-            getNextChapter(chap.novelId, chap.position!, chap.page ?? ''),
-            getPrevChapter(chap.novelId, chap.position!, chap.page ?? ''),
+            getNextChapter(
+              chap.novelId,
+              chap.position!,
+              chap.page ?? '',
+              excludedScanlators,
+            ),
+            getPrevChapter(
+              chap.novelId,
+              chap.position!,
+              chap.page ?? '',
+              excludedScanlators,
+            ),
             text,
           ],
         );
@@ -228,6 +241,7 @@ export default function useChapter(
               chap.novelId,
               chap.position!,
               chap.page ?? '',
+              excludedScanlators,
             );
           } catch {}
         }
@@ -250,6 +264,7 @@ export default function useChapter(
               chap.novelId,
               chap.position!,
               chap.page ?? '',
+              excludedScanlators,
             );
           } catch {}
         }
@@ -313,6 +328,7 @@ export default function useChapter(
       setLoading,
       activateChapter,
       prepareNavigation,
+      novelSettings,
     ],
   );
 

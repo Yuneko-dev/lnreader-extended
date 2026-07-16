@@ -8,7 +8,10 @@ import AppErrorBoundary, {
 } from '@components/AppErrorBoundary/AppErrorBoundary';
 import { useInitDatabase } from '@database/db';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { useLibrarySettings,useSecuritySettings } from '@hooks/persisted/useSettings';
+import {
+  useLibrarySettings,
+  useSecuritySettings,
+} from '@hooks/persisted/useSettings';
 import { ThemeProvider } from '@hooks/persisted/useTheme';
 import { CloudflareSolverOverlay } from '@plugins/helpers/CloudflareSolverOverlay';
 import { initLocalServer } from '@plugins/local/localServerManager';
@@ -48,7 +51,7 @@ const useScreenProtection = () => {
 
   useEffect(() => {
     try {
-      const {FlagSecure} = NativeModules;
+      const { FlagSecure } = NativeModules;
       if (!FlagSecure) {
         return;
       }
@@ -84,11 +87,13 @@ const useCancelStuckBackupTasks = () => {
     ];
 
     const hasStuckBackupTasks = taskList.some(
-      t => t?.task?.name && backupTasks.includes(t.task.name)
+      t => t?.task?.name && backupTasks.includes(t.task.name),
     );
 
     if (hasStuckBackupTasks) {
-      backupTasks.forEach(name => ServiceManager.manager.removeTasksByName(name as any));
+      backupTasks.forEach(name =>
+        ServiceManager.manager.removeTasksByName(name as any),
+      );
       showToast(getString('backupLogScreen.incompleteBackupCancelled'));
     }
   }, []);
@@ -103,7 +108,7 @@ const AppContent = () => {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
       async response => {
-        const {data} = response.notification.request.content;
+        const { data } = response.notification.request.content;
         if (data?.action === 'open_update_error_log' && data?.filePath) {
           try {
             const cleanPath = (data.filePath as string).replace('file://', '');
@@ -147,6 +152,10 @@ const App = () => {
     }
   }, [state.success, state.error]);
 
+  if (!state.success && !state.error) {
+    return null;
+  }
+
   return (
     <Suspense fallback={null}>
       <GestureHandlerRootView style={styles.flex}>
@@ -160,7 +169,10 @@ const App = () => {
                   <AppErrorBoundary>
                     <PaperProvider>
                       <BottomSheetModalProvider>
-                        <StatusBar translucent={true} backgroundColor="transparent" />
+                        <StatusBar
+                          translucent={true}
+                          backgroundColor="transparent"
+                        />
                         <AppContent />
                       </BottomSheetModalProvider>
                     </PaperProvider>

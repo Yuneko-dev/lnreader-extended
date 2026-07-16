@@ -50,8 +50,15 @@ export const normalizePluginChapters = (
   }
 
   return chapters.map((chapter, index) => {
+    const scanlator = Array.isArray(chapter.scanlator)
+      ? chapter.scanlator.join(', ')
+      : chapter.scanlator;
     try {
-      return { ...chapter, page: normalizeChapterPage(chapter.page) };
+      return {
+        ...chapter,
+        page: normalizeChapterPage(chapter.page),
+        scanlator,
+      };
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
       const chapterIdentity = chapter?.path || chapter?.name || `#${index + 1}`;

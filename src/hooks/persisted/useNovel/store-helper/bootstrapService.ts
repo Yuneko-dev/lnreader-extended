@@ -5,6 +5,7 @@ import {
   getCustomPages as defaultGetCustomPages,
   getFirstUnreadChapter as defaultGetFirstUnreadChapter,
   getNovelChaptersSync as defaultGetNovelChaptersSync,
+  getNovelScanlatorsSync as defaultGetNovelScanlatorsSync,
   getPageChapters as defaultGetPageChapters,
   getPageChaptersBatched as defaultGetPageChaptersBatched,
   insertChapters as defaultInsertChapters,
@@ -33,6 +34,7 @@ export interface BootstrapSuccessResult extends ChapterLoadResult {
   ok: true;
   novel: NovelInfo;
   pages: string[];
+  scanlators: string[];
 }
 
 export interface BootstrapFailureResult {
@@ -63,6 +65,7 @@ const defaultBootstrapServiceDependencies = {
   insertChapters: defaultInsertChapters,
   getPageChapters: defaultGetPageChapters,
   getFirstUnreadChapter: defaultGetFirstUnreadChapter,
+  getNovelScanlatorsSync: defaultGetNovelScanlatorsSync,
   getString: defaultGetString,
 } as const;
 export type BootstrapServiceDependencies =
@@ -123,6 +126,7 @@ export const createBootstrapService = (
     pageIndex,
     settingsSort,
     settingsFilter,
+    excludedScanlators,
   }: {
     novel: NovelInfo;
     novelPath: string;
@@ -131,33 +135,58 @@ export const createBootstrapService = (
     pageIndex: number;
     settingsSort: ChapterOrderKey;
     settingsFilter: ChapterFilterKey[];
+    excludedScanlators?: string[];
   }): Promise<ChapterLoadResult> => {
     const page = pages[pageIndex];
     let newChapters: ChapterInfo[] = [];
-    const config = [novel.id, settingsSort, settingsFilter, page] as const;
 
     let chapterCount = await deps.getChapterCount(
       novel.id,
       page,
       settingsFilter,
+      excludedScanlators,
     );
     if (chapterCount) {
       try {
-        newChapters = (await deps.getPageChaptersBatched(...config)) || [];
+        newChapters =
+          (await deps.getPageChaptersBatched(
+            novel.id,
+            settingsSort,
+            settingsFilter,
+            page,
+            0,
+            excludedScanlators,
+          )) || [];
       } catch {
         newChapters = [];
       }
-    } else if (settingsFilter.length === 0) {
-      const sourcePage = await deps.fetchPage(pluginId, novelPath, page);
-      const sourceChapters = sourcePage.chapters.map(ch => {
-        return {
-          ...ch,
+    } else {
+      const storedChapterCount = await deps.getChapterCount(novel.id, page);
+      if (storedChapterCount === 0) {
+        const sourcePage = await deps.fetchPage(pluginId, novelPath, page);
+        const sourceChapters = sourcePage.chapters.map(ch => {
+          return {
+            ...ch,
+            page,
+          };
+        });
+        await deps.insertChapters(novel.id, sourceChapters);
+        newChapters = await deps.getPageChapters(
+          novel.id,
+          settingsSort,
+          settingsFilter,
           page,
-        };
-      });
-      await deps.insertChapters(novel.id, sourceChapters);
-      newChapters = await deps.getPageChapters(...config);
-      chapterCount = await deps.getChapterCount(novel.id, page, settingsFilter);
+          undefined,
+          undefined,
+          excludedScanlators,
+        );
+        chapterCount = await deps.getChapterCount(
+          novel.id,
+          page,
+          settingsFilter,
+          excludedScanlators,
+        );
+      }
     }
 
     const batchInformation: BatchInfo = {
@@ -165,7 +194,12 @@ export const createBootstrapService = (
       total: Math.max(0, Math.ceil(chapterCount / 300) - 1),
       totalChapters: chapterCount,
     };
-    const unread = deps.getFirstUnreadChapter(novel.id, settingsFilter, page);
+    const unread = deps.getFirstUnreadChapter(
+      novel.id,
+      settingsFilter,
+      page,
+      excludedScanlators,
+    );
     return {
       chapters: newChapters,
       batchInformation,
@@ -180,6 +214,7 @@ export const createBootstrapService = (
     settingsSort,
     settingsFilter,
     batchInformation,
+    excludedScanlators,
   }: {
     novel: NovelInfo | undefined;
     pages: string[];
@@ -187,6 +222,7 @@ export const createBootstrapService = (
     settingsSort: ChapterOrderKey;
     settingsFilter: ChapterFilterKey[];
     batchInformation: BatchInfo;
+    excludedScanlators?: string[];
   }) => {
     const page = pages[pageIndex];
     const nextBatch = batchInformation.batch + 1;
@@ -203,6 +239,7 @@ export const createBootstrapService = (
           settingsFilter,
           page,
           nextBatch,
+          excludedScanlators,
         )) || [];
     } catch {
       newChapters = [];
@@ -223,6 +260,7 @@ export const createBootstrapService = (
     settingsFilter,
     batchInformation,
     onBatchLoaded,
+    excludedScanlators,
   }: {
     targetBatch: number;
     novel: NovelInfo | undefined;
@@ -232,6 +270,7 @@ export const createBootstrapService = (
     settingsFilter: ChapterFilterKey[];
     batchInformation: BatchInfo;
     onBatchLoaded: (batch: number, chapters: ChapterInfo[]) => void;
+    excludedScanlators?: string[];
   }) => {
     const page = pages[pageIndex] ?? '1';
     if (!novel || !page || targetBatch <= batchInformation.batch) {
@@ -254,6 +293,7 @@ export const createBootstrapService = (
             settingsFilter,
             page,
             batch,
+            excludedScanlators,
           )) || [];
       } catch {
         newChapters = [];
@@ -270,6 +310,7 @@ export const createBootstrapService = (
     pageIndex,
     settingsSort,
     settingsFilter,
+    excludedScanlators,
   }: {
     novel: NovelInfo | undefined;
     novelPath: string;
@@ -277,6 +318,7 @@ export const createBootstrapService = (
     pageIndex: number;
     settingsSort: ChapterOrderKey;
     settingsFilter: ChapterFilterKey[];
+    excludedScanlators?: string[];
   }): Promise<BootstrapResult> => {
     const key = getBootstrapKey(pluginId, novelPath);
     const existing = inflightBootstraps.get(key);
@@ -305,12 +347,16 @@ export const createBootstrapService = (
           pageIndex,
           settingsSort,
           settingsFilter,
+          excludedScanlators,
         });
+
+        const scanlators = deps.getNovelScanlatorsSync(resolvedNovel.id);
 
         return {
           ok: true,
           novel: resolvedNovel,
           pages,
+          scanlators,
           ...chapterState,
         } satisfies BootstrapSuccessResult;
       } catch (error) {
@@ -335,6 +381,7 @@ export const createBootstrapService = (
     pageIndex,
     settingsSort,
     settingsFilter,
+    excludedScanlators,
   }: {
     novel: NovelInfo | undefined;
     novelPath: string;
@@ -342,6 +389,7 @@ export const createBootstrapService = (
     pageIndex: number;
     settingsSort: ChapterOrderKey;
     settingsFilter: ChapterFilterKey[];
+    excludedScanlators?: string[];
   }): BootstrapResult => {
     try {
       const novel = !_novel?.id
@@ -357,32 +405,50 @@ export const createBootstrapService = (
       const pages = calculatePages(novel);
       const page = pages[pageIndex] ?? '1';
       const chapterCount =
-        settingsFilter.length === 0 && pages.length === 1
+        settingsFilter.length === 0 &&
+        pages.length === 1 &&
+        (!excludedScanlators || excludedScanlators.length === 0)
           ? novel.totalChapters ?? 0
-          : deps.getChapterCountSync(novel.id, page, settingsFilter);
-      if (chapterCount === 0 && settingsFilter.length === 0) {
+          : deps.getChapterCountSync(
+              novel.id,
+              page,
+              settingsFilter,
+              excludedScanlators,
+            );
+      const hasActiveFilters =
+        settingsFilter.length > 0 || (excludedScanlators?.length ?? 0) > 0;
+      const storedChapterCount =
+        chapterCount === 0 && hasActiveFilters
+          ? deps.getChapterCountSync(novel.id, page)
+          : chapterCount;
+      if (storedChapterCount === 0) {
         return {
           ok: false,
           reason: 'missing-chapters',
         } satisfies BootstrapFailureResult;
       }
 
-      const config = [
+      const newChapters = deps.getNovelChaptersSync(
         novel.id,
         settingsSort,
         settingsFilter,
         page,
         300,
-      ] as const;
-
-      const newChapters = deps.getNovelChaptersSync(...config);
+        excludedScanlators,
+      );
 
       const batchInformation: BatchInfo = {
         batch: 0,
         total: Math.max(0, Math.ceil(chapterCount / 300) - 1),
         totalChapters: chapterCount,
       };
-      const unread = deps.getFirstUnreadChapter(novel.id, settingsFilter, page);
+      const unread = deps.getFirstUnreadChapter(
+        novel.id,
+        settingsFilter,
+        page,
+        excludedScanlators,
+      );
+      const scanlators = deps.getNovelScanlatorsSync(novel.id);
 
       return {
         ok: true,
@@ -391,6 +457,7 @@ export const createBootstrapService = (
         chapters: newChapters,
         batchInformation,
         firstUnreadChapter: unread ?? undefined,
+        scanlators,
       } satisfies BootstrapSuccessResult;
     } catch (error) {
       const dbNovel = !_novel?.id
