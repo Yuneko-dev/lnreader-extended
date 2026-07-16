@@ -88,7 +88,7 @@ module.exports = {
         'spaced-comment': ['error', 'always', { markers: ['!'] }],
         'no-inline-comments': 'warn',
         'no-console': 'warn',
-        'react-hooks/exhaustive-deps': 'warn',
+        'react-hooks/exhaustive-deps': 'error',
         'react-native/no-inline-styles': 'error',
       },
     },

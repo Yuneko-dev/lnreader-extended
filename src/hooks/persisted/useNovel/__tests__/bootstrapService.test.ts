@@ -55,6 +55,7 @@ const makeChapter = (id: number, overrides: Partial<ChapterInfo> = {}) => ({
   progress: 0,
   page: '1',
   position: id,
+  scanlator: null,
   ...overrides,
   releaseTime: overrides.releaseTime || '2024-01-01',
 });
@@ -145,6 +146,7 @@ describe('bootstrapService', () => {
       mockNovel.id,
       '1',
       settingsFilter,
+      undefined,
     );
   });
 
@@ -178,6 +180,9 @@ describe('bootstrapService', () => {
       settingsSort,
       settingsFilter,
       '1',
+      undefined,
+      undefined,
+      undefined,
     );
     expect(result.batchInformation.totalChapters).toBe(mockChapters.length);
   });
@@ -280,12 +285,15 @@ describe('bootstrapService', () => {
       mockNovel.id,
       '3',
       settingsFilter,
+      undefined,
     );
     expect(mockGetPageChaptersBatched).toHaveBeenCalledWith(
       mockNovel.id,
       settingsSort,
       settingsFilter,
       '3',
+      0,
+      undefined,
     );
   });
 
@@ -308,6 +316,7 @@ describe('bootstrapService', () => {
       settingsFilter,
       '1',
       1,
+      undefined,
     );
     expect(result).toEqual({
       batch: 1,
@@ -382,9 +391,12 @@ describe('bootstrapService', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.batchInformation.totalChapters).toBe(2);
-    expect(mockGetChapterCountSync).toHaveBeenCalledWith(mockNovel.id, '1', [
-      'not-read',
-    ]);
+    expect(mockGetChapterCountSync).toHaveBeenCalledWith(
+      mockNovel.id,
+      '1',
+      ['not-read'],
+      undefined,
+    );
   });
 
   it('bootstrapNovelSync returns missing-chapters only when unfiltered count is zero', () => {
@@ -411,5 +423,36 @@ describe('bootstrapService', () => {
       settingsFilter: ['not-read'],
     });
     expect(filtered.ok).toBe(true);
+  });
+
+  it('bootstrapNovelSync passes excludedScanlators down to queries', () => {
+    setupDbFirstSuccess();
+    const service = createBootstrapService();
+
+    const result = service.bootstrapNovelSync({
+      novel: mockNovel,
+      novelPath: NOVEL_PATH,
+      pluginId: PLUGIN_ID,
+      pageIndex: 0,
+      settingsSort,
+      settingsFilter: [],
+      excludedScanlators: ['Scan A'],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(mockGetChapterCountSync).toHaveBeenCalledWith(
+      mockNovel.id,
+      '1',
+      [],
+      ['Scan A'],
+    );
+    expect(mockGetNovelChaptersSync).toHaveBeenCalledWith(
+      mockNovel.id,
+      settingsSort,
+      [],
+      '1',
+      300,
+      ['Scan A'],
+    );
   });
 });

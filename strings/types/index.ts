@@ -432,6 +432,7 @@ export interface StringMap {
   'novelScreen.bottomSheet.filters.bookmarked': 'string';
   'novelScreen.bottomSheet.filters.downloaded': 'string';
   'novelScreen.bottomSheet.filters.unread': 'string';
+  'novelScreen.bottomSheet.filters.ignoreScanlators': 'string';
   'novelScreen.bottomSheet.order.byChapterName': 'string';
   'novelScreen.bottomSheet.order.bySource': 'string';
   'novelScreen.chapterChapnum': 'string';

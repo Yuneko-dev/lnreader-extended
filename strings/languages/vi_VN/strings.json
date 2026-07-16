@@ -495,7 +495,8 @@
       "filters": {
         "bookmarked": "Đã đánh dấu",
         "downloaded": "Đã tải xuống",
-        "unread": "Chưa đọc"
+        "unread": "Chưa đọc",
+        "ignoreScanlators": "Bỏ qua các nhóm dịch"
       },
       "order": {
         "byChapterName": "Theo tên chương",

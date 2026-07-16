@@ -1,13 +1,24 @@
+import { Button } from '@components';
 import BottomSheet from '@components/BottomSheet/BottomSheet';
 import { Checkbox, SortItem } from '@components/Checkbox/Checkbox';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useNovelSettings } from '@hooks/persisted/useNovelSettings';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
+import { useNovelValue } from '@screens/novel/NovelContext';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import color from 'color';
-import React, { useCallback, useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  Modal as RNModal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { overlay } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SceneMap, TabBar, TabView, TabViewProps } from 'react-native-tab-view';
@@ -29,7 +40,28 @@ const ChaptersSettingsSheet = ({
     setShowChapterTitles,
     sort,
     showChapterTitles,
+    excludedScanlators = [],
+    setExcludedScanlators,
   } = useNovelSettings();
+
+  const rawScanlators = useNovelValue('scanlators');
+  const scanlators = useMemo(
+    () => [...(rawScanlators || [])].sort((a, b) => a.localeCompare(b)),
+    [rawScanlators],
+  );
+
+  const [scanlatorsModalVisible, setScanlatorsModalVisible] = useState(false);
+  const [tempExcludedScanlators, setTempExcludedScanlators] = useState<
+    string[]
+  >([]);
+
+  const toggleTempScanlator = useCallback((scanlator: string) => {
+    setTempExcludedScanlators(prev =>
+      prev.includes(scanlator)
+        ? prev.filter(s => s !== scanlator)
+        : [...prev, scanlator],
+    );
+  }, []);
 
   const { left, right } = useSafeAreaInsets();
   const readStatus = getChapterFilterState('read');
@@ -42,7 +74,7 @@ const ChaptersSettingsSheet = ({
 
   const FirstRoute = useCallback(
     () => (
-      <View style={styles.flex}>
+      <BottomSheetScrollView style={styles.flex}>
         <Checkbox
           theme={theme}
           label={getString('novelScreen.bottomSheet.filters.downloaded')}
@@ -76,7 +108,34 @@ const ChaptersSettingsSheet = ({
             cycleChapterFilter('bookmarked');
           }}
         />
-      </View>
+        {scanlators.length > 0 && (
+          <View style={styles.scanlatorsContainer}>
+            <Pressable
+              style={styles.scanlatorHeader}
+              onPress={() => {
+                setTempExcludedScanlators(excludedScanlators);
+                setScanlatorsModalVisible(true);
+              }}
+            >
+              <Text
+                style={[
+                  styles.sectionHeader,
+                  styles.flex,
+                  { color: theme.onSurfaceVariant },
+                ]}
+              >
+                {getString('novelScreen.bottomSheet.filters.ignoreScanlators')}
+              </Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                color={theme.onSurfaceVariant}
+                size={20}
+                style={styles.chevron}
+              />
+            </Pressable>
+          </View>
+        )}
+      </BottomSheetScrollView>
     ),
     [
       cycleChapterFilter,
@@ -85,6 +144,8 @@ const ChaptersSettingsSheet = ({
       setChapterFilterValue,
       theme,
       unreadStatus,
+      scanlators,
+      excludedScanlators,
     ],
   );
 
@@ -187,34 +248,85 @@ const ChaptersSettingsSheet = ({
     [],
   );
   return (
-    <BottomSheet
-      snapPoints={[240]}
-      bottomSheetRef={bottomSheetRef}
-      backgroundStyle={styles.transparent}
-    >
-      <BottomSheetView
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: overlay(2, theme.surface),
-            marginLeft: left,
-            marginRight: right,
-          },
-        ]}
+    <>
+      <BottomSheet
+        snapPoints={[290]}
+        bottomSheetRef={bottomSheetRef}
+        backgroundStyle={styles.transparent}
       >
-        <TabView
-          commonOptions={{
-            label: renderLabel,
-          }}
-          navigationState={{ index, routes }}
-          renderTabBar={renderTabBar}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{ width: layout.width }}
-          style={styles.tabView}
-        />
-      </BottomSheetView>
-    </BottomSheet>
+        <BottomSheetView
+          style={[
+            styles.contentContainer,
+            {
+              backgroundColor: overlay(2, theme.surface),
+              marginLeft: left,
+              marginRight: right,
+            },
+          ]}
+        >
+          <TabView
+            commonOptions={{
+              label: renderLabel,
+            }}
+            navigationState={{ index, routes }}
+            renderTabBar={renderTabBar}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={{ width: layout.width }}
+            style={styles.tabView}
+          />
+        </BottomSheetView>
+      </BottomSheet>
+      {scanlators.length > 0 && (
+        <RNModal
+          visible={scanlatorsModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setScanlatorsModalVisible(false)}
+        >
+          <View style={styles.modalBackdrop}>
+            <View
+              style={[
+                styles.scanlatorModalContent,
+                { backgroundColor: theme.surface },
+              ]}
+            >
+              <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+                {getString('novelScreen.bottomSheet.filters.ignoreScanlators')}
+              </Text>
+              <ScrollView style={styles.scanlatorModalScroll}>
+                {scanlators.map(scanlator => (
+                  <Checkbox
+                    key={scanlator}
+                    theme={theme}
+                    label={scanlator}
+                    status={tempExcludedScanlators.includes(scanlator)}
+                    onPress={() => toggleTempScanlator(scanlator)}
+                  />
+                ))}
+              </ScrollView>
+              <View style={styles.modalFooterCtn}>
+                <Button
+                  title={getString('common.submit')}
+                  onPress={() => {
+                    setExcludedScanlators(tempExcludedScanlators);
+                    setScanlatorsModalVisible(false);
+                  }}
+                />
+                <Button
+                  title={getString('common.cancel')}
+                  onPress={() => setScanlatorsModalVisible(false)}
+                />
+                <Button
+                  title={getString('common.reset')}
+                  onPress={() => setTempExcludedScanlators([])}
+                />
+              </View>
+            </View>
+          </View>
+        </RNModal>
+      )}
+    </>
   );
 };
 
@@ -229,7 +341,7 @@ const styles = StyleSheet.create({
   tabView: {
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    height: 240,
+    height: 290,
   },
   transparent: {
     backgroundColor: 'transparent',
@@ -240,5 +352,52 @@ const styles = StyleSheet.create({
   tabBar: {
     borderBottomWidth: 1,
     elevation: 0,
+  },
+  sectionHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  scanlatorsContainer: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(128,128,128,0.2)',
+    marginTop: 8,
+    paddingBottom: 16,
+  },
+  scanlatorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 16,
+  },
+  chevron: {
+    marginTop: 8,
+  },
+  scanlatorModalContent: {
+    padding: 20,
+    margin: 20,
+    borderRadius: 8,
+    maxHeight: '80%',
+    width: '90%',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanlatorModalScroll: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalFooterCtn: {
+    flexDirection: 'row-reverse',
+    paddingTop: 8,
   },
 });

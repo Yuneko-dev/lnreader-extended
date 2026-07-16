@@ -18,6 +18,7 @@ export interface ChapterSliceState {
   firstUnreadChapter: ChapterInfo | undefined;
   batchInformation: BatchInfo;
   chapterTextCache: Record<number, ChapterTextValue>;
+  scanlators: string[];
 }
 
 export interface NovelStoreData extends ChapterSliceState {
