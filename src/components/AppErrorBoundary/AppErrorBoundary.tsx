@@ -3,7 +3,6 @@ import { useTheme } from '@hooks/persisted';
 import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import * as Clipboard from 'expo-clipboard';
-import * as Updates from 'expo-updates';
 import React from 'react';
 import {
   DevSettings,
@@ -14,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import ErrorBoundary from 'react-native-error-boundary';
+import RNRestart from 'react-native-restart';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ErrorFallbackProps {
@@ -27,12 +27,12 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
 }) => {
   const theme = useTheme();
 
-  const restartApplication = React.useCallback(async () => {
+  const restartApplication = React.useCallback(() => {
     try {
       if (__DEV__) {
         DevSettings.reload();
       } else {
-        await Updates.reloadAsync();
+        RNRestart.restart();
       }
     } catch (e) {
       console.warn('[restartApplication]', e);
