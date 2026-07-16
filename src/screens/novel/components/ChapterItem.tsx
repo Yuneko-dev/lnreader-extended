@@ -482,6 +482,7 @@ const ChapterItem: React.FC<ChapterItemProps> = ({
                   styles.mt4,
                   styles.text,
                   parsedTime ? styles.marginStart5 : styles.marginStart0,
+                  styles.flexShrink,
                 ]}
                 numberOfLines={1}
               >
@@ -563,6 +564,9 @@ const styles = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  flexShrink: {
+    flexShrink: 1,
   },
   metaRow: {
     flexDirection: 'row',
