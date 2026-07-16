@@ -1,10 +1,12 @@
 nodeLinker: hoisted
 
 onlyBuiltDependencies:
+  - '@google/genai'
   - better-sqlite3
   - esbuild
   - protobufjs
 
 patchedDependencies:
   '@rock-js/plugin-metro@0.12.12': patches/@rock-js__plugin-metro@0.12.12.patch
-  'react-native-webview@13.16.1': patches/react-native-webview@13.16.1.patch
+  drizzle-orm@1.0.0-beta.22: patches/drizzle-orm@1.0.0-beta.22.patch
+  react-native-webview@13.16.1: patches/react-native-webview@13.16.1.patch

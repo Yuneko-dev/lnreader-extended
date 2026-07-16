@@ -45,8 +45,8 @@ export function getTestDb(): TestDb {
  * Cleans up the test database
  */
 export function teardownTestDatabase() {
-  const { cleanupTestDb } = getTestDbModule();
   if (mockTestDbInstance) {
+    const { cleanupTestDb } = getTestDbModule();
     cleanupTestDb(mockTestDbInstance);
     mockTestDbInstance = null;
   }

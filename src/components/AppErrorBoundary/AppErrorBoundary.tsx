@@ -3,8 +3,16 @@ import { useTheme } from '@hooks/persisted';
 import NativeFile from '@specs/NativeFile';
 import { showToast } from '@utils/showToast';
 import * as Clipboard from 'expo-clipboard';
+import * as Updates from 'expo-updates';
 import React from 'react';
-import { ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import {
+  DevSettings,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import ErrorBoundary from 'react-native-error-boundary';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,6 +26,19 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError,
 }) => {
   const theme = useTheme();
+
+  const restartApplication = React.useCallback(async () => {
+    try {
+      if (__DEV__) {
+        DevSettings.reload();
+      } else {
+        await Updates.reloadAsync();
+      }
+    } catch (e) {
+      console.warn('[restartApplication]', e);
+      resetError();
+    }
+  }, [resetError]);
 
   return (
     <SafeAreaView
@@ -49,7 +70,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
       </View>
       <List.Divider theme={theme} />
       <Button
-        onPress={resetError}
+        onPress={restartApplication}
         title={'Restart the application'}
         style={styles.buttonCtn}
         mode="contained"
