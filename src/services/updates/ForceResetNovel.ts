@@ -204,6 +204,9 @@ export const forceResetNovel = async (
         chapterNumber: chapterNumber || null,
         page: chapterPage,
         position: i,
+        scanlator: Array.isArray(chapter.scanlator)
+          ? chapter.scanlator.filter(Boolean).join(', ') || null
+          : chapter.scanlator || null,
         // Restore user state if it exists
         unread: oldState ? oldState.unread : true,
         bookmark: oldState ? oldState.bookmark : false,
