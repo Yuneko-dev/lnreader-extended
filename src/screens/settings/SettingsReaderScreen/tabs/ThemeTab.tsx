@@ -98,7 +98,6 @@ const ThemeTab: React.FC = () => {
         visible={readerBackgroundModal.value}
         color={readerSettings.theme}
         closeModal={readerBackgroundModal.setFalse}
-        theme={theme}
         onSubmit={color =>
           readerSettings.setChapterReaderSettings({ theme: color })
         }
@@ -108,7 +107,6 @@ const ThemeTab: React.FC = () => {
         visible={readerTextColorModal.value}
         color={readerSettings.textColor}
         closeModal={readerTextColorModal.setFalse}
-        theme={theme}
         onSubmit={color =>
           readerSettings.setChapterReaderSettings({ textColor: color })
         }
