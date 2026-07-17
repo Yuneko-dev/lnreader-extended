@@ -1,159 +1,128 @@
 import Button from '@components/Button/Button';
-import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
-import { ThemeColors } from '@theme/types';
-import React from 'react';
-import {
-  Keyboard,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import { useAnimatedKeyboard } from 'react-native-keyboard-controller';
-import { Modal, ModalProps, overlay, Portal } from 'react-native-paper';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  useAnimatedStyle,
-  withClamp,
-  withTiming,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-const MODAL_MARGIN = 24;
-const BORDER_RADIUS = 28;
+import KeyboardAwareModal, {
+  KeyboardAwareModalProps,
+} from './KeyboardAwareModal';
+import useKeyboardModalDismiss from './useKeyboardModalDismiss';
 
-const getModalTitleColor = (theme: ThemeColors) => ({
-  color: theme.onSurface,
-});
+type ConfirmResult = boolean | void;
 
-export type DefaultModalProps = {
-  title: string;
-  onSave: () => boolean;
-  onDismiss: () => void;
+export type KeyboardAvoidingModalProps = {
+  title: ReactNode;
+  onConfirm: () => ConfirmResult | Promise<ConfirmResult>;
   onCancel?: () => void;
   onReset?: () => void;
-} & Omit<ModalProps, 'theme' | 'onDismiss' | 'contentContainerStyle'>;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  resetLabel?: string;
+  confirmDisabled?: boolean;
+  confirmLoading?: boolean;
+} & Omit<KeyboardAwareModalProps, 'footer' | 'title'>;
 
-const KeyboardAvoidingModal: React.FC<DefaultModalProps> = ({
+const KeyboardAvoidingModal: React.FC<KeyboardAvoidingModalProps> = ({
   visible,
-  onDismiss: _onDismiss,
-  onSave,
+  title,
+  onDismiss,
+  onConfirm,
   onCancel,
   onReset,
-  title,
-  children,
+  confirmLabel = getString('common.save'),
+  cancelLabel = getString('common.cancel'),
+  resetLabel = getString('common.reset'),
+  confirmDisabled = false,
+  confirmLoading = false,
+  dismissable,
+  dismissableBackButton,
   ...props
 }) => {
-  const theme = useTheme();
-  const insets = useSafeAreaInsets();
-  const { height: windowHeight } = useWindowDimensions();
-  const keyboard = useAnimatedKeyboard();
+  const [isConfirming, setIsConfirming] = useState(false);
+  const confirmingRef = useRef(false);
+  const confirmRunRef = useRef(0);
+  const busy = confirmLoading || isConfirming;
+  const dismiss = useKeyboardModalDismiss(onDismiss);
 
-  const onDismiss = () => {
-    Keyboard.dismiss();
-    _onDismiss?.();
+  useEffect(() => {
+    if (!visible) {
+      confirmRunRef.current += 1;
+      confirmingRef.current = false;
+      setIsConfirming(false);
+    }
+  }, [visible]);
+
+  const handleConfirm = async () => {
+    if (confirmLoading || confirmingRef.current) return;
+
+    confirmingRef.current = true;
+    setIsConfirming(true);
+    const runId = ++confirmRunRef.current;
+    let dismissed = false;
+
+    try {
+      const result = await onConfirm();
+      if (runId !== confirmRunRef.current) return;
+
+      if (result !== false) {
+        dismissed = true;
+        dismiss();
+      }
+    } finally {
+      if (runId === confirmRunRef.current && !dismissed) {
+        confirmingRef.current = false;
+        setIsConfirming(false);
+      }
+    }
   };
 
-  const dismiss = (cb?: () => void | boolean) => {
-    if (cb?.() === false) return;
-    onDismiss();
-  };
-
-  const default_availableHeight = windowHeight - insets.top;
-  const animatedContainerStyle = useAnimatedStyle(() => {
-    const kb = keyboard.height.value;
-
-    const availableHeight =
-      default_availableHeight - Math.max(insets.bottom, kb);
-    return {
-      maxHeight: withClamp(
-        { min: 200 },
-        withTiming(availableHeight, { duration: 0 }),
-      ),
-      marginBottom: kb,
-    };
-  }, [insets.bottom, default_availableHeight]);
+  const modalDismissable = (dismissable ?? true) && !busy;
+  const modalDismissableBackButton =
+    (dismissableBackButton ?? dismissable ?? true) && !busy;
 
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={onDismiss}
-        {...props}
-        style={styles.modalWrapper}
-      >
-        <Animated.View
-          entering={FadeIn.duration(150)}
-          exiting={FadeOut.duration(150)}
-          style={[
-            styles.modalContainer,
-            { backgroundColor: overlay(2, theme.surface) },
-            animatedContainerStyle,
-          ]}
-        >
-          <Text style={[styles.modalTitle, getModalTitleColor(theme)]}>
-            {title}
-          </Text>
-
-          <View style={styles.body}>
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="interactive"
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.content}
-              nestedScrollEnabled
-            >
-              {children}
-            </ScrollView>
-          </View>
-
-          <View style={styles.buttonRow}>
-            {onReset ? (
-              <Button onPress={onReset}>{getString('common.reset')}</Button>
-            ) : null}
-
-            <View style={styles.flex} />
-
-            <Button onPress={() => dismiss(onCancel)}>
-              {getString('common.cancel')}
+    <KeyboardAwareModal
+      {...props}
+      visible={visible}
+      title={title}
+      onDismiss={onDismiss}
+      dismissable={modalDismissable}
+      dismissableBackButton={modalDismissableBackButton}
+      footer={
+        <View style={styles.buttonRow}>
+          {onReset ? (
+            <Button disabled={busy} onPress={onReset}>
+              {resetLabel}
             </Button>
-            <Button onPress={() => dismiss(onSave)}>
-              {getString('common.save')}
-            </Button>
-          </View>
-        </Animated.View>
-      </Modal>
-    </Portal>
+          ) : null}
+
+          <View style={styles.flex} />
+
+          <Button
+            disabled={busy}
+            onPress={() => {
+              onCancel?.();
+              dismiss();
+            }}
+          >
+            {cancelLabel}
+          </Button>
+          <Button
+            disabled={confirmDisabled || busy}
+            loading={busy}
+            onPress={handleConfirm}
+          >
+            {confirmLabel}
+          </Button>
+        </View>
+      }
+    />
   );
 };
 
 export default KeyboardAvoidingModal;
 
 const styles = StyleSheet.create({
-  modalWrapper: {
-    justifyContent: 'center',
-    paddingHorizontal: MODAL_MARGIN,
-  },
-  modalContainer: {
-    borderRadius: BORDER_RADIUS,
-    shadowColor: 'transparent',
-  },
-  modalTitle: {
-    fontSize: 24,
-    lineHeight: 24,
-    padding: 24,
-  },
-  body: {
-    flexShrink: 1,
-    minHeight: 0,
-  },
-  content: {
-    paddingBottom: 16,
-    paddingHorizontal: 24,
-  },
   buttonRow: {
     alignItems: 'center',
     flexDirection: 'row',

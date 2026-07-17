@@ -1,9 +1,7 @@
-import { Button, Modal } from '@components';
+import { KeyboardAvoidingModal } from '@components';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { TextInput } from 'react-native-paper';
 
 interface ConnectionModalProps {
@@ -30,52 +28,32 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
   setPort,
 }) => {
   return (
-    <Modal visible={visible} onDismiss={closeModal}>
-      <KeyboardAwareScrollView>
-        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-          {title}
-        </Text>
-        <TextInput
-          defaultValue={ipv4}
-          placeholder={'xxx.xxx.xxx.xxx'}
-          onChangeText={setIpv4}
-          mode="outlined"
-          underlineColor={theme.outline}
-          theme={{ colors: { ...theme } }}
-          placeholderTextColor={theme.onSurfaceDisabled}
-        />
-        <TextInput
-          defaultValue={port}
-          onChangeText={setPort}
-          mode="outlined"
-          underlineColor={theme.outline}
-          theme={{ colors: { ...theme } }}
-          placeholderTextColor={theme.onSurfaceDisabled}
-        />
-        <View style={styles.btnContainer}>
-          <Button
-            title={getString('common.ok')}
-            onPress={() => {
-              closeModal();
-              handle(ipv4, port);
-            }}
-          />
-          <Button title={getString('common.cancel')} onPress={closeModal} />
-        </View>
-      </KeyboardAwareScrollView>
-    </Modal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={title}
+      confirmLabel={getString('common.ok')}
+      onDismiss={closeModal}
+      onConfirm={() => handle(ipv4, port)}
+    >
+      <TextInput
+        defaultValue={ipv4}
+        placeholder="xxx.xxx.xxx.xxx"
+        onChangeText={setIpv4}
+        mode="outlined"
+        underlineColor={theme.outline}
+        theme={{ colors: { ...theme } }}
+        placeholderTextColor={theme.onSurfaceDisabled}
+      />
+      <TextInput
+        defaultValue={port}
+        onChangeText={setPort}
+        mode="outlined"
+        underlineColor={theme.outline}
+        theme={{ colors: { ...theme } }}
+        placeholderTextColor={theme.onSurfaceDisabled}
+      />
+    </KeyboardAvoidingModal>
   );
 };
 
 export default ConnectionModal;
-
-const styles = StyleSheet.create({
-  btnContainer: {
-    flexDirection: 'row-reverse',
-    marginTop: 24,
-  },
-  modalTitle: {
-    fontSize: 24,
-    marginBottom: 16,
-  },
-});

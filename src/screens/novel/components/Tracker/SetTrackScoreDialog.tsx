@@ -1,8 +1,5 @@
-import { Button, DialogTitle, Modal } from '@components';
-import { getString } from '@strings/translations';
+import { KeyboardAvoidingModal } from '@components';
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import {
   AniListScoreSelector,
@@ -29,7 +26,6 @@ const SetTrackScoreDialog: React.FC<TrackScoreDialogProps> = ({
 
   const handleSave = () => {
     onUpdateScore(selectedScore);
-    onDismiss();
   };
 
   const ScoreSelector = useMemo(() => {
@@ -68,26 +64,15 @@ const SetTrackScoreDialog: React.FC<TrackScoreDialogProps> = ({
   }, [tracker, trackItem, selectedScore]);
 
   return (
-    <Modal visible={visible} onDismiss={onDismiss}>
-      <KeyboardAwareScrollView>
-        <DialogTitle title="Score" />
-        {ScoreSelector}
-        <View style={styles.buttonContainer}>
-          <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
-          <Button onPress={handleSave}>{getString('common.save')}</Button>
-        </View>
-      </KeyboardAwareScrollView>
-    </Modal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title="Score"
+      onDismiss={onDismiss}
+      onConfirm={handleSave}
+    >
+      {ScoreSelector}
+    </KeyboardAvoidingModal>
   );
 };
 
 export default SetTrackScoreDialog;
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-    marginTop: 16,
-  },
-});

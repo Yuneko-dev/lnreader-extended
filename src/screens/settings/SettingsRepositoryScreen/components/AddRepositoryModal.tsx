@@ -1,11 +1,9 @@
-import { Button, Modal } from '@components/index';
+import { KeyboardAvoidingModal } from '@components';
 import { Repository } from '@database/types';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, TextInput } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 
 interface AddRepositoryModalProps {
   repository?: Repository;
@@ -24,46 +22,24 @@ const AddRepositoryModal: React.FC<AddRepositoryModalProps> = ({
   const [repositoryUrl, setRepositoryUrl] = useState(repository?.url || '');
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={closeModal}>
-        <KeyboardAwareScrollView>
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            {repository ? 'Edit repository' : 'Add repository'}
-          </Text>
-          <TextInput
-            autoFocus
-            defaultValue={repositoryUrl}
-            placeholder={'Repo URL'}
-            onChangeText={setRepositoryUrl}
-            mode="outlined"
-            underlineColor={theme.outline}
-            theme={{ colors: { ...theme } }}
-          />
-          <View style={styles.btnContainer}>
-            <Button
-              title={getString(repository ? 'common.ok' : 'common.add')}
-              onPress={() => {
-                upsertRepository(repositoryUrl, repository);
-                closeModal();
-              }}
-            />
-            <Button title={getString('common.cancel')} onPress={closeModal} />
-          </View>
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={repository ? 'Edit repository' : 'Add repository'}
+      confirmLabel={getString(repository ? 'common.ok' : 'common.add')}
+      onDismiss={closeModal}
+      onConfirm={() => upsertRepository(repositoryUrl, repository)}
+    >
+      <TextInput
+        autoFocus
+        defaultValue={repositoryUrl}
+        placeholder="Repo URL"
+        onChangeText={setRepositoryUrl}
+        mode="outlined"
+        underlineColor={theme.outline}
+        theme={{ colors: { ...theme } }}
+      />
+    </KeyboardAvoidingModal>
   );
 };
 
 export default AddRepositoryModal;
-
-const styles = StyleSheet.create({
-  btnContainer: {
-    flexDirection: 'row-reverse',
-    marginTop: 24,
-  },
-  modalTitle: {
-    fontSize: 24,
-    marginBottom: 16,
-  },
-});
