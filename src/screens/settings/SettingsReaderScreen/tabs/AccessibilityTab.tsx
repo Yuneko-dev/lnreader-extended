@@ -1,4 +1,4 @@
-import { List } from '@components/index';
+import { List } from '@components';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';

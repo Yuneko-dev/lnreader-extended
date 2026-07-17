@@ -1,4 +1,4 @@
-import { Button, LoadingScreenV2 } from '@components/index';
+import { Button, LoadingScreenV2 } from '@components';
 import { useAppSettings, useTheme } from '@hooks/persisted';
 import { LegendList, LegendListRef, ViewToken } from '@legendapp/list';
 import { useNovelActions, useNovelValue } from '@screens/novel/NovelContext';

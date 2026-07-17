@@ -4,7 +4,7 @@ import {
   EmptyView,
   List,
   SafeAreaView,
-} from '@components/index';
+} from '@components';
 import { useTheme } from '@hooks/persisted';
 import { useTranslateSettings } from '@hooks/persisted/useSettings';
 import { AIPromptsSettingsScreenProps } from '@navigators/types';

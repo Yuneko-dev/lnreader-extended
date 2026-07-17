@@ -1,4 +1,4 @@
-import { Button, Modal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { getTracker, useTheme } from '@hooks/persisted';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { SearchResult } from '@services/Trackers';
@@ -6,9 +6,8 @@ import { getString } from '@strings/translations';
 import { getErrorMessage } from '@utils/error';
 import { showToast } from '@utils/showToast';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { TextInput, TouchableRipple } from 'react-native-paper';
 
 import { TrackSearchDialogProps } from './types';
@@ -69,8 +68,7 @@ const TrackSearchDialog: React.FC<TrackSearchDialogProps> = ({
     if (selectedNovel) {
       onTrackNovel(tracker, selectedNovel);
     }
-    onDismiss();
-  }, [selectedNovel, onTrackNovel, tracker, onDismiss]);
+  }, [selectedNovel, onTrackNovel, tracker]);
 
   const renderSearchResultCard = useCallback(
     (item: SearchResult) => {
@@ -122,65 +120,55 @@ const TrackSearchDialog: React.FC<TrackSearchDialogProps> = ({
   );
 
   return (
-    <Modal visible={visible} onDismiss={onDismiss}>
-      <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
-        <TextInput
-          defaultValue={searchText}
-          onChangeText={setSearchText}
-          onSubmitEditing={getSearchResults}
-          textColor={theme.onSurface}
-          theme={{
-            colors: {
-              primary: theme.primary,
-              text: theme.onSurface,
-            },
-          }}
-          style={styles.textInput}
-          underlineColor={theme.outline}
-          right={
-            <TextInput.Icon
-              color={theme.onSurfaceVariant}
-              icon="close"
-              onPress={handleClearSearch}
-            />
-          }
-        />
-        <ScrollView style={styles.scrollView}>
-          {loading ? (
-            <ActivityIndicator
-              color={theme.primary}
-              size={45}
-              style={styles.loader}
-            />
-          ) : (
-            searchResults.map(renderSearchResultCard)
-          )}
-        </ScrollView>
-        <View style={styles.buttonContainer}>
-          <Button onPress={handleRemoveSelection}>
-            {getString('common.remove')}
-          </Button>
-          <View style={styles.actionButtons}>
-            <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
-            <Button onPress={handleConfirm}>OK</Button>
-          </View>
-        </View>
-      </KeyboardAwareScrollView>
-    </Modal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={tracker.name}
+      onDismiss={onDismiss}
+      onConfirm={handleConfirm}
+      confirmLabel="OK"
+      onReset={handleRemoveSelection}
+      resetLabel={getString('common.remove')}
+      scrollable={false}
+    >
+      <StableTextInput
+        value={searchText}
+        onChangeText={setSearchText}
+        onSubmitEditing={getSearchResults}
+        textColor={theme.onSurface}
+        theme={{
+          colors: {
+            primary: theme.primary,
+            text: theme.onSurface,
+          },
+        }}
+        style={styles.textInput}
+        underlineColor={theme.outline}
+        right={
+          <TextInput.Icon
+            color={theme.onSurfaceVariant}
+            icon="close"
+            onPress={handleClearSearch}
+          />
+        }
+      />
+      <ScrollView style={styles.scrollView}>
+        {loading ? (
+          <ActivityIndicator
+            color={theme.primary}
+            size={45}
+            style={styles.loader}
+          />
+        ) : (
+          searchResults.map(renderSearchResultCard)
+        )}
+      </ScrollView>
+    </KeyboardAvoidingModal>
   );
 };
 
 export default TrackSearchDialog;
 
 const styles = StyleSheet.create({
-  actionButtons: {
-    flexDirection: 'row',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 30,
-  },
   checkIcon: {
     position: 'absolute',
     right: 8,

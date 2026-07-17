@@ -1,7 +1,6 @@
-import { KeyboardAvoidingModal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { useTheme } from '@hooks/persisted';
 import React, { useEffect, useState } from 'react';
-import { TextInput } from 'react-native-paper';
 
 import { TrackChaptersDialogProps } from './types';
 
@@ -35,8 +34,8 @@ const SetTrackChaptersDialog: React.FC<TrackChaptersDialogProps> = ({
       onDismiss={onDismiss}
       onConfirm={handleSave}
     >
-      <TextInput
-        defaultValue={chapters}
+      <StableTextInput
+        value={chapters}
         onChangeText={handleChangeText}
         mode="outlined"
         keyboardType="numeric"

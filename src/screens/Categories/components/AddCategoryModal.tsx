@@ -1,9 +1,8 @@
-import { KeyboardAvoidingModal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
-import { TextInput } from 'react-native-paper';
 
 import {
   createCategory,
@@ -28,10 +27,12 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
   onSuccess,
 }) => {
   const theme = useTheme();
-  const [categoryName, setCategoryName] = useState(category?.name || '');
+  const defaultCategoryName = isEditMode && category ? category.name : '';
+  const [categoryName, setCategoryName] = useState(defaultCategoryName);
 
   function close() {
-    setCategoryName('');
+    // Reset the category name to the default value when closing the modal
+    setCategoryName(defaultCategoryName);
     closeModal();
   }
   return (
@@ -43,6 +44,10 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
       confirmLabel={getString(isEditMode ? 'common.ok' : 'common.add')}
       onDismiss={close}
       onConfirm={async () => {
+        if (!categoryName.trim()) {
+          showToast(getString('categories.emptyError'));
+          return false;
+        }
         if (isCategoryNameDuplicate(categoryName)) {
           showToast(getString('categories.duplicateError'));
           return false;
@@ -56,9 +61,9 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({
         onSuccess();
       }}
     >
-      <TextInput
+      <StableTextInput
         autoFocus
-        defaultValue={categoryName}
+        value={categoryName}
         placeholder={getString('common.name')}
         onChangeText={setCategoryName}
         mode="outlined"

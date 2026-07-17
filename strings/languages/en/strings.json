@@ -288,6 +288,7 @@
       "header": "Delete category"
     },
     "duplicateError": "A category with this name already exists!",
+    "emptyError": "Category name cannot be empty!",
     "editCategories": "Rename category",
     "emptyMsg": "You have no categories. Tap the plus button to create one for organizing your library",
     "header": "Edit categories",

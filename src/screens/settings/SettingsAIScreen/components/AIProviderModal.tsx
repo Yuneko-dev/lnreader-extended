@@ -1,4 +1,4 @@
-import { Button, SwitchItem } from '@components/index';
+import { Button, KeyboardAvoidingModal, StableTextInput, SwitchItem } from '@components';
 import { useTheme } from '@hooks/persisted';
 import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
 import type {
@@ -11,8 +11,7 @@ import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Menu, Modal, Portal, Text, TextInput } from 'react-native-paper';
+import { Menu, Modal, Portal, Text } from 'react-native-paper';
 
 export interface AIProviderModalProps {
   visible: boolean;
@@ -80,8 +79,6 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
   const [providerMenuVisible, setProviderMenuVisible] = useState(false);
   const [apiModeMenuVisible, setApiModeMenuVisible] = useState(false);
   const [reasoningMenuVisible, setReasoningMenuVisible] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [inputKey, setInputKey] = useState(0);
 
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelPickerVisible, setModelPickerVisible] = useState(false);
@@ -102,7 +99,6 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
       getApiKey(initialProvider.id).then(key => {
         if (mounted && key) {
           setApiKey(key);
-          setInputKey(k => k + 1);
         }
       });
     } else if (visible && !initialProvider) {
@@ -115,7 +111,6 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
       setApiMode('chat-completions');
       setEnableReasoning(false);
       setReasoningEffort('none');
-      setInputKey(k => k + 1);
     }
 
     return () => {
@@ -126,14 +121,13 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
   const handleSave = async () => {
     if (!alias) {
       showToast('Alias is required');
-      return;
+      return false;
     }
     if (!apiKey && !initialProvider) {
       showToast('API Key is required');
-      return;
+      return false;
     }
 
-    setIsSaving(true);
     try {
       await onSave(
         {
@@ -148,11 +142,9 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
         },
         apiKey,
       );
-      onDismiss();
     } catch (e: any) {
       showToast(`Error saving provider: ${e.message}`);
-    } finally {
-      setIsSaving(false);
+      return false;
     }
   };
 
@@ -187,34 +179,122 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
   };
 
   return (
-    <Portal>
-      <Modal
+    <>
+      <KeyboardAvoidingModal
         visible={visible}
+        title={
+          initialProvider
+            ? getString('aiSettingsScreen.editProvider')
+            : getString('aiSettingsScreen.addProvider')
+        }
         onDismiss={onDismiss}
-        contentContainerStyle={[
-          styles.modalContent,
-          { backgroundColor: theme.surface },
-        ]}
+        onConfirm={handleSave}
+        confirmDisabled={!model.trim()}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <KeyboardAwareScrollView
-          showsVerticalScrollIndicator={false}
-          key={visible ? 'visible' : 'hidden'}
-        >
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            {initialProvider
-              ? getString('aiSettingsScreen.editProvider')
-              : getString('aiSettingsScreen.addProvider')}
-          </Text>
+        <StableTextInput
+          label={getString('aiSettingsScreen.aiProviderModal.aliasPlaceholder')}
+          value={alias}
+          onChangeText={setAlias}
+          mode="outlined"
+          style={styles.input}
+          textColor={theme.onSurface}
+          theme={{
+            colors: {
+              primary: theme.primary,
+              background: theme.surface,
+              onSurfaceVariant: theme.onSurfaceVariant,
+            },
+          }}
+        />
 
-          <TextInput
-            key={`alias-${inputKey}`}
-            label={getString(
-              'aiSettingsScreen.aiProviderModal.aliasPlaceholder',
-            )}
-            defaultValue={alias}
-            onChangeText={setAlias}
+        <View style={styles.dropdownContainer}>
+          <Text
+            style={[styles.dropdownLabel, { color: theme.onSurfaceVariant }]}
+          >
+            {getString('readerScreen.bottomSheet.translateTab.provider')}
+          </Text>
+          <Menu
+            visible={providerMenuVisible}
+            onDismiss={() => setProviderMenuVisible(false)}
+            contentStyle={{ backgroundColor: theme.surface }}
+            anchor={
+              <Pressable
+                style={[styles.dropdown, { borderColor: theme.outline }]}
+                onPress={() => setProviderMenuVisible(true)}
+              >
+                <Text
+                  style={[styles.dropdownText, { color: theme.onSurface }]}
+                  numberOfLines={1}
+                >
+                  {getProviderLabel(provider)}
+                </Text>
+                <Text
+                  style={[
+                    styles.dropdownIcon,
+                    { color: theme.onSurfaceVariant },
+                  ]}
+                >
+                  ▼
+                </Text>
+              </Pressable>
+            }
+          >
+            {PROVIDERS.map(p => (
+              <Menu.Item
+                key={p.value}
+                title={p.label}
+                titleStyle={{ color: theme.onSurface }}
+                onPress={() => {
+                  setProvider(p.value);
+                  setEndpoint(p.endpoint);
+                  setProviderMenuVisible(false);
+                }}
+              />
+            ))}
+          </Menu>
+        </View>
+        <StableTextInput
+          label={getString('aiSettingsScreen.endpointUrl')}
+          value={endpoint}
+          onChangeText={setEndpoint}
+          mode="outlined"
+          readOnly={!['custom', 'gemini'].includes(provider)}
+          style={styles.input}
+          textColor={theme.onSurface}
+          theme={{
+            colors: {
+              primary: theme.primary,
+              background: theme.surface,
+              onSurfaceVariant: theme.onSurfaceVariant,
+            },
+          }}
+        />
+
+        <StableTextInput
+          label={getString('aiSettingsScreen.apiKey')}
+          value={apiKey}
+          onChangeText={setApiKey}
+          mode="outlined"
+          secureTextEntry
+          style={styles.input}
+          textColor={theme.onSurface}
+          theme={{
+            colors: {
+              primary: theme.primary,
+              background: theme.surface,
+              onSurfaceVariant: theme.onSurfaceVariant,
+            },
+          }}
+        />
+
+        <View style={styles.modelRow}>
+          <StableTextInput
+            label={getString('aiSettingsScreen.modelName')}
+            value={model}
+            onChangeText={setModel}
             mode="outlined"
-            style={styles.input}
+            style={[styles.input, styles.modelInput]}
             textColor={theme.onSurface}
             theme={{
               colors: {
@@ -224,27 +304,37 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
               },
             }}
           />
+          <Button
+            title={getString('aiSettingsScreen.loadModels') || 'Load models'}
+            mode="contained"
+            onPress={loadModels}
+            style={styles.loadModelsBtn}
+            loading={isLoadingModels}
+            disabled={isLoadingModels}
+          />
+        </View>
 
+        {provider !== 'gemini' && (
           <View style={styles.dropdownContainer}>
             <Text
               style={[styles.dropdownLabel, { color: theme.onSurfaceVariant }]}
             >
-              {getString('readerScreen.bottomSheet.translateTab.provider')}
+              {getString('aiSettingsScreen.apiMode')}
             </Text>
             <Menu
-              visible={providerMenuVisible}
-              onDismiss={() => setProviderMenuVisible(false)}
+              visible={apiModeMenuVisible}
+              onDismiss={() => setApiModeMenuVisible(false)}
               contentStyle={{ backgroundColor: theme.surface }}
               anchor={
                 <Pressable
                   style={[styles.dropdown, { borderColor: theme.outline }]}
-                  onPress={() => setProviderMenuVisible(true)}
+                  onPress={() => setApiModeMenuVisible(true)}
                 >
                   <Text
                     style={[styles.dropdownText, { color: theme.onSurface }]}
                     numberOfLines={1}
                   >
-                    {getProviderLabel(provider)}
+                    {apiMode}
                   </Text>
                   <Text
                     style={[
@@ -257,266 +347,129 @@ const AIProviderModal: React.FC<AIProviderModalProps> = ({
                 </Pressable>
               }
             >
-              {PROVIDERS.map(p => (
+              <Menu.Item
+                title="responses"
+                titleStyle={{ color: theme.onSurface }}
+                onPress={() => {
+                  setApiMode('responses');
+                  setApiModeMenuVisible(false);
+                }}
+              />
+              <Menu.Item
+                title="chat-completions"
+                titleStyle={{ color: theme.onSurface }}
+                onPress={() => {
+                  setApiMode('chat-completions');
+                  setApiModeMenuVisible(false);
+                }}
+              />
+            </Menu>
+          </View>
+        )}
+
+        <SwitchItem
+          label={getString('aiSettingsScreen.aiProviderModal.enableReasoning')}
+          value={enableReasoning}
+          onPress={() => setEnableReasoning(!enableReasoning)}
+          theme={theme}
+        />
+
+        {enableReasoning && (
+          <View style={styles.dropdownContainer}>
+            <Text
+              style={[styles.dropdownLabel, { color: theme.onSurfaceVariant }]}
+            >
+              {getString('aiSettingsScreen.aiProviderModal.reasoningEffort')}
+            </Text>
+            <Menu
+              visible={reasoningMenuVisible}
+              onDismiss={() => setReasoningMenuVisible(false)}
+              contentStyle={{ backgroundColor: theme.surface }}
+              anchor={
+                <Pressable
+                  style={[styles.dropdown, { borderColor: theme.outline }]}
+                  onPress={() => setReasoningMenuVisible(true)}
+                >
+                  <Text
+                    style={[styles.dropdownText, { color: theme.onSurface }]}
+                    numberOfLines={1}
+                  >
+                    {reasoningEffort}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.dropdownIcon,
+                      { color: theme.onSurfaceVariant },
+                    ]}
+                  >
+                    ▼
+                  </Text>
+                </Pressable>
+              }
+            >
+              {REASONING_EFFORTS.map(eff => (
                 <Menu.Item
-                  key={p.value}
-                  title={p.label}
+                  key={eff}
+                  title={eff}
                   titleStyle={{ color: theme.onSurface }}
                   onPress={() => {
-                    setProvider(p.value);
-                    setEndpoint(p.endpoint);
-                    setProviderMenuVisible(false);
-                    setInputKey(k => k + 1);
+                    setReasoningEffort(eff);
+                    setReasoningMenuVisible(false);
                   }}
                 />
               ))}
             </Menu>
           </View>
+        )}
+      </KeyboardAvoidingModal>
 
-          <TextInput
-            key={`endpoint-${inputKey}`}
-            label={getString('aiSettingsScreen.endpointUrl')}
-            defaultValue={endpoint}
-            onChangeText={setEndpoint}
-            mode="outlined"
-            readOnly={!['custom', 'gemini'].includes(provider)}
-            style={styles.input}
-            textColor={theme.onSurface}
-            theme={{
-              colors: {
-                primary: theme.primary,
-                background: theme.surface,
-                onSurfaceVariant: theme.onSurfaceVariant,
-              },
-            }}
-          />
-
-          <TextInput
-            key={`apiKey-${inputKey}`}
-            label={getString('aiSettingsScreen.apiKey')}
-            defaultValue={apiKey}
-            onChangeText={setApiKey}
-            mode="outlined"
-            secureTextEntry
-            style={styles.input}
-            textColor={theme.onSurface}
-            theme={{
-              colors: {
-                primary: theme.primary,
-                background: theme.surface,
-                onSurfaceVariant: theme.onSurfaceVariant,
-              },
-            }}
-          />
-
-          <View style={styles.modelRow}>
-            <TextInput
-              key={`model-${inputKey}`}
-              label={getString('aiSettingsScreen.modelName')}
-              defaultValue={model}
-              onChangeText={setModel}
-              mode="outlined"
-              style={[styles.input, styles.modelInput]}
-              textColor={theme.onSurface}
-              theme={{
-                colors: {
-                  primary: theme.primary,
-                  background: theme.surface,
-                  onSurfaceVariant: theme.onSurfaceVariant,
-                },
-              }}
-            />
-            <Button
-              title={getString('aiSettingsScreen.loadModels') || 'Load models'}
-              mode="contained"
-              onPress={loadModels}
-              style={styles.loadModelsBtn}
-              loading={isLoadingModels}
-              disabled={isLoadingModels}
-            />
-          </View>
-
-          {provider !== 'gemini' && (
-            <View style={styles.dropdownContainer}>
-              <Text
+      <Portal>
+        <Modal
+          visible={modelPickerVisible}
+          onDismiss={() => setModelPickerVisible(false)}
+          contentContainerStyle={[
+            styles.modalContent,
+            { backgroundColor: theme.surface },
+          ]}
+        >
+          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+            Select Model
+          </Text>
+          <ScrollView style={styles.languageList}>
+            {availableModels.map(m => (
+              <Pressable
+                key={m}
                 style={[
-                  styles.dropdownLabel,
-                  { color: theme.onSurfaceVariant },
+                  styles.languageItem,
+                  model === m && { backgroundColor: theme.surfaceVariant },
                 ]}
+                onPress={() => {
+                  setModel(m);
+                  setModelPickerVisible(false);
+                }}
               >
-                {getString('aiSettingsScreen.apiMode')}
-              </Text>
-              <Menu
-                visible={apiModeMenuVisible}
-                onDismiss={() => setApiModeMenuVisible(false)}
-                contentStyle={{ backgroundColor: theme.surface }}
-                anchor={
-                  <Pressable
-                    style={[styles.dropdown, { borderColor: theme.outline }]}
-                    onPress={() => setApiModeMenuVisible(true)}
-                  >
-                    <Text
-                      style={[styles.dropdownText, { color: theme.onSurface }]}
-                      numberOfLines={1}
-                    >
-                      {apiMode}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.dropdownIcon,
-                        { color: theme.onSurfaceVariant },
-                      ]}
-                    >
-                      ▼
-                    </Text>
-                  </Pressable>
-                }
-              >
-                <Menu.Item
-                  title="responses"
-                  titleStyle={{ color: theme.onSurface }}
-                  onPress={() => {
-                    setApiMode('responses');
-                    setApiModeMenuVisible(false);
-                  }}
-                />
-                <Menu.Item
-                  title="chat-completions"
-                  titleStyle={{ color: theme.onSurface }}
-                  onPress={() => {
-                    setApiMode('chat-completions');
-                    setApiModeMenuVisible(false);
-                  }}
-                />
-              </Menu>
-            </View>
-          )}
-
-          <SwitchItem
-            label={getString(
-              'aiSettingsScreen.aiProviderModal.enableReasoning',
-            )}
-            value={enableReasoning}
-            onPress={() => setEnableReasoning(!enableReasoning)}
-            theme={theme}
-          />
-
-          {enableReasoning && (
-            <View style={styles.dropdownContainer}>
-              <Text
-                style={[
-                  styles.dropdownLabel,
-                  { color: theme.onSurfaceVariant },
-                ]}
-              >
-                {getString('aiSettingsScreen.aiProviderModal.reasoningEffort')}
-              </Text>
-              <Menu
-                visible={reasoningMenuVisible}
-                onDismiss={() => setReasoningMenuVisible(false)}
-                contentStyle={{ backgroundColor: theme.surface }}
-                anchor={
-                  <Pressable
-                    style={[styles.dropdown, { borderColor: theme.outline }]}
-                    onPress={() => setReasoningMenuVisible(true)}
-                  >
-                    <Text
-                      style={[styles.dropdownText, { color: theme.onSurface }]}
-                      numberOfLines={1}
-                    >
-                      {reasoningEffort}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.dropdownIcon,
-                        { color: theme.onSurfaceVariant },
-                      ]}
-                    >
-                      ▼
-                    </Text>
-                  </Pressable>
-                }
-              >
-                {REASONING_EFFORTS.map(eff => (
-                  <Menu.Item
-                    key={eff}
-                    title={eff}
-                    titleStyle={{ color: theme.onSurface }}
-                    onPress={() => {
-                      setReasoningEffort(eff);
-                      setReasoningMenuVisible(false);
-                    }}
-                  />
-                ))}
-              </Menu>
-            </View>
-          )}
-        </KeyboardAwareScrollView>
-        <View style={styles.footer}>
+                <Text
+                  style={[styles.languageItemText, { color: theme.onSurface }]}
+                >
+                  {m}
+                </Text>
+                {model === m && (
+                  <Text style={[styles.checkIcon, { color: theme.primary }]}>
+                    ✓
+                  </Text>
+                )}
+              </Pressable>
+            ))}
+          </ScrollView>
           <Button
             title={getString('common.cancel')}
-            mode="text"
-            onPress={onDismiss}
-            style={styles.flexBtn}
+            mode="outlined"
+            onPress={() => setModelPickerVisible(false)}
+            style={styles.cancelButton}
           />
-          <View style={styles.spacer} />
-          <Button
-            title={getString('common.save')}
-            mode="contained"
-            onPress={handleSave}
-            loading={isSaving}
-            style={styles.flexBtn}
-            disabled={!model.trim()}
-          />
-        </View>
-      </Modal>
-
-      <Modal
-        visible={modelPickerVisible}
-        onDismiss={() => setModelPickerVisible(false)}
-        contentContainerStyle={[
-          styles.modalContent,
-          { backgroundColor: theme.surface },
-        ]}
-      >
-        <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-          Select Model
-        </Text>
-        <ScrollView style={styles.languageList}>
-          {availableModels.map(m => (
-            <Pressable
-              key={m}
-              style={[
-                styles.languageItem,
-                model === m && { backgroundColor: theme.surfaceVariant },
-              ]}
-              onPress={() => {
-                setModel(m);
-                setModelPickerVisible(false);
-                setInputKey(k => k + 1);
-              }}
-            >
-              <Text
-                style={[styles.languageItemText, { color: theme.onSurface }]}
-              >
-                {m}
-              </Text>
-              {model === m && (
-                <Text style={[styles.checkIcon, { color: theme.primary }]}>
-                  ✓
-                </Text>
-              )}
-            </Pressable>
-          ))}
-        </ScrollView>
-        <Button
-          title={getString('common.cancel')}
-          mode="outlined"
-          onPress={() => setModelPickerVisible(false)}
-          style={styles.cancelButton}
-        />
-      </Modal>
-    </Portal>
+        </Modal>
+      </Portal>
+    </>
   );
 };
 
@@ -532,16 +485,6 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 12,
     backgroundColor: 'transparent',
-  },
-  footer: {
-    flexDirection: 'row',
-    marginTop: 8,
-  },
-  flexBtn: {
-    flex: 1,
-  },
-  spacer: {
-    width: 12,
   },
   modalTitle: {
     fontSize: 20,

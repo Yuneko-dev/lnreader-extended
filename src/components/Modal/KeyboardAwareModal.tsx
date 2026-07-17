@@ -149,7 +149,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 24,
-    lineHeight: 24,
   },
   body: {
     flexShrink: 1,

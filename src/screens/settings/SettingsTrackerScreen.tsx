@@ -117,7 +117,6 @@ const TrackerScreen = ({ navigation }: TrackerSettingsScreenProps) => {
       }
 
       setTracker(credentialLoginTracker, auth);
-      hideCredentialLogin();
       showToast(`Successfully logged in to ${credentialLoginTracker}`);
     } catch (error) {
       if (error instanceof Error) {
@@ -351,16 +350,16 @@ const TrackerScreen = ({ navigation }: TrackerSettingsScreenProps) => {
                 </Button>
               </View>
             </Modal>
-            <TrackerLoginDialog
-              visible={credentialLoginTracker !== null}
-              trackerName={credentialLoginTracker || ''}
-              onDismiss={hideCredentialLogin}
-              onSubmit={handleCredentialLogin}
-              usernameLabel={
-                credentialLoginTracker === 'Kitsu' ? 'Email' : 'Username'
-              }
-            />
           </Portal>
+          <TrackerLoginDialog
+            visible={credentialLoginTracker !== null}
+            trackerName={credentialLoginTracker || ''}
+            onDismiss={hideCredentialLogin}
+            onSubmit={handleCredentialLogin}
+            usernameLabel={
+              credentialLoginTracker === 'Kitsu' ? 'Email' : 'Username'
+            }
+          />
         </View>
       </Provider>
     </SafeAreaView>

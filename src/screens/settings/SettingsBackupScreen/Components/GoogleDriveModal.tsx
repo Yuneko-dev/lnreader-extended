@@ -1,6 +1,6 @@
 import { exists, getBackups, makeDir } from '@api/drive';
 import { DriveFile } from '@api/drive/types';
-import { Button, EmptyView, Modal } from '@components';
+import { Button, EmptyView, KeyboardAwareModal, StableTextInput } from '@components';
 import { GoogleSignin, User } from '@react-native-google-signin/google-signin';
 import ServiceManager from '@services/ServiceManager';
 import { getString } from '@strings/translations';
@@ -11,8 +11,6 @@ import * as Clipboard from 'expo-clipboard';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { FlatList, Pressable } from 'react-native-gesture-handler';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, TextInput } from 'react-native-paper';
 
 enum BackupModal {
   UNAUTHORIZED,
@@ -116,8 +114,8 @@ function CreateBackup({
 
   return (
     <>
-      <TextInput
-        defaultValue={backupName}
+      <StableTextInput
+        value={backupName}
         placeholder={getString('backupScreen.backupName')}
         onChangeText={setBackupName}
         mode="outlined"
@@ -281,40 +279,41 @@ export default function GoogleDriveModal({
   };
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={closeModal}>
-        <KeyboardAwareScrollView>
-          <View style={styles.titleContainer}>
-            <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-              {getString('backupScreen.drive.googleDriveBackup')}
-            </Text>
-            <Pressable
-              onLongPress={() => {
-                if (user?.user.email) {
-                  Clipboard.setStringAsync(user.user.email).then(success => {
-                    if (success) {
-                      showToast(
-                        getString('common.copiedToClipboard', {
-                          name: user.user.email,
-                        }),
-                      );
-                    }
-                  });
-                }
-              }}
-            >
-              {user ? (
-                <Image
-                  source={{ uri: user?.user.photo || '' }}
-                  style={styles.avatar}
-                />
-              ) : null}
-            </Pressable>
-          </View>
-          {renderModal()}
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+    <KeyboardAwareModal
+      visible={visible}
+      onDismiss={closeModal}
+      title={
+        <View style={styles.titleContainer}>
+          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
+            {getString('backupScreen.drive.googleDriveBackup')}
+          </Text>
+          <Pressable
+            onLongPress={() => {
+              if (user?.user.email) {
+                Clipboard.setStringAsync(user.user.email).then(success => {
+                  if (success) {
+                    showToast(
+                      getString('common.copiedToClipboard', {
+                        name: user.user.email,
+                      }),
+                    );
+                  }
+                });
+              }
+            }}
+          >
+            {user ? (
+              <Image
+                source={{ uri: user?.user.photo || '' }}
+                style={styles.avatar}
+              />
+            ) : null}
+          </Pressable>
+        </View>
+      }
+    >
+      {renderModal()}
+    </KeyboardAwareModal>
   );
 }
 
@@ -352,7 +351,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
     textAlignVertical: 'center',
   },
   fontSize: { fontSize: 12 },

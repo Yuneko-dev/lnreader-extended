@@ -1,5 +1,5 @@
+import { Appbar, SafeAreaView } from '@components';
 import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { Appbar, SafeAreaView } from '@components/index';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   useChapterGeneralSettings,

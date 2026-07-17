@@ -1,8 +1,7 @@
-import { KeyboardAvoidingModal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React from 'react';
-import { TextInput } from 'react-native-paper';
 
 interface ConnectionModalProps {
   title: string;
@@ -35,8 +34,8 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
       onDismiss={closeModal}
       onConfirm={() => handle(ipv4, port)}
     >
-      <TextInput
-        defaultValue={ipv4}
+      <StableTextInput
+        value={ipv4}
         placeholder="xxx.xxx.xxx.xxx"
         onChangeText={setIpv4}
         mode="outlined"
@@ -44,8 +43,8 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
         theme={{ colors: { ...theme } }}
         placeholderTextColor={theme.onSurfaceDisabled}
       />
-      <TextInput
-        defaultValue={port}
+      <StableTextInput
+        value={port}
         onChangeText={setPort}
         mode="outlined"
         underlineColor={theme.outline}

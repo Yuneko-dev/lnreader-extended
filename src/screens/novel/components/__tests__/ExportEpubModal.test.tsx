@@ -11,23 +11,42 @@ jest.mock('@components', () => {
   const { Pressable, Text, View } = jest.requireActual('react-native');
 
   return {
-    Button: ({ onPress, title }: { onPress: () => void; title: string }) =>
-      ReactModule.createElement(
-        Pressable,
-        { onPress },
-        ReactModule.createElement(Text, null, title),
-      ),
+    KeyboardAvoidingModal: ({
+      children,
+      confirmLabel,
+      onConfirm,
+      onDismiss,
+      title,
+      visible,
+    }: {
+      children: React.ReactNode;
+      confirmLabel: string;
+      onConfirm: () => boolean | void;
+      onDismiss: () => void;
+      title: React.ReactNode;
+      visible: boolean;
+    }) =>
+      visible
+        ? ReactModule.createElement(
+            View,
+            null,
+            ReactModule.createElement(Text, null, title),
+            children,
+            ReactModule.createElement(
+              Pressable,
+              {
+                onPress: () => {
+                  if (onConfirm() !== false) onDismiss();
+                },
+              },
+              ReactModule.createElement(Text, null, confirmLabel),
+            ),
+          )
+        : null,
     List: {
       InfoItem: ({ title }: { title: string }) =>
         ReactModule.createElement(Text, null, title),
     },
-    Modal: ({
-      children,
-      visible,
-    }: {
-      children: React.ReactNode;
-      visible: boolean;
-    }) => (visible ? ReactModule.createElement(View, null, children) : null),
     SwitchItem: ({
       label,
       onPress,
@@ -74,13 +93,6 @@ jest.mock('@strings/translations', () => ({
 jest.mock('@utils/showToast', () => ({
   showToast: jest.fn(),
 }));
-
-jest.mock('react-native-keyboard-controller', () => {
-  const { ScrollView } = jest.requireActual('react-native');
-  return {
-    KeyboardAwareScrollView: ScrollView,
-  };
-});
 
 jest.mock('react-native-paper', () => {
   const ReactModule = jest.requireActual('react');

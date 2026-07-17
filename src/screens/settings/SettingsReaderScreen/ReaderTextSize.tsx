@@ -1,4 +1,4 @@
-import { IconButtonV2 } from '@components/index';
+import { IconButtonV2 } from '@components';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import React from 'react';

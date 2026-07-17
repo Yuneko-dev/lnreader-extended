@@ -1,10 +1,8 @@
-import { Button, DialogTitle, Modal } from '@components';
+import { KeyboardAvoidingModal } from '@components';
 import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
 import { useTheme } from '@hooks/persisted';
 import { UserListStatus } from '@services/Trackers';
-import { getString } from '@strings/translations';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 import { STATUS_LABELS } from './constants';
 import { TrackStatusDialogProps } from './types';
@@ -26,7 +24,6 @@ const SetTrackStatusDialog: React.FC<TrackStatusDialogProps> = ({
 
   const handleSave = () => {
     onUpdateStatus(selectedStatus);
-    onDismiss();
   };
 
   const handleValueChange = (value: string) => {
@@ -34,8 +31,12 @@ const SetTrackStatusDialog: React.FC<TrackStatusDialogProps> = ({
   };
 
   return (
-    <Modal visible={visible} onDismiss={onDismiss}>
-      <DialogTitle title="Status" />
+    <KeyboardAvoidingModal
+      visible={visible}
+      title="Status"
+      onDismiss={onDismiss}
+      onConfirm={handleSave}
+    >
       <RadioButtonGroup
         onValueChange={handleValueChange}
         value={selectedStatus}
@@ -44,21 +45,8 @@ const SetTrackStatusDialog: React.FC<TrackStatusDialogProps> = ({
           <RadioButton key={key} value={key} label={label} theme={theme} />
         ))}
       </RadioButtonGroup>
-      <View style={styles.buttonContainer}>
-        <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
-        <Button onPress={handleSave}>{getString('common.save')}</Button>
-      </View>
-    </Modal>
+    </KeyboardAvoidingModal>
   );
 };
 
 export default SetTrackStatusDialog;
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-    marginTop: 16,
-  },
-});

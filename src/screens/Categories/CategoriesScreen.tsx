@@ -1,5 +1,5 @@
+import { Appbar, EmptyView, SafeAreaView } from '@components';
 import { useLibraryContext } from '@components/Context/LibraryContext';
-import { Appbar, EmptyView, SafeAreaView } from '@components/index';
 import { updateCategoryOrderInDb } from '@database/queries/CategoryQueries';
 import { useBoolean } from '@hooks';
 import { useTheme } from '@hooks/persisted';

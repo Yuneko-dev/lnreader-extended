@@ -1,6 +1,5 @@
+import { Button, Checkbox,Menu, StableTextInput } from '@components';
 import BottomSheet from '@components/BottomSheet/BottomSheet';
-import { Checkbox } from '@components/Checkbox/Checkbox';
-import { Button, Menu } from '@components/index';
 import Switch from '@components/Switch/Switch';
 import {
   BottomSheetFlatList,
@@ -25,7 +24,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { overlay, TextInput } from 'react-native-paper';
+import { overlay } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getValueFor } from './filterUtils';
@@ -69,7 +68,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
       const value = getValueFor<(typeof filter)['type']>(filter, resolvedValue);
       return (
         <View style={styles.textContainer}>
-          <TextInput
+          <StableTextInput
             render={props => <BottomSheetTextInput {...(props as any)} />}
             style={[styles.flex, { width: screenWidth - 48 }]}
             mode="outlined"
@@ -85,7 +84,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
                 {` ${filter.label} `}
               </Text>
             }
-            defaultValue={value}
+            value={value}
             theme={{ colors: { background: 'transparent' } }}
             outlineColor={theme.onSurface}
             textColor={theme.onSurface}
@@ -115,7 +114,7 @@ const FilterItem: React.FC<FilterItemProps> = memo(
                 style={[styles.flex, { width: screenWidth - 48 }]}
                 onPress={toggleCard}
               >
-                <TextInput
+                <StableTextInput
                   mode="outlined"
                   label={
                     <Text

@@ -3,7 +3,7 @@ import {
   SafeAreaView,
   SearchbarV2,
   SelectableChip,
-} from '@components/index';
+} from '@components';
 import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';
 import { useSearch } from '@hooks';
 import { useSearchHistory, useTheme } from '@hooks/persisted';

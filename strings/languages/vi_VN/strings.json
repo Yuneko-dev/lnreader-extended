@@ -287,6 +287,7 @@
       "header": "Xóa danh mục"
     },
     "duplicateError": "Danh mục với tên này đã tồn tại!",
+    "emptyError": "Tên danh mục không được để trống!",
     "editCategories": "Đổi tên danh mục",
     "emptyMsg": "Bạn không có danh mục nào. Hãy ấn vào nút thêm để tạo danh mục mới",
     "header": "Chỉnh sửa danh mục",

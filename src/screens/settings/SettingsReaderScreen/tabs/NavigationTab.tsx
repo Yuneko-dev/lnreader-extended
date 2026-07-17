@@ -1,4 +1,4 @@
-import { Button, List } from '@components/index';
+import { Button, List, StableTextInput } from '@components';
 import {
   BottomSheetScrollView,
   BottomSheetTextInput,
@@ -8,7 +8,6 @@ import { getString } from '@strings/translations';
 import { defaultTo } from 'lodash-es';
 import React from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { TextInput } from 'react-native-paper';
 
 import SettingSwitch from '../../components/SettingSwitch';
 
@@ -51,12 +50,12 @@ const NavigationTab: React.FC = () => {
         />
         {useVolumeButtons && (
           <View style={styles.inputContainer}>
-            <TextInput
+            <StableTextInput
               render={props => <BottomSheetTextInput {...(props as any)} />}
               label={getString('readerSettings.volumeButtonOffset')}
               mode="outlined"
               keyboardType="numeric"
-              defaultValue={defaultTo(
+              value={defaultTo(
                 volumeButtonsOffset
                   ? Math.round(volumeButtonsOffset / screenHeight)
                   : null,
@@ -139,12 +138,12 @@ const NavigationTab: React.FC = () => {
         {autoScroll && (
           <>
             <View style={styles.inputContainer}>
-              <TextInput
+              <StableTextInput
                 render={props => <BottomSheetTextInput {...(props as any)} />}
                 label={getString('readerSettings.autoScrollInterval')}
                 mode="outlined"
                 keyboardType="numeric"
-                defaultValue={defaultTo(autoScrollInterval, 10).toString()}
+                value={defaultTo(autoScrollInterval, 10).toString()}
                 onChangeText={text => {
                   if (text) {
                     setChapterGeneralSettings({
@@ -157,12 +156,12 @@ const NavigationTab: React.FC = () => {
               />
             </View>
             <View style={styles.inputContainer}>
-              <TextInput
+              <StableTextInput
                 render={props => <BottomSheetTextInput {...(props as any)} />}
                 label={getString('readerSettings.autoScrollOffset')}
                 mode="outlined"
                 keyboardType="numeric"
-                defaultValue={defaultTo(
+                value={defaultTo(
                   autoScrollOffset,
                   Math.round(screenHeight),
                 ).toString()}

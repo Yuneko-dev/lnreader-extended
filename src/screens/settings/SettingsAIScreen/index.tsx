@@ -4,8 +4,9 @@ import {
   EmptyView,
   List,
   SafeAreaView,
+  StableTextInput,
   SwitchItem,
-} from '@components/index';
+} from '@components';
 import { useTheme } from '@hooks/persisted';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';
 import {
@@ -16,7 +17,7 @@ import { SettingsAIScreenProps } from '@navigators/types';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { IconButton, List as PaperList } from 'react-native-paper';
 
@@ -197,7 +198,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                   chunkWordLimitConfig,
                 )}
               </Text>
-              <TextInput
+              <StableTextInput
                 style={[
                   styles.numberInput,
                   {
@@ -206,7 +207,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                     backgroundColor: theme.surfaceVariant,
                   },
                 ]}
-                defaultValue={chunkWordLimitText}
+                value={chunkWordLimitText}
                 onChangeText={setChunkWordLimitText}
                 onBlur={() => {
                   const num = parseInt(chunkWordLimitText, 10);
@@ -254,7 +255,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                   retryMaxAttemptsConfig,
                 )}
               </Text>
-              <TextInput
+              <StableTextInput
                 style={[
                   styles.numberInput,
                   {
@@ -263,7 +264,7 @@ const SettingsAIScreen = ({ navigation }: SettingsAIScreenProps) => {
                     backgroundColor: theme.surfaceVariant,
                   },
                 ]}
-                defaultValue={retryAttemptsText}
+                value={retryAttemptsText}
                 onChangeText={setRetryAttemptsText}
                 onBlur={() => {
                   const num = parseInt(retryAttemptsText, 10);

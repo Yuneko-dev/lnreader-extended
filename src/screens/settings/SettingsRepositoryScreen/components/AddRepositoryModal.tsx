@@ -1,9 +1,8 @@
-import { KeyboardAvoidingModal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { Repository } from '@database/types';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import React, { useState } from 'react';
-import { TextInput } from 'react-native-paper';
 
 interface AddRepositoryModalProps {
   repository?: Repository;
@@ -29,9 +28,9 @@ const AddRepositoryModal: React.FC<AddRepositoryModalProps> = ({
       onDismiss={closeModal}
       onConfirm={() => upsertRepository(repositoryUrl, repository)}
     >
-      <TextInput
+      <StableTextInput
         autoFocus
-        defaultValue={repositoryUrl}
+        value={repositoryUrl}
         placeholder="Repo URL"
         onChangeText={setRepositoryUrl}
         mode="outlined"

@@ -1,4 +1,4 @@
-import { Button, Modal } from '@components/index';
+import { Button, Modal } from '@components';
 import { deleteCategoryById } from '@database/queries/CategoryQueries';
 import { Category } from '@database/types';
 import { useTheme } from '@hooks/persisted';

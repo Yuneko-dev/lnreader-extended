@@ -1,5 +1,5 @@
+import { Button, Modal } from '@components';
 import { Checkbox } from '@components/Checkbox/Checkbox';
-import { Button, Modal } from '@components/index';
 import { getCategoriesWithCount } from '@database/queries/CategoryQueries';
 import { updateNovelCategories } from '@database/queries/NovelQueries';
 import { Category, CCategory } from '@database/types';

@@ -1,4 +1,4 @@
-import { List } from '@components/index';
+import { List } from '@components';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useBoolean } from '@hooks';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';

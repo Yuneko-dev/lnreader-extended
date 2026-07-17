@@ -1,10 +1,6 @@
-import { Button, Modal } from '@components';
-import { Row } from '@components/Common';
-import { getString } from '@strings/translations';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import React, { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, TextInput } from 'react-native-paper';
+import { FlatList, Pressable,StyleSheet, Text, View } from 'react-native';
 
 import { ThemeColors } from '../../theme/types';
 
@@ -32,27 +28,27 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
 
   const onDismiss = () => {
     closeModal();
-    if (error) {
-      setText(color);
-    }
+    setText(color);
     setError(null);
   };
 
   const onChangeText = (txt: string) => setText(txt);
 
-  const onSubmitEditing = () => {
+  const handleConfirm = () => {
     const re = /^#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})$/i;
 
     if (text?.match(re)) {
       onSubmit(text);
-      closeModal();
     } else {
       setError('Enter a valid hex color code');
+      return false;
     }
   };
+
   const onReset = () => {
     onSubmit(undefined);
-    closeModal();
+    setText(color);
+    setError(null);
   };
 
   const accentColors = [
@@ -79,56 +75,47 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
   ];
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={onDismiss}>
-        <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            {title}
-          </Text>
-          {showAccentColors ? (
-            <FlatList
-              contentContainerStyle={styles.marginBottom}
-              data={accentColors}
-              numColumns={4}
-              keyExtractor={item => item}
-              renderItem={({ item }) => (
-                <View style={[styles.item, { backgroundColor: item }]}>
-                  <Pressable
-                    style={styles.flex}
-                    android_ripple={{
-                      color: 'rgba(0,0,0,0.12)',
-                    }}
-                    onPress={() => {
-                      onSubmit(item);
-                      closeModal();
-                    }}
-                  />
-                </View>
-              )}
-            />
-          ) : null}
-          <TextInput
-            defaultValue={text}
-            placeholder="Hex Color Code (E.g. #3399FF)"
-            onChangeText={onChangeText}
-            onSubmitEditing={onSubmitEditing}
-            mode="outlined"
-            theme={{ colors: { ...theme } }}
-            underlineColor={theme.outline}
-            dense
-            error={Boolean(error)}
-          />
-          <Text style={styles.errorText}>{error}</Text>
-          <Row style={styles.row}>
-            <Button title={getString('common.reset')} onPress={onReset} />
-            <Button
-              title={getString('common.save')}
-              onPress={onSubmitEditing}
-            />
-          </Row>
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={title}
+      onDismiss={onDismiss}
+      onConfirm={handleConfirm}
+      onReset={onReset}
+    >
+      {showAccentColors ? (
+        <FlatList
+          contentContainerStyle={styles.marginBottom}
+          data={accentColors}
+          numColumns={4}
+          keyExtractor={item => item}
+          renderItem={({ item }) => (
+            <View style={[styles.item, { backgroundColor: item }]}>
+              <Pressable
+                style={styles.flex}
+                android_ripple={{
+                  color: 'rgba(0,0,0,0.12)',
+                }}
+                onPress={() => {
+                  setText(item);
+                  setError(null);
+                }}
+              />
+            </View>
+          )}
+        />
+      ) : null}
+      <StableTextInput
+        value={text}
+        placeholder="Hex Color Code (E.g. #3399FF)"
+        onChangeText={onChangeText}
+        mode="outlined"
+        theme={{ colors: { ...theme } }}
+        underlineColor={theme.outline}
+        dense
+        error={Boolean(error)}
+      />
+      <Text style={styles.errorText}>{error}</Text>
+    </KeyboardAvoidingModal>
   );
 };
 
@@ -138,10 +125,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#FF0033',
     paddingTop: 8,
-  },
-  modalTitle: {
-    fontSize: 24,
-    marginBottom: 16,
   },
   item: {
     borderRadius: 4,
@@ -153,7 +136,4 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   marginBottom: { marginBottom: 8 },
-  row: {
-    justifyContent: 'flex-end',
-  },
 });
