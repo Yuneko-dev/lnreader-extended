@@ -1,5 +1,5 @@
+import { Button, ColorPreferenceItem, List } from '@components';
 import ColorPickerModal from '@components/ColorPickerModal/ColorPickerModal';
-import { Button, ColorPreferenceItem, List } from '@components/index';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useBoolean } from '@hooks';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
@@ -8,7 +8,6 @@ import { getString } from '@strings/translations';
 import { presetReaderThemes } from '@utils/constants/readerConstants';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Portal } from 'react-native-paper';
 
 const ThemeTab: React.FC = () => {
   const theme = useTheme();
@@ -94,28 +93,24 @@ const ThemeTab: React.FC = () => {
         <View style={styles.bottomSpacing} />
       </BottomSheetScrollView>
 
-      <Portal>
-        <ColorPickerModal
-          title={getString('readerSettings.backgroundColor')}
-          visible={readerBackgroundModal.value}
-          color={readerSettings.theme}
-          closeModal={readerBackgroundModal.setFalse}
-          theme={theme}
-          onSubmit={color =>
-            readerSettings.setChapterReaderSettings({ theme: color })
-          }
-        />
-        <ColorPickerModal
-          title={getString('readerSettings.textColor')}
-          visible={readerTextColorModal.value}
-          color={readerSettings.textColor}
-          closeModal={readerTextColorModal.setFalse}
-          theme={theme}
-          onSubmit={color =>
-            readerSettings.setChapterReaderSettings({ textColor: color })
-          }
-        />
-      </Portal>
+      <ColorPickerModal
+        title={getString('readerSettings.backgroundColor')}
+        visible={readerBackgroundModal.value}
+        color={readerSettings.theme}
+        closeModal={readerBackgroundModal.setFalse}
+        onSubmit={color =>
+          readerSettings.setChapterReaderSettings({ theme: color })
+        }
+      />
+      <ColorPickerModal
+        title={getString('readerSettings.textColor')}
+        visible={readerTextColorModal.value}
+        color={readerSettings.textColor}
+        closeModal={readerTextColorModal.setFalse}
+        onSubmit={color =>
+          readerSettings.setChapterReaderSettings({ textColor: color })
+        }
+      />
     </>
   );
 };

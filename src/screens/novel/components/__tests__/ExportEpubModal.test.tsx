@@ -8,26 +8,63 @@ const mockSetChapterReaderSettings = jest.fn();
 
 jest.mock('@components', () => {
   const ReactModule = jest.requireActual('react');
-  const { Pressable, Text, View } = jest.requireActual('react-native');
+  const {
+    Pressable,
+    Text,
+    TextInput: NativeTextInput,
+    View,
+  } = jest.requireActual('react-native');
 
   return {
-    Button: ({ onPress, title }: { onPress: () => void; title: string }) =>
-      ReactModule.createElement(
-        Pressable,
-        { onPress },
-        ReactModule.createElement(Text, null, title),
-      ),
+    KeyboardAvoidingModal: ({
+      children,
+      confirmLabel,
+      onConfirm,
+      onDismiss,
+      title,
+      visible,
+    }: {
+      children: React.ReactNode;
+      confirmLabel: string;
+      onConfirm: () => boolean | void;
+      onDismiss: () => void;
+      title: React.ReactNode;
+      visible: boolean;
+    }) =>
+      visible
+        ? ReactModule.createElement(
+            View,
+            null,
+            ReactModule.createElement(Text, null, title),
+            children,
+            ReactModule.createElement(
+              Pressable,
+              {
+                onPress: () => {
+                  if (onConfirm() !== false) onDismiss();
+                },
+              },
+              ReactModule.createElement(Text, null, confirmLabel),
+            ),
+          )
+        : null,
     List: {
       InfoItem: ({ title }: { title: string }) =>
         ReactModule.createElement(Text, null, title),
     },
-    Modal: ({
-      children,
-      visible,
+    StableTextInput: ({
+      label,
+      placeholder,
+      ...props
     }: {
-      children: React.ReactNode;
-      visible: boolean;
-    }) => (visible ? ReactModule.createElement(View, null, children) : null),
+      label?: string;
+      placeholder?: string;
+    }) =>
+      ReactModule.createElement(NativeTextInput, {
+        accessibilityLabel: label || placeholder,
+        placeholder: placeholder || label,
+        ...props,
+      }),
     SwitchItem: ({
       label,
       onPress,
@@ -74,13 +111,6 @@ jest.mock('@strings/translations', () => ({
 jest.mock('@utils/showToast', () => ({
   showToast: jest.fn(),
 }));
-
-jest.mock('react-native-keyboard-controller', () => {
-  const { ScrollView } = jest.requireActual('react-native');
-  return {
-    KeyboardAwareScrollView: ScrollView,
-  };
-});
 
 jest.mock('react-native-paper', () => {
   const ReactModule = jest.requireActual('react');

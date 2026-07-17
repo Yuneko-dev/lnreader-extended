@@ -321,8 +321,6 @@ const AppearanceSettings = ({ navigation }: AppearanceSettingsScreenProps) => {
         closeModal={hideAccentColorModal}
         color={theme.primary}
         onSubmit={val => setCustomAccentColor(val)}
-        theme={theme}
-        showAccentColors={true}
       />
       <LanguagePickerModal
         visible={languageModal}

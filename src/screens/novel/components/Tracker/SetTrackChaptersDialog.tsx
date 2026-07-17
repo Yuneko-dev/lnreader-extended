@@ -1,10 +1,6 @@
-import { Button, DialogTitle, Modal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { useTheme } from '@hooks/persisted';
-import { getString } from '@strings/translations';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { TextInput } from 'react-native-paper';
 
 import { TrackChaptersDialogProps } from './types';
 
@@ -32,40 +28,29 @@ const SetTrackChaptersDialog: React.FC<TrackChaptersDialogProps> = ({
   };
 
   return (
-    <Modal visible={visible} onDismiss={onDismiss}>
-      <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
-        <DialogTitle title="Chapters" />
-        <TextInput
-          defaultValue={chapters}
-          onChangeText={handleChangeText}
-          mode="outlined"
-          keyboardType="numeric"
-          theme={{
-            colors: {
-              primary: theme.primary,
-              placeholder: theme.outline,
-              text: theme.onSurface,
-              background: 'transparent',
-            },
-          }}
-          underlineColor={theme.outline}
-        />
-        <View style={styles.buttonContainer}>
-          <Button onPress={onDismiss}>{getString('common.cancel')}</Button>
-          <Button onPress={handleSave}>{getString('common.save')}</Button>
-        </View>
-      </KeyboardAwareScrollView>
-    </Modal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title="Chapters"
+      onDismiss={onDismiss}
+      onConfirm={handleSave}
+    >
+      <StableTextInput
+        value={chapters}
+        onChangeText={handleChangeText}
+        mode="outlined"
+        keyboardType="numeric"
+        theme={{
+          colors: {
+            primary: theme.primary,
+            placeholder: theme.outline,
+            text: theme.onSurface,
+            background: 'transparent',
+          },
+        }}
+        underlineColor={theme.outline}
+      />
+    </KeyboardAvoidingModal>
   );
 };
 
 export default SetTrackChaptersDialog;
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-    marginTop: 16,
-  },
-});

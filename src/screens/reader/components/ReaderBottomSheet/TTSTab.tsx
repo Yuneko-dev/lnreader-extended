@@ -1,4 +1,4 @@
-import { Button, List } from '@components/index';
+import { Button, List } from '@components';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import {
   useChapterGeneralSettings,

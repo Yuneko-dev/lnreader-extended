@@ -81,7 +81,6 @@ const Searchbar: React.FC<SearcbarProps> = ({
           }}
           theme={theme}
         />
-
         <TextInput
           ref={searchbarRef}
           style={[styles.textInput, { color: theme.onSurface }]}

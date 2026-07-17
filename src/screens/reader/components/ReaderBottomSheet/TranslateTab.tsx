@@ -1,4 +1,4 @@
-import { Button, List, SwitchItem } from '@components/index';
+import { Button, List, SwitchItem } from '@components';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@hooks/persisted';
 import { useAIProviders } from '@hooks/persisted/useAIProviders';

@@ -114,14 +114,14 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           </View>
         </View>
       </View>
+      <AddCategoryModal
+        isEditMode
+        category={category}
+        visible={categoryModalVisible}
+        closeModal={closeCategoryModal}
+        onSuccess={getCategories}
+      />
       <Portal>
-        <AddCategoryModal
-          isEditMode
-          category={category}
-          visible={categoryModalVisible}
-          closeModal={closeCategoryModal}
-          onSuccess={getCategories}
-        />
         <DeleteCategoryModal
           category={category}
           visible={deletecategoryModalVisible}

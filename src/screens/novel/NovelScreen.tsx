@@ -341,7 +341,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   );
 
   return (
-    <Portal.Host>
+    <>
       <View style={containerStyle}>
         <Portal>
           {selected.length === 0 ? (
@@ -400,7 +400,6 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
             />
           </Suspense>
         </SafeAreaView>
-
         <Portal>
           <Actionbar active={selected.length > 0} actions={actions} />
           <Snackbar
@@ -441,42 +440,40 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
             </Text>
           </Snackbar>
         </Portal>
-        <Portal>
-          {novel ? (
-            <>
-              <JumpToChapterModal
-                modalVisible={jumpToChapterModal}
-                hideModal={hideJumpToChapterModal}
-                novel={novel}
-                chapterListRef={chapterListRef}
-                navigation={navigation}
-              />
-              <EditInfoModal
-                modalVisible={editInfoModal}
-                hideModal={hideEditInfoModal}
-                novel={novel}
-                setNovel={setNovel}
-                theme={theme}
-              />
-              <DownloadCustomChapterModal
-                modalVisible={dlChapterModalVisible}
-                hideModal={closeDlChapterModal}
-                novel={novel}
-                chapters={chapters}
-                theme={theme}
-                downloadChapters={downloadChaptersWithPrompt}
-              />
-              <ForceResetModal
-                visible={forceResetModal}
-                onDismiss={() => showForceResetModal(false)}
-                novel={novel}
-                theme={theme}
-              />
-            </>
-          ) : null}
-        </Portal>
+        {novel ? (
+          <>
+            <JumpToChapterModal
+              modalVisible={jumpToChapterModal}
+              hideModal={hideJumpToChapterModal}
+              novel={novel}
+              chapterListRef={chapterListRef}
+              navigation={navigation}
+            />
+            <EditInfoModal
+              modalVisible={editInfoModal}
+              hideModal={hideEditInfoModal}
+              novel={novel}
+              setNovel={setNovel}
+              theme={theme}
+            />
+            <DownloadCustomChapterModal
+              modalVisible={dlChapterModalVisible}
+              hideModal={closeDlChapterModal}
+              novel={novel}
+              chapters={chapters}
+              theme={theme}
+              downloadChapters={downloadChaptersWithPrompt}
+            />
+            <ForceResetModal
+              visible={forceResetModal}
+              onDismiss={() => showForceResetModal(false)}
+              novel={novel}
+              theme={theme}
+            />
+          </>
+        ) : null}
       </View>
-    </Portal.Host>
+    </>
   );
 };
 

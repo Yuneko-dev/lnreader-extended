@@ -1,4 +1,10 @@
-import { Appbar, Button, List, Modal, SafeAreaView } from '@components';
+import {
+  Appbar,
+  KeyboardAvoidingModal,
+  List,
+  SafeAreaView,
+  StableTextInput,
+} from '@components';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
 import {
   clearUpdates,
@@ -25,9 +31,8 @@ import { getString } from '@strings/translations';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import { showToast } from '@utils/showToast';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, Text, TextInput } from 'react-native-paper';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Portal, Text } from 'react-native-paper';
 
 import DohProviderModal from './components/DohProviderModal';
 import SettingSwitch from './components/SettingSwitch';
@@ -103,13 +108,12 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
     const normalizedUserAgent = userAgentInput.trim();
     if (!NativeNetwork.isUserAgentValid(normalizedUserAgent)) {
       showToast(getString('advancedSettingsScreen.invalidUserAgent'));
-      return;
+      return false;
     }
     setUserAgent(normalizedUserAgent);
     showToast(
       getString('advancedSettingsScreen.userAgentRestartRequiredToast'),
     );
-    hideUserAgentModal();
   };
 
   const resetUserAgent = () => {
@@ -306,106 +310,91 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
           />
         </List.Section>
       </ScrollView>
-      <Portal>
-        <ConfirmationDialog
-          message={getString(
-            'advancedSettingsScreen.deleteReadChaptersDialogTitle',
-          )}
-          visible={deleteReadChaptersDialog}
-          onSubmit={deleteReadChaptersFromDb}
-          onDismiss={hideDeleteReadChaptersDialog}
-          theme={theme}
-        />
-        <ConfirmationDialog
-          message={getString('advancedSettingsScreen.clearDatabaseWarning')}
-          visible={clearDatabaseDialog}
-          onSubmit={deleteCachedNovels}
-          onDismiss={hideClearDatabaseDialog}
-          theme={theme}
-        />
-        <ConfirmationDialog
-          message={getString('advancedSettingsScreen.clearUpdatesWarning')}
-          visible={clearUpdatesDialog}
-          onSubmit={async () => {
-            await clearUpdates();
-            MMKVStorage.set(
-              NOVEL_UPDATE_RANDOM_KEY,
-              Math.random().toString(36).substring(2, 15),
-            );
-            showToast(getString('advancedSettingsScreen.clearUpdatesMessage'));
-            hideClearUpdatesDialog();
-          }}
-          onDismiss={hideClearUpdatesDialog}
-          theme={theme}
-        />
-        <ConfirmationDialog
-          message={getString('advancedSettingsScreen.clearCookiesWarning')}
-          visible={clearCookiesDialog}
-          onSubmit={async () => {
-            await CookieManager.clearAll();
-            showToast(getString('advancedSettingsScreen.clearCookiesCleared'));
-          }}
-          onDismiss={hideClearCookiesDialog}
-          theme={theme}
-        />
-        <ConfirmationDialog
-          message={getString(
-            'advancedSettingsScreen.clearPluginSettingsWarning',
-          )}
-          visible={clearPluginSettingsDialog}
-          onSubmit={() => {
-            store.clearAll();
-            showToast(
-              getString('advancedSettingsScreen.clearPluginSettingsCleared'),
-            );
-          }}
-          onDismiss={hideClearPluginSettingsDialog}
-          theme={theme}
-        />
-        <ConfirmationDialog
-          message={getString('advancedSettingsScreen.resetReadingTimeWarning')}
-          visible={resetReadingTimeDialog}
-          onSubmit={async () => {
-            await deleteAllReadingTime();
-            showToast(
-              getString('advancedSettingsScreen.resetReadingTimeSuccess'),
-            );
-          }}
-          onDismiss={hideResetReadingTimeDialog}
-          theme={theme}
-        />
+      <ConfirmationDialog
+        message={getString(
+          'advancedSettingsScreen.deleteReadChaptersDialogTitle',
+        )}
+        visible={deleteReadChaptersDialog}
+        onSubmit={deleteReadChaptersFromDb}
+        onDismiss={hideDeleteReadChaptersDialog}
+        theme={theme}
+      />
+      <ConfirmationDialog
+        message={getString('advancedSettingsScreen.clearDatabaseWarning')}
+        visible={clearDatabaseDialog}
+        onSubmit={deleteCachedNovels}
+        onDismiss={hideClearDatabaseDialog}
+        theme={theme}
+      />
+      <ConfirmationDialog
+        message={getString('advancedSettingsScreen.clearUpdatesWarning')}
+        visible={clearUpdatesDialog}
+        onSubmit={async () => {
+          await clearUpdates();
+          MMKVStorage.set(
+            NOVEL_UPDATE_RANDOM_KEY,
+            Math.random().toString(36).substring(2, 15),
+          );
+          showToast(getString('advancedSettingsScreen.clearUpdatesMessage'));
+          hideClearUpdatesDialog();
+        }}
+        onDismiss={hideClearUpdatesDialog}
+        theme={theme}
+      />
+      <ConfirmationDialog
+        message={getString('advancedSettingsScreen.clearCookiesWarning')}
+        visible={clearCookiesDialog}
+        onSubmit={async () => {
+          await CookieManager.clearAll();
+          showToast(getString('advancedSettingsScreen.clearCookiesCleared'));
+        }}
+        onDismiss={hideClearCookiesDialog}
+        theme={theme}
+      />
+      <ConfirmationDialog
+        message={getString('advancedSettingsScreen.clearPluginSettingsWarning')}
+        visible={clearPluginSettingsDialog}
+        onSubmit={() => {
+          store.clearAll();
+          showToast(
+            getString('advancedSettingsScreen.clearPluginSettingsCleared'),
+          );
+        }}
+        onDismiss={hideClearPluginSettingsDialog}
+        theme={theme}
+      />
+      <ConfirmationDialog
+        message={getString('advancedSettingsScreen.resetReadingTimeWarning')}
+        visible={resetReadingTimeDialog}
+        onSubmit={async () => {
+          await deleteAllReadingTime();
+          showToast(
+            getString('advancedSettingsScreen.resetReadingTimeSuccess'),
+          );
+        }}
+        onDismiss={hideResetReadingTimeDialog}
+        theme={theme}
+      />
 
-        <Modal visible={userAgentModalVisible} onDismiss={hideUserAgentModal}>
-          <KeyboardAwareScrollView>
-            <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-              {getString('advancedSettingsScreen.userAgent')}
-            </Text>
-            <Text style={{ color: theme.onSurfaceVariant }}>{userAgent}</Text>
-            <TextInput
-              multiline
-              mode="outlined"
-              value={userAgentInput}
-              onChangeText={setUserAgentInput}
-              placeholderTextColor={theme.onSurfaceDisabled}
-              underlineColor={theme.outline}
-              style={[{ color: theme.onSurface }, styles.textInput]}
-              theme={{ colors: { ...theme } }}
-            />
-            <View style={styles.buttonGroup}>
-              <Button
-                onPress={saveUserAgent}
-                style={styles.button}
-                title={getString('common.save')}
-                mode="contained"
-              />
-              <Button
-                style={styles.button}
-                onPress={hideUserAgentModal}
-                title={getString('common.cancel')}
-              />
-            </View>
-          </KeyboardAwareScrollView>
-        </Modal>
+      <KeyboardAvoidingModal
+        visible={userAgentModalVisible}
+        title={getString('advancedSettingsScreen.userAgent')}
+        onDismiss={hideUserAgentModal}
+        onConfirm={saveUserAgent}
+      >
+        <Text style={{ color: theme.onSurfaceVariant }}>{userAgent}</Text>
+        <StableTextInput
+          multiline
+          mode="outlined"
+          value={userAgentInput}
+          onChangeText={setUserAgentInput}
+          placeholderTextColor={theme.onSurfaceDisabled}
+          underlineColor={theme.outline}
+          style={[{ color: theme.onSurface }, styles.textInput]}
+          theme={{ colors: { ...theme } }}
+        />
+      </KeyboardAvoidingModal>
+      <Portal>
         <DohProviderModal
           currentProvider={appSettings.dohProvider}
           visible={dohProviderModalVisible}
@@ -424,18 +413,6 @@ const AdvancedSettings = ({ navigation }: AdvancedSettingsScreenProps) => {
 export default AdvancedSettings;
 
 const styles = StyleSheet.create({
-  button: {
-    flex: 1,
-    marginHorizontal: 8,
-    marginTop: 16,
-  },
-  buttonGroup: {
-    flexDirection: 'row-reverse',
-  },
-  modalTitle: {
-    fontSize: 24,
-    marginBottom: 16,
-  },
   textInput: {
     borderRadius: 14,
     fontSize: 12,

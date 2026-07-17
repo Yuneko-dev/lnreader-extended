@@ -18,7 +18,7 @@ import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import React, { useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { FAB, Portal } from 'react-native-paper';
+import { FAB } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AddRepositoryModal from './components/AddRepositoryModal';
@@ -118,13 +118,11 @@ const SettingsBrowseScreen = ({
         onPress={showAddRepositoryModal}
         icon={'plus'}
       />
-      <Portal>
-        <AddRepositoryModal
-          visible={addRepositoryModalVisible}
-          closeModal={closeAddRepositoryModal}
-          upsertRepository={upsertRepository}
-        />
-      </Portal>
+      <AddRepositoryModal
+        visible={addRepositoryModalVisible}
+        closeModal={closeAddRepositoryModal}
+        upsertRepository={upsertRepository}
+      />
     </SafeAreaView>
   );
 };

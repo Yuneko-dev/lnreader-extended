@@ -1,4 +1,4 @@
-import { Button, ConfirmationDialog } from '@components/index';
+import { Button, ConfirmationDialog, StableTextInput } from '@components';
 import {
   BottomSheetScrollView,
   BottomSheetTextInput,
@@ -13,7 +13,7 @@ import { showToast } from '@utils/showToast';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Portal, TextInput } from 'react-native-paper';
+import { Portal } from 'react-native-paper';
 
 type CodeTab = 'css' | 'js';
 
@@ -209,10 +209,10 @@ if (title) {
 
         {/* Code Editor */}
         <View style={styles.editorContainer}>
-          <TextInput
+          <StableTextInput
             render={props => <BottomSheetTextInput {...(props as any)} />}
             mode="flat"
-            defaultValue={activeCodeTab === 'css' ? cssValue : jsValue}
+            value={activeCodeTab === 'css' ? cssValue : jsValue}
             onChangeText={text =>
               activeCodeTab === 'css' ? setCssValue(text) : setJsValue(text)
             }

@@ -1,10 +1,8 @@
-import { Button } from '@components/index';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Modal, Portal, TextInput } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 
 interface PromptEditModalProps {
   visible: boolean;
@@ -38,101 +36,62 @@ const PromptEditModal: React.FC<PromptEditModalProps> = ({
 
   const handleSave = () => {
     onSave(initialPrompt?.id || null, title, content);
-    onDismiss();
   };
 
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={onDismiss}
-        contentContainerStyle={[
-          styles.modalContent,
-          { backgroundColor: theme.surface },
-        ]}
-      >
-        <KeyboardAwareScrollView
-          showsVerticalScrollIndicator={false}
-          key={visible ? 'visible' : 'hidden'}
-        >
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            {initialPrompt
-              ? getString('aiSettingsScreen.editPrompt')
-              : getString('aiSettingsScreen.addPrompt')}
-          </Text>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={
+        initialPrompt
+          ? getString('aiSettingsScreen.editPrompt')
+          : getString('aiSettingsScreen.addPrompt')
+      }
+      confirmDisabled={!title.trim() || !content.trim()}
+      onDismiss={onDismiss}
+      onConfirm={handleSave}
+    >
+      <StableTextInput
+        label={getString('aiSettingsScreen.promptTitle')}
+        value={title}
+        onChangeText={setTitle}
+        mode="outlined"
+        disabled={initialPrompt?.id === 'default'}
+        textColor={theme.onSurface}
+        style={[styles.input, { backgroundColor: theme.surface }]}
+        theme={{
+          colors: {
+            primary: theme.primary,
+            background: theme.surface,
+            onSurface: theme.onSurface,
+            onSurfaceVariant: theme.onSurfaceVariant,
+          },
+        }}
+      />
 
-          <TextInput
-            label={getString('aiSettingsScreen.promptTitle')}
-            defaultValue={title}
-            onChangeText={setTitle}
-            mode="outlined"
-            disabled={initialPrompt?.id === 'default'}
-            textColor={theme.onSurface}
-            style={[styles.input, { backgroundColor: theme.surface }]}
-            theme={{
-              colors: {
-                primary: theme.primary,
-                background: theme.surface,
-                onSurface: theme.onSurface,
-                onSurfaceVariant: theme.onSurfaceVariant,
-              },
-            }}
-          />
-
-          <TextInput
-            label={getString('aiSettingsScreen.promptContent')}
-            defaultValue={content}
-            onChangeText={setContent}
-            mode="outlined"
-            multiline
-            textColor={theme.onSurface}
-            style={[styles.contentInput, { backgroundColor: theme.surface }]}
-            theme={{
-              colors: {
-                primary: theme.primary,
-                background: theme.surface,
-                onSurface: theme.onSurface,
-                onSurfaceVariant: theme.onSurfaceVariant,
-              },
-            }}
-          />
-
-          <View style={styles.footer}>
-            <Button
-              title={getString('common.cancel')}
-              mode="text"
-              onPress={onDismiss}
-              style={styles.flexBtn}
-            />
-            <View style={styles.spacer} />
-            <Button
-              title={getString('common.save')}
-              mode="contained"
-              onPress={handleSave}
-              style={styles.flexBtn}
-              disabled={!title.trim() || !content.trim()}
-            />
-          </View>
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+      <StableTextInput
+        label={getString('aiSettingsScreen.promptContent')}
+        value={content}
+        onChangeText={setContent}
+        mode="outlined"
+        multiline
+        textColor={theme.onSurface}
+        style={[styles.contentInput, { backgroundColor: theme.surface }]}
+        theme={{
+          colors: {
+            primary: theme.primary,
+            background: theme.surface,
+            onSurface: theme.onSurface,
+            onSurfaceVariant: theme.onSurfaceVariant,
+          },
+        }}
+      />
+    </KeyboardAvoidingModal>
   );
 };
 
 export default PromptEditModal;
 
 const styles = StyleSheet.create({
-  modalContent: {
-    margin: 20,
-    borderRadius: 8,
-    padding: 20,
-    maxHeight: '80%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
   input: {
     marginBottom: 16,
   },
@@ -140,15 +99,5 @@ const styles = StyleSheet.create({
     minHeight: 150,
     maxHeight: 250,
     textAlignVertical: 'top',
-    marginBottom: 24,
-  },
-  footer: {
-    flexDirection: 'row',
-  },
-  flexBtn: {
-    flex: 1,
-  },
-  spacer: {
-    width: 12,
   },
 });

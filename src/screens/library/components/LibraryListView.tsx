@@ -1,4 +1,4 @@
-import { EmptyView } from '@components/index';
+import { EmptyView } from '@components';
 import { useNovelCoverLayout } from '@components/NovelCover';
 import NovelList, { NovelListRenderItem } from '@components/NovelList';
 import { NovelInfo } from '@database/types';

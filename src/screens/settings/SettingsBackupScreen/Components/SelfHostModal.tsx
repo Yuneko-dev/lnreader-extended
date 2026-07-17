@@ -1,5 +1,10 @@
 import { list } from '@api/remote';
-import { Button, EmptyView, Modal } from '@components';
+import {
+  Button,
+  EmptyView,
+  KeyboardAwareModal,
+  StableTextInput,
+} from '@components';
 import { useSelfHost } from '@hooks/persisted/useSelfHost';
 import ServiceManager from '@services/ServiceManager';
 import { getString } from '@strings/translations';
@@ -8,8 +13,6 @@ import { fetchTimeout } from '@utils/fetch/fetch';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, TextInput } from 'react-native-paper';
 
 enum BackupModal {
   SET_HOST,
@@ -39,8 +42,8 @@ function CreateBackup({
 
   return (
     <>
-      <TextInput
-        defaultValue={backupName}
+      <StableTextInput
+        value={backupName}
         placeholder={getString('backupScreen.backupName')}
         onChangeText={setBackupName}
         mode="outlined"
@@ -157,8 +160,8 @@ function SetHost({
   const [fetching, setFetching] = useState(false);
   return (
     <>
-      <TextInput
-        defaultValue={host}
+      <StableTextInput
+        value={host}
         placeholder={getString('backupScreen.remote.host')}
         onChangeText={setHost}
         mode="outlined"
@@ -270,18 +273,13 @@ export default function SelfHostModal({
   };
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={closeModal}>
-        <KeyboardAwareScrollView>
-          <View style={styles.titleContainer}>
-            <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-              {getString('backupScreen.remote.backup')}
-            </Text>
-          </View>
-          {renderModal()}
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+    <KeyboardAwareModal
+      visible={visible}
+      onDismiss={closeModal}
+      title={getString('backupScreen.remote.backup')}
+    >
+      {renderModal()}
+    </KeyboardAwareModal>
   );
 }
 
@@ -311,15 +309,5 @@ const styles = StyleSheet.create({
   loadingContent: {
     borderRadius: 16,
     width: '100%',
-  },
-  modalTitle: {
-    fontSize: 24,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    textAlignVertical: 'center',
   },
 });

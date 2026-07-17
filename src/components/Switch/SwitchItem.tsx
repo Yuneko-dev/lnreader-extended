@@ -15,7 +15,9 @@ interface SwitchItemProps {
   value: boolean;
   label: string;
   description?: string;
+  descriptionNumberOfLines?: number;
   onPress: () => void;
+  onLongPress?: () => void;
   theme: ThemeColors;
   style?: StyleProp<ViewStyle>;
 }
@@ -23,7 +25,9 @@ interface SwitchItemProps {
 const SwitchItem: React.FC<SwitchItemProps> = ({
   label,
   description,
+  descriptionNumberOfLines,
   onPress,
+  onLongPress,
   theme,
   value,
   style,
@@ -32,11 +36,15 @@ const SwitchItem: React.FC<SwitchItemProps> = ({
     android_ripple={{ color: theme.rippleColor }}
     style={[styles.container, style]}
     onPress={onPress}
+    onLongPress={onLongPress}
   >
     <View style={styles.labelContainer}>
       <Text style={[{ color: theme.onSurface }, styles.label]}>{label}</Text>
       {description ? (
-        <Text style={[styles.description, { color: theme.onSurfaceVariant }]}>
+        <Text
+          numberOfLines={descriptionNumberOfLines}
+          style={[styles.description, { color: theme.onSurfaceVariant }]}
+        >
           {description}
         </Text>
       ) : null}

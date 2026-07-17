@@ -1,12 +1,10 @@
-import { Modal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { useAppSettings } from '@hooks/persisted';
 import { DEFAULT_CHAPTER_DOWNLOAD_COOLDOWN_MS } from '@hooks/persisted/useSettings';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, TouchableRipple } from 'react-native-paper';
+import { StyleSheet, Text } from 'react-native';
 
 interface DownloadCooldownModalProps {
   visible: boolean;
@@ -60,83 +58,54 @@ const DownloadCooldownModal: React.FC<DownloadCooldownModalProps> = ({
   const save = () => {
     const ms = parseSecondsToMs(draft);
     if (ms == null) {
-      hideModal();
-      return;
+      return false;
     }
     setAppSettings({ chapterDownloadCooldownMs: ms });
-    hideModal();
   };
 
   const reset = () => {
     setAppSettings({
       chapterDownloadCooldownMs: DEFAULT_CHAPTER_DOWNLOAD_COOLDOWN_MS,
     });
-    hideModal();
+    setDraft(msToSeconds(DEFAULT_CHAPTER_DOWNLOAD_COOLDOWN_MS));
   };
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={hideModal}>
-        <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
-          <Text style={[styles.modalHeader, { color: theme.onSurface }]}>
-            {getString('generalSettingsScreen.chapterDownloadCooldown')}
-          </Text>
-          <Text style={[styles.modalDesc, { color: theme.onSurfaceVariant }]}>
-            {getString('generalSettingsScreen.chapterDownloadCooldownDesc')}
-          </Text>
-          <TextInput
-            defaultValue={draft}
-            onChangeText={text => setDraft(sanitizeNumericInput(text))}
-            onSubmitEditing={save}
-            keyboardType="decimal-pad"
-            placeholder={getString(
-              'generalSettingsScreen.chapterDownloadCooldownPlaceholder',
-            )}
-            placeholderTextColor={theme.onSurfaceVariant}
-            style={[
-              styles.input,
-              { color: theme.onSurface, borderColor: theme.outline },
-            ]}
-            autoFocus
-          />
-          <Text style={[styles.warning, { color: theme.error }]}>
-            {getString('generalSettingsScreen.chapterDownloadCooldownWarning')}
-          </Text>
-          <View style={styles.actions}>
-            <TouchableRipple
-              onPress={reset}
-              borderless
-              style={styles.actionButton}
-              rippleColor={theme.rippleColor}
-            >
-              <Text style={[styles.actionLabel, { color: theme.primary }]}>
-                {getString('common.reset')}
-              </Text>
-            </TouchableRipple>
-            <TouchableRipple
-              onPress={save}
-              borderless
-              style={styles.actionButton}
-              rippleColor={theme.rippleColor}
-            >
-              <Text style={[styles.actionLabel, { color: theme.primary }]}>
-                {getString('common.ok')}
-              </Text>
-            </TouchableRipple>
-          </View>
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={getString('generalSettingsScreen.chapterDownloadCooldown')}
+      onDismiss={hideModal}
+      onConfirm={save}
+      confirmLabel={getString('common.ok')}
+      onReset={reset}
+    >
+      <Text style={[styles.modalDesc, { color: theme.onSurfaceVariant }]}>
+        {getString('generalSettingsScreen.chapterDownloadCooldownDesc')}
+      </Text>
+      <StableTextInput
+        value={draft}
+        onChangeText={text => setDraft(sanitizeNumericInput(text))}
+        keyboardType="decimal-pad"
+        placeholder={getString(
+          'generalSettingsScreen.chapterDownloadCooldownPlaceholder',
+        )}
+        placeholderTextColor={theme.onSurfaceVariant}
+        style={[
+          styles.input,
+          { color: theme.onSurface, borderColor: theme.outline },
+        ]}
+        autoFocus
+      />
+      <Text style={[styles.warning, { color: theme.error }]}>
+        {getString('generalSettingsScreen.chapterDownloadCooldownWarning')}
+      </Text>
+    </KeyboardAvoidingModal>
   );
 };
 
 export default DownloadCooldownModal;
 
 const styles = StyleSheet.create({
-  modalHeader: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
   modalDesc: {
     fontSize: 14,
     marginBottom: 16,
@@ -151,20 +120,5 @@ const styles = StyleSheet.create({
   warning: {
     fontSize: 12,
     marginTop: 12,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: 16,
-  },
-  actionButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  actionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    textTransform: 'uppercase',
   },
 });

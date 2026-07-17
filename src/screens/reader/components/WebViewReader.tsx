@@ -1,68 +1,35 @@
-import { addReadDuration } from '@database/queries/ChapterQueries';
-import { useTheme } from '@hooks/persisted';
 import {
-  CHAPTER_GENERAL_SETTINGS,
-  CHAPTER_READER_SETTINGS,
+  useChapterGeneralSettings,
+  useChapterReaderSettings,
+  useTheme,
+} from '@hooks/persisted';
+import type {
   ChapterGeneralSettings,
   ChapterReaderSettings,
-  initialChapterGeneralSettings,
-  initialChapterReaderSettings,
 } from '@hooks/persisted/useSettings';
 import { getUserAgent } from '@hooks/persisted/useUserAgent';
 import { getLocalServerUrl } from '@plugins/local/localServerManager';
 import { getPlugin } from '@plugins/pluginManager';
 import { getString } from '@strings/translations';
-import { getMMKVObject, MMKVStorage } from '@utils/mmkv/mmkv';
-import { showToast } from '@utils/showToast';
 import { PLUGIN_STORAGE } from '@utils/Storages';
-import {
-  dismissTTSNotification,
-  showTTSNotification,
-  ttsMediaEmitter,
-  updateTTSNotification,
-  updateTTSPlaybackState,
-  updateTTSProgress,
-} from '@utils/ttsNotification';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import * as Speech from 'expo-speech';
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { AppState, NativeEventEmitter, NativeModules } from 'react-native';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { getBatteryLevelSync } from 'react-native-device-info';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
 import { useChapterContext } from '../ChapterContext';
 import type { NativeFindResult } from '../hooks/useNativeChapterSearch';
 import { generateReaderHtml } from '../utils/htmlGenerator';
-
-type WebViewPostEvent = {
-  type: string;
-  data?: { [key: string]: unknown };
-  autoStartTTS?: boolean;
-  index?: number;
-  total?: number;
-  initialScrollPosition?: 'start' | 'end';
-  // console/error log payloads
-  method?: string;
-  args?: unknown[];
-  msg?: string;
-};
+import useReaderMessageHandler from './Hooks/useReaderMessageHandler';
+import { useReaderSettingsBridge } from './Hooks/useReaderSettings';
+import useReadingTime from './Hooks/useReadingTime';
+import useTTS from './Hooks/useTTS';
 
 type WebViewReaderProps = {
   onPress(): void;
   onFindResult(result: NativeFindResult): void;
+  bottomInset: number;
 };
-
-const { RNDeviceInfo, TikTokTTS } = NativeModules;
-const deviceInfoEmitter = new NativeEventEmitter(RNDeviceInfo);
-const tiktokTTSEmitter = new NativeEventEmitter(TikTokTTS);
 
 const assetsUriPrefix = __DEV__
   ? 'http://localhost:8081/assets'
@@ -71,6 +38,7 @@ const assetsUriPrefix = __DEV__
 const WebViewReader: React.FC<WebViewReaderProps> = ({
   onPress,
   onFindResult,
+  bottomInset,
 }) => {
   const {
     novel,
@@ -85,379 +53,65 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     refetch,
   } = useChapterContext();
   const theme = useTheme();
-  const { bottom } = useSafeAreaInsets();
-  // Use state for settings so they update when MMKV changes
-  const [readerSettings, setReaderSettings] = useState<ChapterReaderSettings>(
-    () =>
-      getMMKVObject<ChapterReaderSettings>(CHAPTER_READER_SETTINGS) ||
-      initialChapterReaderSettings,
-  );
-  const chapterGeneralSettings = useMemo(() => {
-    // eslint-disable-next-line no-void
-    void chapter.id; // fix eslint warning: react-hooks/exhaustive-deps
-    return (
-      getMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS) ||
-      initialChapterGeneralSettings
-    );
-  }, [chapter.id]);
-  const readerBottomInset = chapterGeneralSettings.fullScreenMode ? 0 : bottom;
-
-  // Update readerSettings when chapter changes
-  useEffect(() => {
-    setReaderSettings(
-      getMMKVObject<ChapterReaderSettings>(CHAPTER_READER_SETTINGS) ||
-        initialChapterReaderSettings,
-    );
-  }, [chapter.id]);
-
-  // Update battery level when chapter changes to ensure fresh value on navigation
-  const batteryLevel = useMemo(() => getBatteryLevelSync(), []);
-  const plugin = getPlugin(novel?.pluginId);
-  const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
-  const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
-  const nextChapterScreenVisible = useRef<boolean>(false);
-  const pendingScrollPositionRef = useRef<'start' | 'end' | null>(null);
-  const autoStartTTSRef = useRef<boolean>(false);
-  const isTTSReadingRef = useRef<boolean>(false);
+  const readerSettings = useChapterReaderSettings();
+  const chapterGeneralSettings = useChapterGeneralSettings();
   const readerSettingsRef = useRef<ChapterReaderSettings>(readerSettings);
-  const appStateRef = useRef(AppState.currentState);
-  const ttsQueueRef = useRef<string[]>([]);
-  const ttsQueueIndexRef = useRef<number>(0);
-
-  // --- Reading time tracking ---
-  const readStartTimeRef = useRef<number | null>(null);
-  const accumulatedReadTimeRef = useRef<number>(0);
-  const chapterIdForReadTimeRef = useRef<number>(chapter.id);
-
-  // Start reading timer
-  const startReadTimer = useCallback(() => {
-    if (!readStartTimeRef.current && !isTTSReadingRef.current) {
-      readStartTimeRef.current = Date.now();
-    }
-  }, []);
-
-  // Pause reading timer and accumulate
-  const pauseReadTimer = useCallback(() => {
-    if (readStartTimeRef.current) {
-      const elapsed = Math.floor(
-        (Date.now() - readStartTimeRef.current) / 1000,
-      );
-      accumulatedReadTimeRef.current += elapsed;
-      readStartTimeRef.current = null;
-    }
-  }, []);
-
-  // Save accumulated reading time to DB and reset
-  const saveReadTime = useCallback(
-    (chId: number) => {
-      pauseReadTimer();
-      const totalSeconds = accumulatedReadTimeRef.current;
-      if (totalSeconds > 0) {
-        addReadDuration(chId, totalSeconds).catch(() => {});
-        accumulatedReadTimeRef.current = 0;
-      }
-    },
-    [pauseReadTimer],
+  const chapterGeneralSettingsRef = useRef<ChapterGeneralSettings>(
+    chapterGeneralSettings,
   );
+  const readingTime = useReadingTime(chapter.id);
+  const tts = useTTS({
+    webViewRef,
+    novel,
+    chapter,
+    readerSettingsRef,
+    readingTime,
+  });
 
-  // Start timer on mount
-  useEffect(() => {
-    startReadTimer();
-    return () => {
-      // Save on unmount (leaving reader)
-      saveReadTime(chapterIdForReadTimeRef.current);
-    };
-  }, [startReadTimer, saveReadTime]);
-
-  // Track chapter changes — save read time for previous chapter
-  useEffect(() => {
-    if (chapterIdForReadTimeRef.current !== chapter.id) {
-      saveReadTime(chapterIdForReadTimeRef.current);
-      chapterIdForReadTimeRef.current = chapter.id;
-      startReadTimer();
-    }
-  }, [chapter.id, saveReadTime, startReadTimer]);
+  useReaderSettingsBridge({
+    webViewRef,
+    bottomInset,
+    chapterGeneralSettings,
+    readerSettings,
+    stopNativePlayback: tts.stopNativePlayback,
+  });
 
   useEffect(() => {
     readerSettingsRef.current = readerSettings;
-  }, [readerSettings]);
+    chapterGeneralSettingsRef.current = chapterGeneralSettings;
+  }, [chapterGeneralSettings, readerSettings]);
 
-  useEffect(() => {
-    const playListener = ttsMediaEmitter.addListener('TTSPlay', () => {
-      webViewRef.current?.injectJavaScript(`
-        if (window.tts && !tts.reading) { tts.resume(); }
-      `);
-    });
-    const pauseListener = ttsMediaEmitter.addListener('TTSPause', () => {
-      webViewRef.current?.injectJavaScript(`
-        if (window.tts && tts.reading) { tts.pause(); }
-      `);
-    });
-    const stopListener = ttsMediaEmitter.addListener('TTSStop', () => {
-      webViewRef.current?.injectJavaScript(`
-        if (window.tts) { tts.stop(); }
-      `);
-    });
-    const rewindListener = ttsMediaEmitter.addListener('TTSRewind', () => {
-      webViewRef.current?.injectJavaScript(`
-        if (window.tts && tts.started) { tts.rewind(); }
-      `);
-    });
-    const prevListener = ttsMediaEmitter.addListener('TTSPrev', () => {
-      webViewRef.current?.injectJavaScript(`
-        if (window.tts && window.reader && window.reader.prevChapter) {
-          window.reader.post({ type: 'prev', autoStartTTS: true });
-        }
-      `);
-    });
-    const nextListener = ttsMediaEmitter.addListener('TTSNext', () => {
-      webViewRef.current?.injectJavaScript(`
-        if (window.tts && window.reader && window.reader.nextChapter) {
-          window.reader.post({ type: 'next', autoStartTTS: true });
-        }
-      `);
-    });
-    const seekToListener = ttsMediaEmitter.addListener(
-      'TTSSeekTo',
-      (event: { position: number }) => {
-        const { position } = event;
-        webViewRef.current?.injectJavaScript(`
-          if (window.tts && tts.started) { tts.seekTo(${position}); }
-        `);
-      },
-    );
-    return () => {
-      playListener.remove();
-      pauseListener.remove();
-      stopListener.remove();
-      rewindListener.remove();
-      prevListener.remove();
-      nextListener.remove();
-      seekToListener.remove();
-    };
-  }, [webViewRef]);
+  useEffect(
+    () => () => {
+      ScreenOrientation.unlockAsync().catch(() => {});
+    },
+    [],
+  );
 
-  useEffect(() => {
-    if (isTTSReadingRef.current) {
-      updateTTSNotification({
-        novelName: novel?.name || 'Unknown',
-        chapterName: chapter.name,
-        coverUri: novel?.cover || '',
-        isPlaying: isTTSReadingRef.current,
-      });
-    }
-  }, [novel?.name, novel?.cover, chapter.name]);
+  const batteryLevel = useMemo(() => getBatteryLevelSync(), []);
+  const plugin = getPlugin(novel.pluginId);
+  const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
+  const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
+  const readerDir =
+    plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew' ? 'rtl' : 'ltr';
+  const readerBottomInset = chapterGeneralSettingsRef.current.fullScreenMode
+    ? 0
+    : bottomInset;
 
-  useEffect(() => {
-    return () => {
-      dismissTTSNotification();
-      ScreenOrientation.unlockAsync();
-    };
-  }, []);
-
-  useEffect(() => {
-    const mmkvListener = MMKVStorage.addOnValueChangedListener(key => {
-      switch (key) {
-        case CHAPTER_READER_SETTINGS:
-          // Update local state with new settings
-          const newSettings =
-            getMMKVObject<ChapterReaderSettings>(CHAPTER_READER_SETTINGS) ||
-            initialChapterReaderSettings;
-          setReaderSettings(newSettings);
-
-          // Stop any currently playing speech
-          Speech.stop();
-          TikTokTTS?.stop();
-
-          // Update WebView settings
-          webViewRef.current?.injectJavaScript(
-            `
-            reader.readerSettings.val = ${MMKVStorage.getString(
-              CHAPTER_READER_SETTINGS,
-            )};
-            // Auto-restart TTS if currently reading
-            if (window.tts && tts.reading) {
-              const currentElement = tts.currentElement;
-              const wasReading = tts.reading;
-              tts.stop();
-              if (wasReading) {
-                setTimeout(() => {
-                  tts.start(currentElement);
-                }, 100);
-              }
-            }
-            `,
-          );
-          break;
-        case CHAPTER_GENERAL_SETTINGS:
-          const newGeneralSettings =
-            getMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS) ||
-            initialChapterGeneralSettings;
-          webViewRef.current?.injectJavaScript(
-            `reader.generalSettings.val = ${MMKVStorage.getString(
-              CHAPTER_GENERAL_SETTINGS,
-            )};
-            document.documentElement.style.setProperty('--reader-bottomInset', '${
-              newGeneralSettings.fullScreenMode ? 0 : bottom
-            }px');`,
-          );
-          break;
-      }
-    });
-
-    const subscription = deviceInfoEmitter.addListener(
-      'RNDeviceInfo_batteryLevelDidChange',
-      (level: number) => {
-        webViewRef.current?.injectJavaScript(
-          `reader.batteryLevel.val = ${level}`,
-        );
-      },
-    );
-    return () => {
-      subscription.remove();
-      mmkvListener.remove();
-    };
-  }, [bottom, webViewRef]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextState => {
-      appStateRef.current = nextState;
-      if (nextState === 'active') {
-        // Resume reading timer (only if not TTS)
-        if (!isTTSReadingRef.current) {
-          startReadTimer();
-        }
-        if (isTTSReadingRef.current) {
-          const index = ttsQueueIndexRef.current;
-          webViewRef.current?.injectJavaScript(`
-            if (window.tts && window.tts.allReadableElements) {
-              const idx = ${index};
-              if (idx < tts.allReadableElements.length) {
-                if (tts.currentElement) {
-                  tts.currentElement.classList.remove('highlight');
-                }
-                tts.elementsRead = idx;
-                tts.currentElement = tts.allReadableElements[idx];
-                tts.prevElement = null;
-                tts.started = true;
-                tts.reading = true;
-                tts.scrollToElement(tts.currentElement);
-                tts.currentElement.classList.add('highlight');
-              }
-            }
-          `);
-        }
-      } else {
-        // Pause reading timer on background/inactive
-        pauseReadTimer();
-
-        // Stop TTS on background to prevent sync issues
-        if (isTTSReadingRef.current) {
-          Speech.stop();
-          TikTokTTS?.stop();
-          isTTSReadingRef.current = false;
-          ttsQueueRef.current = [];
-          ttsQueueIndexRef.current = 0;
-          dismissTTSNotification();
-          webViewRef.current?.injectJavaScript(`
-            if (window.tts) { tts.stop(); }
-          `);
-        }
-      }
-    });
-
-    return () => subscription.remove();
-  }, [webViewRef, startReadTimer, pauseReadTimer]);
-
-  useEffect(() => {
-    if (!TikTokTTS) {
-      return;
-    }
-
-    const onStart = tiktokTTSEmitter.addListener('TikTokTTS_onStart', () => {
-      webViewRef.current?.injectJavaScript('tts.setLoading(true)');
-    });
-    const onDone = tiktokTTSEmitter.addListener('TikTokTTS_onDone', () => {
-      webViewRef.current?.injectJavaScript('tts.setLoading(false)');
-      const isBackground =
-        appStateRef.current === 'background' ||
-        appStateRef.current === 'inactive';
-
-      /*
-        if (
-          isBackground &&
-          ttsQueueRef.current.length > 0 &&
-          ttsQueueIndexRef.current + 1 < ttsQueueRef.current.length
-        ) {
-          const nextIndex = ttsQueueIndexRef.current + 1;
-          const nextText = ttsQueueRef.current[nextIndex];
-          if (nextText) {
-            ttsQueueIndexRef.current = nextIndex;
-            speakText(nextText);
-            return;
-          }
-        }
-
-        if (isBackground) {
-          isTTSReadingRef.current = false;
-          dismissTTSNotification();
-          webViewRef.current?.injectJavaScript('tts.stop?.()');
-          return;
-        }
-        */
-
-      if (isBackground) {
-        return;
-      }
-
-      webViewRef.current?.injectJavaScript('tts.next?.()');
-    });
-    const onError = tiktokTTSEmitter.addListener('TikTokTTS_onError', err => {
-      webViewRef.current?.injectJavaScript('tts.setLoading(false)');
-      // eslint-disable-next-line no-console
-      console.error('TikTokTTS Error:', err.message);
-    });
-
-    return () => {
-      onStart.remove();
-      onDone.remove();
-      onError.remove();
-    };
-  }, [webViewRef]);
-
-  const speakText = (text: string) => {
-    if (readerSettingsRef.current.tts?.engine === 'tiktok') {
-      const voice = readerSettingsRef.current.tts?.voice?.identifier;
-      if (!voice) {
-        // Voice must be selected for TikTok TTS
-        showToast('TikTok TTS: No voice selected');
-        return;
-      }
-      const queueSize = readerSettingsRef.current.tts?.queueSize || 3;
-      const rate = readerSettingsRef.current.tts?.rate || 1;
-      const pitch = readerSettingsRef.current.tts?.pitch || 1;
-      TikTokTTS.speak(text, voice, queueSize, rate, pitch);
-      return;
-    }
-    Speech.speak(text, {
-      onDone() {
-        const isBackground =
-          appStateRef.current === 'background' ||
-          appStateRef.current === 'inactive';
-
-        if (isBackground) {
-          return;
-        }
-
-        webViewRef.current?.injectJavaScript('tts.next?.()');
-      },
-      voice: readerSettingsRef.current.tts?.voice?.identifier,
-      pitch: readerSettingsRef.current.tts?.pitch || 1,
-      rate: readerSettingsRef.current.tts?.rate || 1,
-    });
-  };
-  const isRTL = plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew';
-  const readerDir = isRTL ? 'rtl' : 'ltr';
+  const {
+    clearPendingScrollPosition,
+    getNextChapterScreenVisible,
+    getPendingScrollPosition,
+    handleMessage,
+  } = useReaderMessageHandler({
+    onPress,
+    onFindResult,
+    navigateChapter,
+    saveProgress,
+    resetAutoScroll,
+    refetch,
+    tts,
+  });
 
   const source = useMemo(
     () => ({
@@ -474,7 +128,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         theme,
         readerDir,
         readerSettings: readerSettingsRef.current,
-        chapterGeneralSettings,
+        chapterGeneralSettings: chapterGeneralSettingsRef.current,
         novel,
         chapter,
         nextChapter,
@@ -484,8 +138,8 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         readerBottomInset,
         pluginCustomCSS,
         pluginCustomJS,
-        nextChapterScreenVisible: nextChapterScreenVisible.current,
-        pendingScrollPosition: pendingScrollPositionRef.current,
+        nextChapterScreenVisible: getNextChapterScreenVisible(),
+        pendingScrollPosition: getPendingScrollPosition(),
         getLocalServerUrl,
         isSettingsPreview: false,
         strings: {
@@ -500,20 +154,23 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       }),
     }),
     [
-      novel,
-      chapter,
-      html,
-      theme,
-      readerDir,
-      plugin?.site,
-      plugin?.imageRequestInit,
-      readerBottomInset,
       batteryLevel,
-      chapterGeneralSettings,
+      chapter,
+      chapterGeneralSettingsRef,
+      getNextChapterScreenVisible,
+      getPendingScrollPosition,
+      html,
       nextChapter,
-      prevChapter,
+      novel,
+      plugin?.imageRequestInit,
+      plugin?.site,
       pluginCustomCSS,
       pluginCustomJS,
+      prevChapter,
+      readerBottomInset,
+      readerDir,
+      readerSettingsRef,
+      theme,
     ],
   );
 
@@ -521,233 +178,27 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     <WebView
       ref={webViewRef}
       style={{ backgroundColor: readerSettings.theme }}
-      allowFileAccess={true}
+      allowFileAccess
       originWhitelist={['*']}
-      scalesPageToFit={true}
+      scalesPageToFit
       showsVerticalScrollIndicator={false}
-      javaScriptEnabled={true}
+      javaScriptEnabled
       userAgent={getUserAgent()}
       webviewDebuggingEnabled={__DEV__}
       mediaPlaybackRequiresUserAction={false}
-      allowsFullscreenVideo={true}
+      allowsFullscreenVideo
       onLoadEnd={() => {
-        // Update battery level when WebView finishes loading
         const currentBatteryLevel = getBatteryLevelSync();
-        webViewRef.current?.injectJavaScript(
-          `if (window.reader && window.reader.batteryLevel) {
+        webViewRef.current?.injectJavaScript(`
+          if (window.reader && window.reader.batteryLevel) {
             window.reader.batteryLevel.val = ${currentBatteryLevel};
-          }`,
-        );
-
-        if (pendingScrollPositionRef.current) {
-          pendingScrollPositionRef.current = null; // Reset after first load
+          }`);
+        if (getPendingScrollPosition()) {
+          clearPendingScrollPosition();
         }
-
-        if (autoStartTTSRef.current) {
-          autoStartTTSRef.current = false;
-          setTimeout(() => {
-            webViewRef.current?.injectJavaScript(`
-              (function() {
-                if (window.tts && reader.generalSettings.val.TTSEnable) {
-                  setTimeout(() => {
-                    tts.start();
-                    const controller = document.getElementById('TTS-Controller');
-                    if (controller && controller.firstElementChild) {
-                      controller.firstElementChild.innerHTML = pauseIcon;
-                    }
-                  }, 500);
-                }
-              })();
-            `);
-          }, 300);
-        }
+        tts.handleLoadEnd();
       }}
-      onMessage={(ev: { nativeEvent: { data: string } }) => {
-        let event: WebViewPostEvent;
-        try {
-          event = JSON.parse(ev.nativeEvent.data);
-        } catch {
-          // Non-JSON / unparseable message
-          return;
-        }
-        switch (event.type) {
-          case 'user-interaction':
-            resetAutoScroll();
-            break;
-          case 'tts-queue': {
-            const payload = event.data as
-              | { queue?: unknown; startIndex?: unknown }
-              | undefined;
-            const queue = Array.isArray(payload?.queue)
-              ? payload?.queue.filter(
-                  (item): item is string =>
-                    typeof item === 'string' && item.trim().length > 0,
-                )
-              : [];
-            ttsQueueRef.current = queue;
-            if (typeof payload?.startIndex === 'number') {
-              ttsQueueIndexRef.current = payload.startIndex;
-            } else {
-              ttsQueueIndexRef.current = 0;
-            }
-            if (readerSettingsRef.current.tts?.engine === 'tiktok') {
-              const voice = readerSettingsRef.current.tts?.voice?.identifier;
-              if (voice) {
-                TikTokTTS?.updateQueue(
-                  queue.slice(ttsQueueIndexRef.current),
-                  voice,
-                );
-              }
-            }
-            break;
-          }
-          case 'hide':
-            onPress();
-            break;
-          case 'next':
-            nextChapterScreenVisible.current = true;
-            if (event.initialScrollPosition) {
-              pendingScrollPositionRef.current = event.initialScrollPosition;
-            }
-            if (event.autoStartTTS) {
-              autoStartTTSRef.current = true;
-            }
-            navigateChapter('NEXT');
-            break;
-          case 'prev':
-            if (event.initialScrollPosition) {
-              pendingScrollPositionRef.current = event.initialScrollPosition;
-            }
-            if (event.autoStartTTS) {
-              autoStartTTSRef.current = true;
-            }
-            navigateChapter('PREV');
-            break;
-          case 'save':
-            if (event.data && typeof event.data === 'number') {
-              saveProgress(event.data);
-            }
-            break;
-          case 'find-result': {
-            const { data } = event;
-            if (
-              typeof data?.query === 'string' &&
-              typeof data.activeMatchOrdinal === 'number' &&
-              typeof data.numberOfMatches === 'number' &&
-              typeof data.isDoneCounting === 'boolean'
-            ) {
-              onFindResult({
-                query: data.query,
-                current:
-                  data.numberOfMatches > 0 ? data.activeMatchOrdinal + 1 : 0,
-                total: data.numberOfMatches,
-                isDoneCounting: data.isDoneCounting,
-              });
-            }
-            break;
-          }
-          case 'speak':
-            if (event.data && typeof event.data === 'string') {
-              if (typeof event.index === 'number') {
-                ttsQueueIndexRef.current = event.index;
-              }
-              if (!isTTSReadingRef.current) {
-                isTTSReadingRef.current = true;
-                pauseReadTimer(); // Stop counting reading time during TTS
-                showTTSNotification({
-                  novelName: novel?.name || 'Unknown',
-                  chapterName: chapter.name,
-                  coverUri: novel?.cover || '',
-                  isPlaying: true,
-                });
-              } else {
-                updateTTSNotification({
-                  novelName: novel?.name || 'Unknown',
-                  chapterName: chapter.name,
-                  coverUri: novel?.cover || '',
-                  isPlaying: true,
-                });
-              }
-              if (
-                typeof event.index === 'number' &&
-                typeof event.total === 'number' &&
-                event.total > 0
-              ) {
-                updateTTSProgress(event.index, event.total);
-              }
-              if (readerSettingsRef.current.tts?.engine === 'tiktok') {
-                const voice = readerSettingsRef.current.tts?.voice?.identifier;
-                if (voice) {
-                  TikTokTTS?.updateQueue(
-                    ttsQueueRef.current.slice(ttsQueueIndexRef.current + 1),
-                    voice,
-                  );
-                }
-              }
-              speakText(event.data);
-            } else {
-              webViewRef.current?.injectJavaScript('tts.next?.()');
-            }
-            break;
-          case 'pause-speak':
-            Speech.stop();
-            TikTokTTS?.pause();
-            break;
-          case 'stop-speak':
-            Speech.stop();
-            TikTokTTS?.stop();
-            if (!autoStartTTSRef.current) {
-              isTTSReadingRef.current = false;
-              ttsQueueRef.current = [];
-              ttsQueueIndexRef.current = 0;
-              dismissTTSNotification();
-              startReadTimer(); // Resume reading time tracking
-            }
-            break;
-          case 'tts-state':
-            if (event.data && typeof event.data === 'object') {
-              const data = event.data as { isReading?: boolean };
-              const isReading = data.isReading === true;
-              const wasReading = isTTSReadingRef.current;
-              isTTSReadingRef.current = isReading;
-              updateTTSPlaybackState(isReading);
-              // Toggle reading timer based on TTS state
-              if (isReading && !wasReading) {
-                pauseReadTimer();
-              } else if (!isReading && wasReading) {
-                startReadTimer();
-              }
-            }
-            break;
-          case 'refetch':
-            refetch();
-            break;
-          case 'video-fullscreen-enter':
-            ScreenOrientation.lockAsync(
-              ScreenOrientation.OrientationLock.LANDSCAPE,
-            );
-            break;
-          case 'video-fullscreen-exit':
-            ScreenOrientation.unlockAsync();
-            break;
-          case 'console':
-            // eslint-disable-next-line no-console
-            console[(event.method as 'log') ?? 'log'](
-              `[WebView]`,
-              ...(event.args ?? []),
-            );
-            break;
-          case 'error':
-            // eslint-disable-next-line no-console
-            console.error(`[WebView Error]`, event.msg);
-            break;
-          default: {
-            // eslint-disable-next-line no-console
-            console.warn(`Unknown event: ${event.type}`, event);
-            break;
-          }
-        }
-      }}
+      onMessage={event => handleMessage(event.nativeEvent.data)}
       source={source}
     />
   );

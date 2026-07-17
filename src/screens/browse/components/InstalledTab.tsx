@@ -11,7 +11,6 @@ import { ThemeColors } from '@theme/types';
 import { showToast } from '@utils/showToast';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Portal } from 'react-native-paper';
 
 import DiscoverCard from '../discover/DiscoverCard';
 import { DeferredPluginListItem } from './DeferredPluginListItem';
@@ -285,16 +284,14 @@ export const InstalledTab = memo(
                 : getString('browseScreen.installedPlugins')}
             </Text>
 
-            <Portal>
-              <SourceSettingsModal
-                visible={settingsModal.value}
-                onDismiss={settingsModal.setFalse}
-                title={getString('browseScreen.settings.title')}
-                description={getString('browseScreen.settings.description')}
-                pluginId={selectedPluginId}
-                pluginSettings={pluginSettings}
-              />
-            </Portal>
+            <SourceSettingsModal
+              visible={settingsModal.value}
+              onDismiss={settingsModal.setFalse}
+              title={getString('browseScreen.settings.title')}
+              description={getString('browseScreen.settings.description')}
+              pluginId={selectedPluginId}
+              pluginSettings={pluginSettings}
+            />
           </>
         }
       />

@@ -1,8 +1,8 @@
+import { StableTextInput } from '@components';
 import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
 import { useTheme } from '@hooks/persisted';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { TextInput } from 'react-native-paper';
 
 import {
   getAniListScoreFormatting,
@@ -85,8 +85,8 @@ export const MangaUpdatesScoreSelector: React.FC<ScoreSelectorProps> = ({
       <Text style={[styles.helperText, { color: theme.onSurfaceVariant }]}>
         Enter a score between 0 and 10 (decimals allowed, e.g., 7.5)
       </Text>
-      <TextInput
-        defaultValue={scoreText}
+      <StableTextInput
+        value={scoreText}
         onChangeText={handleChangeText}
         mode="outlined"
         keyboardType="decimal-pad"

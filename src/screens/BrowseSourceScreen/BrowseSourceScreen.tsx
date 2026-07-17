@@ -1,5 +1,5 @@
+import { ErrorScreenV2, SafeAreaView, SearchbarV2 } from '@components';
 import { useLibraryContext } from '@components/Context/LibraryContext';
-import { ErrorScreenV2, SafeAreaView, SearchbarV2 } from '@components/index';
 import NovelCover from '@components/NovelCover';
 import NovelList from '@components/NovelList';
 import SearchHistoryList from '@components/SearchHistoryList/SearchHistoryList';

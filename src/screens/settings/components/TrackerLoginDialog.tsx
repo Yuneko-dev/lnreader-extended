@@ -1,9 +1,8 @@
-import { Modal } from '@components';
+import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import { useTheme } from '@hooks/persisted';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Button, Text } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 
 interface TrackerLoginDialogProps {
   visible: boolean;
@@ -30,7 +29,7 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
   const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
       setError(`${usernameLabel} and password are required`);
-      return;
+      return false;
     }
 
     setIsLoading(true);
@@ -38,11 +37,12 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
 
     try {
       await onSubmit(username.trim(), password);
-      /* Clear form on success */
       setUsername('');
       setPassword('');
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -56,92 +56,61 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
   };
 
   return (
-    <Modal visible={visible} onDismiss={handleCancel}>
-      <KeyboardAwareScrollView>
-        <View style={styles.container}>
-          <Text style={[styles.title, { color: theme.onSurface }]}>
-            Login to {trackerName}
-          </Text>
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={`Login to ${trackerName}`}
+      confirmLabel={isLoading ? 'Logging in...' : 'Login'}
+      confirmLoading={isLoading}
+      onDismiss={handleCancel}
+      onConfirm={handleSubmit}
+    >
+      <StableTextInput
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.surface,
+            color: theme.onSurface,
+            borderColor: theme.outline,
+          },
+        ]}
+        placeholder={usernameLabel}
+        placeholderTextColor={theme.onSurfaceVariant}
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+        autoCorrect={false}
+        editable={!isLoading}
+      />
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.surface,
-                color: theme.onSurface,
-                borderColor: theme.outline,
-              },
-            ]}
-            placeholder={usernameLabel}
-            placeholderTextColor={theme.onSurfaceVariant}
-            defaultValue={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
+      <StableTextInput
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.surface,
+            color: theme.onSurface,
+            borderColor: theme.outline,
+          },
+        ]}
+        placeholder="Password"
+        placeholderTextColor={theme.onSurfaceVariant}
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        autoCapitalize="none"
+        autoCorrect={false}
+        editable={!isLoading}
+      />
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.surface,
-                color: theme.onSurface,
-                borderColor: theme.outline,
-              },
-            ]}
-            placeholder="Password"
-            placeholderTextColor={theme.onSurfaceVariant}
-            defaultValue={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
-
-          {error ? (
-            <Text style={[styles.errorText, { color: theme.error }]}>
-              {error}
-            </Text>
-          ) : null}
-
-          <View style={styles.buttonRow}>
-            <Button
-              style={styles.button}
-              labelStyle={[{ color: theme.primary }, styles.buttonLabel]}
-              onPress={handleCancel}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              style={styles.button}
-              labelStyle={[{ color: theme.primary }, styles.buttonLabel]}
-              onPress={handleSubmit}
-              disabled={isLoading}
-              loading={isLoading}
-            >
-              {isLoading ? 'Logging in...' : 'Login'}
-            </Button>
-          </View>
-        </View>
-      </KeyboardAwareScrollView>
-    </Modal>
+      {error ? (
+        <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
+      ) : null}
+    </KeyboardAvoidingModal>
   );
 };
 
 export default TrackerLoginDialog;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 8,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    fontWeight: '500',
-  },
   input: {
     height: 48,
     borderWidth: 1,
@@ -154,17 +123,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 16,
     marginTop: -8,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 8,
-  },
-  button: {
-    marginLeft: 8,
-  },
-  buttonLabel: {
-    letterSpacing: 0,
-    textTransform: 'none',
   },
 });

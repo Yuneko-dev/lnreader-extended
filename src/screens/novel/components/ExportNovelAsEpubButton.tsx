@@ -6,7 +6,6 @@ import { MaterialDesignIconName } from '@type/icon';
 import { showToast } from '@utils/showToast';
 import React, { useMemo } from 'react';
 import { StatusBar, StyleProp, ViewStyle } from 'react-native';
-import { Portal } from 'react-native-paper';
 
 import ExportEpubLogsModal from './ExportEpubLogsModal';
 import ExportEpubModal from './ExportEpubModal';
@@ -132,28 +131,26 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
   return (
     <>
       <IconComponent icon="book-arrow-down-outline" onPress={showModal} />
-      <Portal>
-        <ExportEpubModal
-          isVisible={isModalVisible}
-          novelName={novel?.name}
-          hideModal={hideModal}
-          onSubmit={handleExportSubmit}
+      <ExportEpubModal
+        isVisible={isModalVisible}
+        novelName={novel?.name}
+        hideModal={hideModal}
+        onSubmit={handleExportSubmit}
+      />
+      {novel && exportParams && (
+        <ExportEpubLogsModal
+          visible={logsModalVisible}
+          onDismiss={() => setLogsModalVisible(false)}
+          novel={novel}
+          destinationUri={exportParams.destinationUri}
+          fileName={exportParams.fileName}
+          startChapter={exportParams.startChapter}
+          endChapter={exportParams.endChapter}
+          epubStylesheet={epubStylesheet}
+          epubJavaScript={epubJavaScript}
+          epubUseCustomJS={epubUseCustomJS}
         />
-        {novel && exportParams && (
-          <ExportEpubLogsModal
-            visible={logsModalVisible}
-            onDismiss={() => setLogsModalVisible(false)}
-            novel={novel}
-            destinationUri={exportParams.destinationUri}
-            fileName={exportParams.fileName}
-            startChapter={exportParams.startChapter}
-            endChapter={exportParams.endChapter}
-            epubStylesheet={epubStylesheet}
-            epubJavaScript={epubJavaScript}
-            epubUseCustomJS={epubUseCustomJS}
-          />
-        )}
-      </Portal>
+      )}
     </>
   );
 };

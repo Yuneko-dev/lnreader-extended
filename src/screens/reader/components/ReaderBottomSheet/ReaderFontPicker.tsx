@@ -1,4 +1,4 @@
-import { SelectableChip } from '@components/index';
+import { SelectableChip } from '@components';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { Font, readerFonts } from '@utils/constants/readerConstants';

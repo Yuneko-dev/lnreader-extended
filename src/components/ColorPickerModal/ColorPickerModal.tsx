@@ -1,12 +1,16 @@
-import { Button, Modal } from '@components';
-import { Row } from '@components/Common';
-import { getString } from '@strings/translations';
-import React, { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { Portal, TextInput } from 'react-native-paper';
-
-import { ThemeColors } from '../../theme/types';
+import { KeyboardAvoidingModal } from '@components';
+import { useTheme } from '@hooks/persisted';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { overlay } from 'react-native-paper';
+import ColorPicker, {
+  ColorFormatsObject,
+  colorKit,
+  HueCircular,
+  InputWidget,
+  Panel1,
+  Preview,
+} from 'reanimated-color-picker';
 
 interface ColorPickerModalProps {
   visible: boolean;
@@ -14,146 +18,155 @@ interface ColorPickerModalProps {
   color: string;
   onSubmit: (val: string | undefined) => void;
   closeModal: () => void;
-  theme: ThemeColors;
-  showAccentColors?: boolean;
 }
 
+const toOpaqueHex = (color: string) =>
+  colorKit.setAlpha(color, 1).hex().toLowerCase();
+
 const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
-  theme,
   color,
   title,
   onSubmit,
   closeModal,
   visible,
-  showAccentColors,
 }) => {
-  const [text, setText] = useState<string>(color);
-  const [error, setError] = useState<string | null>();
+  const theme = useTheme();
+  const [draftColor, setDraftColor] = useState(() => toOpaqueHex(color));
+
+  useEffect(() => {
+    if (visible) {
+      setDraftColor(toOpaqueHex(color));
+    }
+  }, [color, visible]);
 
   const onDismiss = () => {
+    setDraftColor(toOpaqueHex(color));
     closeModal();
-    if (error) {
-      setText(color);
-    }
-    setError(null);
   };
 
-  const onChangeText = (txt: string) => setText(txt);
-
-  const onSubmitEditing = () => {
-    const re = /^#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})$/i;
-
-    if (text?.match(re)) {
-      onSubmit(text);
-      closeModal();
-    } else {
-      setError('Enter a valid hex color code');
-    }
+  const onColorComplete = ({ hex }: ColorFormatsObject) => {
+    setDraftColor(toOpaqueHex(hex));
   };
+
   const onReset = () => {
+    setDraftColor(toOpaqueHex(color));
     onSubmit(undefined);
-    closeModal();
   };
-
-  const accentColors = [
-    '#EF5350',
-    '#EC407A',
-    '#AB47BC',
-    '#7E57C2',
-    '#5C6BC0',
-    '#42A5F5',
-    '#29B6FC',
-    '#26C6DA',
-    '#26A69A',
-    '#66BB6A',
-    '#9CCC65',
-    '#D4E157',
-    '#FFEE58',
-    '#FFCA28',
-    '#FFA726',
-    '#FF7043',
-    '#8D6E63',
-    '#BDBDBD',
-    '#78909C',
-    '#000000',
-  ];
 
   return (
-    <Portal>
-      <Modal visible={visible} onDismiss={onDismiss}>
-        <KeyboardAwareScrollView key={visible ? 'visible' : 'hidden'}>
-          <Text style={[styles.modalTitle, { color: theme.onSurface }]}>
-            {title}
-          </Text>
-          {showAccentColors ? (
-            <FlatList
-              contentContainerStyle={styles.marginBottom}
-              data={accentColors}
-              numColumns={4}
-              keyExtractor={item => item}
-              renderItem={({ item }) => (
-                <View style={[styles.item, { backgroundColor: item }]}>
-                  <Pressable
-                    style={styles.flex}
-                    android_ripple={{
-                      color: 'rgba(0,0,0,0.12)',
-                    }}
-                    onPress={() => {
-                      onSubmit(item);
-                      closeModal();
-                    }}
-                  />
-                </View>
-              )}
+    <KeyboardAvoidingModal
+      visible={visible}
+      title={title}
+      onDismiss={onDismiss}
+      onConfirm={() => onSubmit(draftColor)}
+      onReset={onReset}
+    >
+      <View style={styles.pickerContainer}>
+        <ColorPicker
+          value={draftColor}
+          sliderThickness={20}
+          thumbSize={28}
+          thumbShape="pill"
+          boundedThumb
+          onCompleteJS={onColorComplete}
+          colorAnnouncementFormat="hex"
+          style={styles.picker}
+        >
+          <Preview style={styles.previewStyle} />
+          <HueCircular
+            accessibilityLabel="Hue"
+            style={styles.hueCircular}
+            containerStyle={[
+              styles.hueContent,
+              { backgroundColor: overlay(2, theme.surface) },
+            ]}
+          >
+            <Panel1
+              accessibilityLabel="Saturation and brightness"
+              style={styles.panel}
             />
-          ) : null}
-          <TextInput
-            defaultValue={text}
-            placeholder="Hex Color Code (E.g. #3399FF)"
-            onChangeText={onChangeText}
-            onSubmitEditing={onSubmitEditing}
-            mode="outlined"
-            theme={{ colors: { ...theme } }}
-            underlineColor={theme.outline}
-            dense
-            error={Boolean(error)}
+          </HueCircular>
+          <View
+            style={[styles.divider, { backgroundColor: theme.outlineVariant }]}
           />
-          <Text style={styles.errorText}>{error}</Text>
-          <Row style={styles.row}>
-            <Button title={getString('common.reset')} onPress={onReset} />
-            <Button
-              title={getString('common.save')}
-              onPress={onSubmitEditing}
-            />
-          </Row>
-        </KeyboardAwareScrollView>
-      </Modal>
-    </Portal>
+          <InputWidget
+            disableAlphaChannel
+            containerStyle={styles.inputContainer}
+            inputStyle={[
+              styles.input,
+              {
+                backgroundColor: theme.surface,
+                borderColor: theme.outline,
+                color: theme.onSurface,
+              },
+            ]}
+            inputTitleStyle={[
+              styles.inputTitle,
+              { color: theme.onSurfaceVariant },
+            ]}
+            inputProps={{
+              autoCapitalize: 'characters',
+              placeholder: '#RRGGBB',
+              placeholderTextColor: theme.onSurfaceVariant,
+              selectionColor: theme.primary,
+            }}
+            iconColor={theme.onSurfaceVariant}
+          />
+        </ColorPicker>
+      </View>
+    </KeyboardAvoidingModal>
   );
 };
 
 export default ColorPickerModal;
 
 const styles = StyleSheet.create({
-  errorText: {
-    color: '#FF0033',
-    paddingTop: 8,
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    width: '100%',
   },
-  modalTitle: {
-    fontSize: 24,
-    marginBottom: 16,
+  hueCircular: {
+    maxWidth: 320,
+    width: '100%',
   },
-  item: {
-    borderRadius: 4,
-    overflow: 'hidden',
-    flex: 1 / 4,
+  hueContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  input: {
+    borderRadius: 12,
+    borderWidth: 1,
+    fontSize: 16,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  inputContainer: {
+    width: '100%',
+  },
+  inputTitle: {
+    fontSize: 12,
+    paddingBottom: 0,
+    paddingTop: 6,
+  },
+  panel: {
+    alignSelf: 'center',
+    borderRadius: 16,
+    height: '68%',
+    width: '68%',
+  },
+  picker: {
+    alignSelf: 'center',
+    gap: 24,
+    maxWidth: 320,
+    width: '100%',
+  },
+  pickerContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  previewStyle: {
     height: 40,
-    marginHorizontal: 4,
-    marginVertical: 4,
-  },
-  flex: { flex: 1 },
-  marginBottom: { marginBottom: 8 },
-  row: {
-    justifyContent: 'flex-end',
+    borderRadius: 14,
   },
 });

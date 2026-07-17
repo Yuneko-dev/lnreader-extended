@@ -1,4 +1,4 @@
-import { Button, Modal } from '@components/index';
+import { Button, Modal } from '@components';
 import { deleteRepositoryById } from '@database/queries/RepositoryQueries';
 import { Repository } from '@database/types';
 import { useTheme } from '@hooks/persisted';

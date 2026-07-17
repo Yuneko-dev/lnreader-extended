@@ -1,7 +1,7 @@
+import { Button, SafeAreaView, SearchbarV2 } from '@components';
 import { Actionbar } from '@components/Actionbar/Actionbar';
 import { Row } from '@components/Common';
 import { useLibraryContext } from '@components/Context/LibraryContext';
-import { Button, SafeAreaView, SearchbarV2 } from '@components/index';
 import {
   markAllChaptersRead,
   markAllChaptersUnread,
