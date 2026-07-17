@@ -341,7 +341,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   );
 
   return (
-    <>
+    <Portal.Host>
       <View style={containerStyle}>
         <Portal>
           {selected.length === 0 ? (
@@ -441,7 +441,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
           </Snackbar>
         </Portal>
         {novel ? (
-          <>
+          <Portal>
             <JumpToChapterModal
               modalVisible={jumpToChapterModal}
               hideModal={hideJumpToChapterModal}
@@ -470,10 +470,10 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
               novel={novel}
               theme={theme}
             />
-          </>
+          </Portal>
         ) : null}
       </View>
-    </>
+    </Portal.Host>
   );
 };
 
