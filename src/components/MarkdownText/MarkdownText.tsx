@@ -1,3 +1,5 @@
+import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
+import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React, { useCallback, useMemo, useState } from 'react';
 import { LayoutChangeEvent, Linking, View } from 'react-native';
@@ -19,6 +21,7 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
   onLayout,
 }) => {
   const [width, setWidth] = useState(200);
+  const [externalUrl, setExternalUrl] = useState<string | null>(null);
   const textColor = theme.onSurfaceVariant;
 
   const markdownStyle: MarkdownStyle = useMemo(
@@ -164,20 +167,43 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
   }, []);
 
   const handleLinkPress = useCallback(({ url }: LinkPressEvent) => {
-    Linking.openURL(url);
+    setExternalUrl(url);
+  }, []);
+
+  const handleOpenExternalLink = useCallback(() => {
+    if (externalUrl) {
+      Linking.openURL(externalUrl);
+    }
+  }, [externalUrl]);
+
+  const dismissExternalLinkDialog = useCallback(() => {
+    setExternalUrl(null);
   }, []);
 
   return (
-    <View onLayout={handleContainerLayout}>
-      <EnrichedMarkdownText
-        markdown={markdown}
-        markdownStyle={markdownStyle}
-        flavor="github"
-        selectable={false}
-        onLinkPress={handleLinkPress}
-        onLayout={onLayout}
+    <>
+      <View onLayout={handleContainerLayout}>
+        <EnrichedMarkdownText
+          markdown={markdown}
+          markdownStyle={markdownStyle}
+          flavor="github"
+          selectable={false}
+          onLinkPress={handleLinkPress}
+          onLayout={onLayout}
+        />
+      </View>
+
+      <ConfirmationDialog
+        visible={externalUrl !== null}
+        title={getString('externalLinkDialog.title')}
+        message={getString('externalLinkDialog.message', {
+          url: externalUrl ?? '',
+        })}
+        theme={theme}
+        onSubmit={handleOpenExternalLink}
+        onDismiss={dismissExternalLinkDialog}
       />
-    </View>
+    </>
   );
 };
 

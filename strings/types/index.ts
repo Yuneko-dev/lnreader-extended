@@ -313,6 +313,8 @@ export interface StringMap {
   'common.submit': 'string';
   'common.loading': 'string';
   'common.warning': 'string';
+  'externalLinkDialog.title': 'string';
+  'externalLinkDialog.message': 'string';
   'webview.refresh': 'string';
   'webview.share': 'string';
   'webview.openInBrowser': 'string';

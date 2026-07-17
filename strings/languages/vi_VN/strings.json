@@ -344,6 +344,10 @@
     "loading": "Đang tải ...",
     "warning": "Cảnh báo"
   },
+  "externalLinkDialog": {
+    "title": "Mở liên kết ngoài?",
+    "message": "Liên kết này sẽ mở trong một ứng dụng khác. Bạn có muốn tiếp tục không?\n\n%{url}"
+  },
   "webview": {
     "refresh": "Làm mới",
     "share": "Chia sẻ",
