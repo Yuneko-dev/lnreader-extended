@@ -1,4 +1,9 @@
-import { Button, KeyboardAvoidingModal, StableTextInput, SwitchItem } from '@components';
+import {
+  Button,
+  KeyboardAvoidingModal,
+  StableTextInput,
+  SwitchItem,
+} from '@components';
 import { useTheme } from '@hooks/persisted';
 import { type AIProvider, getApiKey } from '@hooks/persisted/useAIProviders';
 import type {

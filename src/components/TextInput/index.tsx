@@ -1,53 +1,106 @@
-import React, { forwardRef,useState } from 'react';
-import {
-  NativeSyntheticEvent,
-  TextInput as RNTextInput,
-  TextInputSelectionChangeEventData,
-} from 'react-native';
+import React, {
+  forwardRef,
+  MutableRefObject,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { TextInput as RNTextInput } from 'react-native';
 import { TextInput, TextInputProps } from 'react-native-paper';
 
-interface SelectionState {
-  start: number;
-  end: number;
-}
-
-type StableTextInputProps = Omit<TextInputProps, 'defaultValue'> & {
+type StableTextInputProps = Omit<
+  TextInputProps,
+  'defaultValue' | 'selection' | 'value'
+> & {
+  value: string | undefined;
   defaultValue?: never;
+  selection?: never;
 };
 
 /**
- * StableTextInput is a custom component built on top of React Native Paper's TextInput, 
- * with a small patch to fix the cursor jumping issue when used as a controlled component (value).
+ * Keeps the native input uncontrolled while exposing a controlled-looking API.
+ *
+ * Text entered by the IME is not written back to native when the parent echoes it
+ * through `value`. This preserves Android composing text, predictive suggestions,
+ * and the native cursor. A genuinely external `value` change remounts only the
+ * Paper input so resets, presets, and form hydration still update the field.
  */
 const StableTextInput = forwardRef<RNTextInput, StableTextInputProps>(
-  ({ onSelectionChange, value, ...props }, ref) => {
-    const [selection, setSelection] = useState<SelectionState | null>(null);
+  ({ onChangeText, value, ...props }, forwardedRef) => {
+    const normalizedValue = value ?? '';
+    const inputRef = useRef<RNTextInput | null>(null);
+    const nativeValueRef = useRef(normalizedValue);
+    const previousPropValueRef = useRef(normalizedValue);
+    const restoreSelectionRef = useRef<number | null>(null);
+    const [nativeInput, setNativeInput] = useState(() => ({
+      defaultValue: normalizedValue,
+      revision: 0,
+    }));
 
-    const handleSelectionChange = (
-      event: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
-    ) => {
-      setSelection(event.nativeEvent.selection);
+    const assignRef = useCallback(
+      (input: RNTextInput | null) => {
+        inputRef.current = input;
 
-      if (onSelectionChange) {
-        onSelectionChange(event);
-      }
-    };
-
-    const textLength = typeof value === 'string' ? value.length : 0;
-    const safeSelection = selection
-      ? {
-          start: Math.min(selection.start, textLength),
-          end: Math.min(selection.end, textLength),
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(input);
+        } else if (forwardedRef) {
+          (forwardedRef as MutableRefObject<RNTextInput | null>).current =
+            input;
         }
-      : undefined;
+      },
+      [forwardedRef],
+    );
+
+    const handleChangeText = useCallback(
+      (text: string) => {
+        nativeValueRef.current = text;
+        onChangeText?.(text);
+      },
+      [onChangeText],
+    );
+
+    useLayoutEffect(() => {
+      if (normalizedValue === previousPropValueRef.current) {
+        return;
+      }
+
+      previousPropValueRef.current = normalizedValue;
+
+      // onChangeText -> parent state -> value is only an echo of native text.
+      // Avoid touching the input so Android can finish its composing transaction.
+      if (normalizedValue === nativeValueRef.current) {
+        return;
+      }
+
+      restoreSelectionRef.current = inputRef.current?.isFocused()
+        ? normalizedValue.length
+        : null;
+      nativeValueRef.current = normalizedValue;
+      setNativeInput(current => ({
+        defaultValue: normalizedValue,
+        revision: current.revision + 1,
+      }));
+    }, [normalizedValue]);
+
+    useLayoutEffect(() => {
+      const selection = restoreSelectionRef.current;
+      if (selection == null) {
+        return;
+      }
+
+      restoreSelectionRef.current = null;
+      inputRef.current?.focus();
+      inputRef.current?.setSelection(selection, selection);
+    }, [nativeInput.revision]);
 
     return (
       <TextInput
-        ref={ref}
-        value={value}
-        selection={safeSelection}
-        onSelectionChange={handleSelectionChange}
         {...props}
+        key={nativeInput.revision}
+        ref={assignRef}
+        defaultValue={nativeInput.defaultValue}
+        onChangeText={handleChangeText}
       />
     );
   },

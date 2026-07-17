@@ -1,4 +1,10 @@
-import { Appbar, KeyboardAvoidingModal, List, SafeAreaView, StableTextInput } from '@components';
+import {
+  Appbar,
+  KeyboardAvoidingModal,
+  List,
+  SafeAreaView,
+  StableTextInput,
+} from '@components';
 import ConfirmationDialog from '@components/ConfirmationDialog/ConfirmationDialog';
 import {
   clearUpdates,

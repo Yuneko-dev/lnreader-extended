@@ -2,7 +2,7 @@ import { IconButtonV2, StableTextInput } from '@components';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text, TextInput,View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { NativeChapterSearch } from '../hooks/useNativeChapterSearch';
 

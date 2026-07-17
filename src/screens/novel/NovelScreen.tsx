@@ -341,7 +341,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
   );
 
   return (
-    <Portal.Host>
+    <>
       <View style={containerStyle}>
         <Portal>
           {selected.length === 0 ? (
@@ -400,7 +400,6 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
             />
           </Suspense>
         </SafeAreaView>
-
         <Portal>
           <Actionbar active={selected.length > 0} actions={actions} />
           <Snackbar
@@ -474,7 +473,7 @@ const Novel = ({ route, navigation }: NovelScreenProps) => {
           </>
         ) : null}
       </View>
-    </Portal.Host>
+    </>
   );
 };
 

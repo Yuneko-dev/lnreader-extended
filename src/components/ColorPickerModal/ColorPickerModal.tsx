@@ -1,6 +1,6 @@
 import { KeyboardAvoidingModal, StableTextInput } from '@components';
 import React, { useState } from 'react';
-import { FlatList, Pressable,StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ThemeColors } from '../../theme/types';
 

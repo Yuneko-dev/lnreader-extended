@@ -23,12 +23,12 @@ type MockKeyboardAvoidingModalProps = {
 
 type MockTextInputProps = Pick<
   TextInputProps,
-  'defaultValue' | 'onChangeText' | 'placeholder'
+  'onChangeText' | 'placeholder' | 'value'
 >;
 
 jest.mock('@components', () => {
   const ReactModule = jest.requireActual('react');
-  const { Text, View } = jest.requireActual('react-native');
+  const { Text, TextInput, View } = jest.requireActual('react-native');
 
   return {
     KeyboardAvoidingModal: ({
@@ -54,6 +54,11 @@ jest.mock('@components', () => {
         ),
       );
     },
+    StableTextInput: (props: MockTextInputProps) =>
+      ReactModule.createElement(TextInput, {
+        ...props,
+        testID: 'category-name-input',
+      }),
   };
 });
 
@@ -74,19 +79,6 @@ jest.mock('../../../../database/queries/CategoryQueries', () => ({
   isCategoryNameDuplicate: jest.fn(),
   updateCategory: jest.fn(),
 }));
-
-jest.mock('react-native-paper', () => {
-  const ReactModule = jest.requireActual('react');
-  const { TextInput } = jest.requireActual('react-native');
-
-  return {
-    TextInput: (props: MockTextInputProps) =>
-      ReactModule.createElement(TextInput, {
-        ...props,
-        testID: 'category-name-input',
-      }),
-  };
-});
 
 const mockCreateCategory = createCategory as jest.MockedFunction<
   typeof createCategory

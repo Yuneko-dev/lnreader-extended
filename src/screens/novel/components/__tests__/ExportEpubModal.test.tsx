@@ -8,7 +8,12 @@ const mockSetChapterReaderSettings = jest.fn();
 
 jest.mock('@components', () => {
   const ReactModule = jest.requireActual('react');
-  const { Pressable, Text, View } = jest.requireActual('react-native');
+  const {
+    Pressable,
+    Text,
+    TextInput: NativeTextInput,
+    View,
+  } = jest.requireActual('react-native');
 
   return {
     KeyboardAvoidingModal: ({
@@ -47,6 +52,19 @@ jest.mock('@components', () => {
       InfoItem: ({ title }: { title: string }) =>
         ReactModule.createElement(Text, null, title),
     },
+    StableTextInput: ({
+      label,
+      placeholder,
+      ...props
+    }: {
+      label?: string;
+      placeholder?: string;
+    }) =>
+      ReactModule.createElement(NativeTextInput, {
+        accessibilityLabel: label || placeholder,
+        placeholder: placeholder || label,
+        ...props,
+      }),
     SwitchItem: ({
       label,
       onPress,

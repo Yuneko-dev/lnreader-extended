@@ -1,5 +1,10 @@
 import { list } from '@api/remote';
-import { Button, EmptyView, KeyboardAwareModal, StableTextInput } from '@components';
+import {
+  Button,
+  EmptyView,
+  KeyboardAwareModal,
+  StableTextInput,
+} from '@components';
 import { useSelfHost } from '@hooks/persisted/useSelfHost';
 import ServiceManager from '@services/ServiceManager';
 import { getString } from '@strings/translations';

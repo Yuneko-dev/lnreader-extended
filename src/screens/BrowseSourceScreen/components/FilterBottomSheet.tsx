@@ -1,4 +1,4 @@
-import { Button, Checkbox,Menu, StableTextInput } from '@components';
+import { Button, Checkbox, Menu, StableTextInput } from '@components';
 import BottomSheet from '@components/BottomSheet/BottomSheet';
 import Switch from '@components/Switch/Switch';
 import {

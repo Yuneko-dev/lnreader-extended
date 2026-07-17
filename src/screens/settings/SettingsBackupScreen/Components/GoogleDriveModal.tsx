@@ -1,6 +1,11 @@
 import { exists, getBackups, makeDir } from '@api/drive';
 import { DriveFile } from '@api/drive/types';
-import { Button, EmptyView, KeyboardAwareModal, StableTextInput } from '@components';
+import {
+  Button,
+  EmptyView,
+  KeyboardAwareModal,
+  StableTextInput,
+} from '@components';
 import { GoogleSignin, User } from '@react-native-google-signin/google-signin';
 import ServiceManager from '@services/ServiceManager';
 import { getString } from '@strings/translations';

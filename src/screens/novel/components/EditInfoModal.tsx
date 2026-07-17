@@ -83,135 +83,131 @@ const EditInfoModal = ({
       }}
       onReset={onReset}
     >
-        <View style={styles.statusRow}>
-          <Text style={getStatusLabelColor(theme)}>
-            {getString('novelScreen.edit.status')}
-          </Text>
-          <ScrollView
-            style={getScrollViewStyle()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          >
-            {status.map((item, index) => (
-              <View style={getStatusChipContainer()} key={'novelInfo' + index}>
-                <Pressable
-                  style={[
-                    styles.statusChipPressable,
-                    getStatusChipPressable(novelInfo.status === item, theme),
-                  ]}
-                  android_ripple={{
-                    color: theme.rippleColor,
-                  }}
-                  onPress={() =>
-                    setNovelInfo(prev => ({ ...prev, status: item }))
-                  }
+      <View style={styles.statusRow}>
+        <Text style={getStatusLabelColor(theme)}>
+          {getString('novelScreen.edit.status')}
+        </Text>
+        <ScrollView
+          style={getScrollViewStyle()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {status.map((item, index) => (
+            <View style={getStatusChipContainer()} key={'novelInfo' + index}>
+              <Pressable
+                style={[
+                  styles.statusChipPressable,
+                  getStatusChipPressable(novelInfo.status === item, theme),
+                ]}
+                android_ripple={{
+                  color: theme.rippleColor,
+                }}
+                onPress={() =>
+                  setNovelInfo(prev => ({ ...prev, status: item }))
+                }
+              >
+                <Text
+                  style={getStatusChipText(novelInfo.status === item, theme)}
                 >
-                  <Text
-                    style={getStatusChipText(novelInfo.status === item, theme)}
-                  >
-                    {translateNovelStatus(item)}
-                  </Text>
-                </Pressable>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-        <StableTextInput
-          value={novelInfo.name}
-          placeholder={getString('novelScreen.edit.title', {
-            title: novel.name,
-          })}
-          numberOfLines={1}
-          mode="outlined"
-          theme={{ colors: { ...theme } }}
-          onChangeText={text => setNovelInfo(prev => ({ ...prev, name: text }))}
-          dense
-          style={styles.inputWrapper}
-        />
-        <StableTextInput
-          value={novelInfo.author ?? undefined}
-          placeholder={getString('novelScreen.edit.author', {
-            author: novel.author,
-          })}
-          numberOfLines={1}
-          mode="outlined"
-          theme={{ colors: { ...theme } }}
-          onChangeText={text =>
-            setNovelInfo(prev => ({ ...prev, author: text }))
+                  {translateNovelStatus(item)}
+                </Text>
+              </Pressable>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+      <StableTextInput
+        value={novelInfo.name}
+        placeholder={getString('novelScreen.edit.title', {
+          title: novel.name,
+        })}
+        numberOfLines={1}
+        mode="outlined"
+        theme={{ colors: { ...theme } }}
+        onChangeText={text => setNovelInfo(prev => ({ ...prev, name: text }))}
+        dense
+        style={styles.inputWrapper}
+      />
+      <StableTextInput
+        value={novelInfo.author ?? undefined}
+        placeholder={getString('novelScreen.edit.author', {
+          author: novel.author,
+        })}
+        numberOfLines={1}
+        mode="outlined"
+        theme={{ colors: { ...theme } }}
+        onChangeText={text => setNovelInfo(prev => ({ ...prev, author: text }))}
+        dense
+        style={styles.inputWrapper}
+      />
+      <StableTextInput
+        value={novelInfo.artist ?? undefined}
+        placeholder={'Artist: ' + novel.artist}
+        numberOfLines={1}
+        mode="outlined"
+        theme={{ colors: { ...theme } }}
+        onChangeText={text => setNovelInfo(prev => ({ ...prev, artist: text }))}
+        dense
+        style={styles.inputWrapper}
+      />
+      <StableTextInput
+        value={novelInfo.summary ?? undefined}
+        placeholder={getString('novelScreen.edit.summary', {
+          summary: novel.summary?.substring(0, 16),
+        })}
+        multiline={true}
+        numberOfLines={7}
+        mode="outlined"
+        onChangeText={text =>
+          setNovelInfo(prev => ({ ...prev, summary: text }))
+        }
+        theme={{ colors: { ...theme } }}
+        dense
+        style={styles.inputWrapper}
+      />
+
+      <StableTextInput
+        key={'genreInput' + genreKey}
+        value={newGenre}
+        placeholder={getString('novelScreen.edit.addTag')}
+        numberOfLines={1}
+        mode="outlined"
+        onChangeText={text => setNewGenre(text)}
+        onSubmitEditing={() => {
+          const newGenreTrimmed = newGenre.trim();
+
+          if (newGenreTrimmed === '') {
+            return;
           }
-          dense
-          style={styles.inputWrapper}
-        />
-        <StableTextInput
-          value={novelInfo.artist ?? undefined}
-          placeholder={'Artist: ' + novel.artist}
-          numberOfLines={1}
-          mode="outlined"
-          theme={{ colors: { ...theme } }}
-          onChangeText={text =>
-            setNovelInfo(prev => ({ ...prev, artist: text }))
-          }
-          dense
-          style={styles.inputWrapper}
-        />
-        <StableTextInput
-          value={novelInfo.summary ?? undefined}
-          placeholder={getString('novelScreen.edit.summary', {
-            summary: novel.summary?.substring(0, 16),
-          })}
-          multiline={true}
-          numberOfLines={7}
-          mode="outlined"
-          onChangeText={text =>
-            setNovelInfo(prev => ({ ...prev, summary: text }))
-          }
-          theme={{ colors: { ...theme } }}
-          dense
-          style={styles.inputWrapper}
-        />
 
-        <StableTextInput
-          key={'genreInput' + genreKey}
-          value={newGenre}
-          placeholder={getString('novelScreen.edit.addTag')}
-          numberOfLines={1}
-          mode="outlined"
-          onChangeText={text => setNewGenre(text)}
-          onSubmitEditing={() => {
-            const newGenreTrimmed = newGenre.trim();
+          setNovelInfo(prevVal => ({
+            ...prevVal,
+            genres: novelInfo.genres
+              ? `${novelInfo.genres},` + newGenreTrimmed
+              : newGenreTrimmed,
+          }));
+          setNewGenre('');
+          setGenreKey(prev => prev + 1);
+        }}
+        theme={{ colors: { ...theme } }}
+        dense
+        style={styles.inputWrapper}
+      />
 
-            if (newGenreTrimmed === '') {
-              return;
-            }
-
-            setNovelInfo(prevVal => ({
-              ...prevVal,
-              genres: novelInfo.genres
-                ? `${novelInfo.genres},` + newGenreTrimmed
-                : newGenreTrimmed,
-            }));
-            setNewGenre('');
-            setGenreKey(prev => prev + 1);
-          }}
-          theme={{ colors: { ...theme } }}
-          dense
-          style={styles.inputWrapper}
+      {novelInfo.genres !== undefined && novelInfo.genres !== '' ? (
+        <FlatList
+          style={getGenreListStyle()}
+          horizontal
+          data={novelInfo.genres?.split(',')}
+          keyExtractor={(_, index) => 'novelTag' + index}
+          renderItem={({ item }) => (
+            <GenreChip theme={theme} onPress={() => removeTag(item)}>
+              {item}
+            </GenreChip>
+          )}
+          showsHorizontalScrollIndicator={false}
         />
-
-        {novelInfo.genres !== undefined && novelInfo.genres !== '' ? (
-          <FlatList
-            style={getGenreListStyle()}
-            horizontal
-            data={novelInfo.genres?.split(',')}
-            keyExtractor={(_, index) => 'novelTag' + index}
-            renderItem={({ item }) => (
-              <GenreChip theme={theme} onPress={() => removeTag(item)}>
-                {item}
-              </GenreChip>
-            )}
-            showsHorizontalScrollIndicator={false}
-          />
-        ) : null}
+      ) : null}
     </KeyboardAvoidingModal>
   );
 };

@@ -1,4 +1,9 @@
-import { KeyboardAvoidingModal, List, StableTextInput, SwitchItem } from '@components';
+import {
+  KeyboardAvoidingModal,
+  List,
+  StableTextInput,
+  SwitchItem,
+} from '@components';
 import { useBoolean } from '@hooks';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';

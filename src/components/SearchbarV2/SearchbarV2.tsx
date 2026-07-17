@@ -1,6 +1,6 @@
 import { MaterialDesignIconName } from '@type/icon';
 import React, { memo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput,View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { ThemeColors } from '../../theme/types';
 import IconButtonV2 from '../IconButtonV2/IconButtonV2';
