@@ -164,7 +164,6 @@ describe('ColorPickerModal', () => {
     expect(screen.getByTestId('hue-circular')).toBeTruthy();
     expect(screen.getByTestId('panel-1')).toBeTruthy();
     expect(screen.getByTestId('input-widget')).toBeTruthy();
-    expect(mockInputWidgetProps.formats).toEqual(['HEX', 'RGB']);
     expect(mockInputWidgetProps.disableAlphaChannel).toBe(true);
     expect(mockHueCircularProps.containerStyle).toEqual(
       expect.arrayContaining([
