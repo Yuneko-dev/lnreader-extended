@@ -9,6 +9,7 @@ export { default as ConfirmationDialog } from './ConfirmationDialog/Confirmation
 export { DialogTitle } from './DialogTitle';
 export { default as EmptyView } from './EmptyView/EmptyView';
 export { default as ErrorScreenV2 } from './ErrorScreenV2/ErrorScreenV2';
+export { default as AnimatedIconButton } from './IconButtonV2/AnimatedIconButton';
 export { default as IconButtonV2 } from './IconButtonV2/IconButtonV2';
 export { default as List } from './List/List';
 export { default as LoadingMoreIndicator } from './LoadingMoreIndicator/LoadingMoreIndicator';
@@ -23,3 +24,4 @@ export { default as SearchbarV2 } from './SearchbarV2/SearchbarV2';
 export { SegmentedControl } from './SegmentedControl';
 export { default as SwitchItem } from './Switch/SwitchItem';
 export { default as TaskLogDialog } from './TaskLogDialog';
+export { default as TextInput } from './TextInput';
