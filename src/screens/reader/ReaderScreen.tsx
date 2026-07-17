@@ -66,7 +66,7 @@ export const ChapterContent = ({
   navigation,
   openDrawer,
 }: ChapterContentProps) => {
-  const { left, right } = useSafeAreaInsets();
+  const { left, right, bottom } = useSafeAreaInsets();
   const {
     novel,
     chapter,
@@ -85,6 +85,10 @@ export const ChapterContent = ({
   const [bookmarked, setBookmarked] = useState<boolean>(
     chapter.bookmark ?? false,
   );
+  const nonZeroBottom = useRef(bottom);
+  if (nonZeroBottom.current !== bottom && bottom !== 0) {
+    nonZeroBottom.current = bottom;
+  }
 
   useEffect(() => {
     setBookmarked(chapter.bookmark ?? false);
@@ -188,6 +192,7 @@ export const ChapterContent = ({
           <WebViewReader
             onPress={handleReaderPress}
             onFindResult={handleFindResult}
+            bottomInset={nonZeroBottom.current}
           />
         </View>
       </ChapterLoadingScreen>
