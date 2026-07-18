@@ -614,6 +614,14 @@ export interface StringMap {
   'readerSettings.volumeButtonOffset': 'string';
   'readerSettings.einkRefreshOnPageTurn': 'string';
   'readerSettings.einkRefreshOnPageTurnDesc': 'string';
+  'translateSettings': 'string';
+  'translateSettingsScreen.engineSection': 'string';
+  'translateSettingsScreen.languagesSection': 'string';
+  'translateSettingsScreen.behaviorSection': 'string';
+  'translateSettingsScreen.llmSection': 'string';
+  'translateSettingsScreen.manageProviders': 'string';
+  'translateSettingsScreen.manageSystemPrompts': 'string';
+  'translateSettingsScreen.noSystemPromptsConfigured': 'string';
   'sourceScreen.noResultsFound': 'string';
   'statsScreen.downloadedChapters': 'string';
   'statsScreen.genreDistribution': 'string';

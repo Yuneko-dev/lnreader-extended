@@ -74,6 +74,16 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           theme={theme}
         />
         <List.Item
+          title={getString('translateSettings')}
+          icon="translate"
+          onPress={() =>
+            navigation.navigate('SettingsStack', {
+              screen: 'TranslateSettings',
+            })
+          }
+          theme={theme}
+        />
+        <List.Item
           title="Repositories"
           icon="github"
           onPress={() =>

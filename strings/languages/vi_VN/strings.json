@@ -713,6 +713,16 @@
     "einkRefreshOnPageTurn": "Làm mới màn hình khi chuyển trang",
     "einkRefreshOnPageTurnDesc": "Giảm tình trạng bóng ma trên màn hình e-ink"
   },
+  "translateSettings": "Dịch thuật",
+  "translateSettingsScreen": {
+    "engineSection": "Công cụ dịch",
+    "languagesSection": "Ngôn ngữ",
+    "behaviorSection": "Tự động hóa và tải xuống",
+    "llmSection": "Cấu hình LLM",
+    "manageProviders": "Quản lý nhà cung cấp",
+    "manageSystemPrompts": "Quản lý prompt hệ thống",
+    "noSystemPromptsConfigured": "Chưa có prompt hệ thống. Hãy thêm trong phần Cài đặt AI."
+  },
   "sourceScreen": {
     "noResultsFound": "Không tìm thấy kết quả"
   },

@@ -6,6 +6,7 @@ import TranslatePromptScreen from '@screens/settings/SettingsAIScreen/TranslateP
 import DiscordSettings from '@screens/settings/SettingsDiscordScreen';
 import RespositorySettings from '@screens/settings/SettingsRepositoryScreen/SettingsRepositoryScreen';
 import SecuritySettings from '@screens/settings/SettingsSecurityScreen';
+import TranslateSettings from '@screens/settings/SettingsTranslateScreen/SettingsTranslateScreen';
 import NovelReadingTimeStatsScreen from '@screens/StatsScreen/NovelReadingTimeStatsScreen';
 import ReadingTimeStatsScreen from '@screens/StatsScreen/ReadingTimeStatsScreen';
 // import LibrarySettings from '@screens/settings/SettingsLibraryScreen/SettingsLibraryScreen';
@@ -36,6 +37,7 @@ const SettingsStack = () => (
     <Stack.Screen name="Settings" component={Settings} />
     <Stack.Screen name="GeneralSettings" component={GeneralSettings} />
     <Stack.Screen name="ReaderSettings" component={ReaderSettings} />
+    <Stack.Screen name="TranslateSettings" component={TranslateSettings} />
     <Stack.Screen name="TrackerSettings" component={TrackerSettings} />
     <Stack.Screen name="BackupSettings" component={BackupSettings} />
     <Stack.Screen name="AppearanceSettings" component={AppearanceSettings} />

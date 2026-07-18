@@ -714,6 +714,16 @@
     "einkRefreshOnPageTurn": "Refresh screen on page turn",
     "einkRefreshOnPageTurnDesc": "Reduce ghosting on e-ink displays"
   },
+  "translateSettings": "Translate",
+  "translateSettingsScreen": {
+    "engineSection": "Translation engine",
+    "languagesSection": "Languages",
+    "behaviorSection": "Automation and downloads",
+    "llmSection": "LLM configuration",
+    "manageProviders": "Manage providers",
+    "manageSystemPrompts": "Manage system prompts",
+    "noSystemPromptsConfigured": "No system prompts configured. Add one in AI Settings."
+  },
   "sourceScreen": {
     "noResultsFound": "No results found"
   },
