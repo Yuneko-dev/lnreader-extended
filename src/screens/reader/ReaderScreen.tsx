@@ -10,6 +10,7 @@ import { getString } from '@strings/translations';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChapterContextProvider, useChapterContext } from './ChapterContext';
@@ -81,7 +82,12 @@ export const ChapterContent = ({
   const theme = useTheme();
   const { pageReader = false, keepScreenOn } = useChapterGeneralSettings();
   const search = useNativeChapterSearch(webViewRef);
-  const { closeSearch, handleFindResult, visible: searchVisible } = search;
+  const {
+    closeSearch,
+    handleFindResult,
+    keyboardAvoidanceActive,
+    visible: searchVisible,
+  } = search;
   const [bookmarked, setBookmarked] = useState<boolean>(
     chapter.bookmark ?? false,
   );
@@ -192,7 +198,11 @@ export const ChapterContent = ({
     );
   }
   return (
-    <View style={[{ paddingStart: left, paddingEnd: right }, styles.container]}>
+    <KeyboardAvoidingView
+      behavior="height"
+      enabled={keyboardAvoidanceActive}
+      style={[{ paddingStart: left, paddingEnd: right }, styles.container]}
+    >
       {keepScreenOn ? <KeepScreenAwake /> : null}
       <ChapterLoadingScreen isLoading={loading}>
         <View style={styles.container}>
@@ -224,7 +234,7 @@ export const ChapterContent = ({
           ) : null}
         </View>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
