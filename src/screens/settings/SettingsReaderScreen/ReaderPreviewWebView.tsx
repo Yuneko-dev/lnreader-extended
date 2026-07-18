@@ -66,8 +66,10 @@ const ReaderPreviewWebView = () => {
       webViewRef.current?.injectJavaScript(
         'tts.setLoading(false); tts.stop?.();',
       ),
+    // onStart fires when audio is actually playing; loading is shown from
+    // onWillPlay (in handleMessage's speak case) until then.
     onStart: () =>
-      webViewRef.current?.injectJavaScript('tts.setLoading(true);'),
+      webViewRef.current?.injectJavaScript('tts.setLoading(false);'),
   });
   useReaderSettingsBridge({
     bottomInset: 0,
@@ -151,7 +153,9 @@ const ReaderPreviewWebView = () => {
           break;
         case 'speak':
           if (typeof event.data === 'string' && event.data.trim()) {
-            playback.handleSpeak(event);
+            playback.handleSpeak(event, () =>
+              webViewRef.current?.injectJavaScript('tts.setLoading(true);'),
+            );
           } else {
             webViewRef.current?.injectJavaScript('tts.next?.();');
           }

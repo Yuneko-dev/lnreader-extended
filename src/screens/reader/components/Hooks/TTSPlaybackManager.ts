@@ -178,7 +178,16 @@ class TTSPlaybackManager {
   ) {
     const previous = this.activeSession;
     if (previous) {
-      this.stopNativeEngines();
+      // TikTok's speak() replaces the current track itself and plays from its
+      // buffer cache; TikTokTTS.stop() would wipe that cache, forcing a full
+      // re-synthesis on pause→resume and seek within the same session.
+      const keepTikTokBuffers =
+        previous.id === id &&
+        previous.engine === 'tiktok' &&
+        engine === 'tiktok';
+      if (!keepTikTokBuffers) {
+        this.stopNativeEngines();
+      }
       this.activeSession = null;
       if (previous.id !== id) {
         previous.callbacks.onInterrupted?.();

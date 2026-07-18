@@ -63,7 +63,7 @@ export default function useTTS({
       readingTime.stopTTSForBackground();
     }
     dismissTTSNotification();
-    webViewRef.current?.injectJavaScript('tts.stop?.()');
+    webViewRef.current?.injectJavaScript('tts.setLoading(false); tts.stop?.()');
   }, [clearAutoStartTimer, readingTime, webViewRef]);
 
   const handlePlaybackError = useCallback(
@@ -83,7 +83,10 @@ export default function useTTS({
 
   const playback = useTTSPlayback({
     readerSettingsRef,
-    onStart: () => webViewRef.current?.injectJavaScript('tts.setLoading(true)'),
+    // onStart fires when audio is actually playing; loading is shown from
+    // onWillPlay (in handleSpeak) until then.
+    onStart: () =>
+      webViewRef.current?.injectJavaScript('tts.setLoading(false)'),
     onDone: () => {
       webViewRef.current?.injectJavaScript('tts.setLoading(false)');
       if (appStateRef.current === 'active') {
@@ -176,6 +179,7 @@ export default function useTTS({
         return;
       }
       playback.handleSpeak(event, () => {
+        webViewRef.current?.injectJavaScript('tts.setLoading(true)');
         if (!isTTSReadingRef.current) {
           readingTime.setTTSReading(true);
           showTTSNotification(notificationInfo);

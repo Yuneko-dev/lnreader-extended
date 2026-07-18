@@ -5,8 +5,66 @@ import {
 } from '@gorhom/bottom-sheet';
 import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
-import React from 'react';
+import type { ThemeColors } from '@theme/types';
+import React, { useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
+
+type NumericInputProps = {
+  label: string;
+  theme: ThemeColors;
+  value: string;
+  onChangeNumber: (value: number) => void;
+};
+
+const NumericInput = ({
+  label,
+  theme,
+  value,
+  onChangeNumber,
+}: NumericInputProps) => {
+  const [text, setText] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+  const focusedRef = useRef(false);
+  // Adopt external changes (e.g. the reset button) without clobbering
+  // in-progress typing like "0." that parses to the stored value.
+  if (value !== prevValue) {
+    setPrevValue(value);
+    if (!focusedRef.current && Number(text) !== Number(value)) {
+      setText(value);
+    }
+  }
+
+  return (
+    <View style={styles.inputContainer}>
+      <StableTextInput
+        keyboardType="numeric"
+        label={label}
+        mode="outlined"
+        onBlur={() => {
+          focusedRef.current = false;
+        }}
+        onChangeText={next => {
+          setText(next);
+          const parsed = Number(next);
+          if (next.trim() && Number.isFinite(parsed)) {
+            onChangeNumber(parsed);
+          }
+        }}
+        onFocus={() => {
+          focusedRef.current = true;
+        }}
+        render={props => (
+          <BottomSheetTextInput
+            {...(props as React.ComponentProps<typeof BottomSheetTextInput>)}
+          />
+        )}
+        style={styles.input}
+        theme={{ colors: { ...theme } }}
+        value={text}
+      />
+    </View>
+  );
+};
 
 const NavigationTab = () => {
   const theme = useTheme();
@@ -22,28 +80,6 @@ const NavigationTab = () => {
       | 'einkRefreshOnPageTurn'
       | 'autoScroll',
   ) => settings.setChapterGeneralSettings({ [key]: !settings[key] });
-  const input = (
-    label: string,
-    value: string,
-    onChangeText: (text: string) => void,
-  ) => (
-    <View style={styles.inputContainer}>
-      <StableTextInput
-        keyboardType="numeric"
-        label={label}
-        mode="outlined"
-        onChangeText={onChangeText}
-        render={props => (
-          <BottomSheetTextInput
-            {...(props as React.ComponentProps<typeof BottomSheetTextInput>)}
-          />
-        )}
-        style={styles.input}
-        theme={{ colors: { ...theme } }}
-        value={value}
-      />
-    </View>
-  );
 
   return (
     <BottomSheetScrollView
@@ -59,20 +95,22 @@ const NavigationTab = () => {
         theme={theme}
         value={settings.useVolumeButtons}
       />
-      {settings.useVolumeButtons
-        ? input(
-            getString('readerSettings.volumeButtonOffset'),
-            String((settings.volumeButtonsOffset ?? height * 0.75) / height),
-            text => {
-              const value = Number(text);
-              if (Number.isFinite(value)) {
-                settings.setChapterGeneralSettings({
-                  volumeButtonsOffset: Math.round(value * height),
-                });
-              }
-            },
-          )
-        : null}
+      {settings.useVolumeButtons ? (
+        <NumericInput
+          label={getString('readerSettings.volumeButtonOffset')}
+          onChangeNumber={value =>
+            settings.setChapterGeneralSettings({
+              volumeButtonsOffset: Math.round(value * height),
+            })
+          }
+          theme={theme}
+          value={String(
+            Math.round(
+              ((settings.volumeButtonsOffset ?? height * 0.75) / height) * 100,
+            ) / 100,
+          )}
+        />
+      ) : null}
       <SwitchItem
         description={getString('readerSettings.verticalSeekbarDesc')}
         label={getString('readerScreen.bottomSheet.verticalSeekbar')}
@@ -121,28 +159,22 @@ const NavigationTab = () => {
       />
       {settings.autoScroll ? (
         <>
-          {input(
-            getString('readerSettings.autoScrollInterval'),
-            String(settings.autoScrollInterval),
-            text => {
-              const value = Number(text);
-              if (Number.isFinite(value)) {
-                settings.setChapterGeneralSettings({
-                  autoScrollInterval: value,
-                });
-              }
-            },
-          )}
-          {input(
-            getString('readerSettings.autoScrollOffset'),
-            String(settings.autoScrollOffset ?? height),
-            text => {
-              const value = Number(text);
-              if (Number.isFinite(value)) {
-                settings.setChapterGeneralSettings({ autoScrollOffset: value });
-              }
-            },
-          )}
+          <NumericInput
+            label={getString('readerSettings.autoScrollInterval')}
+            onChangeNumber={value =>
+              settings.setChapterGeneralSettings({ autoScrollInterval: value })
+            }
+            theme={theme}
+            value={String(settings.autoScrollInterval)}
+          />
+          <NumericInput
+            label={getString('readerSettings.autoScrollOffset')}
+            onChangeNumber={value =>
+              settings.setChapterGeneralSettings({ autoScrollOffset: value })
+            }
+            theme={theme}
+            value={String(settings.autoScrollOffset ?? height)}
+          />
           {settings.autoScrollInterval !== 10 ||
           settings.autoScrollOffset !== null ? (
             <View style={styles.button}>
