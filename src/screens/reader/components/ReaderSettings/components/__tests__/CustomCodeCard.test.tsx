@@ -37,6 +37,27 @@ describe('CustomCodeCard', () => {
     fireEvent.press(screen.getByLabelText('Delete snippet'));
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('body { color: red; }')).toBeNull();
+  });
+
+  it('shows detail only for a Regex card', () => {
+    render(
+      <CustomCodeCard
+        active
+        deleteLabel="Delete rule"
+        description="Enabled"
+        detail="/cat/gi → dog"
+        editLabel="Edit rule"
+        onDelete={jest.fn()}
+        onEdit={jest.fn()}
+        onToggle={jest.fn()}
+        showDetail
+        theme={theme}
+        title="Replace cats"
+      />,
+    );
+
+    expect(screen.getByText('/cat/gi → dog')).toBeTruthy();
   });
 
   it('visually exposes the disabled state', () => {

@@ -4,15 +4,15 @@ import {
   type GestureResponderEvent,
   Pressable,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
-import { Card, IconButton } from 'react-native-paper';
+import { Card, IconButton, Text } from 'react-native-paper';
 
 type Props = {
   title: string;
   description: string;
   detail?: string;
+  showDetail?: boolean;
   active: boolean;
   editLabel: string;
   deleteLabel: string;
@@ -26,6 +26,7 @@ const CustomCodeCard = ({
   title,
   description,
   detail,
+  showDetail = false,
   active,
   editLabel,
   deleteLabel,
@@ -54,50 +55,59 @@ const CustomCodeCard = ({
         accessibilityState={{ checked: active }}
         android_ripple={{ color: theme.rippleColor }}
         onPress={onToggle}
-        style={styles.content}
       >
-        <View style={styles.copy}>
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.title,
-              { color: active ? theme.onSurface : theme.onSurfaceDisabled },
-            ]}
-          >
-            {title}
-          </Text>
-          <Text
-            style={[
-              styles.description,
-              { color: active ? theme.primary : theme.onSurfaceDisabled },
-            ]}
-          >
-            {description}
-          </Text>
-          {detail ? (
+        <View
+          style={[
+            styles.content,
+            showDetail ? styles.contentWithDetail : styles.contentCompact,
+          ]}
+        >
+          <View style={styles.copy}>
             <Text
+              variant="bodyLarge"
               numberOfLines={1}
-              style={[styles.detail, { color: theme.onSurfaceVariant }]}
+              style={{
+                color: active ? theme.onSurface : theme.onSurfaceDisabled,
+              }}
             >
-              {detail}
+              {title}
             </Text>
-          ) : null}
-        </View>
-        <View style={styles.actions}>
-          <IconButton
-            accessibilityLabel={editLabel}
-            icon="pencil-outline"
-            iconColor={theme.onSurface}
-            onPress={handleAction(onEdit)}
-            size={22}
-          />
-          <IconButton
-            accessibilityLabel={deleteLabel}
-            icon="delete-outline"
-            iconColor={theme.onSurface}
-            onPress={handleAction(onDelete)}
-            size={22}
-          />
+            <Text
+              variant="bodySmall"
+              style={{
+                color: active ? theme.primary : theme.onSurfaceDisabled,
+              }}
+            >
+              {description}
+            </Text>
+            {showDetail && detail ? (
+              <Text
+                variant="labelSmall"
+                numberOfLines={1}
+                style={[styles.detail, { color: theme.onSurfaceVariant }]}
+              >
+                {detail}
+              </Text>
+            ) : null}
+          </View>
+          <View style={styles.actions}>
+            <IconButton
+              accessibilityLabel={editLabel}
+              icon="pencil-outline"
+              iconColor={theme.onSurfaceVariant}
+              onPress={handleAction(onEdit)}
+              size={20}
+              style={styles.action}
+            />
+            <IconButton
+              accessibilityLabel={deleteLabel}
+              icon="delete-outline"
+              iconColor={theme.onSurfaceVariant}
+              onPress={handleAction(onDelete)}
+              size={20}
+              style={styles.action}
+            />
+          </View>
         </View>
       </Pressable>
     </Card>
@@ -107,21 +117,17 @@ const CustomCodeCard = ({
 export default React.memo(CustomCodeCard);
 
 const styles = StyleSheet.create({
-  actions: { flexDirection: 'row', marginEnd: -8 },
-  card: { borderRadius: 16, marginBottom: 8 },
+  action: { margin: 0 },
+  actions: { flexDirection: 'row' },
+  card: { borderRadius: 12, marginVertical: 4, overflow: 'hidden' },
   content: {
     alignItems: 'center',
     flexDirection: 'row',
-    minHeight: 88,
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
+  contentCompact: { minHeight: 72 },
+  contentWithDetail: { minHeight: 88 },
   copy: { flex: 1, minWidth: 0 },
-  description: { fontSize: 13, lineHeight: 18, marginTop: 2 },
-  detail: {
-    fontFamily: 'monospace',
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: 2,
-  },
-  title: { fontSize: 16, lineHeight: 22 },
+  detail: { fontFamily: 'monospace', marginTop: 2 },
 });

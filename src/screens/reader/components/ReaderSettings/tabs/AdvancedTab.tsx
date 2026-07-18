@@ -5,8 +5,8 @@ import { getString } from '@strings/translations';
 import type { ThemeColors } from '@theme/types';
 import type { CodeSnippet, RegexReplacement } from '@utils/customCode';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { IconButton } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Icon, IconButton, Text } from 'react-native-paper';
 
 import CustomCodeCard from '../components/CustomCodeCard';
 import RegexDialog from '../components/RegexDialog';
@@ -39,8 +39,13 @@ const SectionHeader = ({
   theme,
 }: SectionHeaderProps) => (
   <View style={styles.sectionHeader}>
-    <IconButton icon={icon} iconColor={theme.onSurface} size={22} />
-    <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>
+    <View style={styles.sectionIcon}>
+      <Icon source={icon} color={theme.onSurfaceVariant} size={24} />
+    </View>
+    <Text
+      variant="titleMedium"
+      style={[styles.sectionTitle, { color: theme.onSurface }]}
+    >
       {title}
     </Text>
     <IconButton
@@ -159,7 +164,6 @@ const AdvancedTab = () => {
                   ? 'customCodeSettings.enabled'
                   : 'customCodeSettings.disabled',
               )}
-              detail={snippet.code.trim().split(/\r?\n/, 1)[0]}
               editLabel={getString('customCodeSettings.editSnippetAction')}
               onDelete={() =>
                 setDeleteTarget({ kind: 'snippet', language, index })
@@ -171,7 +175,10 @@ const AdvancedTab = () => {
             />
           ))
         ) : (
-          <Text style={[styles.empty, { color: theme.onSurfaceVariant }]}>
+          <Text
+            variant="bodyMedium"
+            style={[styles.empty, { color: theme.onSurfaceVariant }]}
+          >
             {getString('customCodeSettings.noSnippets')}
           </Text>
         )}
@@ -220,12 +227,16 @@ const AdvancedTab = () => {
                 onDelete={() => setDeleteTarget({ kind: 'regex', index })}
                 onEdit={() => setRegexEditor({ index })}
                 onToggle={() => toggleRegex(index)}
+                showDetail
                 theme={theme}
                 title={rule.title}
               />
             ))
           ) : (
-            <Text style={[styles.empty, { color: theme.onSurfaceVariant }]}>
+            <Text
+              variant="bodyMedium"
+              style={[styles.empty, { color: theme.onSurfaceVariant }]}
+            >
               {getString('customCodeSettings.noRegexRules')}
             </Text>
           )}
@@ -288,20 +299,18 @@ const AdvancedTab = () => {
 export default AdvancedTab;
 
 const styles = StyleSheet.create({
-  content: { padding: 16, paddingBottom: 32 },
+  content: { paddingBottom: 32, paddingHorizontal: 16, paddingTop: 8 },
   empty: {
-    fontSize: 14,
-    lineHeight: 20,
-    paddingHorizontal: 4,
+    paddingHorizontal: 0,
     paddingVertical: 8,
   },
-  section: { marginBottom: 12 },
+  section: { marginBottom: 16 },
   sectionHeader: {
     alignItems: 'center',
     flexDirection: 'row',
-    marginHorizontal: -8,
-    minHeight: 52,
+    minHeight: 48,
   },
-  sectionTitle: { flex: 1, fontSize: 18, fontWeight: '600' },
-  switches: { marginBottom: 12, marginHorizontal: -16 },
+  sectionIcon: { marginEnd: 12 },
+  sectionTitle: { flex: 1 },
+  switches: { marginBottom: 16, marginHorizontal: -16 },
 });

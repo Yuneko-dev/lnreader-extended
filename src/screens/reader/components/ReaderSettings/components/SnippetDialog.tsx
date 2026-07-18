@@ -6,7 +6,7 @@ import type { CodeSnippet } from '@utils/customCode';
 import { showToast } from '@utils/showToast';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { HelperText } from 'react-native-paper';
 
 type Props = {
@@ -28,6 +28,16 @@ const SnippetDialog = ({
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const inputTheme = {
+    colors: {
+      background: theme.surface,
+      error: theme.error,
+      onSurface: theme.onSurface,
+      onSurfaceVariant: theme.onSurfaceVariant,
+      outline: theme.outline,
+      primary: theme.primary,
+    },
+  };
 
   useEffect(() => {
     if (visible) {
@@ -93,41 +103,46 @@ const SnippetDialog = ({
       )}
       visible={visible}
     >
-      <StableTextInput
-        autoCapitalize="sentences"
-        error={submitted && !name.trim()}
-        label={getString('customCodeSettings.snippetName')}
-        mode="outlined"
-        onChangeText={setName}
-        value={name}
-      />
-      <HelperText
-        type="error"
-        visible={submitted && !name.trim()}
-        theme={{ colors: theme }}
-      >
-        {getString('customCodeSettings.nameRequired')}
-      </HelperText>
-      <StableTextInput
-        autoCapitalize="none"
-        autoCorrect={false}
-        error={submitted && !code.trim()}
-        label={getString('customCodeSettings.snippetCode')}
-        mode="outlined"
-        multiline
-        numberOfLines={8}
-        onChangeText={setCode}
-        spellCheck={false}
-        style={styles.code}
-        value={code}
-      />
-      <HelperText
-        type="error"
-        visible={submitted && !code.trim()}
-        theme={{ colors: theme }}
-      >
-        {getString('customCodeSettings.codeRequired')}
-      </HelperText>
+      <View>
+        <StableTextInput
+          autoCapitalize="sentences"
+          error={submitted && !name.trim()}
+          label={getString('customCodeSettings.snippetName')}
+          mode="outlined"
+          onChangeText={setName}
+          style={styles.input}
+          textColor={theme.onSurface}
+          theme={inputTheme}
+          value={name}
+        />
+        {submitted && !name.trim() ? (
+          <HelperText type="error" visible theme={{ colors: theme }}>
+            {getString('customCodeSettings.nameRequired')}
+          </HelperText>
+        ) : null}
+      </View>
+      <View>
+        <StableTextInput
+          autoCapitalize="none"
+          autoCorrect={false}
+          error={submitted && !code.trim()}
+          label={getString('customCodeSettings.snippetCode')}
+          mode="outlined"
+          multiline
+          numberOfLines={8}
+          onChangeText={setCode}
+          spellCheck={false}
+          style={[styles.input, styles.code]}
+          textColor={theme.onSurface}
+          theme={inputTheme}
+          value={code}
+        />
+        {submitted && !code.trim() ? (
+          <HelperText type="error" visible theme={{ colors: theme }}>
+            {getString('customCodeSettings.codeRequired')}
+          </HelperText>
+        ) : null}
+      </View>
       <Button
         icon="file-import-outline"
         mode="outlined"
@@ -142,5 +157,6 @@ export default React.memo(SnippetDialog);
 
 const styles = StyleSheet.create({
   code: { minHeight: 180 },
-  content: { gap: 4 },
+  content: { gap: 16 },
+  input: { backgroundColor: 'transparent' },
 });
