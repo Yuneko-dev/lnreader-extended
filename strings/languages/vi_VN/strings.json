@@ -715,6 +715,8 @@
     "customColors": "Màu tùy chỉnh",
     "readingEnhancements": "Cải thiện trải nghiệm đọc",
     "font": "Phông chữ",
+    "paragraphIndent": "Thụt đầu dòng",
+    "paragraphSpacing": "Khoảng cách đoạn",
     "systemDefault": "Mặc định hệ thống",
     "import": "Nhập",
     "imported": "Đã nhập",

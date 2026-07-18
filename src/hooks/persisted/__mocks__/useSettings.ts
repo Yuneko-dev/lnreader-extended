@@ -65,6 +65,8 @@ export const initialChapterReaderSettings = {
   textSize: 16,
   textAlign: 'left',
   padding: 16,
+  paragraphIndent: 0,
+  paragraphSpacing: 1,
   fontFamily: '',
   lineHeight: 1.5,
   customCSS: '',

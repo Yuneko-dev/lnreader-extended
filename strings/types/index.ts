@@ -617,6 +617,8 @@ export interface StringMap {
   'readerSettings.customColors': 'string';
   'readerSettings.readingEnhancements': 'string';
   'readerSettings.font': 'string';
+  'readerSettings.paragraphIndent': 'string';
+  'readerSettings.paragraphSpacing': 'string';
   'readerSettings.systemDefault': 'string';
   'readerSettings.import': 'string';
   'readerSettings.imported': 'string';

@@ -153,6 +153,8 @@ export interface ChapterReaderSettings {
   textSize: number;
   textAlign: string;
   padding: number;
+  paragraphIndent: number;
+  paragraphSpacing: number;
   fontFamily: string;
   lineHeight: number;
   customCSS: string;
@@ -312,6 +314,8 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
   textSize: 16,
   textAlign: 'left',
   padding: 16,
+  paragraphIndent: 0,
+  paragraphSpacing: 1,
   fontFamily: '',
   lineHeight: 1.5,
   customCSS: '',
@@ -462,7 +466,12 @@ export const useChapterReaderSettings = () => {
   // Ensure TTS settings have proper defaults (migration for existing users)
   const chapterReaderSettings = useMemo(
     () => ({
+      ...initialChapterReaderSettings,
       ...storedSettings,
+      textSize: Math.max(
+        8,
+        storedSettings.textSize ?? initialChapterReaderSettings.textSize,
+      ),
       tts: {
         ...initialChapterReaderSettings.tts,
         ...storedSettings.tts,

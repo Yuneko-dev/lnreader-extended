@@ -18,7 +18,6 @@ import { useNovelActions, useNovelValue } from '@screens/novel/NovelContext';
 import { fetchChapter, fetchPage } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import NativeSPenRemote from '@specs/NativeSPenRemote';
-import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
 import { getString } from '@strings/translations';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import { shouldBlockPrivacyAction } from '@utils/privacy';
@@ -43,6 +42,7 @@ import {
 } from 'react-native';
 import WebView from 'react-native-webview';
 
+import useVolumeButtonScroll from '../components/Hooks/useVolumeButtonScroll';
 import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import {
   handleSPenRemoteEvent,
@@ -53,7 +53,6 @@ import useChapterTranslation from './useChapterTranslation';
 
 const { TikTokTTS } = NativeModules;
 
-const emmiter = new NativeEventEmitter(NativeVolumeButtonListener);
 const sPenEmitter = NativeSPenRemote
   ? new NativeEventEmitter(NativeSPenRemote)
   : null;
@@ -92,6 +91,13 @@ export default function useChapter(
   const { trackedNovel, updateAllTrackedNovels } = useTrackedNovel(novel.id);
   const { setImmersiveMode, showStatusAndNavBar } = useFullscreenMode();
 
+  useVolumeButtonScroll({
+    enabled: useVolumeButtons,
+    pageReader: isPageReaderMode,
+    volumeButtonsOffset,
+    webViewRef,
+  });
+
   useEffect(
     () => () => {
       chapterLoadTokenRef.current++;
@@ -99,54 +105,12 @@ export default function useChapter(
     [],
   );
 
-  const connectVolumeButton = useCallback(() => {
-    const volumeUpSubscription = emmiter.addListener('VolumeUp', () => {
-      if (isPageReaderMode) {
-        webViewRef.current?.injectJavaScript(`(()=>{
-          pageReader.movePage(pageReader.page.val - 1);
-        })()`);
-      } else {
-        const offset = defaultTo(
-          volumeButtonsOffset,
-          Math.round(Dimensions.get('window').height * 0.75),
-        );
-        webViewRef.current?.injectJavaScript(`(()=>{
-          window.scrollBy({top: -${offset}, behavior: 'smooth'})
-        })()`);
-      }
-    });
-    const volumeDownSubscription = emmiter.addListener('VolumeDown', () => {
-      if (isPageReaderMode) {
-        webViewRef.current?.injectJavaScript(`(()=>{
-          pageReader.movePage(pageReader.page.val + 1);
-        })()`);
-      } else {
-        const offset = defaultTo(
-          volumeButtonsOffset,
-          Math.round(Dimensions.get('window').height * 0.75),
-        );
-        webViewRef.current?.injectJavaScript(`(()=>{
-          window.scrollBy({top: ${offset}, behavior: 'smooth'})
-        })()`);
-      }
-    });
-    return () => {
-      volumeUpSubscription.remove();
-      volumeDownSubscription.remove();
-    };
-  }, [webViewRef, volumeButtonsOffset, isPageReaderMode]);
-
   useEffect(() => {
-    const disconnect = useVolumeButtons
-      ? connectVolumeButton()
-      : () => undefined;
-
     return () => {
-      disconnect();
       Speech.stop();
       TikTokTTS?.stop();
     };
-  }, [useVolumeButtons, chapter, connectVolumeButton]);
+  }, [chapter]);
 
   const loadChapterText = useCallback(
     async (id: number, path: string) => {

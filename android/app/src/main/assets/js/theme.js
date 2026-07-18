@@ -13,6 +13,14 @@
       settings.padding + 'px',
     );
     document.documentElement.style.setProperty(
+      '--readerSettings-paragraphIndent',
+      (settings.paragraphIndent ?? 0) + 'em',
+    );
+    document.documentElement.style.setProperty(
+      '--readerSettings-paragraphSpacing',
+      (settings.paragraphSpacing ?? 1) + 'em',
+    );
+    document.documentElement.style.setProperty(
       '--readerSettings-textSize',
       settings.textSize + 'px',
     );

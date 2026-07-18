@@ -154,6 +154,12 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
         --StatusBar-currentHeight: ${StatusBar.currentHeight}px;
         --readerSettings-theme: ${readerSettings.theme};
         --readerSettings-padding: ${readerSettings.padding}px;
+        --readerSettings-paragraphIndent: ${
+          readerSettings.paragraphIndent ?? 0
+        }em;
+        --readerSettings-paragraphSpacing: ${
+          readerSettings.paragraphSpacing ?? 1
+        }em;
         --readerSettings-textSize: ${readerSettings.textSize}px;
         --readerSettings-textColor: ${readerSettings.textColor};
         --readerSettings-textAlign: ${readerSettings.textAlign};

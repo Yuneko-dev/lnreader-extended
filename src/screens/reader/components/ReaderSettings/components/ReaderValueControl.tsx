@@ -1,26 +1,17 @@
 import { IconButtonV2 } from '@components';
-import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
-import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
+import { useTheme } from '@hooks/persisted';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
-type NumericKey = Exclude<
-  {
-    [Key in keyof ChapterReaderSettings]: ChapterReaderSettings[Key] extends number
-      ? Key
-      : never;
-  }[keyof ChapterReaderSettings],
-  undefined
->;
 
 type Props = {
   decimals?: number;
   label: string;
   max?: number;
   min: number;
+  onChange: (value: number) => void;
   step: number;
   unit?: string;
-  valueKey: NumericKey;
+  value: number;
 };
 
 const ReaderValueControl = ({
@@ -28,15 +19,18 @@ const ReaderValueControl = ({
   label,
   max,
   min,
+  onChange,
   step,
   unit = '',
-  valueKey,
+  value,
 }: Props) => {
   const theme = useTheme();
-  const { setChapterReaderSettings, ...settings } = useChapterReaderSettings();
-  const value = settings[valueKey] as number;
-  const update = (nextValue: number) =>
-    setChapterReaderSettings({ [valueKey]: nextValue });
+  const update = (nextValue: number) => {
+    const upperBoundedValue =
+      max == null ? nextValue : Math.min(max, nextValue);
+    const clampedValue = Math.max(min, upperBoundedValue);
+    onChange(Number(clampedValue.toFixed(decimals)));
+  };
   const increase = () =>
     update(max == null ? value + step : Math.min(max, value + step));
 

@@ -13,6 +13,7 @@ import type WebView from 'react-native-webview';
 
 import { useReaderSettingsBridge } from '../../reader/components/Hooks/useReaderSettings';
 import useTTSPlayback from '../../reader/components/Hooks/useTTSPlayback';
+import useVolumeButtonScroll from '../../reader/components/Hooks/useVolumeButtonScroll';
 import { parseWebViewEvent } from '../../reader/components/Hooks/webViewEvents';
 import ReaderWebViewCore from '../../reader/components/ReaderWebView/ReaderWebViewCore';
 import { generateReaderHtml } from '../../reader/utils/htmlGenerator';
@@ -30,6 +31,12 @@ const ReaderPreviewWebView = () => {
   const settingsRef = useRef<ChapterReaderSettings>(readerSettings);
   const progressRef = useRef(previewChapter.progress ?? 0);
   settingsRef.current = readerSettings;
+  useVolumeButtonScroll({
+    enabled: generalSettings.useVolumeButtons,
+    pageReader: generalSettings.pageReader,
+    volumeButtonsOffset: generalSettings.volumeButtonsOffset,
+    webViewRef,
+  });
   const playback = useTTSPlayback({
     readerSettingsRef: settingsRef,
     onDone: () =>

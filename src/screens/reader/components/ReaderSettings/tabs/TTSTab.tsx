@@ -15,15 +15,14 @@ import {
   useTheme,
 } from '@hooks/persisted';
 import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
-import Slider from '@react-native-community/slider';
 import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import { getAvailableVoicesAsync, type Voice } from 'expo-speech';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { IconButton } from 'react-native-paper';
 
 import useTTSPlayback from '../../Hooks/useTTSPlayback';
+import ReaderValueControl from '../components/ReaderValueControl';
 import VoicePickerModal from '../components/VoicePickerModal';
 import { isTikTokVoice, TIKTOK_VOICES } from '../TTSVoices';
 
@@ -99,46 +98,6 @@ const TTSTab = () => {
         : !isTikTokVoice(tts.voice);
     update({ engine, voice: compatible ? tts.voice : undefined });
   };
-  const slider = (
-    label: string,
-    value: number,
-    min: number,
-    max: number,
-    step: number,
-    onChange: (value: number) => void,
-    suffix = '',
-  ) => (
-    <View style={styles.sliderSection}>
-      <Text
-        style={[styles.label, { color: theme.onSurface }]}
-      >{`${label}: ${value.toFixed(step < 1 ? 1 : 0)}${suffix}`}</Text>
-      <View style={styles.sliderRow}>
-        <IconButton
-          icon="minus"
-          iconColor={theme.primary}
-          onPress={() => onChange(Math.max(min, value - step))}
-          size={20}
-        />
-        <Slider
-          maximumTrackTintColor={theme.outlineVariant}
-          maximumValue={max}
-          minimumTrackTintColor={theme.primary}
-          minimumValue={min}
-          onSlidingComplete={onChange}
-          step={step}
-          style={styles.slider}
-          thumbTintColor={theme.primary}
-          value={value}
-        />
-        <IconButton
-          icon="plus"
-          iconColor={theme.primary}
-          onPress={() => onChange(Math.min(max, value + step))}
-          size={20}
-        />
-      </View>
-    </View>
-  );
   const compatibleVoice =
     tts.engine === 'tiktok'
       ? isTikTokVoice(tts.voice)
@@ -199,33 +158,35 @@ const TTSTab = () => {
               theme={theme}
               title={getString('readerSettings.tts.voice')}
             />
-            {slider(
-              getString('readerSettings.tts.rate'),
-              tts.rate ?? 1,
-              0.1,
-              5,
-              0.1,
-              value => update({ rate: value }),
-              'x',
-            )}
-            {slider(
-              getString('readerSettings.tts.pitch'),
-              tts.pitch ?? 1,
-              0.1,
-              5,
-              0.1,
-              value => update({ pitch: value }),
-            )}
-            {tts.engine === 'tiktok'
-              ? slider(
-                  getString('readerSettings.tts.queueSize'),
-                  tts.queueSize ?? 3,
-                  1,
-                  10,
-                  1,
-                  value => update({ queueSize: value }),
-                )
-              : null}
+            <ReaderValueControl
+              decimals={1}
+              label={getString('readerSettings.tts.rate')}
+              max={5}
+              min={0.1}
+              onChange={rate => update({ rate })}
+              step={0.1}
+              unit="x"
+              value={tts.rate ?? 1}
+            />
+            <ReaderValueControl
+              decimals={1}
+              label={getString('readerSettings.tts.pitch')}
+              max={5}
+              min={0.1}
+              onChange={pitch => update({ pitch })}
+              step={0.1}
+              value={tts.pitch ?? 1}
+            />
+            {tts.engine === 'tiktok' ? (
+              <ReaderValueControl
+                label={getString('readerSettings.tts.queueSize')}
+                max={10}
+                min={1}
+                onChange={queueSize => update({ queueSize })}
+                step={1}
+                value={tts.queueSize ?? 3}
+              />
+            ) : null}
             <SwitchItem
               label={getString('readerSettings.tts.autoPageAdvance')}
               onPress={() => update({ autoPageAdvance: !tts.autoPageAdvance })}
@@ -324,7 +285,4 @@ const styles = StyleSheet.create({
   label: { fontSize: 16, marginBottom: 8 },
   reset: { alignItems: 'flex-start', padding: 16 },
   segment: { gap: 8, padding: 16 },
-  slider: { flex: 1 },
-  sliderRow: { alignItems: 'center', flexDirection: 'row' },
-  sliderSection: { paddingHorizontal: 16, paddingVertical: 8 },
 });

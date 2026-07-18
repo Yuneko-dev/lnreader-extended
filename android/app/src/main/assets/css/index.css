@@ -42,6 +42,12 @@ body:not(.page-reader) .transition-chapter {
   padding-right: var(--readerSettings-padding);
 }
 
+#LNReader-chapter p {
+  margin-block-start: var(--readerSettings-paragraphSpacing);
+  margin-block-end: var(--readerSettings-paragraphSpacing);
+  text-indent: var(--readerSettings-paragraphIndent);
+}
+
 hr {
   margin-top: 20px;
   margin-bottom: 20px;

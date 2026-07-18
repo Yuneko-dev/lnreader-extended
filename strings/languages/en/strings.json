@@ -716,6 +716,8 @@
     "customColors": "Custom colors",
     "readingEnhancements": "Reading enhancements",
     "font": "Font",
+    "paragraphIndent": "Paragraph indent",
+    "paragraphSpacing": "Paragraph spacing",
     "systemDefault": "System default",
     "import": "Import",
     "imported": "Imported",
