@@ -1,5 +1,6 @@
 import type { ChapterInfo, NovelInfo } from '@database/types';
 import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
+import { getString } from '@strings/translations';
 import { showToast } from '@utils/showToast';
 import {
   dismissTTSNotification,
@@ -9,20 +10,13 @@ import {
   updateTTSPlaybackState,
   updateTTSProgress,
 } from '@utils/ttsNotification';
-import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { AppState, NativeEventEmitter, NativeModules } from 'react-native';
+import { AppState } from 'react-native';
 import type WebView from 'react-native-webview';
 
 import type useReadingTime from './useReadingTime';
+import useTTSPlayback from './useTTSPlayback';
 import type { WebViewPostEvent } from './webViewEvents';
-
-const { TikTokTTS } = NativeModules;
-const tiktokTTSEmitter = TikTokTTS ? new NativeEventEmitter(TikTokTTS) : null;
-const stopNativeEngines = () => {
-  Speech.stop();
-  TikTokTTS?.stop();
-};
 
 type ReadingTimeController = ReturnType<typeof useReadingTime>;
 
@@ -42,8 +36,6 @@ export default function useTTS({
   readingTime,
 }: UseTTSOptions) {
   const autoStartTTSRef = useRef(false);
-  const ttsQueueRef = useRef<string[]>([]);
-  const ttsQueueIndexRef = useRef(0);
   const appStateRef = useRef(AppState.currentState);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isTTSReadingRef } = readingTime;
@@ -65,8 +57,6 @@ export default function useTTS({
   const resetAfterPlaybackError = useCallback(() => {
     autoStartTTSRef.current = false;
     clearAutoStartTimer();
-    ttsQueueRef.current = [];
-    ttsQueueIndexRef.current = 0;
     if (appStateRef.current === 'active') {
       readingTime.setTTSReading(false);
     } else {
@@ -75,6 +65,34 @@ export default function useTTS({
     dismissTTSNotification();
     webViewRef.current?.injectJavaScript('tts.stop?.()');
   }, [clearAutoStartTimer, readingTime, webViewRef]);
+
+  const handlePlaybackError = useCallback(
+    (error: 'tiktok-unavailable' | 'voice-required' | 'playback-error') => {
+      if (error === 'tiktok-unavailable') {
+        showToast(getString('readerSettings.tts.engineUnavailableError'));
+      } else if (error === 'voice-required') {
+        showToast(getString('readerSettings.tts.voiceRequiredError'));
+      } else {
+        showToast(getString('readerSettings.tts.playbackError'));
+      }
+      webViewRef.current?.injectJavaScript('tts.setLoading(false)');
+      resetAfterPlaybackError();
+    },
+    [resetAfterPlaybackError, webViewRef],
+  );
+
+  const playback = useTTSPlayback({
+    readerSettingsRef,
+    onStart: () => webViewRef.current?.injectJavaScript('tts.setLoading(true)'),
+    onDone: () => {
+      webViewRef.current?.injectJavaScript('tts.setLoading(false)');
+      if (appStateRef.current === 'active') {
+        webViewRef.current?.injectJavaScript('tts.next?.()');
+      }
+    },
+    onError: handlePlaybackError,
+    onInterrupted: resetAfterPlaybackError,
+  });
 
   useEffect(() => {
     const inject = (script: string) =>
@@ -142,103 +160,14 @@ export default function useTTS({
 
       readingTime.pause();
       if (isTTSReadingRef.current) {
-        stopNativeEngines();
+        playback.stop();
         readingTime.stopTTSForBackground();
-        ttsQueueRef.current = [];
-        ttsQueueIndexRef.current = 0;
         dismissTTSNotification();
         webViewRef.current?.injectJavaScript('if (window.tts) { tts.stop(); }');
       }
     });
     return () => subscription.remove();
-  }, [isTTSReadingRef, readingTime, webViewRef]);
-
-  useEffect(() => {
-    if (!tiktokTTSEmitter) return;
-
-    const onStart = tiktokTTSEmitter.addListener('TikTokTTS_onStart', () => {
-      webViewRef.current?.injectJavaScript('tts.setLoading(true)');
-    });
-    const onDone = tiktokTTSEmitter.addListener('TikTokTTS_onDone', () => {
-      webViewRef.current?.injectJavaScript('tts.setLoading(false)');
-      if (appStateRef.current === 'active') {
-        webViewRef.current?.injectJavaScript('tts.next?.()');
-      }
-    });
-    const onError = tiktokTTSEmitter.addListener(
-      'TikTokTTS_onError',
-      (error: { message?: string }) => {
-        webViewRef.current?.injectJavaScript('tts.setLoading(false)');
-        resetAfterPlaybackError();
-        // eslint-disable-next-line no-console
-        console.error('TikTokTTS Error:', error.message);
-      },
-    );
-    return () => {
-      onStart.remove();
-      onDone.remove();
-      onError.remove();
-    };
-  }, [resetAfterPlaybackError, webViewRef]);
-
-  const speakText = useCallback(
-    (text: string) => {
-      const ttsSettings = readerSettingsRef.current?.tts;
-      if (ttsSettings?.engine === 'tiktok') {
-        const voice = ttsSettings.voice?.identifier;
-        if (!voice) {
-          showToast('TikTok TTS: No voice selected');
-          return;
-        }
-        TikTokTTS?.speak(
-          text,
-          voice,
-          ttsSettings.queueSize || 3,
-          ttsSettings.rate || 1,
-          ttsSettings.pitch || 1,
-        );
-        return;
-      }
-
-      Speech.speak(text, {
-        onDone() {
-          if (appStateRef.current === 'active') {
-            webViewRef.current?.injectJavaScript('tts.next?.()');
-          }
-        },
-        onError: resetAfterPlaybackError,
-        voice: ttsSettings?.voice?.identifier,
-        pitch: ttsSettings?.pitch || 1,
-        rate: ttsSettings?.rate || 1,
-      });
-    },
-    [readerSettingsRef, resetAfterPlaybackError, webViewRef],
-  );
-
-  const handleQueue = useCallback(
-    (event: WebViewPostEvent) => {
-      const payload = event.data as
-        | { queue?: unknown; startIndex?: unknown }
-        | undefined;
-      const queue = Array.isArray(payload?.queue)
-        ? payload.queue.filter(
-            (item): item is string =>
-              typeof item === 'string' && item.trim().length > 0,
-          )
-        : [];
-      ttsQueueRef.current = queue;
-      ttsQueueIndexRef.current =
-        typeof payload?.startIndex === 'number' ? payload.startIndex : 0;
-
-      if (readerSettingsRef.current?.tts?.engine === 'tiktok') {
-        const voice = readerSettingsRef.current.tts.voice?.identifier;
-        if (voice) {
-          TikTokTTS?.updateQueue(queue.slice(ttsQueueIndexRef.current), voice);
-        }
-      }
-    },
-    [readerSettingsRef],
-  );
+  }, [isTTSReadingRef, playback, readingTime, webViewRef]);
 
   const handleSpeak = useCallback(
     (event: WebViewPostEvent) => {
@@ -246,74 +175,35 @@ export default function useTTS({
         webViewRef.current?.injectJavaScript('tts.next?.()');
         return;
       }
-
-      const ttsSettings = readerSettingsRef.current?.tts;
-      if (ttsSettings?.engine === 'tiktok') {
-        if (!TikTokTTS) {
-          showToast('TikTok TTS is unavailable');
-          resetAfterPlaybackError();
-          return;
+      playback.handleSpeak(event, () => {
+        if (!isTTSReadingRef.current) {
+          readingTime.setTTSReading(true);
+          showTTSNotification(notificationInfo);
+        } else {
+          updateTTSNotification(notificationInfo);
         }
-        if (!ttsSettings.voice?.identifier) {
-          showToast('TikTok TTS: No voice selected');
-          resetAfterPlaybackError();
-          return;
+        if (
+          typeof event.index === 'number' &&
+          typeof event.total === 'number' &&
+          event.total > 0
+        ) {
+          updateTTSProgress(event.index, event.total);
         }
-      }
-
-      if (typeof event.index === 'number') {
-        ttsQueueIndexRef.current = event.index;
-      }
-      if (!isTTSReadingRef.current) {
-        readingTime.setTTSReading(true);
-        showTTSNotification(notificationInfo);
-      } else {
-        updateTTSNotification(notificationInfo);
-      }
-      if (
-        typeof event.index === 'number' &&
-        typeof event.total === 'number' &&
-        event.total > 0
-      ) {
-        updateTTSProgress(event.index, event.total);
-      }
-      if (readerSettingsRef.current?.tts?.engine === 'tiktok') {
-        const voice = readerSettingsRef.current.tts.voice?.identifier;
-        if (voice) {
-          TikTokTTS?.updateQueue(
-            ttsQueueRef.current.slice(ttsQueueIndexRef.current + 1),
-            voice,
-          );
-        }
-      }
-      speakText(event.data);
+      });
     },
-    [
-      isTTSReadingRef,
-      notificationInfo,
-      readerSettingsRef,
-      readingTime,
-      resetAfterPlaybackError,
-      speakText,
-      webViewRef,
-    ],
+    [isTTSReadingRef, notificationInfo, playback, readingTime, webViewRef],
   );
 
-  const handlePause = useCallback(() => {
-    Speech.stop();
-    TikTokTTS?.pause();
-  }, []);
+  const handlePause = playback.pause;
 
   const handleStop = useCallback(() => {
-    stopNativeEngines();
+    playback.stop();
     if (!autoStartTTSRef.current) {
       clearAutoStartTimer();
       readingTime.setTTSReading(false);
-      ttsQueueRef.current = [];
-      ttsQueueIndexRef.current = 0;
       dismissTTSNotification();
     }
-  }, [clearAutoStartTimer, readingTime]);
+  }, [clearAutoStartTimer, playback, readingTime]);
 
   const handleState = useCallback(
     (event: WebViewPostEvent) => {
@@ -326,9 +216,7 @@ export default function useTTS({
     [readingTime],
   );
 
-  const stopNativePlayback = useCallback(() => {
-    stopNativeEngines();
-  }, []);
+  const stopNativePlayback = playback.stopAll;
 
   const scheduleAutoStart = useCallback(() => {
     clearAutoStartTimer();
@@ -360,7 +248,7 @@ export default function useTTS({
     () => ({
       handleLoadEnd,
       handlePause,
-      handleQueue,
+      handleQueue: playback.handleQueue,
       handleSpeak,
       handleState,
       handleStop,
@@ -370,7 +258,7 @@ export default function useTTS({
     [
       handleLoadEnd,
       handlePause,
-      handleQueue,
+      playback.handleQueue,
       handleSpeak,
       handleState,
       handleStop,

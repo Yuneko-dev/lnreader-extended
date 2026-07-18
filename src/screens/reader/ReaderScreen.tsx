@@ -17,8 +17,8 @@ import ChapterLoadingScreen from './ChapterLoadingScreen/ChapterLoadingScreen';
 import ChapterDrawer from './components/ChapterDrawer';
 import KeepScreenAwake from './components/KeepScreenAwake';
 import ReaderAppbar from './components/ReaderAppbar';
-import ReaderBottomSheetV2 from './components/ReaderBottomSheet/ReaderBottomSheet';
 import ReaderFooter from './components/ReaderFooter';
+import ReaderSettingsBottomSheet from './components/ReaderSettings/ReaderSettingsBottomSheet';
 import WebViewReader from './components/WebViewReader';
 import { useNativeChapterSearch } from './hooks/useNativeChapterSearch';
 
@@ -196,7 +196,7 @@ export const ChapterContent = ({
           />
         </View>
       </ChapterLoadingScreen>
-      <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
+      <ReaderSettingsBottomSheet bottomSheetRef={readerSheetRef} />
       {!hidden && (
         <View style={StyleSheet.absoluteFill} pointerEvents="auto">
           <ReaderAppbar

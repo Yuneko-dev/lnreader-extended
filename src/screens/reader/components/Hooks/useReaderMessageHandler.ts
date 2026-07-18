@@ -12,6 +12,7 @@ type UseReaderMessageHandlerOptions = {
   onFindResult: (result: NativeFindResult) => void;
   navigateChapter: (direction: 'NEXT' | 'PREV') => void;
   saveProgress: (progress: number) => void;
+  onProgress?: (progress: number) => void;
   resetAutoScroll: () => void;
   refetch: () => void;
   tts: TTSController;
@@ -25,6 +26,7 @@ export default function useReaderMessageHandler({
   onFindResult,
   navigateChapter,
   saveProgress,
+  onProgress,
   resetAutoScroll,
   refetch,
   tts,
@@ -79,6 +81,7 @@ export default function useReaderMessageHandler({
           break;
         case 'save':
           if (typeof event.data === 'number') {
+            onProgress?.(event.data);
             saveProgress(event.data);
           }
           break;
@@ -147,6 +150,7 @@ export default function useReaderMessageHandler({
       navigateChapter,
       onFindResult,
       onPress,
+      onProgress,
       refetch,
       resetAutoScroll,
       saveProgress,

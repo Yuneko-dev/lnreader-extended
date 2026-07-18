@@ -3,31 +3,24 @@ import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { textAlignments } from '@utils/constants/readerConstants';
 import React from 'react';
-import { StyleSheet, Text, TextStyle, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-interface ReaderTextAlignSelectorProps {
-  labelStyle?: TextStyle | TextStyle[];
-}
-
-const ReaderTextAlignSelector: React.FC<ReaderTextAlignSelectorProps> = ({
-  labelStyle,
-}) => {
+const ReaderTextAlignSelector = () => {
   const theme = useTheme();
   const { textAlign, setChapterReaderSettings } = useChapterReaderSettings();
-
   return (
     <View style={styles.container}>
-      <Text style={[{ color: theme.onSurfaceVariant }, labelStyle]}>
+      <Text style={[styles.label, { color: theme.onSurface }]}>
         {getString('readerScreen.bottomSheet.textAlign')}
       </Text>
-      <View style={styles.buttonContainer}>
+      <View style={styles.controls}>
         {textAlignments.map(item => (
           <ToggleButton
             key={item.value}
-            selected={item.value === textAlign}
             icon={item.icon}
-            theme={theme}
             onPress={() => setChapterReaderSettings({ textAlign: item.value })}
+            selected={item.value === textAlign}
+            theme={theme}
           />
         ))}
       </View>
@@ -38,14 +31,13 @@ const ReaderTextAlignSelector: React.FC<ReaderTextAlignSelectorProps> = ({
 export default ReaderTextAlignSelector;
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: 'row',
-  },
   container: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 6,
+    minHeight: 56,
     paddingHorizontal: 16,
   },
+  controls: { flexDirection: 'row' },
+  label: { fontSize: 16 },
 });
