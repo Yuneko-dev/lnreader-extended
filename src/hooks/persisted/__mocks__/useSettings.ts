@@ -69,8 +69,11 @@ export const initialChapterReaderSettings = {
   paragraphSpacing: 1,
   fontFamily: '',
   lineHeight: 1.5,
-  customCSS: '',
-  customJS: '',
+  codeSnippetsCSS: [],
+  codeSnippetsJS: [],
+  regexReplacements: [],
+  pluginUseCustomCSS: true,
+  pluginUseCustomJS: true,
   customThemes: [],
   tts: {
     rate: 1,

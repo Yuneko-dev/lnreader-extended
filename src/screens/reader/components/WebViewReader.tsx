@@ -6,6 +6,11 @@ import {
 import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
 import { getLocalServerUrl } from '@plugins/local/localServerManager';
 import { getPlugin } from '@plugins/pluginManager';
+import {
+  applyRegexReplacements,
+  composeCSS,
+  composeJS,
+} from '@utils/customCode';
 import { PLUGIN_STORAGE } from '@utils/Storages';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
@@ -111,23 +116,30 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     },
   });
 
-  const customCodeRef = useRef({
-    customCSS: readerSettings.customCSS,
-    customJS: readerSettings.customJS,
-  });
+  const customCSS = useMemo(
+    () => composeCSS(readerSettings.codeSnippetsCSS),
+    [readerSettings.codeSnippetsCSS],
+  );
+  const customJS = useMemo(
+    () => composeJS(readerSettings.codeSnippetsJS),
+    [readerSettings.codeSnippetsJS],
+  );
+  const processedHtml = useMemo(
+    () => applyRegexReplacements(html, readerSettings.regexReplacements),
+    [html, readerSettings.regexReplacements],
+  );
+  const customCodeRef = useRef({ customCSS, customJS, processedHtml });
   useEffect(() => {
     const previous = customCodeRef.current;
-    customCodeRef.current = {
-      customCSS: readerSettings.customCSS,
-      customJS: readerSettings.customJS,
-    };
+    customCodeRef.current = { customCSS, customJS, processedHtml };
     if (
-      previous.customCSS !== readerSettings.customCSS ||
-      previous.customJS !== readerSettings.customJS
+      previous.customCSS !== customCSS ||
+      previous.customJS !== customJS ||
+      previous.processedHtml !== processedHtml
     ) {
       tts.stopNativePlayback();
     }
-  }, [readerSettings.customCSS, readerSettings.customJS, tts]);
+  }, [customCSS, customJS, processedHtml, tts]);
 
   const sourceDataRef = useRef({
     chapter,
@@ -147,8 +159,8 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
   };
   const sourceChapterId = chapter.id;
   const sourceChapterDownloaded = chapter.isDownloaded;
-  const sourceCustomCSS = readerSettings.customCSS;
-  const sourceCustomJS = readerSettings.customJS;
+  const sourcePluginUseCustomCSS = readerSettings.pluginUseCustomCSS;
+  const sourcePluginUseCustomJS = readerSettings.pluginUseCustomJS;
   const sourceNextChapterId = nextChapter?.id;
   const sourcePrevChapterId = prevChapter?.id;
 
@@ -164,13 +176,13 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       method: plugin?.imageRequestInit?.method,
       body: plugin?.imageRequestInit?.body,
       html: generateReaderHtml({
-        html,
+        html: processedHtml,
         theme,
         readerDir,
         readerSettings: {
           ...latest.readerSettings,
-          customCSS: sourceCustomCSS,
-          customJS: sourceCustomJS,
+          pluginUseCustomCSS: sourcePluginUseCustomCSS,
+          pluginUseCustomJS: sourcePluginUseCustomJS,
         },
         chapterGeneralSettings: latest.chapterGeneralSettings,
         novel,
@@ -190,6 +202,8 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         readerBottomInset: latest.readerBottomInset,
         pluginCustomCSS,
         pluginCustomJS,
+        customCSS,
+        customJS,
         nextChapterScreenVisible: getNextChapterScreenVisible(),
         pendingScrollPosition: getPendingScrollPosition(),
         getLocalServerUrl,
@@ -206,16 +220,18 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     sourceChapterId,
     getNextChapterScreenVisible,
     getPendingScrollPosition,
-    html,
+    customCSS,
+    customJS,
     novel,
     plugin?.imageRequestInit,
     plugin?.site,
     pluginCustomCSS,
     pluginCustomJS,
+    processedHtml,
     readerDir,
-    sourceCustomCSS,
-    sourceCustomJS,
     sourceNextChapterId,
+    sourcePluginUseCustomCSS,
+    sourcePluginUseCustomJS,
     sourcePrevChapterId,
     theme,
   ]);

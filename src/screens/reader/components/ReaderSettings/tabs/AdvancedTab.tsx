@@ -1,81 +1,191 @@
-import {
-  Button,
-  ConfirmationDialog,
-  SegmentedControl,
-  StableTextInput,
-} from '@components';
-import {
-  BottomSheetScrollView,
-  BottomSheetTextInput,
-} from '@gorhom/bottom-sheet';
-import { useBoolean } from '@hooks';
+import { ConfirmationDialog, SwitchItem } from '@components';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
-import NativeFile from '@specs/NativeFile';
 import { getString } from '@strings/translations';
-import { showToast } from '@utils/showToast';
-import * as DocumentPicker from 'expo-document-picker';
-import React, { useEffect, useState } from 'react';
+import type { ThemeColors } from '@theme/types';
+import type { CodeSnippet, RegexReplacement } from '@utils/customCode';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Portal } from 'react-native-paper';
+import { IconButton } from 'react-native-paper';
 
-type CodeType = 'css' | 'js';
+import CustomCodeCard from '../components/CustomCodeCard';
+import RegexDialog from '../components/RegexDialog';
+import SnippetDialog from '../components/SnippetDialog';
+
+type SnippetEditor = {
+  language: CodeSnippet['lang'];
+  index?: number;
+};
+
+type RegexEditor = { index?: number };
+
+type DeleteTarget =
+  | { kind: 'regex'; index: number }
+  | { kind: 'snippet'; language: CodeSnippet['lang']; index: number };
+
+type SectionHeaderProps = {
+  icon: string;
+  title: string;
+  addLabel: string;
+  onAdd: () => void;
+  theme: ThemeColors;
+};
+
+const SectionHeader = ({
+  icon,
+  title,
+  addLabel,
+  onAdd,
+  theme,
+}: SectionHeaderProps) => (
+  <View style={styles.sectionHeader}>
+    <IconButton icon={icon} iconColor={theme.onSurface} size={22} />
+    <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>
+      {title}
+    </Text>
+    <IconButton
+      accessibilityLabel={addLabel}
+      icon="plus"
+      iconColor={theme.onSurface}
+      onPress={onAdd}
+      size={24}
+    />
+  </View>
+);
 
 const AdvancedTab = () => {
   const theme = useTheme();
   const settings = useChapterReaderSettings();
-  const [type, setType] = useState<CodeType>('css');
-  const [css, setCSS] = useState(settings.customCSS);
-  const [js, setJS] = useState(settings.customJS);
-  const resetDialog = useBoolean();
-  useEffect(() => setCSS(settings.customCSS), [settings.customCSS]);
-  useEffect(() => setJS(settings.customJS), [settings.customJS]);
-  const value = type === 'css' ? css : js;
-  const setValue = type === 'css' ? setCSS : setJS;
+  const [snippetEditor, setSnippetEditor] = useState<SnippetEditor>();
+  const [regexEditor, setRegexEditor] = useState<RegexEditor>();
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>();
 
-  const save = () => {
+  const setRegexReplacements = (regexReplacements: RegexReplacement[]) =>
+    settings.setChapterReaderSettings({ regexReplacements });
+
+  const setSnippets = (
+    language: CodeSnippet['lang'],
+    snippets: CodeSnippet[],
+  ) =>
     settings.setChapterReaderSettings(
-      type === 'css' ? { customCSS: css } : { customJS: js },
+      language === 'css'
+        ? { codeSnippetsCSS: snippets }
+        : { codeSnippetsJS: snippets },
     );
-    showToast(getString('readerSettings.saved'));
-  };
-  const reset = () => {
-    setValue('');
-    settings.setChapterReaderSettings(
-      type === 'css' ? { customCSS: '' } : { customJS: '' },
+
+  const getSnippets = (language: CodeSnippet['lang']) =>
+    language === 'css' ? settings.codeSnippetsCSS : settings.codeSnippetsJS;
+
+  const toggleRegex = (index: number) =>
+    setRegexReplacements(
+      settings.regexReplacements.map((rule, ruleIndex) =>
+        ruleIndex === index ? { ...rule, active: !rule.active } : rule,
+      ),
     );
-    resetDialog.setFalse();
+
+  const toggleSnippet = (language: CodeSnippet['lang'], index: number) => {
+    const snippets = getSnippets(language);
+    setSnippets(
+      language,
+      snippets.map((snippet, snippetIndex) =>
+        snippetIndex === index
+          ? { ...snippet, active: !snippet.active }
+          : snippet,
+      ),
+    );
   };
-  const importFile = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        copyToCacheDirectory: false,
-        type: '*/*',
-      });
-      const asset = result.assets?.[0];
-      if (!asset) return;
-      if (!asset.name.toLowerCase().endsWith(`.${type}`)) {
-        showToast(
-          getString('readerSettings.invalidCodeFile', {
-            extension: type.toUpperCase(),
-          }),
-        );
-        return;
-      }
-      const path = `${
-        NativeFile.getConstants().ExternalCachesDirectoryPath
-      }/reader_custom.${type}`;
-      NativeFile.copyFile(asset.uri, path);
-      const content = NativeFile.readFile(path).trim();
-      NativeFile.unlink(path);
-      setValue(content);
-      settings.setChapterReaderSettings(
-        type === 'css' ? { customCSS: content } : { customJS: content },
+
+  const saveRegex = (rule: RegexReplacement) => {
+    const index = regexEditor?.index;
+    const nextRules = [...settings.regexReplacements];
+    if (index === undefined) nextRules.push(rule);
+    else nextRules[index] = rule;
+    setRegexReplacements(nextRules);
+    setRegexEditor(undefined);
+  };
+
+  const saveSnippet = (snippet: CodeSnippet) => {
+    if (!snippetEditor) return;
+    const snippets = [...getSnippets(snippetEditor.language)];
+    if (snippetEditor.index === undefined) snippets.push(snippet);
+    else snippets[snippetEditor.index] = snippet;
+    setSnippets(snippetEditor.language, snippets);
+    setSnippetEditor(undefined);
+  };
+
+  const deleteSelected = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.kind === 'regex') {
+      setRegexReplacements(
+        settings.regexReplacements.filter(
+          (_, index) => index !== deleteTarget.index,
+        ),
       );
-      showToast(getString('readerSettings.imported'));
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : String(error));
+    } else {
+      setSnippets(
+        deleteTarget.language,
+        getSnippets(deleteTarget.language).filter(
+          (_, index) => index !== deleteTarget.index,
+        ),
+      );
     }
   };
+
+  const renderSnippetSection = (language: CodeSnippet['lang']) => {
+    const snippets = getSnippets(language);
+    const title = getString(
+      language === 'css'
+        ? 'customCodeSettings.cssSnippets'
+        : 'customCodeSettings.javascriptSnippets',
+    );
+
+    return (
+      <View style={styles.section}>
+        <SectionHeader
+          addLabel={getString('customCodeSettings.addSnippet')}
+          icon="code-tags"
+          onAdd={() => setSnippetEditor({ language })}
+          theme={theme}
+          title={title}
+        />
+        {snippets.length ? (
+          snippets.map((snippet, index) => (
+            <CustomCodeCard
+              key={`${language}-${index}-${snippet.name}`}
+              active={snippet.active}
+              deleteLabel={getString('customCodeSettings.deleteSnippetAction')}
+              description={getString(
+                snippet.active
+                  ? 'customCodeSettings.enabled'
+                  : 'customCodeSettings.disabled',
+              )}
+              detail={snippet.code.trim().split(/\r?\n/, 1)[0]}
+              editLabel={getString('customCodeSettings.editSnippetAction')}
+              onDelete={() =>
+                setDeleteTarget({ kind: 'snippet', language, index })
+              }
+              onEdit={() => setSnippetEditor({ language, index })}
+              onToggle={() => toggleSnippet(language, index)}
+              theme={theme}
+              title={snippet.name}
+            />
+          ))
+        ) : (
+          <Text style={[styles.empty, { color: theme.onSurfaceVariant }]}>
+            {getString('customCodeSettings.noSnippets')}
+          </Text>
+        )}
+      </View>
+    );
+  };
+
+  const initialSnippet = snippetEditor
+    ? getSnippets(snippetEditor.language)[snippetEditor.index ?? -1]
+    : undefined;
+  const initialRule =
+    regexEditor?.index === undefined
+      ? undefined
+      : settings.regexReplacements[regexEditor.index];
 
   return (
     <>
@@ -84,79 +194,93 @@ const AdvancedTab = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.segment}>
-          <SegmentedControl
-            options={[
-              { label: 'CSS', value: 'css' },
-              { label: 'JS', value: 'js' },
-            ]}
-            onChange={setType}
-            showCheckIcon={false}
+        <View style={styles.section}>
+          <SectionHeader
+            addLabel={getString('customCodeSettings.addRegexRule')}
+            icon="find-replace"
+            onAdd={() => setRegexEditor({})}
             theme={theme}
-            value={type}
+            title={getString('customCodeSettings.regexFindReplace')}
+          />
+          {settings.regexReplacements.length ? (
+            settings.regexReplacements.map((rule, index) => (
+              <CustomCodeCard
+                key={`${index}-${rule.title}`}
+                active={rule.active}
+                deleteLabel={getString('customCodeSettings.deleteRule')}
+                description={getString(
+                  rule.active
+                    ? 'customCodeSettings.enabled'
+                    : 'customCodeSettings.disabled',
+                )}
+                detail={`/${rule.pattern}/${rule.flags} → ${
+                  rule.replacement || getString('customCodeSettings.remove')
+                }`}
+                editLabel={getString('customCodeSettings.editRule')}
+                onDelete={() => setDeleteTarget({ kind: 'regex', index })}
+                onEdit={() => setRegexEditor({ index })}
+                onToggle={() => toggleRegex(index)}
+                theme={theme}
+                title={rule.title}
+              />
+            ))
+          ) : (
+            <Text style={[styles.empty, { color: theme.onSurfaceVariant }]}>
+              {getString('customCodeSettings.noRegexRules')}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.switches}>
+          <SwitchItem
+            description={getString('customCodeSettings.pluginCSSDescription')}
+            label={getString('customCodeSettings.pluginCSS')}
+            onPress={() =>
+              settings.setChapterReaderSettings({
+                pluginUseCustomCSS: !settings.pluginUseCustomCSS,
+              })
+            }
+            theme={theme}
+            value={settings.pluginUseCustomCSS}
+          />
+          <SwitchItem
+            description={getString('customCodeSettings.pluginJSDescription')}
+            label={getString('customCodeSettings.pluginJS')}
+            onPress={() =>
+              settings.setChapterReaderSettings({
+                pluginUseCustomJS: !settings.pluginUseCustomJS,
+              })
+            }
+            theme={theme}
+            value={settings.pluginUseCustomJS}
           />
         </View>
-        <StableTextInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          contentStyle={styles.editorContent}
-          mode="outlined"
-          multiline
-          numberOfLines={12}
-          onChangeText={setValue}
-          placeholder={
-            type === 'css' ? '/* Custom CSS */' : '// Custom JavaScript'
-          }
-          render={props => (
-            <BottomSheetTextInput
-              {...(props as React.ComponentProps<typeof BottomSheetTextInput>)}
-            />
-          )}
-          spellCheck={false}
-          style={styles.editor}
-          theme={{ colors: { ...theme } }}
-          value={value}
-        />
-        <Text style={[styles.hint, { color: theme.onSurfaceVariant }]}>
-          {getString(
-            type === 'css' ? 'readerSettings.cssHint' : 'readerSettings.jsHint',
-          )}
-        </Text>
-        <View style={styles.actions}>
-          <Button
-            mode="outlined"
-            onPress={importFile}
-            style={styles.action}
-            title={getString('readerSettings.import')}
-          />
-          <Button
-            disabled={!value}
-            mode="outlined"
-            onPress={resetDialog.setTrue}
-            style={styles.action}
-            title={getString('common.reset')}
-          />
-          <Button
-            mode="contained"
-            onPress={save}
-            style={styles.action}
-            title={getString('common.save')}
-          />
-        </View>
+
+        {renderSnippetSection('css')}
+        {renderSnippetSection('js')}
       </BottomSheetScrollView>
-      <Portal>
-        <ConfirmationDialog
-          onDismiss={resetDialog.setFalse}
-          onSubmit={reset}
-          theme={theme}
-          title={getString(
-            type === 'css'
-              ? 'readerSettings.clearCustomCSS'
-              : 'readerSettings.clearCustomJS',
-          )}
-          visible={resetDialog.value}
-        />
-      </Portal>
+
+      <RegexDialog
+        initialRule={initialRule}
+        onDismiss={() => setRegexEditor(undefined)}
+        onSave={saveRegex}
+        visible={regexEditor !== undefined}
+      />
+      <SnippetDialog
+        initialSnippet={initialSnippet}
+        language={snippetEditor?.language ?? 'css'}
+        onDismiss={() => setSnippetEditor(undefined)}
+        onSave={saveSnippet}
+        visible={snippetEditor !== undefined}
+      />
+      <ConfirmationDialog
+        message={getString('customCodeSettings.deleteMessage')}
+        onDismiss={() => setDeleteTarget(undefined)}
+        onSubmit={deleteSelected}
+        theme={theme}
+        title={getString('customCodeSettings.deleteTitle')}
+        visible={deleteTarget !== undefined}
+      />
     </>
   );
 };
@@ -164,11 +288,20 @@ const AdvancedTab = () => {
 export default AdvancedTab;
 
 const styles = StyleSheet.create({
-  action: { flex: 1 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 16 },
   content: { padding: 16, paddingBottom: 32 },
-  editor: { minHeight: 280 },
-  editorContent: { fontFamily: 'monospace', fontSize: 13, lineHeight: 20 },
-  hint: { fontSize: 12, lineHeight: 18, marginTop: 12 },
-  segment: { marginBottom: 16 },
+  empty: {
+    fontSize: 14,
+    lineHeight: 20,
+    paddingHorizontal: 4,
+    paddingVertical: 8,
+  },
+  section: { marginBottom: 12 },
+  sectionHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginHorizontal: -8,
+    minHeight: 52,
+  },
+  sectionTitle: { flex: 1, fontSize: 18, fontWeight: '600' },
+  switches: { marginBottom: 12, marginHorizontal: -16 },
 });

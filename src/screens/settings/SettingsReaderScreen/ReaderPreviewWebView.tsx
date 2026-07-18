@@ -5,6 +5,11 @@ import {
 } from '@hooks/persisted';
 import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
 import { getString } from '@strings/translations';
+import {
+  applyRegexReplacements,
+  composeCSS,
+  composeJS,
+} from '@utils/customCode';
 import { showToast } from '@utils/showToast';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet } from 'react-native';
@@ -74,7 +79,18 @@ const ReaderPreviewWebView = () => {
 
   const latestRef = useRef({ generalSettings, readerSettings });
   latestRef.current = { generalSettings, readerSettings };
-  const { customCSS, customJS } = readerSettings;
+  const customCSS = useMemo(
+    () => composeCSS(readerSettings.codeSnippetsCSS),
+    [readerSettings.codeSnippetsCSS],
+  );
+  const customJS = useMemo(
+    () => composeJS(readerSettings.codeSnippetsJS),
+    [readerSettings.codeSnippetsJS],
+  );
+  const processedPreviewHTML = useMemo(
+    () => applyRegexReplacements(previewHTML, readerSettings.regexReplacements),
+    [readerSettings.regexReplacements],
+  );
   const source = useMemo(() => {
     const latest = latestRef.current;
     return {
@@ -83,34 +99,35 @@ const ReaderPreviewWebView = () => {
         batteryLevel: getBatteryLevelSync(),
         chapter: { ...previewChapter, progress: progressRef.current },
         chapterGeneralSettings: latest.generalSettings,
-        html: previewHTML,
+        html: processedPreviewHTML,
         isSettingsPreview: true,
         novel: previewNovel,
-        readerSettings: {
-          ...latest.readerSettings,
-          customCSS,
-          customJS,
-        },
+        readerSettings: latest.readerSettings,
+        customCSS,
+        customJS,
         strings: createReaderStrings(previewChapter.name),
         theme,
       }),
     };
-  }, [customCSS, customJS, theme]);
+  }, [customCSS, customJS, processedPreviewHTML, theme]);
 
   const codeRef = useRef({
-    css: readerSettings.customCSS,
-    js: readerSettings.customJS,
+    css: customCSS,
+    js: customJS,
+    html: processedPreviewHTML,
   });
   useEffect(() => {
     const changed =
-      codeRef.current.css !== readerSettings.customCSS ||
-      codeRef.current.js !== readerSettings.customJS;
+      codeRef.current.css !== customCSS ||
+      codeRef.current.js !== customJS ||
+      codeRef.current.html !== processedPreviewHTML;
     codeRef.current = {
-      css: readerSettings.customCSS,
-      js: readerSettings.customJS,
+      css: customCSS,
+      js: customJS,
+      html: processedPreviewHTML,
     };
     if (changed) playback.stop();
-  }, [playback, readerSettings.customCSS, readerSettings.customJS]);
+  }, [customCSS, customJS, playback, processedPreviewHTML]);
 
   const handleMessage = useCallback(
     (payload: string) => {
