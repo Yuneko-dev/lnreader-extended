@@ -1,9 +1,10 @@
-import { IconButtonV2 } from '@components';
+import { IconButtonV2, Menu } from '@components';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useTheme } from '@hooks/persisted';
 import { useNovelLayout } from '@screens/novel/NovelContext';
+import { getString } from '@strings/translations';
 import color from 'color';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Animated, {
@@ -18,6 +19,7 @@ interface ChapterFooterProps {
   readerSheetRef: React.RefObject<BottomSheetModalMethods | null>;
   scrollToStart: () => void;
   openDrawer: () => void;
+  openTranslateSettings: () => void;
 }
 
 const fastOutSlowIn = Easing.bezier(0.4, 0.0, 0.2, 1.0);
@@ -26,8 +28,10 @@ const ChapterFooter = ({
   readerSheetRef,
   scrollToStart,
   openDrawer,
+  openTranslateSettings,
 }: ChapterFooterProps) => {
   const {
+    canRetranslate,
     nextChapter,
     prevChapter,
     navigateChapter,
@@ -38,6 +42,7 @@ const ChapterFooter = ({
     isOfflineTranslated,
     retranslateChapter,
   } = useChapterContext();
+  const [translateMenuVisible, setTranslateMenuVisible] = useState(false);
   const theme = useTheme();
   const rippleConfig = {
     color: theme.rippleColor,
@@ -116,31 +121,58 @@ const ChapterFooter = ({
           android_ripple={rippleConfig}
           style={styles.buttonStyles}
           onPress={() => navigateChapter('PREV')}
+          disabled={!prevChapter}
         >
           <IconButton
             icon="chevron-left"
             size={26}
-            disabled={!prevChapter}
-            iconColor={theme.onSurface}
+            iconColor={
+              prevChapter
+                ? theme.onSurface
+                : color(theme.onSurface).alpha(0.38).string()
+            }
           />
         </Pressable>
         <View style={styles.buttonStyles}>
           <View style={styles.translateButtonContainer}>
-            <IconButtonV2
-              name={
-                isTranslating
-                  ? 'translate'
-                  : isTranslated
-                  ? 'translate-off'
-                  : 'translate'
+            <Menu
+              anchor={
+                <IconButtonV2
+                  name={
+                    isTranslating
+                      ? 'translate'
+                      : isTranslated
+                      ? 'translate-off'
+                      : 'translate'
+                  }
+                  size={26}
+                  onPress={translateChapter}
+                  onLongPress={() => setTranslateMenuVisible(true)}
+                  color={translateIconColor}
+                  theme={theme}
+                />
               }
-              size={26}
-              onPress={translateChapter}
-              onLongPress={retranslateChapter}
-              color={translateIconColor}
-              theme={theme}
-              disabled={isOfflineTranslated}
-            />
+              onDismiss={() => setTranslateMenuVisible(false)}
+              visible={translateMenuVisible}
+            >
+              <Menu.Item
+                disabled={!canRetranslate}
+                onPress={() => {
+                  setTranslateMenuVisible(false);
+                  retranslateChapter();
+                }}
+                title={getString('readerScreen.retranslate')}
+              />
+              <Menu.Item
+                onPress={() => {
+                  setTranslateMenuVisible(false);
+                  openTranslateSettings();
+                }}
+                title={getString(
+                  'readerScreen.bottomSheet.translateTab.translationSettings',
+                )}
+              />
+            </Menu>
             <View
               style={[
                 styles.progressBarContainer,
@@ -207,12 +239,16 @@ const ChapterFooter = ({
           android_ripple={rippleConfig}
           style={styles.buttonStyles}
           onPress={() => navigateChapter('NEXT')}
+          disabled={!nextChapter}
         >
           <IconButton
             icon="chevron-right"
             size={26}
-            disabled={!nextChapter}
-            iconColor={theme.onSurface}
+            iconColor={
+              nextChapter
+                ? theme.onSurface
+                : color(theme.onSurface).alpha(0.38).string()
+            }
           />
         </Pressable>
       </View>

@@ -683,6 +683,7 @@
     "noNextChapter": "There's no next chapter",
     "noPreviousChapter": "There's no previous chapter",
     "usingOfflineTranslation": "Using offline translated version",
+    "retranslate": "Re-translate",
     "retranslating": "Re-translating chapter...",
     "retranslateQueued": "Waiting for pre-fetch to finish before re-translating..."
   },

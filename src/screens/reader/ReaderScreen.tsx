@@ -157,6 +157,13 @@ export const ChapterContent = ({
     });
   }, [chapter.path, navigation, novel.name, novel.pluginId]);
 
+  const openTranslateSettings = useCallback(() => {
+    navigation.navigate('MoreStack', {
+      screen: 'SettingsStack',
+      params: { screen: 'TranslateSettings' },
+    });
+  }, [navigation]);
+
   const handleReaderPress = useCallback(() => {
     if (searchVisible) {
       Keyboard.dismiss();
@@ -212,6 +219,7 @@ export const ChapterContent = ({
               readerSheetRef={readerSheetRef}
               scrollToStart={scrollToStart}
               openDrawer={openDrawerI}
+              openTranslateSettings={openTranslateSettings}
             />
           ) : null}
         </View>

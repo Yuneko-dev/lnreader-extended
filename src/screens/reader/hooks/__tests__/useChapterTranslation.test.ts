@@ -95,6 +95,37 @@ describe('useChapterTranslation', () => {
     mockGetTranslateConfigSnapshot.mockReturnValue(makeSnapshot());
   });
 
+  it('enables re-translate only for an idle online translation', async () => {
+    const retranslation = createDeferred<string>();
+    mockTranslateChapterHTML
+      .mockResolvedValueOnce('translated-a')
+      .mockReturnValueOnce(retranslation.promise);
+    const { result } = setup();
+    const canRetranslate = () =>
+      (result.current as { canRetranslate?: boolean }).canRetranslate;
+
+    expect(canRetranslate()).toBe(false);
+
+    act(() => {
+      result.current.activateChapter({
+        allowPrefetch: false,
+        chapter: chapter(1),
+        isOffline: false,
+        sourceHtml: 'original-a',
+      });
+      result.current.translateChapter();
+    });
+    expect(canRetranslate()).toBe(false);
+
+    await waitFor(() => expect(canRetranslate()).toBe(true));
+
+    act(() => result.current.retranslateChapter());
+    expect(canRetranslate()).toBe(false);
+
+    await act(async () => retranslation.resolve('translated-b'));
+    await waitFor(() => expect(canRetranslate()).toBe(true));
+  });
+
   it('uses one foreground pipeline and preserves the old translation when re-translate fails', async () => {
     mockTranslateChapterHTML
       .mockResolvedValueOnce('translated-a')
@@ -443,6 +474,9 @@ describe('useChapterTranslation', () => {
     });
 
     expect(result.current.isOfflineTranslated).toBe(true);
+    expect(
+      (result.current as { canRetranslate?: boolean }).canRetranslate,
+    ).toBe(false);
     expect(result.current.chapterText).toBe('offline-translation');
     expect(mockTranslateChapterHTML).not.toHaveBeenCalled();
   });

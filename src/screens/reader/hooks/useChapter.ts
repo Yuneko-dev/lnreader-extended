@@ -136,6 +136,7 @@ export default function useChapter(
 
   const {
     activateChapter,
+    canRetranslate,
     chapterText,
     isOfflineTranslated,
     isTranslated,
@@ -501,6 +502,7 @@ export default function useChapter(
       error,
       loading,
       chapterText,
+      canRetranslate,
       setHidden,
       saveProgress,
       hideHeader,
@@ -526,6 +528,7 @@ export default function useChapter(
       error,
       loading,
       chapterText,
+      canRetranslate,
       setHidden,
       saveProgress,
       hideHeader,

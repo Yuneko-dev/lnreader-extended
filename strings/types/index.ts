@@ -586,6 +586,7 @@ export interface StringMap {
   'readerScreen.noNextChapter': 'string';
   'readerScreen.noPreviousChapter': 'string';
   'readerScreen.usingOfflineTranslation': 'string';
+  'readerScreen.retranslate': 'string';
   'readerScreen.retranslating': 'string';
   'readerScreen.retranslateQueued': 'string';
   'readerSettings.autoScrollInterval': 'string';
