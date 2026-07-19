@@ -427,6 +427,35 @@ describe('useChapter', () => {
     expect(TTSPlaybackManager.stopAll).toHaveBeenCalledTimes(1);
   });
 
+  it('remounts a downloaded chapter when its plugin is missing without reading or clearing content', async () => {
+    const downloadedChapter = { ...initialChapter, isDownloaded: true };
+    const store = createStore({
+      [downloadedChapter.id]: 'downloaded chapter body',
+    });
+    mockUseNovelActions.mockReturnValue(store.state);
+    mockGetDbChapter.mockResolvedValue(downloadedChapter);
+
+    const { result } = renderHook(() =>
+      useChapter({ current: null }, downloadedChapter, novel, false),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.canReloadFromSource).toBe(true);
+
+    act(() => {
+      result.current.reloadFromSource();
+    });
+
+    expect(result.current.readerVersion).toBe(1);
+    expect(mockFetchChapter).not.toHaveBeenCalled();
+    expect(NativeFile.readFile).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.remove).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.read(downloadedChapter.id)).toBe(
+      'downloaded chapter body',
+    );
+    expect(TTSPlaybackManager.stopAll).toHaveBeenCalledTimes(1);
+  });
+
   it('does not reload or remount when the plugin is missing and the chapter is not downloaded', async () => {
     const store = createStore({ [initialChapter.id]: 'cached chapter body' });
     mockUseNovelActions.mockReturnValue(store.state);

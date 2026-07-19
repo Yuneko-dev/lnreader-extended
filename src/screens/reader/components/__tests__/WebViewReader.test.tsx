@@ -381,6 +381,8 @@ describe('WebViewReader document lifecycle', () => {
     mockChapterContext = {
       ...mockChapterContext,
       chapter: { ...chapter, progress: 88 },
+      nextChapter: { ...nextChapter, progress: 64 },
+      prevChapter: { ...prevChapter, progress: 42 },
     };
     rerenderReader(view);
 

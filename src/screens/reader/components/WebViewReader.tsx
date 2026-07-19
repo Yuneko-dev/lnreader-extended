@@ -132,8 +132,12 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     processedHtml,
     novel,
     chapter: { ...chapter, progress: undefined },
-    nextChapter,
-    prevChapter,
+    nextChapter: nextChapter
+      ? { ...nextChapter, progress: undefined }
+      : undefined,
+    prevChapter: prevChapter
+      ? { ...prevChapter, progress: undefined }
+      : undefined,
     customCSS,
     customJS,
     pluginUseCustomCSS: readerSettings.pluginUseCustomCSS,
