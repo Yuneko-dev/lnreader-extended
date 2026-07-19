@@ -86,7 +86,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
             <Panel1
               accessibilityLabel="Saturation and brightness"
               style={styles.panel}
-              thumbShape='circle'
+              thumbShape="circle"
             />
           </HueCircular>
           <View
