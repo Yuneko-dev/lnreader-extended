@@ -75,6 +75,8 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
           <Preview style={styles.previewStyle} />
           <HueCircular
             accessibilityLabel="Hue"
+            thumbShape="pill"
+            rotate={-30}
             style={styles.hueCircular}
             containerStyle={[
               styles.hueContent,
@@ -84,6 +86,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
             <Panel1
               accessibilityLabel="Saturation and brightness"
               style={styles.panel}
+              thumbShape='circle'
             />
           </HueCircular>
           <View
@@ -150,10 +153,10 @@ const styles = StyleSheet.create({
     paddingTop: 6,
   },
   panel: {
-    alignSelf: 'center',
     borderRadius: 16,
-    height: '68%',
-    width: '68%',
+    width: '74%',
+    height: '74%',
+    alignSelf: 'center',
   },
   picker: {
     alignSelf: 'center',
