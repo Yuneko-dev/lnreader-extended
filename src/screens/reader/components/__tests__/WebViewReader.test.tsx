@@ -250,6 +250,7 @@ const rerenderReader = (view: ReturnType<typeof render>) =>
 
 describe('WebViewReader document lifecycle', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     mockReaderSettings = createReaderSettings();
     mockGeneralSettings = createGeneralSettings();
     mockChapterContext = {

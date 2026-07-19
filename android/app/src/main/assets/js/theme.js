@@ -81,7 +81,10 @@
               : _
           }`,
       ) //if p found, delete all double br near p
-      .replace(/<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p(?:>| [^>]+>)(?:<[^>]+>)*\s*<br>))\s*/g, '');
+      .replace(
+        /<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p(?:>| [^>]+>)(?:<[^>]+>)*\s*<br>))\s*/g,
+        '',
+      );
   }
 
   if (bionicReading || removeExtraParagraphSpacing) {
