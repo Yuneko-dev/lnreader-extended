@@ -77,6 +77,8 @@ export const ChapterContent = ({
     webViewRef,
     hideHeader,
     refetch,
+    readerVersion,
+    canUseRemoteSource,
   } = useChapterContext();
   const readerSheetRef = useRef<BottomSheetModalMethods>(null);
   const theme = useTheme();
@@ -188,11 +190,15 @@ export const ChapterContent = ({
             title: getString('common.retry'),
             onPress: refetch,
           },
-          {
-            iconName: 'earth',
-            title: 'WebView',
-            onPress: openWebView,
-          },
+          ...(canUseRemoteSource
+            ? [
+                {
+                  iconName: 'earth' as const,
+                  title: 'WebView',
+                  onPress: openWebView,
+                },
+              ]
+            : []),
         ]}
       />
     );
@@ -207,6 +213,7 @@ export const ChapterContent = ({
       <ChapterLoadingScreen isLoading={loading}>
         <View style={styles.container}>
           <WebViewReader
+            key={readerVersion}
             onPress={handleReaderPress}
             onFindResult={handleFindResult}
             bottomInset={nonZeroBottom.current}

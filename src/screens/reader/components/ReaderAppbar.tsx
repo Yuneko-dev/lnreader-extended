@@ -1,10 +1,11 @@
 import { bookmarkChapter } from '@database/queries/ChapterQueries';
 import { useNovelLayout } from '@screens/novel/NovelContext';
+import { resolveUrl } from '@services/plugin/fetch';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import color from 'color';
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Share, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import Animated, {
   Easing,
@@ -36,21 +37,40 @@ const ReaderAppbar = ({
   openWebView,
   search,
 }: ReaderAppbarProps) => {
-  const { chapter, novel } = useChapterContext();
+  const {
+    chapter,
+    novel,
+    reloadFromSource,
+    canReloadFromSource,
+    canUseRemoteSource,
+  } = useChapterContext();
   const { statusBarHeight } = useNovelLayout();
   const [menuVisible, setMenuVisible] = useState(false);
   const { openSearch } = search;
 
   const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
+  const handleReloadFromSource = useCallback(() => {
+    closeMenu();
+    if (!canReloadFromSource) return;
+    reloadFromSource();
+  }, [canReloadFromSource, closeMenu, reloadFromSource]);
   const handleOpenWebView = useCallback(() => {
     closeMenu();
+    if (!canUseRemoteSource) return;
     openWebView();
-  }, [closeMenu, openWebView]);
+  }, [canUseRemoteSource, closeMenu, openWebView]);
   const handleOpenSearch = useCallback(() => {
     closeMenu();
     openSearch();
   }, [closeMenu, openSearch]);
+  const handleShare = useCallback(() => {
+    closeMenu();
+    if (!canUseRemoteSource) return;
+    Share.share({
+      message: resolveUrl(novel.pluginId, chapter.path),
+    });
+  }, [canUseRemoteSource, chapter.path, closeMenu, novel.pluginId]);
 
   const entering = () => {
     'worklet';
@@ -159,13 +179,23 @@ const ReaderAppbar = ({
                 contentStyle={{ backgroundColor: theme.surface2 }}
               >
                 <Menu.Item
+                  title={getString('readerScreen.reloadFromSource')}
+                  onPress={handleReloadFromSource}
+                  disabled={!canReloadFromSource}
+                />
+                <Menu.Item
                   title={getString('webview.openInWebView')}
                   onPress={handleOpenWebView}
-                  disabled={Boolean(novel.isLocal)}
+                  disabled={!canUseRemoteSource}
                 />
                 <Menu.Item
                   title={getString('readerScreen.findInChapter')}
                   onPress={handleOpenSearch}
+                />
+                <Menu.Item
+                  title={getString('webview.share')}
+                  onPress={handleShare}
+                  disabled={!canUseRemoteSource}
                 />
               </Menu>
             </View>

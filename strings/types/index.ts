@@ -582,6 +582,7 @@ export interface StringMap {
   'readerScreen.emptyChapterMessage': 'string';
   'readerScreen.finished': 'string';
   'readerScreen.findInChapter': 'string';
+  'readerScreen.reloadFromSource': 'string';
   'readerScreen.nextChapter': 'string';
   'readerScreen.noNextChapter': 'string';
   'readerScreen.noPreviousChapter': 'string';
