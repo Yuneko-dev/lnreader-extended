@@ -281,7 +281,7 @@ export default TTSTab;
 const styles = StyleSheet.create({
   content: { paddingBottom: 32 },
   demo: { gap: 12, paddingHorizontal: 16 },
-  demoActions: { flexDirection: 'row', gap: 12 },
+  demoActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
   label: { fontSize: 16, marginBottom: 8 },
   reset: { alignItems: 'flex-start', padding: 16 },
   segment: { gap: 8, padding: 16 },

@@ -144,11 +144,13 @@ const AdvancedTab = () => {
         : 'customCodeSettings.javascriptSnippets',
     );
 
+    const icon = language === 'css' ? 'language-css3' : 'language-javascript';
+
     return (
       <View style={styles.section}>
         <SectionHeader
           addLabel={getString('customCodeSettings.addSnippet')}
-          icon="code-tags"
+          icon={icon}
           onAdd={() => setSnippetEditor({ language })}
           theme={theme}
           title={title}

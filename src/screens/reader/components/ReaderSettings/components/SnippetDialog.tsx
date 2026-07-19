@@ -17,6 +17,43 @@ type Props = {
   onSave: (snippet: CodeSnippet) => void;
 };
 
+const customCSSPlaceholder = `/* Custom CSS for your reader */
+
+body {
+  margin: 16px;
+  line-height: 1.8;
+}
+
+h1, h2, h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+p {
+  text-indent: 1em;
+  margin-bottom: 1em;
+}
+
+/* Target specific sources */
+#sourceId-example {
+  font-family: serif;
+}`;
+
+const customJSPlaceholder = `// Custom JavaScript for your reader
+// Available variables:
+// - html, novelName, chapterName
+// - sourceId, chapterId, novelId
+
+// Example: Remove elements
+document.querySelectorAll('.ads').forEach(el => el.remove());
+
+// Example: Modify content
+const title = document.querySelector('h1');
+if (title) {
+  title.style.color = '#FF6B6B';
+}`;
+
 const SnippetDialog = ({
   visible,
   language,
@@ -123,19 +160,25 @@ const SnippetDialog = ({
       </View>
       <View>
         <StableTextInput
-          autoCapitalize="none"
-          autoCorrect={false}
           error={submitted && !code.trim()}
           label={getString('customCodeSettings.snippetCode')}
           mode="outlined"
           multiline
-          numberOfLines={8}
+          numberOfLines={12}
           onChangeText={setCode}
+          autoCorrect={false}
+          autoCapitalize="none"
           spellCheck={false}
-          style={[styles.input, styles.code]}
+          style={[styles.code, { backgroundColor: theme.surface2 }]}
+          contentStyle={styles.codeContent}
+          activeUnderlineColor={theme.primary}
           textColor={theme.onSurface}
+          placeholderTextColor={theme.onSurfaceVariant}
           theme={inputTheme}
           value={code}
+          placeholder={
+            language === 'css' ? customCSSPlaceholder : customJSPlaceholder
+          }
         />
         {submitted && !code.trim() ? (
           <HelperText type="error" visible theme={{ colors: theme }}>
@@ -156,7 +199,14 @@ const SnippetDialog = ({
 export default React.memo(SnippetDialog);
 
 const styles = StyleSheet.create({
-  code: { minHeight: 180 },
+  code: {
+    minHeight: 180,
+  },
+  codeContent: {
+    fontFamily: 'monospace',
+    fontSize: 13,
+    lineHeight: 20,
+  },
   content: { gap: 16 },
   input: { backgroundColor: 'transparent' },
 });

@@ -206,7 +206,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       <div class="transition-chapter" id="LNReader-title-novel">
         ${chapter.name}
       </div>
-      ${html}  
+      ${html}
     </div>
     <div id="reader-ui"></div>
   </body>
