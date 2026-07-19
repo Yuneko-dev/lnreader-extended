@@ -198,7 +198,7 @@ const ChapterDrawer = () => {
               chapterId: chapter.id,
               onPress: () => {
                 setLoading(true);
-                getChapter(val.item);
+                getChapter({ chapter: val.item });
               },
             })
           }

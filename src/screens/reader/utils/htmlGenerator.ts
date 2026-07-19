@@ -4,6 +4,7 @@ import {
   ChapterReaderSettings,
 } from '@hooks/persisted/useSettings';
 import { ThemeColors } from '@theme/types';
+import { serializeInlineScriptValue } from '@utils/customCode';
 import color from 'color';
 import { StatusBar } from 'react-native';
 
@@ -21,6 +22,8 @@ export interface HtmlTemplateOptions {
   readerBottomInset?: number;
   pluginCustomCSS?: string;
   pluginCustomJS?: string;
+  customCSS?: string;
+  customJS?: string;
   nextChapterScreenVisible?: boolean;
   pendingScrollPosition?: 'start' | 'end' | number | null;
   readerDir?: 'rtl' | 'ltr';
@@ -48,6 +51,8 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     readerBottomInset = 0,
     pluginCustomCSS = '',
     pluginCustomJS = '',
+    customCSS = '',
+    customJS = '',
     nextChapterScreenVisible = false,
     pendingScrollPosition,
     readerDir: providedReaderDir,
@@ -58,10 +63,6 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
 
   const readerDir =
     providedReaderDir || (readerSettings.textAlign === 'right' ? 'rtl' : 'ltr');
-
-  // Safe JSON serialization for inline scripts
-  const safeJsonStringify = (data: any) =>
-    JSON.stringify(data).replace(/</g, '\\u003c');
 
   const initialReaderConfig = {
     readerSettings,
@@ -120,14 +121,23 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       : '';
 
   const pluginJsScript =
-    !isSettingsPreview && pluginCustomJS
+    !isSettingsPreview && readerSettings.pluginUseCustomJS && pluginCustomJS
       ? `<script src="${pluginCustomJS}"></script>`
       : '';
 
   const pluginCssLink =
-    !isSettingsPreview && pluginCustomCSS
+    !isSettingsPreview && readerSettings.pluginUseCustomCSS && pluginCustomCSS
       ? `<link rel="stylesheet" href="${pluginCustomCSS}">`
       : '';
+
+  const customJsScript = customJS
+    ? `
+  <script>
+    (function runCustomCode() {
+      ${customJS}
+    })();
+  </script>`
+    : '';
 
   const corePlayerScripts = isVideoChapter
     ? `
@@ -154,6 +164,12 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
         --StatusBar-currentHeight: ${StatusBar.currentHeight}px;
         --readerSettings-theme: ${readerSettings.theme};
         --readerSettings-padding: ${readerSettings.padding}px;
+        --readerSettings-paragraphIndent: ${
+          readerSettings.paragraphIndent ?? 0
+        }em;
+        --readerSettings-paragraphSpacing: ${
+          readerSettings.paragraphSpacing ?? 1
+        }em;
         --readerSettings-textSize: ${readerSettings.textSize}px;
         --readerSettings-textColor: ${readerSettings.textColor};
         --readerSettings-textAlign: ${readerSettings.textAlign};
@@ -183,14 +199,14 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       }
     </style>
     ${pluginCssLink}
-    <style>${readerSettings.customCSS || ''}</style>
+    <style>${customCSS}</style>
   </head>
   <body class="${chapterGeneralSettings.pageReader ? 'page-reader' : ''}">
     <div id="LNReader-chapter">
       <div class="transition-chapter" id="LNReader-title-novel">
         ${chapter.name}
       </div>
-      ${html}  
+      ${html}
     </div>
     <div id="reader-ui"></div>
   </body>
@@ -203,8 +219,12 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
       return true;
     };
 
-    var initialPageReaderConfig = ${safeJsonStringify(initialPageReaderConfig)};
-    var initialReaderConfig = ${safeJsonStringify(initialReaderConfig)};
+    var initialPageReaderConfig = ${serializeInlineScriptValue(
+      initialPageReaderConfig,
+    )};
+    var initialReaderConfig = ${serializeInlineScriptValue(
+      initialReaderConfig,
+    )};
   </script>
   <script src="${assetsUriPrefix}/js/modules/core/polyfill-onscrollend.js"></script>
   <script src="${assetsUriPrefix}/js/icons.js"></script>
@@ -221,9 +241,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
   ${proxyFetchScript}
   ${corePlayerScripts}
   ${pluginJsScript}
-  <script>
-    ${readerSettings.customJS || ''}
-  </script>
+  ${customJsScript}
 </html>
   `;
 };

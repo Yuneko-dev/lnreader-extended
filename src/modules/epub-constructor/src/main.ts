@@ -147,7 +147,7 @@ export default class EpubFile {
       );
 
       manifest.push(manifestChapter(idRef, chapter.fileName, hasScript));
-      files.push(createChapter(chapter));
+      files.push(createChapter(chapter, hasScript));
       spine.push(`<itemref idref="${idRef}"/>`);
       ol.push(
         `<li><a href="${chapter.fileName}">${escapeXml(

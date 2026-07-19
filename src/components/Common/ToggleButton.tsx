@@ -8,15 +8,17 @@ import { ThemeColors } from '../../theme/types';
 
 // --- Dynamic style helpers ---
 
-const getToggleButtonPressableStyle = (
+const getToggleButtonPressableStyle = (disabled?: boolean) => ({
+  opacity: disabled ? 0.6 : 1,
+});
+
+const getToggleButtonContainerStyle = (
   selected: boolean,
   theme: ThemeColors,
-  disabled?: boolean,
 ) => ({
-  opacity: disabled ? 0.6 : 1,
   backgroundColor: selected
     ? Color(theme.primary).alpha(0.12).string()
-    : 'transparent',
+    : theme.surface,
 });
 
 const getToggleColorButtonPressableStyle = (backgroundColor: string) => ({
@@ -42,12 +44,17 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   onPress,
   disabled,
 }) => (
-  <View style={styles.toggleButtonContainer}>
+  <View
+    style={[
+      styles.toggleButtonContainer,
+      getToggleButtonContainerStyle(selected, theme),
+    ]}
+  >
     <Pressable
       android_ripple={{ color: theme.rippleColor }}
       style={[
         styles.toggleButtonPressable,
-        getToggleButtonPressableStyle(selected, theme, disabled),
+        getToggleButtonPressableStyle(disabled),
       ]}
       onPress={onPress}
       disabled={disabled}

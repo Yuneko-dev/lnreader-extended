@@ -131,9 +131,10 @@ function defineSafeProp(globalName, getParent, key) {
   });
 }
 
-defineSafeProp('novelName',   () => window.reader?.novel,   'name');
-defineSafeProp('chapterName', () => window.reader?.chapter, 'name');
-defineSafeProp('sourceId',    () => window.reader?.novel,   'pluginId');
-defineSafeProp('chapterId',   () => window.reader?.chapter, 'id');
-defineSafeProp('novelId',     () => window.reader?.novel,   'id');
-defineSafeProp('html',        () => window.chapterElement,  'innerHTML');
+defineSafeProp('novelName',      () => window.reader?.novel,   'name');
+defineSafeProp('chapterName',    () => window.reader?.chapter, 'name');
+defineSafeProp('sourceId',       () => window.reader?.novel,   'pluginId');
+defineSafeProp('chapterId',      () => window.reader?.chapter, 'id');
+defineSafeProp('novelId',        () => window.reader?.novel,   'id');
+defineSafeProp('chapterElement', () => window.reader,          'chapterElement');
+defineSafeProp('html',           () => window.chapterElement,  'innerHTML');

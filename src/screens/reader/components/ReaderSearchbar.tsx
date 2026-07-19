@@ -1,4 +1,4 @@
-import { IconButtonV2, StableTextInput } from '@components';
+import { IconButtonV2 } from '@components';
 import { getString } from '@strings/translations';
 import { ThemeColors } from '@theme/types';
 import React, { useEffect, useRef } from 'react';
@@ -33,7 +33,7 @@ const ReaderSearchbar = ({ theme, search }: ReaderSearchbarProps) => {
         onPress={() => inputRef.current?.focus()}
         theme={theme}
       />
-      <StableTextInput
+      <TextInput
         ref={inputRef}
         autoCapitalize="none"
         autoCorrect={false}
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   result: {
+    marginStart: 8,
     fontSize: 13,
     minWidth: 44,
     textAlign: 'center',

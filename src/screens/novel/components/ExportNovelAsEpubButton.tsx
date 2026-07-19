@@ -3,6 +3,11 @@ import { useBoolean } from '@hooks/index';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
 import { getString } from '@strings/translations';
 import { MaterialDesignIconName } from '@type/icon';
+import {
+  composeCSS,
+  composeJS,
+  serializeInlineScriptValue,
+} from '@utils/customCode';
 import { showToast } from '@utils/showToast';
 import React, { useMemo } from 'react';
 import { StatusBar, StyleProp, ViewStyle } from 'react-native';
@@ -46,6 +51,14 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
     epubUseCustomCSS = false,
     epubUseCustomJS = false,
   } = readerSettings;
+  const customCSS = useMemo(
+    () => composeCSS(readerSettings.codeSnippetsCSS),
+    [readerSettings.codeSnippetsCSS],
+  );
+  const customJS = useMemo(
+    () => composeJS(readerSettings.codeSnippetsJS),
+    [readerSettings.codeSnippetsJS],
+  );
 
   const epubStylesheet = useMemo(() => {
     if (!novel) {
@@ -87,13 +100,20 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       : '';
 
     const customStyles = epubUseCustomCSS
-      ? readerSettings.customCSS
+      ? customCSS
           .replace(RegExp(`#sourceId-${novel.pluginId}\\s*\\{`, 'g'), 'body {')
           .replace(RegExp(`#sourceId-${novel.pluginId}[^.#A-Z]*`, 'gi'), '')
       : '';
 
     return appThemeStyles + customStyles;
-  }, [novel, epubUseAppTheme, epubUseCustomCSS, readerSettings, theme.primary]);
+  }, [
+    customCSS,
+    novel,
+    epubUseAppTheme,
+    epubUseCustomCSS,
+    readerSettings,
+    theme.primary,
+  ]);
 
   const epubJavaScript = useMemo(() => {
     if (!novel) {
@@ -101,16 +121,16 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
     }
 
     return `
-      let novelName = "${novel.name}";
-      let chapterName = "";
-      let sourceId = ${novel.pluginId};
-      let chapterId = "";
-      let novelId = ${novel.id};
-      let html = document.querySelector("[data-epub-chapter]").innerHTML;
+      const novelName = ${serializeInlineScriptValue(novel.name)};
+      const chapterName = "";
+      const sourceId = ${serializeInlineScriptValue(novel.pluginId)};
+      const chapterId = "";
+      const novelId = ${novel.id};
+      const chapterElement = document.querySelector("[data-epub-chapter]");
       
-      ${readerSettings.customJS}
+      ${customJS}
     `;
-  }, [novel, readerSettings]);
+  }, [customJS, novel]);
 
   const handleExportSubmit = (
     destinationUri: string,

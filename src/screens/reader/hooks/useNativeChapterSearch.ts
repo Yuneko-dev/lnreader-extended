@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Keyboard } from 'react-native';
+import { KeyboardController } from 'react-native-keyboard-controller';
 import WebView from 'react-native-webview';
 
 export type NativeFindResult = {
@@ -28,9 +28,11 @@ export const useNativeChapterSearch = (
   webViewRef: RefObject<WebView | null>,
 ) => {
   const [visible, setVisible] = useState(false);
+  const [keyboardAvoidanceActive, setKeyboardAvoidanceActive] = useState(false);
   const [text, setText] = useState('');
   const [result, setResult] = useState(EMPTY_FIND_RESULT);
   const textRef = useRef('');
+  const keyboardLifecycleRef = useRef(0);
 
   const setSearchText = useCallback(
     (query: string) => {
@@ -51,15 +53,24 @@ export const useNativeChapterSearch = (
     [webViewRef],
   );
 
-  const openSearch = useCallback(() => setVisible(true), []);
+  const openSearch = useCallback(() => {
+    keyboardLifecycleRef.current += 1;
+    setKeyboardAvoidanceActive(true);
+    setVisible(true);
+  }, []);
 
   const closeSearch = useCallback(() => {
+    const keyboardLifecycle = ++keyboardLifecycleRef.current;
     textRef.current = '';
     setText('');
     setResult(EMPTY_FIND_RESULT);
     setVisible(false);
     webViewRef.current?.clearMatches?.();
-    Keyboard.dismiss();
+    KeyboardController.dismiss().finally(() => {
+      if (keyboardLifecycleRef.current === keyboardLifecycle) {
+        setKeyboardAvoidanceActive(false);
+      }
+    });
   }, [webViewRef]);
 
   const findNext = useCallback(
@@ -77,12 +88,14 @@ export const useNativeChapterSearch = (
 
   useEffect(
     () => () => {
+      keyboardLifecycleRef.current += 1;
       webViewRef.current?.clearMatches?.();
     },
     [webViewRef],
   );
 
   return {
+    keyboardAvoidanceActive,
     visible,
     text,
     result,

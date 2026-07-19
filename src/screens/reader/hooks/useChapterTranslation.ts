@@ -69,6 +69,16 @@ const initialViewState: TranslationViewState = {
   progress: 0,
 };
 
+const canRetranslateChapter = (
+  state: TranslationViewState,
+  hasForegroundOperation: boolean,
+  hasOriginalHtml: boolean,
+) =>
+  state.contentMode === 'translated' &&
+  state.activity === 'idle' &&
+  !hasForegroundOperation &&
+  hasOriginalHtml;
+
 export default function useChapterTranslation({
   chapterTextCache,
   loadChapterText,
@@ -513,10 +523,11 @@ export default function useChapterTranslation({
   const retranslateChapter = useCallback(() => {
     const currentState = viewStateRef.current;
     if (
-      currentState.contentMode !== 'translated' ||
-      currentState.activity !== 'idle' ||
-      foregroundRef.current ||
-      !originalHtmlRef.current
+      !canRetranslateChapter(
+        currentState,
+        Boolean(foregroundRef.current),
+        Boolean(originalHtmlRef.current),
+      )
     ) {
       return;
     }
@@ -551,6 +562,11 @@ export default function useChapterTranslation({
 
   return {
     activateChapter,
+    canRetranslate: canRetranslateChapter(
+      viewState,
+      Boolean(foregroundRef.current),
+      Boolean(originalHtmlRef.current),
+    ),
     chapterText,
     isOfflineTranslated: viewState.contentMode === 'offline',
     isTranslated: viewState.contentMode !== 'original',

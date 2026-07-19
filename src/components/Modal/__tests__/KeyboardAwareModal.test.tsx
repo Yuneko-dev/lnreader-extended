@@ -1,6 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import React from 'react';
 import { Keyboard, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 import KeyboardAwareModal from '../KeyboardAwareModal';
 
@@ -19,6 +26,9 @@ jest.mock('@hooks/persisted', () => ({
 }));
 
 jest.mock('react-native-keyboard-controller', () => ({
+  KeyboardController: {
+    dismiss: jest.fn(() => Promise.resolve()),
+  },
   useAnimatedKeyboard: () => ({
     height: { value: 0 },
     state: { value: 0 },
@@ -50,11 +60,19 @@ jest.mock('react-native-paper', () => {
 });
 
 describe('KeyboardAwareModal', () => {
+  const keyboardControllerDismiss =
+    KeyboardController.dismiss as jest.MockedFunction<
+      typeof KeyboardController.dismiss
+    >;
+
   beforeEach(() => {
+    jest.clearAllMocks();
     jest.spyOn(Keyboard, 'dismiss').mockImplementation(() => undefined);
+    keyboardControllerDismiss.mockReset();
+    keyboardControllerDismiss.mockResolvedValue();
   });
 
-  it('renders its regions, merges wrapper styles and centralizes dismiss', () => {
+  it('renders its regions, merges wrapper styles and centralizes dismiss', async () => {
     const onDismiss = jest.fn();
 
     render(
@@ -81,6 +99,85 @@ describe('KeyboardAwareModal', () => {
     });
 
     fireEvent.press(screen.getByTestId('dismiss-modal'));
+
+    await waitFor(() => {
+      expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
+      expect(onDismiss).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('dismisses the controller keyboard before hiding the modal', async () => {
+    let resolveKeyboardDismiss: (() => void) | undefined;
+    keyboardControllerDismiss.mockImplementation(
+      () =>
+        new Promise<void>(resolve => {
+          resolveKeyboardDismiss = resolve;
+        }),
+    );
+    const onDismiss = jest.fn();
+
+    render(
+      <KeyboardAwareModal visible onDismiss={onDismiss}>
+        <Text>Modal body</Text>
+      </KeyboardAwareModal>,
+    );
+
+    fireEvent.press(screen.getByTestId('dismiss-modal'));
+
+    expect(keyboardControllerDismiss).toHaveBeenCalledWith({
+      animated: false,
+    });
+    expect(onDismiss).not.toHaveBeenCalled();
+
+    await act(async () => resolveKeyboardDismiss?.());
+
+    expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back when the controller keyboard never settles', async () => {
+    jest.useFakeTimers();
+    keyboardControllerDismiss.mockImplementation(() => new Promise(() => {}));
+    const onDismiss = jest.fn();
+
+    render(
+      <KeyboardAwareModal visible onDismiss={onDismiss}>
+        <Text>Modal body</Text>
+      </KeyboardAwareModal>,
+    );
+
+    fireEvent.press(screen.getByTestId('dismiss-modal'));
+    expect(onDismiss).not.toHaveBeenCalled();
+
+    await act(async () => jest.runAllTimers());
+
+    expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    jest.useRealTimers();
+  });
+
+  it('ignores repeated dismiss requests while one is in flight', async () => {
+    let resolveKeyboardDismiss: (() => void) | undefined;
+    keyboardControllerDismiss.mockImplementation(
+      () =>
+        new Promise<void>(resolve => {
+          resolveKeyboardDismiss = resolve;
+        }),
+    );
+    const onDismiss = jest.fn();
+
+    render(
+      <KeyboardAwareModal visible onDismiss={onDismiss}>
+        <Text>Modal body</Text>
+      </KeyboardAwareModal>,
+    );
+
+    fireEvent.press(screen.getByTestId('dismiss-modal'));
+    fireEvent.press(screen.getByTestId('dismiss-modal'));
+
+    expect(keyboardControllerDismiss).toHaveBeenCalledTimes(1);
+
+    await act(async () => resolveKeyboardDismiss?.());
 
     expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
     expect(onDismiss).toHaveBeenCalledTimes(1);

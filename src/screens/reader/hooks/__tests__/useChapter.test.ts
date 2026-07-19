@@ -1,6 +1,7 @@
 import NativeFile from '@specs/NativeFile';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
+import TTSPlaybackManager from '../../components/Hooks/TTSPlaybackManager';
 import useChapter from '../useChapter';
 
 const mockUseNovelActions = jest.fn();
@@ -64,8 +65,11 @@ jest.mock('@utils/parseChapterNumber', () => ({
   parseChapterNumber: (...args: unknown[]) => mockParseChapterNumber(...args),
 }));
 
-jest.mock('expo-speech', () => ({
-  stop: jest.fn(),
+jest.mock('../../components/Hooks/TTSPlaybackManager', () => ({
+  __esModule: true,
+  default: {
+    stopAll: jest.fn(),
+  },
 }));
 
 const makeChapter = (id: number, page = '1') => ({
@@ -187,7 +191,7 @@ describe('useChapter', () => {
     mockUseNovelActions.mockReturnValue(store.state);
 
     const { result } = renderHook(() =>
-      useChapter({ current: null }, initialChapter, novel),
+      useChapter({ current: null }, initialChapter, novel, true),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -207,7 +211,7 @@ describe('useChapter', () => {
     mockGetDbChapter.mockResolvedValue(hydratedChapter);
 
     const { result } = renderHook(() =>
-      useChapter({ current: null }, initialChapter, novel),
+      useChapter({ current: null }, initialChapter, novel, true),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -223,7 +227,7 @@ describe('useChapter', () => {
     mockGetDbChapter.mockResolvedValue(dbChapter);
 
     const { result } = renderHook(() =>
-      useChapter({ current: null }, routeChapter, novel),
+      useChapter({ current: null }, routeChapter, novel, true),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -241,7 +245,7 @@ describe('useChapter', () => {
     mockUseNovelActions.mockReturnValue(store.state);
 
     const { result } = renderHook(() =>
-      useChapter({ current: null }, initialChapter, novel),
+      useChapter({ current: null }, initialChapter, novel, true),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -276,7 +280,7 @@ describe('useChapter', () => {
     mockFetchChapter.mockRejectedValueOnce(new Error('network failed'));
 
     const { result } = renderHook(() =>
-      useChapter({ current: null }, initialChapter, novel),
+      useChapter({ current: null }, initialChapter, novel, true),
     );
 
     await waitFor(() => expect(result.current.error).toBe('network failed'));
@@ -305,12 +309,12 @@ describe('useChapter', () => {
     );
 
     const { result } = renderHook(() =>
-      useChapter({ current: null }, initialChapter, novel),
+      useChapter({ current: null }, initialChapter, novel, true),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    const navPromise = result.current.getChapter(nextChapter);
+    const navPromise = result.current.getChapter({ chapter: nextChapter });
 
     expect(
       mockFetchChapter.mock.calls.filter(
@@ -325,5 +329,165 @@ describe('useChapter', () => {
 
     expect(result.current.chapter.id).toBe(nextChapter.id);
     expect(result.current.chapterText).toBe('SANITIZED:next body');
+  });
+
+  it('reloads from source past cached and downloaded content, then remounts with fresh content', async () => {
+    const downloadedChapter = { ...initialChapter, isDownloaded: true };
+    const store = createStore({
+      [downloadedChapter.id]: 'cached chapter body',
+    });
+    mockUseNovelActions.mockReturnValue(store.state);
+    mockGetDbChapter.mockResolvedValue(downloadedChapter);
+    (NativeFile.exists as jest.Mock).mockReturnValue(true);
+    (NativeFile.readFile as jest.Mock).mockReturnValue(
+      'downloaded chapter body',
+    );
+    mockFetchChapter.mockResolvedValue('fresh source body');
+
+    const { result } = renderHook(() =>
+      useChapter({ current: null }, downloadedChapter, novel, true),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.chapterText).toBe('SANITIZED:cached chapter body');
+    expect(result.current.readerVersion).toBe(0);
+
+    await act(async () => {
+      await result.current.reloadFromSource();
+    });
+
+    expect(mockFetchChapter).toHaveBeenCalledWith(
+      novel.pluginId,
+      downloadedChapter.path,
+    );
+    expect(NativeFile.readFile).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.write).toHaveBeenCalledWith(
+      downloadedChapter.id,
+      'fresh source body',
+    );
+    expect(result.current.chapterText).toBe('SANITIZED:fresh source body');
+    expect(result.current.readerVersion).toBe(1);
+    expect(TTSPlaybackManager.stopAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps cached and downloaded content untouched when a source reload fails', async () => {
+    const downloadedChapter = { ...initialChapter, isDownloaded: true };
+    const store = createStore({
+      [downloadedChapter.id]: 'cached chapter body',
+    });
+    mockUseNovelActions.mockReturnValue(store.state);
+    mockGetDbChapter.mockResolvedValue(downloadedChapter);
+    (NativeFile.exists as jest.Mock).mockReturnValue(true);
+
+    const { result } = renderHook(() =>
+      useChapter({ current: null }, downloadedChapter, novel, true),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    mockFetchChapter.mockRejectedValueOnce(new Error('source failed'));
+
+    await act(async () => {
+      await result.current.reloadFromSource();
+    });
+
+    expect(result.current.error).toBe('source failed');
+    expect(result.current.loading).toBe(false);
+    expect(result.current.chapterText).toBe('SANITIZED:cached chapter body');
+    expect(result.current.readerVersion).toBe(0);
+    expect(NativeFile.readFile).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.remove).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.read(downloadedChapter.id)).toBe(
+      'cached chapter body',
+    );
+  });
+
+  it('remounts local-only content without fetching, reading, or clearing cache', async () => {
+    const localNovel = { ...novel, pluginId: 'local' };
+    const store = createStore({ [initialChapter.id]: 'local chapter body' });
+    mockUseNovelActions.mockReturnValue(store.state);
+
+    const { result } = renderHook(() =>
+      useChapter({ current: null }, initialChapter, localNovel, false),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.canReloadFromSource).toBe(true);
+
+    act(() => {
+      result.current.reloadFromSource();
+    });
+
+    expect(result.current.readerVersion).toBe(1);
+    expect(mockFetchChapter).not.toHaveBeenCalled();
+    expect(NativeFile.readFile).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.remove).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.read(initialChapter.id)).toBe(
+      'local chapter body',
+    );
+    expect(TTSPlaybackManager.stopAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('remounts a downloaded chapter when its plugin is missing without reading or clearing content', async () => {
+    const downloadedChapter = { ...initialChapter, isDownloaded: true };
+    const store = createStore({
+      [downloadedChapter.id]: 'downloaded chapter body',
+    });
+    mockUseNovelActions.mockReturnValue(store.state);
+    mockGetDbChapter.mockResolvedValue(downloadedChapter);
+
+    const { result } = renderHook(() =>
+      useChapter({ current: null }, downloadedChapter, novel, false),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.canReloadFromSource).toBe(true);
+
+    act(() => {
+      result.current.reloadFromSource();
+    });
+
+    expect(result.current.readerVersion).toBe(1);
+    expect(mockFetchChapter).not.toHaveBeenCalled();
+    expect(NativeFile.readFile).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.remove).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.read(downloadedChapter.id)).toBe(
+      'downloaded chapter body',
+    );
+    expect(TTSPlaybackManager.stopAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reload or remount when the plugin is missing and the chapter is not downloaded', async () => {
+    const store = createStore({ [initialChapter.id]: 'cached chapter body' });
+    mockUseNovelActions.mockReturnValue(store.state);
+
+    const { result } = renderHook(() =>
+      useChapter({ current: null }, initialChapter, novel, false),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.canReloadFromSource).toBe(false);
+
+    act(() => {
+      result.current.reloadFromSource();
+    });
+
+    expect(result.current.readerVersion).toBe(0);
+    expect(mockFetchChapter).not.toHaveBeenCalled();
+    expect(NativeFile.readFile).not.toHaveBeenCalled();
+    expect(store.chapterTextCache.remove).not.toHaveBeenCalled();
+  });
+
+  it('stops managed TTS playback when chapter state is cleaned up', async () => {
+    const store = createStore({ [initialChapter.id]: 'cached chapter body' });
+    mockUseNovelActions.mockReturnValue(store.state);
+
+    const { result, unmount } = renderHook(() =>
+      useChapter({ current: null }, initialChapter, novel, true),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    unmount();
+
+    expect(TTSPlaybackManager.stopAll).toHaveBeenCalledTimes(1);
   });
 });

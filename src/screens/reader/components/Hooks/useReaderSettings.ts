@@ -26,21 +26,23 @@ export const useReaderSettingsBridge = ({
 }: UseReaderSettingsBridgeOptions) => {
   const readerSettingsMountedRef = useRef(false);
   const generalSettingsMountedRef = useRef(false);
+  const previousTTSRef = useRef(readerSettings.tts);
 
   useEffect(() => {
     if (!readerSettingsMountedRef.current) {
       readerSettingsMountedRef.current = true;
       return;
     }
-    stopNativePlayback();
+    const ttsChanged =
+      JSON.stringify(previousTTSRef.current) !==
+      JSON.stringify(readerSettings.tts);
+    if (ttsChanged) {
+      stopNativePlayback();
+    }
+    previousTTSRef.current = readerSettings.tts;
     webViewRef.current?.injectJavaScript(`
       if (window.reader?.readerSettings) {
         reader.readerSettings.val = ${JSON.stringify(readerSettings)};
-        if (window.tts && tts.reading) {
-          const currentElement = tts.currentElement;
-          tts.stop();
-          setTimeout(() => tts.start(currentElement), 100);
-        }
       }`);
   }, [readerSettings, stopNativePlayback, webViewRef]);
 

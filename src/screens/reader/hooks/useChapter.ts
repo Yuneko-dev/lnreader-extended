@@ -18,14 +18,12 @@ import { useNovelActions, useNovelValue } from '@screens/novel/NovelContext';
 import { fetchChapter, fetchPage } from '@services/plugin/fetch';
 import NativeFile from '@specs/NativeFile';
 import NativeSPenRemote from '@specs/NativeSPenRemote';
-import NativeVolumeButtonListener from '@specs/NativeVolumeButtonListener';
 import { getString } from '@strings/translations';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import { shouldBlockPrivacyAction } from '@utils/privacy';
 import { showToast } from '@utils/showToast';
 import { NOVEL_STORAGE } from '@utils/Storages';
 import { load } from 'cheerio';
-import * as Speech from 'expo-speech';
 import { defaultTo } from 'lodash-es';
 import {
   RefObject,
@@ -35,14 +33,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  AppState,
-  Dimensions,
-  NativeEventEmitter,
-  NativeModules,
-} from 'react-native';
+import { AppState, Dimensions, NativeEventEmitter } from 'react-native';
 import WebView from 'react-native-webview';
 
+import TTSPlaybackManager from '../components/Hooks/TTSPlaybackManager';
+import useVolumeButtonScroll from '../components/Hooks/useVolumeButtonScroll';
 import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import {
   handleSPenRemoteEvent,
@@ -51,9 +46,12 @@ import {
 } from '../utils/sPenRemote';
 import useChapterTranslation from './useChapterTranslation';
 
-const { TikTokTTS } = NativeModules;
+type ChapterLoadOptions = {
+  chapter?: ChapterInfo;
+  fromSource?: boolean;
+  remountOnSuccess?: boolean;
+};
 
-const emmiter = new NativeEventEmitter(NativeVolumeButtonListener);
 const sPenEmitter = NativeSPenRemote
   ? new NativeEventEmitter(NativeSPenRemote)
   : null;
@@ -62,6 +60,7 @@ export default function useChapter(
   webViewRef: RefObject<WebView | null>,
   initialChapter: ChapterInfo,
   novel: NovelInfo,
+  canUseRemoteSource: boolean,
 ) {
   const {
     setLastRead,
@@ -74,6 +73,7 @@ export default function useChapter(
   const [hidden, setHidden] = useState(true);
   const [chapter, setChapter] = useState(initialChapter);
   const [loading, setLoading] = useState(true);
+  const [readerVersion, setReaderVersion] = useState(0);
   const chapterLoadTokenRef = useRef(0);
 
   const [[nextChapter, prevChapter], setAdjacentChapter] = useState<
@@ -92,6 +92,13 @@ export default function useChapter(
   const { trackedNovel, updateAllTrackedNovels } = useTrackedNovel(novel.id);
   const { setImmersiveMode, showStatusAndNavBar } = useFullscreenMode();
 
+  useVolumeButtonScroll({
+    enabled: useVolumeButtons,
+    pageReader: isPageReaderMode,
+    volumeButtonsOffset,
+    webViewRef,
+  });
+
   useEffect(
     () => () => {
       chapterLoadTokenRef.current++;
@@ -99,59 +106,18 @@ export default function useChapter(
     [],
   );
 
-  const connectVolumeButton = useCallback(() => {
-    const volumeUpSubscription = emmiter.addListener('VolumeUp', () => {
-      if (isPageReaderMode) {
-        webViewRef.current?.injectJavaScript(`(()=>{
-          pageReader.movePage(pageReader.page.val - 1);
-        })()`);
-      } else {
-        const offset = defaultTo(
-          volumeButtonsOffset,
-          Math.round(Dimensions.get('window').height * 0.75),
-        );
-        webViewRef.current?.injectJavaScript(`(()=>{
-          window.scrollBy({top: -${offset}, behavior: 'smooth'})
-        })()`);
-      }
-    });
-    const volumeDownSubscription = emmiter.addListener('VolumeDown', () => {
-      if (isPageReaderMode) {
-        webViewRef.current?.injectJavaScript(`(()=>{
-          pageReader.movePage(pageReader.page.val + 1);
-        })()`);
-      } else {
-        const offset = defaultTo(
-          volumeButtonsOffset,
-          Math.round(Dimensions.get('window').height * 0.75),
-        );
-        webViewRef.current?.injectJavaScript(`(()=>{
-          window.scrollBy({top: ${offset}, behavior: 'smooth'})
-        })()`);
-      }
-    });
-    return () => {
-      volumeUpSubscription.remove();
-      volumeDownSubscription.remove();
-    };
-  }, [webViewRef, volumeButtonsOffset, isPageReaderMode]);
-
   useEffect(() => {
-    const disconnect = useVolumeButtons
-      ? connectVolumeButton()
-      : () => undefined;
-
     return () => {
-      disconnect();
-      Speech.stop();
-      TikTokTTS?.stop();
+      TTSPlaybackManager.stopAll();
     };
-  }, [useVolumeButtons, chapter, connectVolumeButton]);
+  }, [chapter]);
 
   const loadChapterText = useCallback(
-    async (id: number, path: string) => {
+    async (id: number, path: string, fromSource = false) => {
       let text = '';
-      if (novel.pluginId === LOCAL_PLUGIN_ID) {
+      if (fromSource) {
+        text = await fetchChapter(novel.pluginId, path);
+      } else if (novel.pluginId === LOCAL_PLUGIN_ID) {
         // Local novels: always go through LocalPlugin.parseChapter()
         // which reads the file and rewrites file:// URIs to http://localhost
         const chapterDir = `${NOVEL_STORAGE}/local/${chapter.novelId}/${id}`;
@@ -172,6 +138,7 @@ export default function useChapter(
 
   const {
     activateChapter,
+    canRetranslate,
     chapterText,
     isOfflineTranslated,
     isTranslated,
@@ -184,7 +151,12 @@ export default function useChapter(
   } = useChapterTranslation({ chapterTextCache, loadChapterText, novel });
 
   const getChapter = useCallback(
-    async (navChapter?: ChapterInfo) => {
+    async (options?: ChapterLoadOptions) => {
+      const {
+        chapter: navChapter,
+        fromSource = false,
+        remountOnSuccess = false,
+      } = options ?? {};
       const loadToken = ++chapterLoadTokenRef.current;
       try {
         const dbChapter = navChapter
@@ -192,11 +164,13 @@ export default function useChapter(
           : await getDbChapter(chapter.id);
         const chap = dbChapter ?? navChapter ?? chapter;
         prepareNavigation(chap.id);
-        const cachedText = await chapterTextCache.read(chap.id);
+        const cachedText = fromSource
+          ? undefined
+          : await chapterTextCache.read(chap.id);
         const text =
           cachedText && cachedText.length > 0
             ? cachedText
-            : loadChapterText(chap.id, chap.path);
+            : loadChapterText(chap.id, chap.path, fromSource);
         const excludedScanlators = novelSettings?.excludedScanlators || [];
         const [nextChapResult, prevChapResult, awaitedText] = await Promise.all(
           [
@@ -285,10 +259,12 @@ export default function useChapter(
           chapterTextCache.write(nextChap.id, prefetchPromise);
         }
 
-        if (noCache) {
-          chapterTextCache.remove(chap.id);
-        } else if (!cachedText) {
-          chapterTextCache.write(chap.id, text);
+        if (!fromSource) {
+          if (noCache) {
+            chapterTextCache.remove(chap.id);
+          } else if (!cachedText) {
+            chapterTextCache.write(chap.id, text);
+          }
         }
 
         if (chapterLoadTokenRef.current !== loadToken) return;
@@ -310,8 +286,20 @@ export default function useChapter(
           nextChapter: nextChap,
           sourceHtml,
         });
-      } catch (e: any) {
-        if (chapterLoadTokenRef.current === loadToken) setError(e.message);
+        if (fromSource) {
+          if (noCache) {
+            chapterTextCache.remove(chap.id);
+          } else {
+            chapterTextCache.write(chap.id, awaitedText);
+          }
+        }
+        if (remountOnSuccess) {
+          setReaderVersion(version => version + 1);
+        }
+      } catch (e: unknown) {
+        if (chapterLoadTokenRef.current === loadToken) {
+          setError(e instanceof Error ? e.message : String(e));
+        }
       } finally {
         if (chapterLoadTokenRef.current === loadToken) setLoading(false);
       }
@@ -453,7 +441,7 @@ export default function useChapter(
         prepareNavigation(nextNavChapter.id);
         resetAutoScroll();
         setLoading(true);
-        getChapter(nextNavChapter);
+        getChapter({ chapter: nextNavChapter });
       } else {
         showToast(
           position === 'NEXT'
@@ -528,6 +516,25 @@ export default function useChapter(
     getChapter();
   }, [getChapter, chapter.id, chapterTextCache]);
 
+  const canReloadFromSource =
+    canUseRemoteSource ||
+    novel.pluginId === LOCAL_PLUGIN_ID ||
+    Boolean(chapter.isDownloaded);
+
+  const reloadFromSource = useCallback(async () => {
+    if (!canReloadFromSource) return;
+
+    TTSPlaybackManager.stopAll();
+    if (canUseRemoteSource) {
+      setError('');
+      setLoading(true);
+      await getChapter({ fromSource: true, remountOnSuccess: true });
+      return;
+    }
+
+    setReaderVersion(version => version + 1);
+  }, [canReloadFromSource, canUseRemoteSource, getChapter]);
+
   return useMemo(
     () => ({
       hidden,
@@ -536,12 +543,16 @@ export default function useChapter(
       prevChapter,
       error,
       loading,
+      readerVersion,
       chapterText,
+      canReloadFromSource,
+      canRetranslate,
       setHidden,
       saveProgress,
       hideHeader,
       navigateChapter,
       refetch,
+      reloadFromSource,
       setChapter,
       setLoading,
       getChapter,
@@ -561,12 +572,16 @@ export default function useChapter(
       prevChapter,
       error,
       loading,
+      readerVersion,
       chapterText,
+      canReloadFromSource,
+      canRetranslate,
       setHidden,
       saveProgress,
       hideHeader,
       navigateChapter,
       refetch,
+      reloadFromSource,
       setChapter,
       setLoading,
       getChapter,

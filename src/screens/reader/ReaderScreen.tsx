@@ -10,6 +10,7 @@ import { getString } from '@strings/translations';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChapterContextProvider, useChapterContext } from './ChapterContext';
@@ -17,8 +18,8 @@ import ChapterLoadingScreen from './ChapterLoadingScreen/ChapterLoadingScreen';
 import ChapterDrawer from './components/ChapterDrawer';
 import KeepScreenAwake from './components/KeepScreenAwake';
 import ReaderAppbar from './components/ReaderAppbar';
-import ReaderBottomSheetV2 from './components/ReaderBottomSheet/ReaderBottomSheet';
 import ReaderFooter from './components/ReaderFooter';
+import ReaderSettingsBottomSheet from './components/ReaderSettings/ReaderSettingsBottomSheet';
 import WebViewReader from './components/WebViewReader';
 import { useNativeChapterSearch } from './hooks/useNativeChapterSearch';
 
@@ -76,12 +77,19 @@ export const ChapterContent = ({
     webViewRef,
     hideHeader,
     refetch,
+    readerVersion,
+    canUseRemoteSource,
   } = useChapterContext();
   const readerSheetRef = useRef<BottomSheetModalMethods>(null);
   const theme = useTheme();
   const { pageReader = false, keepScreenOn } = useChapterGeneralSettings();
   const search = useNativeChapterSearch(webViewRef);
-  const { closeSearch, handleFindResult, visible: searchVisible } = search;
+  const {
+    closeSearch,
+    handleFindResult,
+    keyboardAvoidanceActive,
+    visible: searchVisible,
+  } = search;
   const [bookmarked, setBookmarked] = useState<boolean>(
     chapter.bookmark ?? false,
   );
@@ -157,6 +165,13 @@ export const ChapterContent = ({
     });
   }, [chapter.path, navigation, novel.name, novel.pluginId]);
 
+  const openTranslateSettings = useCallback(() => {
+    navigation.navigate('MoreStack', {
+      screen: 'SettingsStack',
+      params: { screen: 'TranslateSettings' },
+    });
+  }, [navigation]);
+
   const handleReaderPress = useCallback(() => {
     if (searchVisible) {
       Keyboard.dismiss();
@@ -175,28 +190,37 @@ export const ChapterContent = ({
             title: getString('common.retry'),
             onPress: refetch,
           },
-          {
-            iconName: 'earth',
-            title: 'WebView',
-            onPress: openWebView,
-          },
+          ...(canUseRemoteSource
+            ? [
+                {
+                  iconName: 'earth' as const,
+                  title: 'WebView',
+                  onPress: openWebView,
+                },
+              ]
+            : []),
         ]}
       />
     );
   }
   return (
-    <View style={[{ paddingStart: left, paddingEnd: right }, styles.container]}>
+    <KeyboardAvoidingView
+      behavior="height"
+      enabled={keyboardAvoidanceActive}
+      style={[{ paddingStart: left, paddingEnd: right }, styles.container]}
+    >
       {keepScreenOn ? <KeepScreenAwake /> : null}
       <ChapterLoadingScreen isLoading={loading}>
         <View style={styles.container}>
           <WebViewReader
+            key={readerVersion}
             onPress={handleReaderPress}
             onFindResult={handleFindResult}
             bottomInset={nonZeroBottom.current}
           />
         </View>
       </ChapterLoadingScreen>
-      <ReaderBottomSheetV2 bottomSheetRef={readerSheetRef} />
+      <ReaderSettingsBottomSheet bottomSheetRef={readerSheetRef} />
       {!hidden && (
         <View style={StyleSheet.absoluteFill} pointerEvents="auto">
           <ReaderAppbar
@@ -212,11 +236,12 @@ export const ChapterContent = ({
               readerSheetRef={readerSheetRef}
               scrollToStart={scrollToStart}
               openDrawer={openDrawerI}
+              openTranslateSettings={openTranslateSettings}
             />
           ) : null}
         </View>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

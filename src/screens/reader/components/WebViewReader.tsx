@@ -3,37 +3,37 @@ import {
   useChapterReaderSettings,
   useTheme,
 } from '@hooks/persisted';
-import type {
-  ChapterGeneralSettings,
-  ChapterReaderSettings,
-} from '@hooks/persisted/useSettings';
-import { getUserAgent } from '@hooks/persisted/useUserAgent';
+import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
 import { getLocalServerUrl } from '@plugins/local/localServerManager';
-import { getPlugin } from '@plugins/pluginManager';
-import { getString } from '@strings/translations';
+import {
+  applyRegexReplacements,
+  composeCSS,
+  composeJS,
+} from '@utils/customCode';
 import { PLUGIN_STORAGE } from '@utils/Storages';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { getBatteryLevelSync } from 'react-native-device-info';
-import WebView from 'react-native-webview';
+import type WebView from 'react-native-webview';
 
 import { useChapterContext } from '../ChapterContext';
 import type { NativeFindResult } from '../hooks/useNativeChapterSearch';
 import { generateReaderHtml } from '../utils/htmlGenerator';
+import {
+  createReaderStrings,
+  READER_ASSETS_URI,
+} from '../utils/readerWebViewConfig';
 import useReaderMessageHandler from './Hooks/useReaderMessageHandler';
 import { useReaderSettingsBridge } from './Hooks/useReaderSettings';
 import useReadingTime from './Hooks/useReadingTime';
 import useTTS from './Hooks/useTTS';
+import ReaderWebViewCore from './ReaderWebView/ReaderWebViewCore';
 
 type WebViewReaderProps = {
   onPress(): void;
   onFindResult(result: NativeFindResult): void;
   bottomInset: number;
 };
-
-const assetsUriPrefix = __DEV__
-  ? 'http://localhost:8081/assets'
-  : 'file:///android_asset';
 
 const WebViewReader: React.FC<WebViewReaderProps> = ({
   onPress,
@@ -42,6 +42,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
 }) => {
   const {
     novel,
+    plugin,
     chapter,
     chapterText: html,
     navigateChapter,
@@ -56,9 +57,13 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
   const readerSettings = useChapterReaderSettings();
   const chapterGeneralSettings = useChapterGeneralSettings();
   const readerSettingsRef = useRef<ChapterReaderSettings>(readerSettings);
-  const chapterGeneralSettingsRef = useRef<ChapterGeneralSettings>(
-    chapterGeneralSettings,
-  );
+  const lastKnownProgressRef = useRef(chapter.progress ?? 0);
+  const chapterIdRef = useRef(chapter.id);
+  if (chapterIdRef.current !== chapter.id) {
+    chapterIdRef.current = chapter.id;
+    lastKnownProgressRef.current = chapter.progress ?? 0;
+  }
+  readerSettingsRef.current = readerSettings;
   const readingTime = useReadingTime(chapter.id);
   const tts = useTTS({
     webViewRef,
@@ -76,11 +81,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     stopNativePlayback: tts.stopNativePlayback,
   });
 
-  useEffect(() => {
-    readerSettingsRef.current = readerSettings;
-    chapterGeneralSettingsRef.current = chapterGeneralSettings;
-  }, [chapterGeneralSettings, readerSettings]);
-
   useEffect(
     () => () => {
       ScreenOrientation.unlockAsync().catch(() => {});
@@ -89,12 +89,11 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
   );
 
   const batteryLevel = useMemo(() => getBatteryLevelSync(), []);
-  const plugin = getPlugin(novel.pluginId);
   const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
   const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
   const readerDir =
     plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew' ? 'rtl' : 'ltr';
-  const readerBottomInset = chapterGeneralSettingsRef.current.fullScreenMode
+  const readerBottomInset = chapterGeneralSettings.fullScreenMode
     ? 0
     : bottomInset;
 
@@ -111,82 +110,151 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     resetAutoScroll,
     refetch,
     tts,
+    onProgress: progress => {
+      lastKnownProgressRef.current = progress;
+    },
   });
 
-  const source = useMemo(
-    () => ({
-      baseUrl: novel.isLocal
-        ? `${getLocalServerUrl()}/local/${novel.id}/`
-        : !chapter.isDownloaded
-        ? plugin?.site
-        : undefined,
-      headers: plugin?.imageRequestInit?.headers,
-      method: plugin?.imageRequestInit?.method,
-      body: plugin?.imageRequestInit?.body,
-      html: generateReaderHtml({
-        html,
-        theme,
-        readerDir,
-        readerSettings: readerSettingsRef.current,
-        chapterGeneralSettings: chapterGeneralSettingsRef.current,
-        novel,
-        chapter,
-        nextChapter,
-        prevChapter,
-        assetsUriPrefix,
-        batteryLevel,
-        readerBottomInset,
-        pluginCustomCSS,
-        pluginCustomJS,
-        nextChapterScreenVisible: getNextChapterScreenVisible(),
-        pendingScrollPosition: getPendingScrollPosition(),
-        getLocalServerUrl,
-        isSettingsPreview: false,
-        strings: {
-          finished: `${getString(
-            'readerScreen.finished',
-          )}: ${chapter.name?.trim()}`,
-          nextChapter: getString('readerScreen.nextChapter', {
-            name: nextChapter?.name,
-          }),
-          noNextChapter: getString('readerScreen.noNextChapter'),
-        },
-      }),
-    }),
-    [
-      batteryLevel,
-      chapter,
-      chapterGeneralSettingsRef,
-      getNextChapterScreenVisible,
-      getPendingScrollPosition,
-      html,
-      nextChapter,
-      novel,
-      plugin?.imageRequestInit,
-      plugin?.site,
-      pluginCustomCSS,
-      pluginCustomJS,
-      prevChapter,
-      readerBottomInset,
-      readerDir,
-      readerSettingsRef,
-      theme,
-    ],
+  const customCSS = useMemo(
+    () => composeCSS(readerSettings.codeSnippetsCSS),
+    [readerSettings.codeSnippetsCSS],
+  );
+  const customJS = useMemo(
+    () => composeJS(readerSettings.codeSnippetsJS),
+    [readerSettings.codeSnippetsJS],
+  );
+  const processedHtml = useMemo(
+    () => applyRegexReplacements(html, readerSettings.regexReplacements),
+    [html, readerSettings.regexReplacements],
   );
 
+  const documentRevision = JSON.stringify({
+    processedHtml,
+    novel,
+    chapter: { ...chapter, progress: undefined },
+    nextChapter: nextChapter
+      ? { ...nextChapter, progress: undefined }
+      : undefined,
+    prevChapter: prevChapter
+      ? { ...prevChapter, progress: undefined }
+      : undefined,
+    customCSS,
+    customJS,
+    pluginUseCustomCSS: readerSettings.pluginUseCustomCSS,
+    pluginUseCustomJS: readerSettings.pluginUseCustomJS,
+    plugin: plugin
+      ? {
+          id: plugin.id,
+          site: plugin.site,
+          lang: plugin.lang,
+          imageRequestInit: plugin.imageRequestInit,
+        }
+      : undefined,
+    theme,
+    readerDir,
+    bionicReading: chapterGeneralSettings.bionicReading,
+    removeExtraParagraphSpacing:
+      chapterGeneralSettings.removeExtraParagraphSpacing,
+  });
+  const documentRevisionMountedRef = useRef(false);
+  const { stopNativePlayback } = tts;
+  useEffect(() => {
+    if (!documentRevisionMountedRef.current) {
+      documentRevisionMountedRef.current = true;
+      return;
+    }
+    stopNativePlayback();
+  }, [documentRevision, stopNativePlayback]);
+
+  const sourceDataRef = useRef({
+    chapter,
+    chapterGeneralSettings,
+    customCSS,
+    customJS,
+    getNextChapterScreenVisible,
+    getPendingScrollPosition,
+    nextChapter,
+    novel,
+    plugin,
+    pluginCustomCSS,
+    pluginCustomJS,
+    prevChapter,
+    processedHtml,
+    readerDir,
+    readerBottomInset,
+    readerSettings,
+    theme,
+  });
+  sourceDataRef.current = {
+    chapter,
+    chapterGeneralSettings,
+    customCSS,
+    customJS,
+    getNextChapterScreenVisible,
+    getPendingScrollPosition,
+    nextChapter,
+    novel,
+    plugin,
+    pluginCustomCSS,
+    pluginCustomJS,
+    prevChapter,
+    processedHtml,
+    readerDir,
+    readerBottomInset,
+    readerSettings,
+    theme,
+  };
+
+  const source = useMemo(() => {
+    // The revision is the memo invalidator; source values come from the latest-data ref.
+    // eslint-disable-next-line no-void
+    void documentRevision;
+    const latest = sourceDataRef.current;
+    return {
+      baseUrl: latest.novel.isLocal
+        ? `${getLocalServerUrl()}/local/${latest.novel.id}/`
+        : !latest.chapter.isDownloaded
+        ? latest.plugin?.site
+        : undefined,
+      headers: latest.plugin?.imageRequestInit?.headers,
+      method: latest.plugin?.imageRequestInit?.method,
+      body: latest.plugin?.imageRequestInit?.body,
+      html: generateReaderHtml({
+        html: latest.processedHtml,
+        theme: latest.theme,
+        readerDir: latest.readerDir,
+        readerSettings: latest.readerSettings,
+        chapterGeneralSettings: latest.chapterGeneralSettings,
+        novel: latest.novel,
+        chapter: {
+          ...latest.chapter,
+          progress: lastKnownProgressRef.current,
+        },
+        nextChapter: latest.nextChapter,
+        prevChapter: latest.prevChapter,
+        assetsUriPrefix: READER_ASSETS_URI,
+        batteryLevel,
+        readerBottomInset: latest.readerBottomInset,
+        pluginCustomCSS: latest.pluginCustomCSS,
+        pluginCustomJS: latest.pluginCustomJS,
+        customCSS: latest.customCSS,
+        customJS: latest.customJS,
+        nextChapterScreenVisible: latest.getNextChapterScreenVisible(),
+        pendingScrollPosition: latest.getPendingScrollPosition(),
+        getLocalServerUrl,
+        isSettingsPreview: false,
+        strings: createReaderStrings(
+          latest.chapter.name,
+          latest.nextChapter?.name,
+        ),
+      }),
+    };
+  }, [batteryLevel, documentRevision]);
+
   return (
-    <WebView
-      ref={webViewRef}
+    <ReaderWebViewCore
+      webViewRef={webViewRef as React.RefObject<WebView | null>}
       style={{ backgroundColor: readerSettings.theme }}
-      allowFileAccess
-      originWhitelist={['*']}
-      scalesPageToFit
-      showsVerticalScrollIndicator={false}
-      javaScriptEnabled
-      userAgent={getUserAgent()}
-      webviewDebuggingEnabled={__DEV__}
-      mediaPlaybackRequiresUserAction={false}
-      allowsFullscreenVideo
       onLoadEnd={() => {
         const currentBatteryLevel = getBatteryLevelSync();
         webViewRef.current?.injectJavaScript(`
@@ -198,7 +266,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         }
         tts.handleLoadEnd();
       }}
-      onMessage={event => handleMessage(event.nativeEvent.data)}
+      onMessagePayload={handleMessage}
       source={source}
     />
   );

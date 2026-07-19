@@ -13,6 +13,14 @@
       settings.padding + 'px',
     );
     document.documentElement.style.setProperty(
+      '--readerSettings-paragraphIndent',
+      (settings.paragraphIndent ?? 0) + 'em',
+    );
+    document.documentElement.style.setProperty(
+      '--readerSettings-paragraphSpacing',
+      (settings.paragraphSpacing ?? 1) + 'em',
+    );
+    document.documentElement.style.setProperty(
       '--readerSettings-textSize',
       settings.textSize + 'px',
     );
@@ -50,30 +58,36 @@
 
 // text options
 (() => {
-  van.derive(() => {
-    let html = reader.rawHTML;
-    if (reader.generalSettings.val.bionicReading) {
-      html = textVide.textVide(reader.rawHTML);
-    }
+  const { bionicReading, removeExtraParagraphSpacing } =
+    reader.generalSettings.val;
+  let html = reader.rawHTML;
+  if (bionicReading) {
+    html = textVide.textVide(reader.rawHTML);
+  }
 
-    if (reader.generalSettings.val.removeExtraParagraphSpacing) {
-      html = html
-        .replace(/(?:&nbsp;\s*|[\u200b]\s*)+(?=<\/?p[> ])/g, '')
-        .replace(/<br>\s*<br>\s*(?:<br>\s*)+/g, '<br><br>') //force max 2 consecutive <br>, chaining regex
-        .replace(
-          /<br>\s*<br>[^]+/,
-          _ =>
-            `${
-              /\/p>/.test(_)
-                ? _.replace(
-                    /<br>\s*<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p(?:>| [^>]+>)<br>\s*<br>))\s*/g,
-                    '',
-                  )
-                : _
-            }`,
-        ) //if p found, delete all double br near p
-        .replace(/<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p(?:>| [^>]+>)(?:<[^>]+>)*\s*<br>))\s*/g, '');
-    }
+  if (removeExtraParagraphSpacing) {
+    html = html
+      .replace(/(?:&nbsp;\s*|[\u200b]\s*)+(?=<\/?p[> ])/g, '')
+      .replace(/<br>\s*<br>\s*(?:<br>\s*)+/g, '<br><br>') //force max 2 consecutive <br>, chaining regex
+      .replace(
+        /<br>\s*<br>[^]+/,
+        _ =>
+          `${
+            /\/p>/.test(_)
+              ? _.replace(
+                  /<br>\s*<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p(?:>| [^>]+>)<br>\s*<br>))\s*/g,
+                  '',
+                )
+              : _
+          }`,
+      ) //if p found, delete all double br near p
+      .replace(
+        /<br>(?:(?=\s*<\/?p[> ])|(?<=<\/?p(?:>| [^>]+>)(?:<[^>]+>)*\s*<br>))\s*/g,
+        '',
+      );
+  }
+
+  if (bionicReading || removeExtraParagraphSpacing) {
     reader.chapterElement.innerHTML = html;
-  });
+  }
 })();

@@ -4,9 +4,14 @@ import {
   LibraryFilter,
   LibrarySortOrder,
 } from '@screens/library/constants/constants';
+import {
+  type CodeSnippet,
+  migrateLegacyCustomCode,
+  type RegexReplacement,
+} from '@utils/customCode';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
 import { Voice } from 'expo-speech';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useMMKVObject } from 'react-native-mmkv';
 
 import type { DohProviderId } from '../../services/network/doh';
@@ -36,6 +41,8 @@ export const CHAPTER_GENERAL_SETTINGS = 'CHAPTER_GENERAL_SETTINGS';
 export const CHAPTER_READER_SETTINGS = 'CHAPTER_READER_SETTINGS';
 export const TRANSLATE_SETTINGS = 'TRANSLATE_SETTINGS';
 export const SECURITY_SETTINGS = 'SECURITY_SETTINGS';
+
+export type { CodeSnippet, RegexReplacement } from '@utils/customCode';
 
 export type SwipeAction = 'disabled' | 'bookmark' | 'markAsRead' | 'download';
 
@@ -153,10 +160,15 @@ export interface ChapterReaderSettings {
   textSize: number;
   textAlign: string;
   padding: number;
+  paragraphIndent: number;
+  paragraphSpacing: number;
   fontFamily: string;
   lineHeight: number;
-  customCSS: string;
-  customJS: string;
+  codeSnippetsCSS: CodeSnippet[];
+  codeSnippetsJS: CodeSnippet[];
+  regexReplacements: RegexReplacement[];
+  pluginUseCustomCSS: boolean;
+  pluginUseCustomJS: boolean;
   customThemes: ReaderTheme[];
   tts?: {
     engine?: 'native' | 'tiktok';
@@ -312,10 +324,15 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
   textSize: 16,
   textAlign: 'left',
   padding: 16,
+  paragraphIndent: 0,
+  paragraphSpacing: 1,
   fontFamily: '',
   lineHeight: 1.5,
-  customCSS: '',
-  customJS: '',
+  codeSnippetsCSS: [],
+  codeSnippetsJS: [],
+  regexReplacements: [],
+  pluginUseCustomCSS: true,
+  pluginUseCustomJS: true,
   customThemes: [],
   tts: {
     engine: 'native',
@@ -455,28 +472,52 @@ export const useChapterGeneralSettings = () => {
   );
 };
 
-export const useChapterReaderSettings = () => {
-  const [storedSettings = initialChapterReaderSettings, setSettings] =
-    useMMKVObject<ChapterReaderSettings>(CHAPTER_READER_SETTINGS);
+type MigrationChapterReaderSettings = ChapterReaderSettings & {
+  customCSS?: string;
+  customJS?: string;
+};
 
-  // Ensure TTS settings have proper defaults (migration for existing users)
-  const chapterReaderSettings = useMemo(
-    () => ({
-      ...storedSettings,
-      tts: {
-        ...initialChapterReaderSettings.tts,
-        ...storedSettings.tts,
-        // Explicitly ensure these defaults if undefined
-        autoPageAdvance: storedSettings.tts?.autoPageAdvance ?? false,
-        scrollToTop: storedSettings.tts?.scrollToTop ?? true,
-        rate: storedSettings.tts?.rate ?? 1,
-        pitch: storedSettings.tts?.pitch ?? 1,
-        engine: storedSettings.tts?.engine ?? 'native',
-        queueSize: storedSettings.tts?.queueSize ?? 3,
-      },
-    }),
+export const useChapterReaderSettings = () => {
+  const [storedSettings, setSettings] =
+    useMMKVObject<MigrationChapterReaderSettings>(CHAPTER_READER_SETTINGS);
+
+  const mergedSettings = useMemo(
+    () => ({ ...initialChapterReaderSettings, ...storedSettings }),
     [storedSettings],
   );
+  const legacyMigration = useMemo(
+    () => migrateLegacyCustomCode(mergedSettings),
+    [mergedSettings],
+  );
+
+  // Merge new defaults and expose migrated snippets on the first render.
+  const chapterReaderSettings = useMemo(() => {
+    const migratedSettings = legacyMigration.settings;
+
+    return {
+      ...migratedSettings,
+      textSize: Math.max(
+        8,
+        mergedSettings.textSize ?? initialChapterReaderSettings.textSize,
+      ),
+      tts: {
+        ...initialChapterReaderSettings.tts,
+        ...mergedSettings.tts,
+        autoPageAdvance: mergedSettings.tts?.autoPageAdvance ?? false,
+        scrollToTop: mergedSettings.tts?.scrollToTop ?? true,
+        rate: mergedSettings.tts?.rate ?? 1,
+        pitch: mergedSettings.tts?.pitch ?? 1,
+        engine: mergedSettings.tts?.engine ?? 'native',
+        queueSize: mergedSettings.tts?.queueSize ?? 3,
+      },
+    } satisfies ChapterReaderSettings;
+  }, [legacyMigration, mergedSettings]);
+
+  useEffect(() => {
+    if (legacyMigration.didMigrate) {
+      setSettings(chapterReaderSettings);
+    }
+  }, [chapterReaderSettings, legacyMigration.didMigrate, setSettings]);
 
   const setChapterReaderSettings = useCallback(
     (values: Partial<ChapterReaderSettings>) =>

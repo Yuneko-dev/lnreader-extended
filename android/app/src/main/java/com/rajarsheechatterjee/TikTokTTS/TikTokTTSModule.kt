@@ -153,9 +153,6 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
                 openWebSockets.add(webSocket)
                 val message = createTikTokMessage(text, voice)
                 webSocket.send(message)
-                if (waitingForHash == hash) {
-                    sendEvent("TikTokTTS_onStart", null)
-                }
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
@@ -341,5 +338,6 @@ class TikTokTTSModule(private val reactContext: ReactApplicationContext) :
         })
 
         audioTrack?.play()
+        sendEvent("TikTokTTS_onStart", null)
     }
 }

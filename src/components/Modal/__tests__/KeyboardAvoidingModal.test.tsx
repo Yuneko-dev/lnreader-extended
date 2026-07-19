@@ -1,7 +1,13 @@
-import { act, render, screen } from '@testing-library/react-native';
+import { act, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
 import KeyboardAvoidingModal from '../KeyboardAvoidingModal';
+
+jest.mock('react-native-keyboard-controller', () => ({
+  KeyboardController: {
+    dismiss: jest.fn(() => Promise.resolve()),
+  },
+}));
 
 const mockButtonPresses = new Map<string, () => unknown>();
 
@@ -206,7 +212,7 @@ describe('KeyboardAvoidingModal', () => {
     });
   });
 
-  it('runs reset without dismissing and cancel before one dismiss', () => {
+  it('runs reset without dismissing and cancel before one dismiss', async () => {
     const onReset = jest.fn();
     const onCancel = jest.fn();
     const onDismiss = jest.fn();
@@ -228,6 +234,6 @@ describe('KeyboardAvoidingModal', () => {
 
     act(() => pressButton('common.cancel'));
     expect(onCancel).toHaveBeenCalledTimes(1);
-    expect(onDismiss).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
   });
 });
