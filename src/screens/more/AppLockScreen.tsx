@@ -1,20 +1,16 @@
+import Button from '@components/Button/Button';
+import SafeAreaView from '@components/SafeAreaView/SafeAreaView';
 import { useTheme } from '@hooks/persisted';
 import {
   LockOnBackground,
   useSecuritySettings,
 } from '@hooks/persisted/useSettings';
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import { getString } from '@strings/translations';
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 import * as LocalAuthentication from 'expo-local-authentication';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  AppState,
-  AppStateStatus,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { AppState, AppStateStatus, StyleSheet, Text, View } from 'react-native';
 
 const LOCK_TIMEOUT_MS: Record<LockOnBackground, number> = {
   always: 0,
@@ -79,56 +75,83 @@ const AppLockOverlay: React.FC<AppLockOverlayProps> = ({
 }) => {
   const theme = useTheme();
 
-  // Credentials revoked notice (shown after auto-disable)
-  if (isCredentialsRevoked) {
-    return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={styles.content}>
-          <Text style={[styles.lockIcon]}>⚠️</Text>
-          <Text style={[styles.title, { color: theme.onSurface }]}>
-            {getString('securitySettingsScreen.credentialsRevokedTitle')}
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
-            {getString('securitySettingsScreen.credentialsRevokedDesc')}
-          </Text>
-          <Pressable
-            style={[styles.unlockBtn, { backgroundColor: theme.primary }]}
-            onPress={onDismissRevoked}
-            android_ripple={{ color: theme.rippleColor }}
-          >
-            <Text style={[styles.unlockBtnText, { color: theme.onPrimary }]}>
-              {getString('common.ok')}
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
-
-  if (!isLocked) {
+  if (!isCredentialsRevoked && !isLocked) {
     return null;
   }
 
+  const title = getString(
+    isCredentialsRevoked
+      ? 'securitySettingsScreen.credentialsRevokedTitle'
+      : 'securitySettingsScreen.appLocked',
+  );
+  const description = getString(
+    isCredentialsRevoked
+      ? 'securitySettingsScreen.credentialsRevokedDesc'
+      : 'securitySettingsScreen.appLockedDesc',
+  );
+  const actionLabel = getString(
+    isCredentialsRevoked ? 'common.ok' : 'securitySettingsScreen.unlock',
+  );
+  const action = isCredentialsRevoked ? onDismissRevoked : onAuthenticate;
+  const iconName = isCredentialsRevoked
+    ? 'shield-alert-outline'
+    : 'shield-lock-outline';
+  const iconContainerColor = isCredentialsRevoked
+    ? theme.errorContainer
+    : theme.primaryContainer;
+  const iconColor = isCredentialsRevoked
+    ? theme.onErrorContainer
+    : theme.onPrimaryContainer;
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.content}>
-        <Text style={[styles.lockIcon]}>🔒</Text>
-        <Text style={[styles.title, { color: theme.onSurface }]}>
-          {getString('securitySettingsScreen.appLocked')}
-        </Text>
-        <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
-          {getString('securitySettingsScreen.appLockedDesc')}
-        </Text>
-        <Pressable
-          style={[styles.unlockBtn, { backgroundColor: theme.primary }]}
-          onPress={onAuthenticate}
-          android_ripple={{ color: theme.rippleColor }}
-        >
-          <Text style={[styles.unlockBtnText, { color: theme.onPrimary }]}>
-            {getString('securitySettingsScreen.unlock')}
+    <View
+      accessibilityViewIsModal
+      importantForAccessibility="yes"
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.content}>
+          <View
+            accessible={false}
+            style={[
+              styles.iconContainer,
+              { backgroundColor: iconContainerColor },
+            ]}
+          >
+            <MaterialCommunityIcons
+              accessible={false}
+              color={iconColor}
+              name={iconName}
+              size={48}
+            />
+          </View>
+          <Text
+            accessibilityRole="header"
+            style={[styles.title, { color: theme.onBackground }]}
+          >
+            {title}
           </Text>
-        </Pressable>
-      </View>
+          <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
+            {description}
+          </Text>
+          <Button
+            accessibilityLabel={actionLabel}
+            buttonColor={theme.primary}
+            contentStyle={styles.actionContent}
+            icon={
+              isCredentialsRevoked ? undefined : 'lock-open-variant-outline'
+            }
+            labelStyle={styles.actionLabel}
+            mode="contained"
+            onPress={action}
+            rippleColor={theme.rippleColor}
+            style={styles.action}
+            textColor={theme.onPrimary}
+          >
+            {actionLabel}
+          </Button>
+        </View>
+      </SafeAreaView>
     </View>
   );
 };
@@ -223,42 +246,58 @@ export const useAppLock = () => {
 };
 
 const styles = StyleSheet.create({
+  action: {
+    borderRadius: 24,
+    minWidth: 174,
+  },
+  actionContent: {
+    minHeight: 48,
+    paddingHorizontal: 16,
+  },
+  actionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 20,
+  },
   container: {
-    alignItems: 'center',
     bottom: 0,
-    justifyContent: 'center',
+    elevation: 9999,
     left: 0,
     position: 'absolute',
     right: 0,
     top: 0,
     zIndex: 9999,
-    elevation: 9999,
   },
   content: {
     alignItems: 'center',
-    padding: 32,
+    maxWidth: 360,
+    paddingHorizontal: 32,
+    paddingVertical: 40,
+    width: '100%',
   },
-  lockIcon: {
-    fontSize: 64,
-    marginBottom: 24,
+  iconContainer: {
+    alignItems: 'center',
+    borderRadius: 32,
+    height: 92,
+    justifyContent: 'center',
+    marginBottom: 28,
+    width: 92,
+  },
+  safeArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   subtitle: {
-    fontSize: 14,
-    marginBottom: 32,
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 28,
+    marginTop: 8,
     textAlign: 'center',
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  unlockBtn: {
-    borderRadius: 12,
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-  },
-  unlockBtnText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '600',
+    lineHeight: 32,
+    textAlign: 'center',
   },
 });
