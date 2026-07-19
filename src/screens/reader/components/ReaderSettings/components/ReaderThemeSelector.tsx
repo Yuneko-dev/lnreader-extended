@@ -3,7 +3,8 @@ import { useChapterReaderSettings } from '@hooks/persisted';
 import type { ReaderTheme } from '@hooks/persisted/useSettings';
 import { presetReaderThemes } from '@utils/constants/readerConstants';
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 
 const ReaderThemeSelector = () => {
   const settings = useChapterReaderSettings();

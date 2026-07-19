@@ -19,8 +19,9 @@ describe('EpubFile.constructEpub', () => {
       ],
     }).constructEpub();
 
-    expect(scriptedFiles.find(file => file.path === 'EPUB/script.js')?.content)
-      .toBe(`function fnEpub(){${customJavaScript}}`);
+    expect(
+      scriptedFiles.find(file => file.path === 'EPUB/script.js')?.content,
+    ).toBe(`function fnEpub(){${customJavaScript}}`);
 
     const scriptedChapters = scriptedFiles.filter(file =>
       /^EPUB\/content\/.*\.xhtml$/.test(file.path),
