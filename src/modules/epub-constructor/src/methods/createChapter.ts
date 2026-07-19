@@ -7,8 +7,11 @@ import { escapeXml } from './xmlEscape';
  * Creates a valid EPUB XHTML chapter document. Chapter body HTML is filtered
  * and repaired by the htmlparser2-backed EPUB 3.3 purifier before wrapping.
  */
-export function createChapter(chapter: EpubChapter) {
+export function createChapter(chapter: EpubChapter, includeScript = false) {
   const xhtmlBody = htmlToXhtml(chapter.htmlBody);
+  const script = includeScript
+    ? '\n    <script src="../script.js"></script>\n    <script>fnEpub();</script>'
+    : '';
 
   return createFile(
     `EPUB/${chapter.fileName}`,
@@ -20,7 +23,7 @@ export function createChapter(chapter: EpubChapter) {
     <title>${escapeXml(chapter.title)}</title>
   </head>
   <body>
-${xhtmlBody}
+${xhtmlBody}${script}
   </body>
 </html>`,
   );
