@@ -31,17 +31,20 @@ const DisplayTab = () => {
         <ReaderValueControl
           label={getString('readerScreen.bottomSheet.textSize')}
           min={8}
+          max={48}
           onChange={textSize => update({ textSize })}
           step={1}
+          unit="px"
           value={settings.textSize}
         />
         <ReaderValueControl
           decimals={1}
           label={getString('readerScreen.bottomSheet.lineHeight')}
           max={2}
-          min={1.3}
+          min={1}
           onChange={lineHeight => update({ lineHeight })}
           step={0.1}
+          unit="x"
           value={settings.lineHeight}
         />
         <ReaderValueControl
@@ -54,22 +57,22 @@ const DisplayTab = () => {
           value={settings.padding}
         />
         <ReaderValueControl
-          decimals={2}
+          decimals={1}
           label={getString('readerSettings.paragraphIndent')}
           max={4}
           min={0}
           onChange={paragraphIndent => update({ paragraphIndent })}
-          step={0.25}
+          step={0.1}
           unit="em"
           value={settings.paragraphIndent}
         />
         <ReaderValueControl
-          decimals={2}
+          decimals={1}
           label={getString('readerSettings.paragraphSpacing')}
           max={3}
           min={0}
           onChange={paragraphSpacing => update({ paragraphSpacing })}
-          step={0.25}
+          step={0.1}
           unit="em"
           value={settings.paragraphSpacing}
         />
