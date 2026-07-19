@@ -5,7 +5,6 @@ import {
 } from '@hooks/persisted';
 import type { ChapterReaderSettings } from '@hooks/persisted/useSettings';
 import { getLocalServerUrl } from '@plugins/local/localServerManager';
-import { getPlugin } from '@plugins/pluginManager';
 import {
   applyRegexReplacements,
   composeCSS,
@@ -43,6 +42,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
 }) => {
   const {
     novel,
+    plugin,
     chapter,
     chapterText: html,
     navigateChapter,
@@ -89,7 +89,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
   );
 
   const batteryLevel = useMemo(() => getBatteryLevelSync(), []);
-  const plugin = getPlugin(novel.pluginId);
   const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
   const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
   const readerDir =
@@ -128,84 +127,116 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     () => applyRegexReplacements(html, readerSettings.regexReplacements),
     [html, readerSettings.regexReplacements],
   );
-  const customCodeRef = useRef({ customCSS, customJS, processedHtml });
+
+  const documentRevision = JSON.stringify({
+    processedHtml,
+    novel,
+    chapter: { ...chapter, progress: undefined },
+    nextChapter,
+    prevChapter,
+    customCSS,
+    customJS,
+    pluginUseCustomCSS: readerSettings.pluginUseCustomCSS,
+    pluginUseCustomJS: readerSettings.pluginUseCustomJS,
+    plugin: plugin
+      ? {
+          id: plugin.id,
+          site: plugin.site,
+          lang: plugin.lang,
+          imageRequestInit: plugin.imageRequestInit,
+        }
+      : undefined,
+    theme,
+    readerDir,
+    bionicReading: chapterGeneralSettings.bionicReading,
+    removeExtraParagraphSpacing:
+      chapterGeneralSettings.removeExtraParagraphSpacing,
+  });
+  const documentRevisionMountedRef = useRef(false);
+  const { stopNativePlayback } = tts;
   useEffect(() => {
-    const previous = customCodeRef.current;
-    customCodeRef.current = { customCSS, customJS, processedHtml };
-    if (
-      previous.customCSS !== customCSS ||
-      previous.customJS !== customJS ||
-      previous.processedHtml !== processedHtml
-    ) {
-      tts.stopNativePlayback();
+    if (!documentRevisionMountedRef.current) {
+      documentRevisionMountedRef.current = true;
+      return;
     }
-  }, [customCSS, customJS, processedHtml, tts]);
+    stopNativePlayback();
+  }, [documentRevision, stopNativePlayback]);
 
   const sourceDataRef = useRef({
     chapter,
     chapterGeneralSettings,
+    customCSS,
+    customJS,
+    getNextChapterScreenVisible,
+    getPendingScrollPosition,
     nextChapter,
+    novel,
+    plugin,
+    pluginCustomCSS,
+    pluginCustomJS,
     prevChapter,
+    processedHtml,
+    readerDir,
     readerBottomInset,
     readerSettings,
+    theme,
   });
   sourceDataRef.current = {
     chapter,
     chapterGeneralSettings,
+    customCSS,
+    customJS,
+    getNextChapterScreenVisible,
+    getPendingScrollPosition,
     nextChapter,
+    novel,
+    plugin,
+    pluginCustomCSS,
+    pluginCustomJS,
     prevChapter,
+    processedHtml,
+    readerDir,
     readerBottomInset,
     readerSettings,
+    theme,
   };
-  const sourceChapterId = chapter.id;
-  const sourceChapterDownloaded = chapter.isDownloaded;
-  const sourcePluginUseCustomCSS = readerSettings.pluginUseCustomCSS;
-  const sourcePluginUseCustomJS = readerSettings.pluginUseCustomJS;
-  const sourceNextChapterId = nextChapter?.id;
-  const sourcePrevChapterId = prevChapter?.id;
 
   const source = useMemo(() => {
+    // The revision is the memo invalidator; source values come from the latest-data ref.
+    // eslint-disable-next-line no-void
+    void documentRevision;
     const latest = sourceDataRef.current;
     return {
-      baseUrl: novel.isLocal
-        ? `${getLocalServerUrl()}/local/${novel.id}/`
-        : !sourceChapterDownloaded
-        ? plugin?.site
+      baseUrl: latest.novel.isLocal
+        ? `${getLocalServerUrl()}/local/${latest.novel.id}/`
+        : !latest.chapter.isDownloaded
+        ? latest.plugin?.site
         : undefined,
-      headers: plugin?.imageRequestInit?.headers,
-      method: plugin?.imageRequestInit?.method,
-      body: plugin?.imageRequestInit?.body,
+      headers: latest.plugin?.imageRequestInit?.headers,
+      method: latest.plugin?.imageRequestInit?.method,
+      body: latest.plugin?.imageRequestInit?.body,
       html: generateReaderHtml({
-        html: processedHtml,
-        theme,
-        readerDir,
-        readerSettings: {
-          ...latest.readerSettings,
-          pluginUseCustomCSS: sourcePluginUseCustomCSS,
-          pluginUseCustomJS: sourcePluginUseCustomJS,
-        },
+        html: latest.processedHtml,
+        theme: latest.theme,
+        readerDir: latest.readerDir,
+        readerSettings: latest.readerSettings,
         chapterGeneralSettings: latest.chapterGeneralSettings,
-        novel,
+        novel: latest.novel,
         chapter: {
           ...latest.chapter,
-          id: sourceChapterId,
           progress: lastKnownProgressRef.current,
         },
-        nextChapter: latest.nextChapter
-          ? { ...latest.nextChapter, id: sourceNextChapterId }
-          : undefined,
-        prevChapter: latest.prevChapter
-          ? { ...latest.prevChapter, id: sourcePrevChapterId }
-          : undefined,
+        nextChapter: latest.nextChapter,
+        prevChapter: latest.prevChapter,
         assetsUriPrefix: READER_ASSETS_URI,
         batteryLevel,
         readerBottomInset: latest.readerBottomInset,
-        pluginCustomCSS,
-        pluginCustomJS,
-        customCSS,
-        customJS,
-        nextChapterScreenVisible: getNextChapterScreenVisible(),
-        pendingScrollPosition: getPendingScrollPosition(),
+        pluginCustomCSS: latest.pluginCustomCSS,
+        pluginCustomJS: latest.pluginCustomJS,
+        customCSS: latest.customCSS,
+        customJS: latest.customJS,
+        nextChapterScreenVisible: latest.getNextChapterScreenVisible(),
+        pendingScrollPosition: latest.getPendingScrollPosition(),
         getLocalServerUrl,
         isSettingsPreview: false,
         strings: createReaderStrings(
@@ -214,27 +245,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         ),
       }),
     };
-  }, [
-    batteryLevel,
-    sourceChapterDownloaded,
-    sourceChapterId,
-    getNextChapterScreenVisible,
-    getPendingScrollPosition,
-    customCSS,
-    customJS,
-    novel,
-    plugin?.imageRequestInit,
-    plugin?.site,
-    pluginCustomCSS,
-    pluginCustomJS,
-    processedHtml,
-    readerDir,
-    sourceNextChapterId,
-    sourcePluginUseCustomCSS,
-    sourcePluginUseCustomJS,
-    sourcePrevChapterId,
-    theme,
-  ]);
+  }, [batteryLevel, documentRevision]);
 
   return (
     <ReaderWebViewCore
