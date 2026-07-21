@@ -234,7 +234,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       html: generateReaderHtml({
         html: latest.processedHtml,
         theme: latest.theme,
-        readerDir: latest.readerDir,
+        readerDir: latest.readerDir as any,
         readerSettings: latest.readerSettings,
         chapterGeneralSettings: latest.chapterGeneralSettings,
         novel: latest.novel,
