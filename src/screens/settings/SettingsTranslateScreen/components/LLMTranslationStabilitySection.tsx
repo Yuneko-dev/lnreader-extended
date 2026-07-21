@@ -97,8 +97,6 @@ const LLMTranslationStabilitySection = () => {
             maxLength={5}
             onBlur={saveChunkWordLimit}
             onChangeText={setChunkWordLimitText}
-            placeholder="4000"
-            placeholderTextColor={theme.onSurfaceVariant}
             style={[
               styles.numberInput,
               {
@@ -135,8 +133,6 @@ const LLMTranslationStabilitySection = () => {
             maxLength={1}
             onBlur={saveRetryMaxAttempts}
             onChangeText={setRetryAttemptsText}
-            placeholder="3"
-            placeholderTextColor={theme.onSurfaceVariant}
             style={[
               styles.numberInput,
               {

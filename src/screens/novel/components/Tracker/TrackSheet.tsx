@@ -4,8 +4,9 @@ import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/typ
 import { useTheme, useTrackedNovel, useTracker } from '@hooks/persisted';
 import { TrackerMetadata } from '@hooks/persisted/useTracker';
 import { TrackerName, UserListStatus } from '@services/Trackers';
+import { showToast } from '@utils/showToast';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, ToastAndroid, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { overlay } from 'react-native-paper';
 
 import { getStatusLabel, getTrackerIcon } from './constants';
@@ -106,13 +107,13 @@ const TrackSheet: React.FC<TrackSheetProps> = ({ bottomSheetRef, novel }) => {
       if (!activeTracker) return;
 
       if (!newChapters) {
-        ToastAndroid.show('Enter a valid number', ToastAndroid.SHORT);
+        showToast('Enter a valid number');
         return;
       }
 
       const newProgress = Number(newChapters);
       if (isNaN(newProgress)) {
-        ToastAndroid.show('Enter a valid number', ToastAndroid.SHORT);
+        showToast('Enter a valid number');
         return;
       }
 
