@@ -58,6 +58,7 @@ export default function useReaderMessageHandler({
       switch (event.type) {
         case 'reader-ready':
           onReaderReady();
+          nextChapterScreenVisible.current = false;
           clearPendingScrollPosition();
           tts.handleLoadEnd();
           break;

@@ -91,7 +91,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
   const batteryLevel = useMemo(() => getBatteryLevelSync(), []);
   const pluginCustomJS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.js`;
   const pluginCustomCSS = `file://${PLUGIN_STORAGE}/${plugin?.id}/custom.css`;
-  const readerDir =
+  const readerDir: 'rtl' | 'ltr' =
     plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew' ? 'rtl' : 'ltr';
   const readerBottomInset = chapterGeneralSettings.fullScreenMode
     ? 0
@@ -126,7 +126,11 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
           id: plugin.id,
           site: plugin.site,
           lang: plugin.lang,
-          imageRequestInit: plugin.imageRequestInit,
+          imageRequestInit: {
+            headers: plugin.imageRequestInit.headers,
+            method: plugin.imageRequestInit.method,
+            body: plugin.imageRequestInit.body,
+          },
         }
       : undefined,
     theme,
@@ -191,6 +195,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       return;
     }
     stopNativePlayback();
+    ScreenOrientation.unlockAsync().catch(() => {});
   }, [documentId, stopNativePlayback]);
 
   const sourceDataRef = useRef({
@@ -246,7 +251,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       html: generateReaderHtml({
         html: latest.processedHtml,
         theme: latest.theme,
-        readerDir: latest.readerDir as any,
+        readerDir: latest.readerDir,
         readerSettings: latest.readerSettings,
         chapterGeneralSettings: latest.chapterGeneralSettings,
         novel: latest.novel,

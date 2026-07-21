@@ -390,10 +390,13 @@ export default function useChapter(
 
   const saveProgress = useCallback(
     (percentage: number) => {
-      if (!shouldBlockPrivacyAction('readingProgress', novel.pluginId)) {
-        updateChapterProgress(chapter.id, percentage > 100 ? 100 : percentage);
+      if (!Number.isFinite(percentage)) return;
 
-        if (percentage >= 97) {
+      if (!shouldBlockPrivacyAction('readingProgress', novel.pluginId)) {
+        const progress = Math.min(100, Math.max(0, percentage));
+        updateChapterProgress(chapter.id, progress);
+
+        if (progress >= 97) {
           // a relative number
           markChapterRead(chapter.id);
           updateTracker();
