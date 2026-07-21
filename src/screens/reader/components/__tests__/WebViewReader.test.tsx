@@ -127,11 +127,6 @@ const novel: NovelInfo = {
   inLibrary: true,
   isLocal: false,
   totalPages: 2,
-  chaptersDownloaded: 0,
-  chaptersUnread: 3,
-  totalChapters: 3,
-  lastReadAt: '2026-01-01',
-  lastUpdatedAt: '2026-01-02',
 };
 
 const chapter: ChapterInfo = {

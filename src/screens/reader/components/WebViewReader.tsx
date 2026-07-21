@@ -110,8 +110,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     [html, readerSettings.regexReplacements],
   );
 
-  const documentRevision = JSON.stringify({
-    processedHtml,
+  const documentMetadataRevision = JSON.stringify({
     novel,
     chapter: { ...chapter, progress: undefined },
     nextChapter: nextChapter
@@ -120,8 +119,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     prevChapter: prevChapter
       ? { ...prevChapter, progress: undefined }
       : undefined,
-    customCSS,
-    customJS,
     pluginUseCustomCSS: readerSettings.pluginUseCustomCSS,
     pluginUseCustomJS: readerSettings.pluginUseCustomJS,
     plugin: plugin
@@ -138,11 +135,26 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     removeExtraParagraphSpacing:
       chapterGeneralSettings.removeExtraParagraphSpacing,
   });
-  const documentRef = useRef({ id: 0, revision: '' });
-  if (documentRef.current.revision !== documentRevision) {
+  const documentRef = useRef({
+    id: 0,
+    metadataRevision: '',
+    processedHtml: '',
+    customCSS: '',
+    customJS: '',
+  });
+  const previousDocument = documentRef.current;
+  if (
+    previousDocument.metadataRevision !== documentMetadataRevision ||
+    previousDocument.processedHtml !== processedHtml ||
+    previousDocument.customCSS !== customCSS ||
+    previousDocument.customJS !== customJS
+  ) {
     documentRef.current = {
-      id: documentRef.current.id + 1,
-      revision: documentRevision,
+      id: previousDocument.id + 1,
+      metadataRevision: documentMetadataRevision,
+      processedHtml,
+      customCSS,
+      customJS,
     };
   }
   const documentId = documentRef.current.id;
@@ -171,15 +183,15 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       lastKnownProgressRef.current = progress;
     },
   });
-  const documentRevisionMountedRef = useRef(false);
+  const documentMountedRef = useRef(false);
   const { stopNativePlayback } = tts;
   useEffect(() => {
-    if (!documentRevisionMountedRef.current) {
-      documentRevisionMountedRef.current = true;
+    if (!documentMountedRef.current) {
+      documentMountedRef.current = true;
       return;
     }
     stopNativePlayback();
-  }, [documentRevision, stopNativePlayback]);
+  }, [documentId, stopNativePlayback]);
 
   const sourceDataRef = useRef({
     chapter,
