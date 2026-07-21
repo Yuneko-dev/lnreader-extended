@@ -1,5 +1,6 @@
 export type WebViewPostEvent = {
   type: string;
+  documentId?: number;
   data?: unknown;
   autoStartTTS?: boolean;
   index?: number;
@@ -22,6 +23,8 @@ export const parseWebViewEvent = (payload: string): WebViewPostEvent | null => {
       const value = event as Record<string, unknown>;
       return {
         type: event.type,
+        documentId:
+          typeof value.documentId === 'number' ? value.documentId : undefined,
         data: value.data,
         autoStartTTS:
           typeof value.autoStartTTS === 'boolean'

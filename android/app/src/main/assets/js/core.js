@@ -11,6 +11,7 @@ class Reader {
       prevChapter,
       batteryLevel,
       autoSaveInterval,
+      documentId,
       strings,
     } = initialReaderConfig;
 
@@ -30,6 +31,7 @@ class Reader {
     this.prevChapter = prevChapter;
     this.strings = strings;
     this.autoSaveInterval = autoSaveInterval;
+    this.documentId = documentId;
     this.rawHTML = this.chapterElement.innerHTML;
 
     // layout props
@@ -91,7 +93,9 @@ class Reader {
   }
 
   post = (obj) => {
-    window.ReactNativeWebView.postMessage(JSON.stringify(obj));
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({ ...obj, documentId: this.documentId }),
+    );
   };
 
   refetch = () => {
@@ -108,6 +112,10 @@ class Reader {
 }
 
 window.reader = new Reader();
+
+window.addEventListener('load', () => {
+  reader.post({ type: 'reader-ready' });
+});
 
 // Support legacy JavaScript variables from LNReader v1
 /**

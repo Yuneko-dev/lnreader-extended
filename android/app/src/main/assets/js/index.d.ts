@@ -24,6 +24,7 @@ export interface Reader {
   chapter: ChapterInfo;
   nextChapter?: ChapterInfo;
   autoSaveInterval: number;
+  documentId?: number;
   rawHTML: string;
   strings: {
     finished: string;

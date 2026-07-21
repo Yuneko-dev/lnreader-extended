@@ -8,7 +8,9 @@ import { parseWebViewEvent } from './webViewEvents';
 type TTSController = ReturnType<typeof useTTS>;
 
 type UseReaderMessageHandlerOptions = {
+  documentId: number;
   onPress: () => void;
+  onReaderReady: () => void;
   onFindResult: (result: NativeFindResult) => void;
   navigateChapter: (direction: 'NEXT' | 'PREV') => void;
   saveProgress: (progress: number) => void;
@@ -22,7 +24,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 export default function useReaderMessageHandler({
+  documentId,
   onPress,
+  onReaderReady,
   onFindResult,
   navigateChapter,
   saveProgress,
@@ -48,9 +52,15 @@ export default function useReaderMessageHandler({
   const handleMessage = useCallback(
     (payload: string) => {
       const event = parseWebViewEvent(payload);
-      if (!event) return;
+      // A replaced document can still flush queued messages during navigation.
+      if (!event || event.documentId !== documentId) return;
 
       switch (event.type) {
+        case 'reader-ready':
+          onReaderReady();
+          clearPendingScrollPosition();
+          tts.handleLoadEnd();
+          break;
         case 'user-interaction':
           resetAutoScroll();
           break;
@@ -147,9 +157,12 @@ export default function useReaderMessageHandler({
       }
     },
     [
+      clearPendingScrollPosition,
+      documentId,
       navigateChapter,
       onFindResult,
       onPress,
+      onReaderReady,
       onProgress,
       refetch,
       resetAutoScroll,
@@ -159,7 +172,6 @@ export default function useReaderMessageHandler({
   );
 
   return {
-    clearPendingScrollPosition,
     getNextChapterScreenVisible,
     getPendingScrollPosition,
     handleMessage,

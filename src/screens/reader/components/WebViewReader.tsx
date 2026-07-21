@@ -12,7 +12,7 @@ import {
 } from '@utils/customCode';
 import { PLUGIN_STORAGE } from '@utils/Storages';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { getBatteryLevelSync } from 'react-native-device-info';
 import type WebView from 'react-native-webview';
 
@@ -97,24 +97,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     ? 0
     : bottomInset;
 
-  const {
-    clearPendingScrollPosition,
-    getNextChapterScreenVisible,
-    getPendingScrollPosition,
-    handleMessage,
-  } = useReaderMessageHandler({
-    onPress,
-    onFindResult,
-    navigateChapter,
-    saveProgress,
-    resetAutoScroll,
-    refetch,
-    tts,
-    onProgress: progress => {
-      lastKnownProgressRef.current = progress;
-    },
-  });
-
   const customCSS = useMemo(
     () => composeCSS(readerSettings.codeSnippetsCSS),
     [readerSettings.codeSnippetsCSS],
@@ -155,6 +137,39 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     bionicReading: chapterGeneralSettings.bionicReading,
     removeExtraParagraphSpacing:
       chapterGeneralSettings.removeExtraParagraphSpacing,
+  });
+  const documentRef = useRef({ id: 0, revision: '' });
+  if (documentRef.current.revision !== documentRevision) {
+    documentRef.current = {
+      id: documentRef.current.id + 1,
+      revision: documentRevision,
+    };
+  }
+  const documentId = documentRef.current.id;
+  const onReaderReady = useCallback(() => {
+    const currentBatteryLevel = getBatteryLevelSync();
+    webViewRef.current?.injectJavaScript(`
+      if (window.reader && window.reader.batteryLevel) {
+        window.reader.batteryLevel.val = ${currentBatteryLevel};
+      }`);
+  }, [webViewRef]);
+  const {
+    getNextChapterScreenVisible,
+    getPendingScrollPosition,
+    handleMessage,
+  } = useReaderMessageHandler({
+    documentId,
+    onPress,
+    onReaderReady,
+    onFindResult,
+    navigateChapter,
+    saveProgress,
+    resetAutoScroll,
+    refetch,
+    tts,
+    onProgress: progress => {
+      lastKnownProgressRef.current = progress;
+    },
   });
   const documentRevisionMountedRef = useRef(false);
   const { stopNativePlayback } = tts;
@@ -206,9 +221,6 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
   };
 
   const source = useMemo(() => {
-    // The revision is the memo invalidator; source values come from the latest-data ref.
-    // eslint-disable-next-line no-void
-    void documentRevision;
     const latest = sourceDataRef.current;
     return {
       baseUrl: latest.novel.isLocal
@@ -239,6 +251,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         pluginCustomJS: latest.pluginCustomJS,
         customCSS: latest.customCSS,
         customJS: latest.customJS,
+        documentId,
         nextChapterScreenVisible: latest.getNextChapterScreenVisible(),
         pendingScrollPosition: latest.getPendingScrollPosition(),
         getLocalServerUrl,
@@ -249,23 +262,12 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         ),
       }),
     };
-  }, [batteryLevel, documentRevision]);
+  }, [batteryLevel, documentId]);
 
   return (
     <ReaderWebViewCore
       webViewRef={webViewRef as React.RefObject<WebView | null>}
       style={{ backgroundColor: readerSettings.theme }}
-      onLoadEnd={() => {
-        const currentBatteryLevel = getBatteryLevelSync();
-        webViewRef.current?.injectJavaScript(`
-          if (window.reader && window.reader.batteryLevel) {
-            window.reader.batteryLevel.val = ${currentBatteryLevel};
-          }`);
-        if (getPendingScrollPosition()) {
-          clearPendingScrollPosition();
-        }
-        tts.handleLoadEnd();
-      }}
       onMessagePayload={handleMessage}
       source={source}
     />

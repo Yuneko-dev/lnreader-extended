@@ -24,6 +24,7 @@ export interface HtmlTemplateOptions {
   pluginCustomJS?: string;
   customCSS?: string;
   customJS?: string;
+  documentId?: number;
   nextChapterScreenVisible?: boolean;
   pendingScrollPosition?: 'start' | 'end' | number | null;
   readerDir?: 'rtl' | 'ltr';
@@ -53,6 +54,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     pluginCustomJS = '',
     customCSS = '',
     customJS = '',
+    documentId,
     nextChapterScreenVisible = false,
     pendingScrollPosition,
     readerDir: providedReaderDir,
@@ -65,6 +67,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     providedReaderDir || (readerSettings.textAlign === 'right' ? 'rtl' : 'ltr');
 
   const initialReaderConfig = {
+    documentId,
     readerSettings,
     chapterGeneralSettings,
     novel,
@@ -214,6 +217,7 @@ export const generateReaderHtml = (options: HtmlTemplateOptions) => {
     window.onerror = function(message, source, lineno, colno, error) {
       window.ReactNativeWebView.postMessage(JSON.stringify({
         type: 'error',
+        documentId: initialReaderConfig.documentId,
         msg: message + " at " + source + ":" + lineno + ":" + colno + (error ? "\\n" + error.stack : "")
       }));
       return true;
