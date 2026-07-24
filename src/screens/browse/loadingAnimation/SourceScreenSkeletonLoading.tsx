@@ -16,36 +16,40 @@ const SourceScreenSkeletonLoading: React.FC<Props> = ({
   theme,
   completeRow,
 }) => {
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
+  const [highlightColor, backgroundColor, disableLoadingAnimations] =
+    useLoadingColors(theme);
 
   const { displayMode = DisplayModes.Comfortable, novelsPerRow = 3 } =
     useLibrarySettings();
 
   const window = useWindowDimensions();
-  const styles = createStyleSheet();
-
   const orientation = useDeviceOrientation();
 
   const numColumns = useMemo(
-    () => (orientation === 'landscape' ? 6 : novelsPerRow),
-    [orientation, novelsPerRow],
+    () =>
+      displayMode === DisplayModes.List
+        ? 1
+        : orientation === 'landscape'
+        ? 6
+        : novelsPerRow,
+    [displayMode, orientation, novelsPerRow],
   );
 
   const [pictureHeight, pictureWidth] = useMemo(() => {
-    const height = (window.width / numColumns) * (4 / 3);
     const width = (window.width - 12 - 9.6 * numColumns) / numColumns;
-    return [height, width];
+    return [width * (4 / 3), width];
   }, [numColumns, window.width]);
 
   const renderLoadingNovel = (item: number) => {
-    let randomNumber = Math.random();
-    if (randomNumber < 0.1) {
-      randomNumber = 0.1;
-    }
     return (
-      <View key={'sourceLoading' + item} style={{ flex: 1 / numColumns }}>
+      <View
+        key={'sourceLoading' + item}
+        style={[styles.item, { flex: 1 / numColumns }]}
+      >
         <LoadingNovel
+          availableWidth={window.width}
           backgroundColor={backgroundColor}
+          disableLoadingAnimations={disableLoadingAnimations}
           highlightColor={highlightColor}
           pictureHeight={pictureHeight}
           pictureWidth={pictureWidth}
@@ -84,29 +88,21 @@ const SourceScreenSkeletonLoading: React.FC<Props> = ({
   return <View style={styles.container}>{items.map(renderLoading)}</View>;
 };
 
-const createStyleSheet = () => {
-  return StyleSheet.create({
-    completeRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginBottom: 8,
-      opacity: 0.8,
-      paddingHorizontal: 1,
-      position: 'relative',
-      right: 0,
-    },
-    container: {
-      flexGrow: 1,
-      marginBottom: 8,
-      marginHorizontal: 2,
-      marginTop: 2,
-      overflow: 'visible',
-    },
-    row: {
-      flexDirection: 'row',
-      paddingHorizontal: 1,
-    },
-  });
-};
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    marginBottom: 8,
+    marginHorizontal: 2,
+    marginTop: 2,
+    overflow: 'visible',
+  },
+  item: {
+    minWidth: 0,
+  },
+  row: {
+    flexDirection: 'row',
+    paddingHorizontal: 1,
+  },
+});
 
 export default memo(SourceScreenSkeletonLoading);

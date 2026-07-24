@@ -1,5 +1,5 @@
-import React from 'react';
-import { View } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import color from 'color';
 
 import SkeletonLines from '../components/SkeletonLines';
@@ -12,32 +12,45 @@ const ChapterLoadingScreen = () => {
     textSize,
     lineHeight,
   } = useChapterReaderSettings();
+  const [skeletonColor, highlightColor] = useMemo(() => {
+    const background = color(backgroundColor);
+    if (!background.isDark()) {
+      return [
+        background.darken(0.04).toString(),
+        background.darken(0.08).toString(),
+      ];
+    }
+    if (background.luminosity() !== 0) {
+      return [
+        background.lighten(0.1).toString(),
+        background.lighten(0.4).toString(),
+      ];
+    }
+    return [
+      background.negate().darken(0.98).toString(),
+      background.negate().darken(0.92).toString(),
+    ];
+  }, [backgroundColor]);
 
   return (
-    <View style={{ backgroundColor }}>
+    <View style={[styles.container, { backgroundColor }]}>
       <SkeletonLines
         containerMargin={padding}
         containerHeight={'100%'}
         containerWidth={'100%'}
-        color={
-          color(backgroundColor).isDark()
-            ? color(backgroundColor).luminosity() !== 0
-              ? color(backgroundColor).lighten(0.1).toString()
-              : color(backgroundColor).negate().darken(0.98).toString()
-            : color(backgroundColor).darken(0.04).toString()
-        }
-        highlightColor={
-          color(backgroundColor).isDark()
-            ? color(backgroundColor).luminosity() !== 0
-              ? color(backgroundColor).lighten(0.4).toString()
-              : color(backgroundColor).negate().darken(0.92).toString()
-            : color(backgroundColor).darken(0.08).toString()
-        }
+        color={skeletonColor}
+        highlightColor={highlightColor}
         textSize={textSize}
         lineHeight={lineHeight}
       />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 export default ChapterLoadingScreen;

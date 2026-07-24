@@ -38,14 +38,14 @@ import {
   VerticalBarSkeleton,
 } from '@components/Skeleton/Skeleton';
 import Animated, {
-  useAnimatedProps,
+  cancelAnimation,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
-  withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import useLoadingColors from '@components/Skeleton/useLoadingColors';
+import useLoadingColors from '@utils/useLoadingColors';
 import { ChapterFilterKey } from '@database/constants';
 import { useNovelAction } from '@screens/novel/NovelContext';
 
@@ -85,37 +85,47 @@ const getStatusIcon = (status?: string) => {
   return 'help';
 };
 
-const ChapterCountSkeleton = ({ theme }: { theme: ThemeColors }) => {
-  const sv = useSharedValue(0);
-  const { disableLoadingAnimations } = useAppSettings();
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
+const useShimmer = (theme: ThemeColors) => {
+  const translateX = useSharedValue(-100);
+  const [highlightColor, backgroundColor, disableLoadingAnimations] =
+    useLoadingColors(theme);
 
-  const animatedProps = useAnimatedProps(() => {
-    return {
-      left: (sv.value + '%') as `${number}%`,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: (translateX.value + '%') as `${number}%`,
+      },
+    ],
+  }));
 
   React.useEffect(() => {
-    if (disableLoadingAnimations) return;
-    sv.value = withRepeat(
-      withSequence(0, withTiming(160, { duration: 1000 })),
-      -1,
-    );
-  }, [disableLoadingAnimations, sv]);
+    cancelAnimation(translateX);
+    translateX.value = -100;
+    if (!disableLoadingAnimations) {
+      translateX.value = withRepeat(
+        withTiming(200, { duration: 1000 }),
+        -1,
+        false,
+      );
+    }
+    return () => cancelAnimation(translateX);
+  }, [disableLoadingAnimations, translateX]);
 
-  if (disableLoadingAnimations) {
-    return (
-      <View
-        style={[
-          styles.chapterCountSkeleton,
-          { backgroundColor: backgroundColor },
-        ]}
-      />
-    );
-  }
+  return {
+    animatedStyle,
+    highlightColor,
+    backgroundColor,
+    disableLoadingAnimations,
+  };
+};
 
-  const LG = Animated.createAnimatedComponent(LinearGradient);
+const ChapterCountSkeleton = ({ theme }: { theme: ThemeColors }) => {
+  const {
+    animatedStyle,
+    highlightColor,
+    backgroundColor,
+    disableLoadingAnimations,
+  } = useShimmer(theme);
 
   return (
     <View
@@ -124,40 +134,22 @@ const ChapterCountSkeleton = ({ theme }: { theme: ThemeColors }) => {
         { backgroundColor: backgroundColor },
       ]}
     >
-      <LG
-        start={[0, 0]}
-        end={[1, 0]}
-        locations={[0, 0.3, 0.7, 1]}
-        style={[animatedProps, styles.chapterCountGradient]}
-        colors={['transparent', highlightColor, highlightColor, 'transparent']}
-      />
+      {!disableLoadingAnimations ? (
+        <AnimatedLinearGradient
+          start={[0, 0]}
+          end={[1, 0]}
+          locations={[0, 0.3, 0.7, 1]}
+          style={[styles.chapterCountGradient, animatedStyle]}
+          colors={[
+            'transparent',
+            highlightColor,
+            highlightColor,
+            'transparent',
+          ]}
+        />
+      ) : null}
     </View>
   );
-};
-
-const useShimmer = (theme: ThemeColors) => {
-  const sv = useSharedValue(0);
-  const { disableLoadingAnimations } = useAppSettings();
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
-
-  const animatedStyle = useAnimatedProps(() => ({
-    left: (sv.value + '%') as `${number}%`,
-  }));
-
-  React.useEffect(() => {
-    if (disableLoadingAnimations) return;
-    sv.value = withRepeat(
-      withSequence(0, withTiming(160, { duration: 1000 })),
-      -1,
-    );
-  }, [disableLoadingAnimations, sv]);
-
-  return {
-    animatedStyle,
-    highlightColor,
-    backgroundColor,
-    disableLoadingAnimations,
-  };
 };
 
 const NovelDetailsSkeleton = ({ theme }: { theme: ThemeColors }) => {
@@ -173,7 +165,7 @@ const NovelDetailsSkeleton = ({ theme }: { theme: ThemeColors }) => {
       start={[0, 0]}
       end={[1, 0]}
       locations={[0, 0.3, 0.7, 1]}
-      style={[animatedStyle, styles.infoSkeletonGradient]}
+      style={[styles.infoSkeletonGradient, animatedStyle]}
       colors={['transparent', highlightColor, highlightColor, 'transparent']}
     />
   ) : null;
@@ -211,7 +203,7 @@ const ButtonGroupSkeleton = ({ theme }: { theme: ThemeColors }) => {
       start={[0, 0]}
       end={[1, 0]}
       locations={[0, 0.3, 0.7, 1]}
-      style={[animatedStyle, styles.buttonSkeletonGradient]}
+      style={[styles.buttonSkeletonGradient, animatedStyle]}
       colors={['transparent', highlightColor, highlightColor, 'transparent']}
     />
   ) : null;
@@ -477,7 +469,6 @@ const styles = StyleSheet.create({
   chapterCountGradient: {
     height: 20,
     position: 'absolute',
-    transform: [{ translateX: '-100%' }],
     width: '60%',
   },
   chapterCountSkeleton: {
@@ -511,7 +502,6 @@ const styles = StyleSheet.create({
   infoSkeletonGradient: {
     height: 20,
     position: 'absolute',
-    transform: [{ translateX: '-100%' }],
     width: '60%',
   },
   buttonGroupSkeletonContainer: {
@@ -529,7 +519,6 @@ const styles = StyleSheet.create({
   buttonSkeletonGradient: {
     height: 60,
     position: 'absolute',
-    transform: [{ translateX: '-100%' }],
     width: '60%',
   },
   w130: {

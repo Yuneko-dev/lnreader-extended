@@ -1,33 +1,43 @@
 import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { ThemeColors } from '@theme/types';
 import useLoadingColors from '@utils/useLoadingColors';
-import { useAppSettings } from '@hooks/persisted/index';
+import ShimmerPlaceholder from '@components/Skeleton/ShimmerPlaceholder';
+
+const SKELETON_ITEMS = [
+  { dateWidth: 72 },
+  { dateWidth: null },
+  { dateWidth: null },
+  { dateWidth: 88 },
+  { dateWidth: null },
+] as const;
 
 interface Props {
   theme: ThemeColors;
 }
 
 const HistorySkeletonLoading: React.FC<Props> = ({ theme }) => {
-  const { disableLoadingAnimations } = useAppSettings();
-  const ShimmerPlaceHolder = createShimmerPlaceholder(LinearGradient);
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
+  const { width } = useWindowDimensions();
+  const textWidth = Math.max(80, width - 144);
+  const [highlightColor, backgroundColor, disableLoadingAnimations] =
+    useLoadingColors(theme);
 
-  const renderLoadingChapter = (index: number) => (
+  const renderLoadingChapter = (
+    { dateWidth }: (typeof SKELETON_ITEMS)[number],
+    index: number,
+  ) => (
     <View key={`historyLoading${index}`}>
-      {index === 0 || Math.random() > 0.6 ? (
-        <ShimmerPlaceHolder
+      {dateWidth ? (
+        <ShimmerPlaceholder
           style={styles.date}
           shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
           height={19.3}
-          width={Math.random() * 40 + 50}
+          width={dateWidth}
           stopAutoRun={disableLoadingAnimations}
         />
       ) : null}
       <View style={styles.chapterCtn}>
-        <ShimmerPlaceHolder
+        <ShimmerPlaceholder
           style={styles.picture}
           shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
           height={80}
@@ -35,40 +45,35 @@ const HistorySkeletonLoading: React.FC<Props> = ({ theme }) => {
           stopAutoRun={disableLoadingAnimations}
         />
         <View style={styles.textCtn}>
-          <ShimmerPlaceHolder
+          <ShimmerPlaceholder
             style={styles.text}
             shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
             height={16}
-            width={208.7}
+            width={textWidth}
             stopAutoRun={disableLoadingAnimations}
           />
-          <ShimmerPlaceHolder
+          <ShimmerPlaceholder
             style={styles.text}
             shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
             height={12}
-            width={208.7}
+            width={textWidth}
             stopAutoRun={disableLoadingAnimations}
           />
         </View>
         <View style={styles.buttonCtn}>
-          {Array.from({ length: 2 }).map((_, buttonIndex) => (
-            <ShimmerPlaceHolder
-              key={buttonIndex}
-              style={styles.button}
-              shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
-              height={24}
-              width={24}
-              stopAutoRun={disableLoadingAnimations}
-            />
-          ))}
+          <ShimmerPlaceholder
+            style={styles.button}
+            shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
+            height={24}
+            width={24}
+            stopAutoRun={disableLoadingAnimations}
+          />
         </View>
       </View>
     </View>
   );
 
-  const items = Array.from({ length: Math.floor(Math.random() * 3 + 3) });
-
-  return <View>{items.map((_, index) => renderLoadingChapter(index))}</View>;
+  return <View>{SKELETON_ITEMS.map(renderLoadingChapter)}</View>;
 };
 
 const styles = StyleSheet.create({
@@ -106,8 +111,10 @@ const styles = StyleSheet.create({
   },
   textCtn: {
     borderRadius: 6,
+    flex: 1,
     marginBottom: 2,
     marginTop: 5,
+    overflow: 'hidden',
   },
 });
 

@@ -2,8 +2,12 @@ import { ThemeColors } from '@theme/types';
 import color from 'color';
 import { useAppSettings } from '@hooks/persisted';
 import { interpolateColor } from 'react-native-reanimated';
+import { useMemo } from 'react';
 
-const useLoadingColors = (theme: ThemeColors) => {
+export const getLoadingColors = (
+  theme: ThemeColors,
+  disableLoadingAnimations = false,
+) => {
   const highlightColor = color(theme.primary).alpha(0.08).string();
   const backgroundColor = color(theme.surface);
 
@@ -18,17 +22,26 @@ const useLoadingColors = (theme: ThemeColors) => {
     adjustedBackgroundColor = backgroundColor.darken(0.04).toString();
   }
 
-  const { disableLoadingAnimations } = useAppSettings();
-
   if (disableLoadingAnimations) {
-    //If loading animations is disabled highlight color is never shown so make background color more visible to compensate
+    // The highlight is hidden, so increase the static placeholder contrast.
     adjustedBackgroundColor = interpolateColor(
-      0.01, //I have no idea why the interpolation amount has to be so small, I think its cus of the massive difference in alpha
+      0.01,
       [0, 1],
       [adjustedBackgroundColor, highlightColor],
     );
   }
 
-  return [highlightColor, adjustedBackgroundColor];
+  return [highlightColor, adjustedBackgroundColor] as const;
 };
+
+const useLoadingColors = (theme: ThemeColors) => {
+  const { disableLoadingAnimations } = useAppSettings();
+  const colors = useMemo(
+    () => getLoadingColors(theme, disableLoadingAnimations),
+    [disableLoadingAnimations, theme],
+  );
+
+  return [...colors, disableLoadingAnimations] as const;
+};
+
 export default useLoadingColors;

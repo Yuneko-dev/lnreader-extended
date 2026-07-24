@@ -1,69 +1,72 @@
-import { useAppSettings, useTheme } from '@hooks/persisted';
+import { useTheme } from '@hooks/persisted';
 import * as React from 'react';
 import { StyleProp, ViewStyle, StyleSheet, View } from 'react-native';
 import Animated, {
-  useAnimatedProps,
+  cancelAnimation,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
-  withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import useLoadingColors from './useLoadingColors';
+import useLoadingColors from '@utils/useLoadingColors';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const duration = 1000;
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 function useSetupLoadingAnimations() {
-  const sv = useSharedValue(0);
-  const { disableLoadingAnimations } = useAppSettings();
+  const translateX = useSharedValue(-100);
   const theme = useTheme();
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
+  const [highlightColor, backgroundColor, disableLoadingAnimations] =
+    useLoadingColors(theme);
 
-  const style = useAnimatedProps(() => {
+  const animatedStyle = useAnimatedStyle(() => {
     return {
-      left: (sv.value + '%') as `${number}%`,
+      transform: [
+        {
+          translateX: (translateX.value + '%') as `${number}%`,
+        },
+      ],
     };
   });
 
   const LGC = React.useMemo(
-    () => createLGC(highlightColor, style, disableLoadingAnimations),
-    [disableLoadingAnimations, highlightColor, style],
+    () =>
+      disableLoadingAnimations ? null : (
+        <AnimatedLinearGradient
+          start={[0, 0]}
+          end={[1, 0]}
+          locations={[0, 0.3, 0.7, 1]}
+          style={[styles.LG, animatedStyle]}
+          colors={[
+            'transparent',
+            highlightColor,
+            highlightColor,
+            'transparent',
+          ]}
+        />
+      ),
+    [animatedStyle, disableLoadingAnimations, highlightColor],
   );
 
   React.useEffect(() => {
-    if (disableLoadingAnimations) return;
-    sv.value = withRepeat(withSequence(0, withTiming(160, { duration })), -1);
-  }, [disableLoadingAnimations, sv]);
+    cancelAnimation(translateX);
+    translateX.value = -100;
+    if (!disableLoadingAnimations) {
+      translateX.value = withRepeat(withTiming(200, { duration }), -1, false);
+    }
+    return () => cancelAnimation(translateX);
+  }, [disableLoadingAnimations, translateX]);
+
   return [LGC, backgroundColor] as const;
 }
 
-function createLGC(
-  highlightColor: string,
-  style: StyleProp<ViewStyle>,
-  disableLoadingAnimations?: boolean,
-) {
-  if (disableLoadingAnimations) return <></>;
-  const LG = Animated.createAnimatedComponent(LinearGradient);
-
-  return (
-    <React.Suspense fallback={<></>}>
-      <LG
-        start={[0, 0]}
-        end={[1, 0]}
-        locations={[0, 0.3, 0.7, 1]}
-        style={[style, styles.LG]}
-        colors={['transparent', highlightColor, highlightColor, 'transparent']}
-      />
-    </React.Suspense>
-  );
-}
-
-const ChapterSkeleton = React.memo(function ChapterSkeleton({
+const ChapterSkeleton = React.memo(function ChapterSkeletonItem({
   lgc,
   backgroundStyle,
   img,
 }: {
-  lgc: React.JSX.Element;
+  lgc: React.JSX.Element | null;
   backgroundStyle: StyleProp<ViewStyle>;
   img?: boolean;
 }) {
@@ -158,28 +161,8 @@ function NovelMetaSkeleton() {
 }
 
 const ChapterListSkeleton = ({ img }: { img?: boolean }) => {
-  const sv = useSharedValue(0);
-  const { disableLoadingAnimations } = useAppSettings();
-
-  React.useEffect(() => {
-    if (disableLoadingAnimations) return;
-    sv.value = withRepeat(withSequence(0, withTiming(160, { duration })), -1);
-  }, [disableLoadingAnimations, sv]);
-
+  const [LGC, backgroundColor] = useSetupLoadingAnimations();
   const skeletonItems = React.useMemo(() => Array.from({ length: 7 }), []);
-
-  const animatedProps = useAnimatedProps(() => {
-    return {
-      left: (sv.value + '%') as `${number}%`,
-    };
-  });
-  const theme = useTheme();
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
-
-  const LGC = React.useMemo(
-    () => createLGC(highlightColor, animatedProps, disableLoadingAnimations),
-    [animatedProps, disableLoadingAnimations, highlightColor],
-  );
   const backgroundStyle = React.useMemo(
     () => ({ backgroundColor }),
     [backgroundColor],
@@ -205,7 +188,6 @@ const styles = StyleSheet.create({
   LG: {
     height: 40,
     position: 'absolute',
-    transform: [{ translateX: '-100%' }],
     width: '60%',
   },
   chapter: {

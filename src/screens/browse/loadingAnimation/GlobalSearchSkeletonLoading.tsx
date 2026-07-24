@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { ThemeColors } from '@theme/types';
 import LoadingNovel from './LoadingNovel';
 import useLoadingColors from '@utils/useLoadingColors';
@@ -10,18 +10,19 @@ interface Props {
 }
 
 const GlobalSearchSkeletonLoading: React.FC<Props> = ({ theme }) => {
-  const styles = createStyleSheet();
+  const { width } = useWindowDimensions();
+  const [highlightColor, backgroundColor, disableLoadingAnimations] =
+    useLoadingColors(theme);
 
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
-
-  const items: number[] = [1, 2, 3, 4];
   return (
     <View style={[styles.container, styles.row]}>
-      {items.map((item: number, index: number) => {
+      {SKELETON_ITEMS.map((_, index) => {
         return (
           <LoadingNovel
             key={index}
+            availableWidth={width}
             backgroundColor={backgroundColor}
+            disableLoadingAnimations={disableLoadingAnimations}
             highlightColor={highlightColor}
             pictureHeight={153.1}
             pictureWidth={100}
@@ -33,19 +34,19 @@ const GlobalSearchSkeletonLoading: React.FC<Props> = ({ theme }) => {
   );
 };
 
-const createStyleSheet = () => {
-  return StyleSheet.create({
-    container: {
-      marginBottom: 6,
-      marginHorizontal: 4,
-      marginTop: 6,
-      overflow: 'hidden',
-    },
-    row: {
-      flexDirection: 'row',
-      paddingHorizontal: 3,
-    },
-  });
-};
+const SKELETON_ITEMS = Array.from({ length: 4 });
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 6,
+    marginHorizontal: 4,
+    marginTop: 6,
+    overflow: 'hidden',
+  },
+  row: {
+    flexDirection: 'row',
+    paddingHorizontal: 3,
+  },
+});
 
 export default memo(GlobalSearchSkeletonLoading);

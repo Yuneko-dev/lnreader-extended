@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { ThemeColors } from '@theme/types';
 import useLoadingColors from '@utils/useLoadingColors';
-import { useAppSettings } from '@hooks/persisted/index';
+import ShimmerPlaceholder from '@components/Skeleton/ShimmerPlaceholder';
+
+const SKELETON_ITEMS = Array.from({ length: 6 });
 
 interface Props {
   width: number;
@@ -13,40 +13,39 @@ interface Props {
 }
 
 const CategorySkeletonLoading: React.FC<Props> = ({ height, width, theme }) => {
-  const { disableLoadingAnimations } = useAppSettings();
-  const ShimmerPlaceHolder = createShimmerPlaceholder(LinearGradient);
+  const window = useWindowDimensions();
+  const cardWidth = Math.min(width, window.width - 32);
+  const [highlightColor, backgroundColor, disableLoadingAnimations] =
+    useLoadingColors(theme);
 
-  const [highlightColor, backgroundColor] = useLoadingColors(theme);
-
-  const renderLoadingCard = (item: number, index: number) => {
+  const renderLoadingCard = (_: unknown, index: number) => {
     return (
-      <View key={index}>
-        <ShimmerPlaceHolder
+      <View key={`category-skeleton-${index}`}>
+        <ShimmerPlaceholder
           style={styles.categoryCard}
           shimmerColors={[backgroundColor, highlightColor, backgroundColor]}
           height={height}
-          width={width}
+          width={cardWidth}
           stopAutoRun={disableLoadingAnimations}
         />
       </View>
     );
   };
 
-  const items = [];
-  for (let index = 0; index < Math.random() * 6 + 3; index++) {
-    items.push(0);
-  }
-
-  return <View style={styles.contentCtn}>{items.map(renderLoadingCard)}</View>;
+  return (
+    <View style={styles.contentCtn}>
+      {SKELETON_ITEMS.map(renderLoadingCard)}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   categoryCard: {
     borderRadius: 12,
-    marginBottom: 8,
     marginHorizontal: 16,
   },
   contentCtn: {
+    gap: 8,
     paddingBottom: 100,
     paddingVertical: 16,
   },
