@@ -32,7 +32,6 @@
     "nix:emulator": "nix develop .#emulator --extra-experimental-features nix-command --extra-experimental-features flakes"
   },
   "dependencies": {
-    "@cd-z/react-native-epub-creator": "^3.0.0",
     "@expo/dom-webview": "^57.0.1",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@legendapp/list": "^3.3.3",
@@ -83,7 +82,6 @@
     "react-native-drawer-layout": "^4.2.8",
     "react-native-edge-to-edge": "^1.8.1",
     "react-native-error-boundary": "^3.1.0",
-    "react-native-file-access": "^4.0.3",
     "react-native-gesture-handler": "^2.32.0",
     "react-native-mmkv": "^4.3.2",
     "react-native-pager-view": "^8.0.2",
@@ -98,7 +96,6 @@
     "react-native-url-polyfill": "^3.0.0",
     "react-native-webview": "^13.16.1",
     "react-native-worklets": "^0.10.0",
-    "react-native-zip-archive": "^7.1.1",
     "sanitize-html": "^2.17.6",
     "urlencode": "^2.0.0",
     "zustand": "^5.0.14"
@@ -145,7 +142,7 @@
           "native-tts-media-control",
           "native-volume-button-listener",
           "native-zip-archive",
-          "nitro-import-epub",
+          "nitro-epub",
           "native-background-tasks",
           "@react-native-vector-icons/material-design-icons",
           "react-native-saf-x",

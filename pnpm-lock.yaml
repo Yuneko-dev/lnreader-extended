@@ -4,16 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@cd-z/react-native-epub-creator': 1f06df347ba23528a5c6d147c2598f09c4b0f48fe3b232f92d4d321c1fd904f8
-
 importers:
 
   .:
     dependencies:
-      '@cd-z/react-native-epub-creator':
-        specifier: ^3.0.0
-        version: 3.0.0(patch_hash=1f06df347ba23528a5c6d147c2598f09c4b0f48fe3b232f92d4d321c1fd904f8)(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
       '@expo/dom-webview':
         specifier: ^57.0.1
         version: 57.0.1(expo@57.0.7)(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
@@ -164,9 +158,6 @@ importers:
       react-native-error-boundary:
         specifier: ^3.1.0
         version: 3.1.0(react-native-safe-area-context@5.8.0(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3))(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
-      react-native-file-access:
-        specifier: ^4.0.3
-        version: 4.0.3(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
       react-native-gesture-handler:
         specifier: ^2.32.0
         version: 2.32.0(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
@@ -209,9 +200,6 @@ importers:
       react-native-worklets:
         specifier: ^0.10.0
         version: 0.10.2(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
-      react-native-zip-archive:
-        specifier: ^7.1.1
-        version: 7.1.1(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
       sanitize-html:
         specifier: ^2.17.6
         version: 2.17.6
@@ -1009,15 +997,6 @@ packages:
     resolution: {integrity: sha512-tTQ0uDSCL0ypeMa8T/E9wAZRGKWj8kXP7+6RYgPTfOPs9N07C9xM8P02GJ3feETap4Ux5S69D9nteq9mEj86NA==}
     peerDependencies:
       react: '>=16.3.0'
-
-  '@cd-z/epub-constructor@3.0.3':
-    resolution: {integrity: sha512-0Q4DBZ+H6kOihAfREu1dcfwkuwIoOtpXK24im24STP89aIb1HoAhGd3MKLKsZK3tIPVsdfjI2esPnYpmhVXxrw==}
-
-  '@cd-z/react-native-epub-creator@3.0.0':
-    resolution: {integrity: sha512-vpI3viNxkSJWuSCuotFKfe1Ulg7Z+VPBTSt4GkGSGwHwpZxkNnh/UOZqyHBTtn3yvjaq2PK3GABDZlxlDhiQvA==}
-    peerDependencies:
-      react: '*'
-      react-native: '*'
 
   '@drizzle-team/brocli@0.11.0':
     resolution: {integrity: sha512-hD3pekGiPg0WPCCGAZmusBBJsDqGUR66Y452YgQsZOnkdQ7ViEPKuyP4huUGEZQefp8g34RRodXYmJ2TbCH+tg==}
@@ -5005,22 +4984,6 @@ packages:
       react-native: '>=0.74.0'
       react-native-safe-area-context: '>=5.0.0'
 
-  react-native-file-access@3.2.0:
-    resolution: {integrity: sha512-3G0Ma3FvV99Ne7lbwHyZKqLMZVrpIr6fAlIYZQxkRDSZZJ1UtJlGi0VqbJXnJFB26a7C7PEPyVBoctmKr7DzaA==}
-    peerDependencies:
-      react: '*'
-      react-native: '*'
-
-  react-native-file-access@4.0.3:
-    resolution: {integrity: sha512-7xiUcjMhicMM+WmWbO2U2iutXcoYxi3IxScB08kHle6XfBomAV9e2MtszCR7aoSfYNSblpKKqSefra6zFKXxTw==}
-    peerDependencies:
-      react: '*'
-      react-native: '*'
-      react-native-macos: '*'
-    peerDependenciesMeta:
-      react-native-macos:
-        optional: true
-
   react-native-gesture-handler@2.32.0:
     resolution: {integrity: sha512-uYIMOKlKENORq2SABE+jIjbPU+h5I/sQKcq2v16zRq848nwEp1fWRVwML4QWqijc8UcXJC25o54S8GQd4Mf2OA==}
     peerDependencies:
@@ -5127,18 +5090,6 @@ packages:
       '@react-native/metro-config': '*'
       react: '*'
       react-native: 0.83 - 0.86
-
-  react-native-zip-archive@6.1.2:
-    resolution: {integrity: sha512-LcJomSY/6O3KHy/LF6Gb7F/yRJiZJ0lTlPQPbfeOHBQzfvqNJFJZ8x6HrdeYeokFf/UGB5bY7jfh4es6Y/PhBA==}
-    peerDependencies:
-      react: '>=16.8.6'
-      react-native: '>=0.60.0'
-
-  react-native-zip-archive@7.1.1:
-    resolution: {integrity: sha512-rlRn8iZCwURU6R1MlrukQT0W84d62UijBmhL8PF32so5J06auDpry+Tmb2dsBEpLKhXCtZgG60uBXukV3hqY3A==}
-    peerDependencies:
-      react: '>=16.8.6'
-      react-native: '>=0.60.0'
 
   react-native@0.86.0:
     resolution: {integrity: sha512-17ALh/dd6AO4pgOVmOO5Axll5PbErEo3XFyLokyzW6usyi+OShIEPwUW26wLPlhVifgSOIfECCH0WN+0IqtJ1w==}
@@ -6874,19 +6825,6 @@ snapshots:
       deepmerge: 3.3.0
       hoist-non-react-statics: 3.3.2
       react: 19.2.3
-
-  '@cd-z/epub-constructor@3.0.3':
-    dependencies:
-      sanitize-html: 2.17.6
-
-  '@cd-z/react-native-epub-creator@3.0.0(patch_hash=1f06df347ba23528a5c6d147c2598f09c4b0f48fe3b232f92d4d321c1fd904f8)(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)':
-    dependencies:
-      '@cd-z/epub-constructor': 3.0.3
-      react: 19.2.3
-      react-native: 0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0)
-      react-native-file-access: 3.2.0(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
-      react-native-saf-x: 2.2.3(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
-      react-native-zip-archive: 6.1.2(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
 
   '@drizzle-team/brocli@0.11.0': {}
 
@@ -11649,16 +11587,6 @@ snapshots:
       react-native: 0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0)
       react-native-safe-area-context: 5.8.0(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3)
 
-  react-native-file-access@3.2.0(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-native: 0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0)
-
-  react-native-file-access@4.0.3(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-native: 0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0)
-
   react-native-gesture-handler@2.32.0(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3):
     dependencies:
       '@egjs/hammerjs': 2.0.17
@@ -11778,16 +11706,6 @@ snapshots:
       semver: 7.8.5
     transitivePeerDependencies:
       - supports-color
-
-  react-native-zip-archive@6.1.2(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-native: 0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0)
-
-  react-native-zip-archive@7.1.1(react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0))(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-native: 0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0)
 
   react-native@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(@react-native/jest-preset@0.86.0(@babel/core@7.29.7(supports-color@9.4.0))(react@19.2.3))(@react-native/metro-config@0.86.0(@babel/core@7.29.7(supports-color@9.4.0)))(@types/react@19.2.17)(react@19.2.3)(supports-color@9.4.0):
     dependencies:

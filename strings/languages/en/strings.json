@@ -425,6 +425,7 @@
       "downloadedChaptersOnly": "Only downloaded chapters will be included in the EPUB file",
       "endChapter": "End Chapter",
       "exportAll": "Export All Chapters",
+      "fileName": "File name",
       "includeCustomCSS": "Include Custom CSS",
       "includeCustomJS": "Include Custom JS",
       "invalidRange": "Please enter valid chapter numbers",

@@ -12,12 +12,19 @@ import { showToast } from '@utils/showToast';
 
 interface ExportEpubModalProps {
   isVisible: boolean;
-  onSubmit?: (uri: string, startChapter?: number, endChapter?: number) => void;
+  defaultFileName: string;
+  onSubmit?: (
+    uri: string,
+    fileName: string,
+    startChapter?: number,
+    endChapter?: number,
+  ) => void;
   hideModal: () => void;
 }
 
 const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
   isVisible,
+  defaultFileName,
   onSubmit: onSubmitProp,
   hideModal,
 }) => {
@@ -31,6 +38,7 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
   } = useChapterReaderSettings();
 
   const [uri, setUri] = useState(epubLocation);
+  const [fileName, setFileName] = useState(defaultFileName);
   const useAppTheme = useBoolean(epubUseAppTheme);
   const useCustomCSS = useBoolean(epubUseCustomCSS);
   const useCustomJS = useBoolean(epubUseCustomJS);
@@ -41,6 +49,7 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
   const onDismiss = () => {
     hideModal();
     setUri(epubLocation);
+    setFileName(defaultFileName);
     exportAll.setTrue();
     setStartChapter('');
     setEndChapter('');
@@ -77,7 +86,7 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
     const start = exportAll.value ? undefined : parseInt(startChapter, 10);
     const end = exportAll.value ? undefined : parseInt(endChapter, 10);
 
-    onSubmitProp?.(uri, start, end);
+    onSubmitProp?.(uri, fileName, start, end);
     hideModal();
   };
 
@@ -113,6 +122,18 @@ const ExportEpubModal: React.FC<ExportEpubModalProps> = ({
               onPress={openFolderPicker}
             />
           }
+        />
+        <TextInput
+          label={getString('novelScreen.exportEpubModal.fileName')}
+          value={fileName}
+          onChangeText={setFileName}
+          onSubmitEditing={onSubmit}
+          mode="outlined"
+          theme={{ colors: { ...theme } }}
+          underlineColor={theme.outline}
+          dense
+          right={<TextInput.Affix text=".epub" />}
+          style={styles.fileNameInput}
         />
       </Dialog.Content>
       <Dialog.List>
@@ -194,6 +215,9 @@ export default ExportEpubModal;
 const styles = StyleSheet.create({
   infoItem: {
     paddingHorizontal: 0,
+  },
+  fileNameInput: {
+    marginTop: 12,
   },
 
   rangeInputs: {

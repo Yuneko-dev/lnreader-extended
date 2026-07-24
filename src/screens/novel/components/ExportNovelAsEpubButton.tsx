@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { Portal } from 'react-native-paper';
 import { StatusBar, StyleProp, ViewStyle } from 'react-native';
+import { copyFile, openDocumentTree } from 'react-native-saf-x';
 
-import EpubBuilder from '@cd-z/react-native-epub-creator';
-import NativeFile from '@modules/native-file'
+import { epub, type EpubExportChapter } from '@modules/nitro-epub';
+import NativeFile from '@modules/native-file';
 
 import { NovelInfo } from '@database/types';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
@@ -25,6 +26,16 @@ interface ExportNovelAsEpubButtonProps {
     size?: number;
   }) => React.JSX.Element;
 }
+
+const sanitizeEpubFileName = (fileName: string) => {
+  const withoutExtension = fileName.trim().replace(/\.epub$/i, '');
+  return (
+    withoutExtension
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, '')
+      .replace(/[. ]+$/g, '')
+      .trim() || 'novel'
+  );
+};
 
 const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
   novel,
@@ -55,7 +66,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       html {
         scroll-behavior: smooth;
         overflow-x: hidden;
-        padding-top: ${StatusBar.currentHeight};
+        padding-top: ${StatusBar.currentHeight ?? 0}px;
         word-wrap: break-word;
       }
       body {
@@ -67,7 +78,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
         text-align: ${readerSettings.textAlign};
         line-height: ${readerSettings.lineHeight};
         font-family: "${readerSettings.fontFamily}";
-        background-color: "${readerSettings.theme}";
+        background-color: ${readerSettings.theme};
       }
       hr {
         margin-top: 20px;
@@ -99,12 +110,12 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
     }
 
     return `
-      let novelName = "${novel.name}";
-      let chapterName = "";
-      let sourceId = ${novel.pluginId};
-      let chapterId = "";
-      let novelId = ${novel.id};
-      let html = document.querySelector("chapter").innerHTML;
+      let novelName = ${JSON.stringify(novel.name)};
+      let chapterName = document.title;
+      let sourceId = ${JSON.stringify(novel.pluginId)};
+      let chapterId = document.body.dataset.chapterId;
+      let novelId = ${JSON.stringify(novel.id)};
+      let html = document.body.innerHTML;
       
       ${readerSettings.customJS}
     `;
@@ -112,6 +123,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
 
   const exportNovelAsEpub = async (
     destinationUri: string,
+    fileName: string,
     startChapter?: number,
     endChapter?: number,
   ) => {
@@ -120,7 +132,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       return;
     }
 
-    let epub: EpubBuilder | undefined;
+    let tempEpubPath: string | undefined;
 
     try {
       const chapters = await getNovelDownloadedChapters(
@@ -134,82 +146,53 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
         return;
       }
 
-      epub = new EpubBuilder(
-        {
-          title: novel.name,
-          fileName: novel.name.replace(/[\\/:*?"<>|\s]/g, '') || 'novel',
-          language: 'en',
-          cover: novel.cover,
-          description: novel.summary,
-          author: novel.author,
-          bookId: novel.pluginId.toString(),
-          stylesheet: epubStylesheet || undefined,
-          js: epubUseCustomJS ? epubJavaScript : undefined,
-        },
-        destinationUri,
+      let resolvedDestinationUri = destinationUri;
+      if (!resolvedDestinationUri) {
+        const selectedFolder = await openDocumentTree(true);
+        if (!selectedFolder) {
+          return;
+        }
+        resolvedDestinationUri = selectedFolder.uri;
+      }
+
+      const epubFileName = `${sanitizeEpubFileName(fileName)}.epub`;
+      tempEpubPath = `${NativeFile.ExternalCachesDirectoryPath}/epub-export-${
+        novel.id
+      }-${Date.now()}.epub`;
+      const epubChapters: EpubExportChapter[] = chapters.map(
+        (chapter, index) => ({
+          title:
+            chapter.name?.trim() ||
+            `Chapter ${chapter.chapterNumber || index + 1}`,
+          htmlPath: `${NOVEL_STORAGE}/${novel.pluginId}/${novel.id}/${chapter.id}/index.html`,
+          novelId: novel.id.toString(),
+          chapterId: chapter.id.toString(),
+        }),
       );
 
-      await epub.prepare();
+      const result = await epub.exportEpub(
+        {
+          title: novel.name,
+          language: 'en',
+          coverPath: novel.cover || '',
+          description: novel.summary || '',
+          author: novel.author || '',
+          bookId: `urn:lnreader:${novel.pluginId}:${novel.id}`,
+          stylesheet: epubStylesheet,
+          javascript: epubUseCustomJS ? epubJavaScript : '',
+        },
+        epubChapters,
+        tempEpubPath,
+      );
 
-      let addedChapters = 0;
-      for (let i = 0; i < chapters.length; i++) {
-        const chapter = chapters[i];
-        const chapterFilePath = `${NOVEL_STORAGE}/${novel.pluginId}/${novel.id}/${chapter.id}/index.html`;
-
-        if (await NativeFile.exists(chapterFilePath)) {
-          let chapterContent = await NativeFile.readFile(chapterFilePath);
-
-          const chapterDir = `${NOVEL_STORAGE}/${novel.pluginId}/${novel.id}/${chapter.id}`;
-          const escapedDir = chapterDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const imagePathRegex = new RegExp(
-            `file://(${escapedDir}/[^"'\\s]+)`,
-            'g',
-          );
-
-          for (const match of chapterContent.matchAll(imagePathRegex)) {
-            const imagePath = match[1];
-            if (imagePath && !(await NativeFile.exists(imagePath))) {
-              const escapedPath = imagePath.replace(
-                /[.*+?^${}()|[\]\\]/g,
-                '\\$&',
-              );
-              const figureRegex = new RegExp(
-                `<figure[^>]*>.*?${escapedPath}.*?</figure>`,
-                'gs',
-              );
-
-              chapterContent = chapterContent.replace(figureRegex, '');
-
-              const imgRegex = new RegExp(
-                `<img[^>]*${escapedPath}[^>]*\\/?>`,
-                'g',
-              );
-
-              chapterContent = chapterContent.replace(imgRegex, '');
-            }
-          }
-
-          await epub.addChapter({
-            title:
-              chapter.name?.trim() || `Chapter ${chapter.chapterNumber || i}`,
-            fileName: `Chapter${i}`,
-            htmlBody: `<chapter data-novel-id='${novel.pluginId}' data-chapter-id='${chapter.id}'>${chapterContent}</chapter>`,
-          });
-
-          addedChapters++;
-        }
-      }
-
-      if (addedChapters === 0) {
-        showToast(getString('novelScreen.epub.noDownloadedChapters'));
-        await epub.discardChanges();
-        return;
-      }
-
-      await epub.save();
+      await copyFile(
+        `file://${result.outputPath}`,
+        `${resolvedDestinationUri}/${epubFileName}`,
+        { replaceIfDestinationExists: true },
+      );
       showToast(
         getString('novelScreen.epub.exportSuccess', {
-          chapters: addedChapters.toString(),
+          chapters: result.chapterCount.toString(),
         }),
       );
     } catch (error: any) {
@@ -218,7 +201,14 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
           error: error.message || error,
         }),
       );
-      await epub?.discardChanges();
+    } finally {
+      try {
+        if (tempEpubPath && (await NativeFile.exists(tempEpubPath))) {
+          await NativeFile.unlink(tempEpubPath);
+        }
+      } catch {
+        // Export cleanup must not replace the original result or error.
+      }
     }
   };
 
@@ -228,6 +218,7 @@ const ExportNovelAsEpubButton: React.FC<ExportNovelAsEpubButtonProps> = ({
       <Portal>
         <ExportEpubModal
           isVisible={isModalVisible}
+          defaultFileName={novel?.name || 'novel'}
           hideModal={hideModal}
           onSubmit={exportNovelAsEpub}
         />

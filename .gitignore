@@ -111,3 +111,4 @@ src/generated/**/*
 android/
 !modules/**/android/
 ios/
+!modules/**/ios/

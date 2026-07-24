@@ -359,6 +359,7 @@ export interface StringMap {
   'novelScreen.exportEpubModal.downloadedChaptersOnly': 'string';
   'novelScreen.exportEpubModal.endChapter': 'string';
   'novelScreen.exportEpubModal.exportAll': 'string';
+  'novelScreen.exportEpubModal.fileName': 'string';
   'novelScreen.exportEpubModal.includeCustomCSS': 'string';
   'novelScreen.exportEpubModal.includeCustomJS': 'string';
   'novelScreen.exportEpubModal.invalidRange': 'string';

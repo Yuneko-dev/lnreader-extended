@@ -1,0 +1,26 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": [
+    "nitroepub"
+  ],
+  "ios": {
+    "iosModuleName": "NitroEpub"
+  },
+  "android": {
+    "androidNamespace": [
+      "nitroepub"
+    ],
+    "androidCxxLibName": "NitroEpub"
+  },
+  "autolinking": {
+    "Epub": {
+      "all": {
+        "language": "c++",
+        "implementationClassName": "HybridEpub"
+      }
+    }
+  },
+  "ignorePaths": [
+    "**/node_modules"
+  ]
+}
